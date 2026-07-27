@@ -1,0 +1,35 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-page">
+  <div class="app-page-header app-page-header-has-close">
+    <div>
+      <p class="app-page-kicker"><%= t('chat.summaryKicker') %></p>
+      <h1 class="app-page-title"><%= reportRecord.summaryTitle %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: selectedPracticeGuide.title, href: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}` },
+        { label: t('quizzes.participationKicker'), href: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}/participation` },
+        { label: t('chat.summaryKicker') },
+      ] }) %>
+      <p class="app-page-copy"><%= reportRecord.summaryDescription %></p>
+      <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0" role="note">
+        <i class="bi bi-person-circle flex-shrink-0" aria-hidden="true"></i>
+        <span><%= t('quizzes.resultOwnerView', { name: ownerViewParticipantLabel }) %></span>
+      </div>
+    </div>
+    <div class="app-page-header-actions">
+      <a
+        class="app-page-close-button"
+        href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/participation"
+        aria-label="<%= t('common.close') %>"
+        title="<%= t('common.close') %>"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <%- include('partials/tutor-report-document', { report: reportRecord.report }) %>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: '' }) %>

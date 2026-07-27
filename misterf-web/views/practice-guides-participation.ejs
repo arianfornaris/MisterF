@@ -1,0 +1,59 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-page">
+  <div class="app-page-header app-page-header-has-close">
+    <div>
+      <p class="app-page-kicker"><%= t('quizzes.participationKicker') %></p>
+      <h1 class="app-page-title"><%= selectedPracticeGuide.title %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: selectedPracticeGuide.title, href: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}` },
+        { label: t('quizzes.participationKicker') },
+      ] }) %>
+    </div>
+    <div class="app-page-header-actions">
+      <a
+        class="app-page-close-button"
+        href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>"
+        aria-label="<%= t('common.close') %>"
+        title="<%= t('common.close') %>"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (collectedReports.length === 0) { %>
+    <div class="alert alert-light border mt-4 mb-0" role="status">
+      <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-people fs-3 text-body-secondary" aria-hidden="true"></i>
+        <div>
+          <h2 class="h5 mb-1"><%= t('quizzes.participantsEmptyTitle') %></h2>
+          <p class="mb-0 text-body-secondary"><%= t('quizzes.participantsEmptyBody') %></p>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="resource-section">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
+        <span class="badge text-bg-light border"><%= collectedReports.length %></span>
+      </div>
+      <div class="list-group shadow-sm">
+        <% collectedReports.forEach((report) => { %>
+          <a class="list-group-item list-group-item-action" href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/reports/<%= encodeURIComponent(report.conversationId) %>">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <span>
+                <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= report.participantLabel %>
+                <span class="text-body-secondary ms-1"><%= report.summaryTitle %></span>
+              </span>
+              <span class="text-body-secondary"><%= report.relativeUpdatedAt %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: '' }) %>

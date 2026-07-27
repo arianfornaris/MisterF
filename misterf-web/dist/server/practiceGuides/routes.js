@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleArchivePracticeGuide, handleApplyPracticeGuideModification, handleCreatePracticeGuideConversation, handleDeletePracticeGuide, handleDiscardPracticeGuideModification, handleGeneratePracticeGuideDraft, handlePreviewPracticeGuideModification, handleStartSharedPracticeGuide, handleRestorePracticeGuide, handleSharePracticeGuideToProfile, handleUpdatePracticeGuide, renderEditPracticeGuidePage, renderNewPracticeGuidePage, renderPracticeGuideDetailPage, } from './handlers.js';
+import { handleArchivePracticeGuide, handleApplyPracticeGuideModification, handleCreatePracticeGuideConversation, handleDeletePracticeGuide, handleDiscardPracticeGuideModification, handleGeneratePracticeGuideDraft, handlePreviewPracticeGuideModification, handleStartSharedPracticeGuide, handleRestorePracticeGuide, handleSharePracticeGuideToProfile, handleUpdatePracticeGuide, renderEditPracticeGuidePage, renderNewPracticeGuidePage, renderPracticeGuideDetailPage, renderPracticeGuideParticipationPage, renderPracticeGuideReportPage, } from './handlers.js';
 export const practiceGuidesRouter = express.Router();
 practiceGuidesRouter.get('/practice-guides', (_request, response) => {
     response.redirect('/resources');
@@ -8,6 +8,8 @@ practiceGuidesRouter.get('/practice-guides/new', renderNewPracticeGuidePage);
 practiceGuidesRouter.post('/practice-guides/generate-draft', handleGeneratePracticeGuideDraft);
 practiceGuidesRouter.get('/practice-guides/shared/:shareId/start', handleStartSharedPracticeGuide);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId/edit', renderEditPracticeGuidePage);
+practiceGuidesRouter.get('/practice-guides/:practiceGuideId/participation', renderPracticeGuideParticipationPage);
+practiceGuidesRouter.get('/practice-guides/:practiceGuideId/reports/:conversationId', renderPracticeGuideReportPage);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId', renderPracticeGuideDetailPage);
 practiceGuidesRouter.post('/practice-guides/:practiceGuideId/edit/save', handleUpdatePracticeGuide);
 practiceGuidesRouter.post('/practice-guides/:practiceGuideId/edit/modify', handlePreviewPracticeGuideModification);

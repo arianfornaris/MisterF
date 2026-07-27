@@ -54,6 +54,11 @@
                       <%= t('resources.options') %>
                     </button>
                     <ul class="dropdown-menu">
+                      <li>
+                        <a class="dropdown-item" href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/participation">
+                          <i class="bi bi-people me-2" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
+                        </a>
+                      </li>
                       <% if (!selectedPracticeGuide.archivedAt) { %>
                         <% if (showPracticeGuideMoveOption) { %>
                           <li>

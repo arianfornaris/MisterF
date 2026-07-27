@@ -1684,19 +1684,21 @@ export function createConversation(userId, profileId, title = defaultConversatio
           practice_guide_id,
           active_agent,
           model_tier,
-          instruction_language
+          instruction_language,
+          collect_results
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, userId, profileId, title, options.practiceGuideId ?? null, 'tutor', modelTier, instructionLanguage);
+        .run(id, userId, profileId, title, options.practiceGuideId ?? null, 'tutor', modelTier, instructionLanguage, options.collectResults ? 1 : 0);
     const conversation = findConversationForUser(id, userId);
     if (!conversation) {
         throw new Error('Could not load newly created conversation.');
     }
     return conversation;
 }
-export function createConversationFromPracticeGuide(userId, practiceGuide, profileId = practiceGuide.profileId) {
+export function createConversationFromPracticeGuide(userId, practiceGuide, profileId = practiceGuide.profileId, options = {}) {
     const conversation = createConversation(userId, profileId, defaultConversationTitle, {
+        collectResults: options.collectResults,
         practiceGuideId: practiceGuide.id,
     });
     createConversationPracticeGuideSnapshot(conversation.id, practiceGuide);
@@ -1813,6 +1815,46 @@ export function findTutorConversationReport(conversationId, userId) {
       `)
         .get(conversationId, userId);
     return row ? toStoredTutorConversationReport(row) : null;
+}
+/**
+ * Finalized practice-guide reports ("Finalizar y resumir") whose conversation
+ * snapshotted collect_results at start, surfaced to the guide owner. Keyed on
+ * the author profile so sibling profiles surface and the author's own sessions
+ * are excluded — the same rule as the quiz/roleplay collected lists.
+ */
+export function listCollectedPracticeGuideReportsForOwner(input) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          r.id,
+          r.conversation_id,
+          r.user_id,
+          r.profile_id,
+          r.summary_title,
+          r.summary_description,
+          r.report_json,
+          r.practice_guide_id,
+          r.created_at,
+          r.updated_at,
+          users.email AS participant_email,
+          users.full_name AS participant_name,
+          profiles.name AS participant_profile_name
+        FROM tutor_conversation_reports r
+        JOIN conversations c ON c.id = r.conversation_id
+        LEFT JOIN users ON users.id = r.user_id
+        LEFT JOIN profiles ON profiles.id = r.profile_id
+        WHERE c.practice_guide_id = ?
+          AND c.collect_results = 1
+          AND r.profile_id != ?
+        ORDER BY r.created_at DESC
+      `)
+        .all(input.practiceGuideId, input.authorProfileId);
+    return rows.map((row) => ({
+        ...toStoredTutorConversationReport(row),
+        participantEmail: row.participant_email,
+        participantName: row.participant_name,
+        participantProfileName: row.participant_profile_name,
+    }));
 }
 export function saveTutorConversationReport(input) {
     const existing = findTutorConversationReport(input.conversationId, input.userId);

@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
-import { addResourceToFolder, archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, } from '../db/repository.js';
+import { addResourceToFolder, archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceAccessGrant, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listCollectedPracticeGuideReportsForOwner, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { findUserById } from '../auth/repository.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { generatePracticeGuideDraft, generatePracticeGuideRevision, safeParsePracticeGuideDraft, } from '../services/resourceDrafts.js';
-import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
 import { deletePendingPracticeGuideModification, getPendingPracticeGuideModification, listPracticeGuideModificationChanges, setPendingPracticeGuideModification, } from './modificationPreviewStore.js';
 import { resolveOriginFolderContext, } from '../resources/originFolder.js';
@@ -226,6 +227,92 @@ function resolveOwnPracticeGuide(request, response) {
         setActiveProfileCookie(response, profile.id);
     }
     return { activeProfile, practiceGuide, user: auth.user };
+}
+function buildCollectedPracticeGuideReportListItems(reports, locale) {
+    return reports.map((report) => ({
+        conversationId: report.conversationId,
+        participantLabel: report.participantProfileName
+            || report.participantName
+            || report.participantEmail
+            || translate(locale, 'quizzes.resultsAnonymousParticipant'),
+        relativeUpdatedAt: formatRelativeTime(report.updatedAt),
+        summaryTitle: report.summaryTitle,
+    }));
+}
+/**
+ * Owner-only participation page for a practice guide: lists the finalized
+ * "Finalizar y resumir" reports collected from shared participants, each
+ * linking to the read-only owner report view. Mirrors the quiz/roleplay
+ * participation pages.
+ */
+export function renderPracticeGuideParticipationPage(request, response) {
+    const resolved = resolveOwnPracticeGuide(request, response);
+    if (!resolved) {
+        return;
+    }
+    const reports = listCollectedPracticeGuideReportsForOwner({
+        authorProfileId: resolved.practiceGuide.profileId,
+        practiceGuideId: resolved.practiceGuide.id,
+    });
+    response.render('practice-guides-participation', {
+        ...buildAppShellContext({
+            activeProfile: resolved.activeProfile,
+            authMessage: getHomeAuthMessage(request, resolved.user),
+            currentView: 'resources',
+            guestInitialGreeting: '',
+            request,
+            title: `${resolved.practiceGuide.title} - ${appDocumentTitle}`,
+            user: resolved.user,
+        }),
+        collectedReports: buildCollectedPracticeGuideReportListItems(reports, request.locale),
+        selectedPracticeGuide: resolved.practiceGuide,
+    });
+}
+/**
+ * Owner read-only view of a single collected practice-guide report. The report
+ * must belong to a session whose share collected results for this guide; the
+ * owner never sees the raw chat, only the finalized report.
+ */
+export function renderPracticeGuideReportPage(request, response) {
+    const resolved = resolveOwnPracticeGuide(request, response);
+    if (!resolved) {
+        return;
+    }
+    const conversationId = String(request.params.conversationId || '').trim();
+    const reportRecord = listCollectedPracticeGuideReportsForOwner({
+        authorProfileId: resolved.practiceGuide.profileId,
+        practiceGuideId: resolved.practiceGuide.id,
+    }).find((report) => report.conversationId === conversationId);
+    if (!reportRecord) {
+        response.redirect(`/practice-guides/${encodeURIComponent(resolved.practiceGuide.id)}/participation`);
+        return;
+    }
+    const participantUser = reportRecord.userId
+        ? findUserById(reportRecord.userId)
+        : null;
+    logger.info('practice_guide_owner_report_viewed', {
+        conversationId: reportRecord.conversationId,
+        resourceId: resolved.practiceGuide.id,
+        resourceType: 'practice_guide',
+        userId: resolved.user.id,
+    });
+    response.render('practice-guides-report', {
+        ...buildAppShellContext({
+            activeProfile: resolved.activeProfile,
+            authMessage: getHomeAuthMessage(request, resolved.user),
+            currentView: 'resources',
+            guestInitialGreeting: '',
+            request,
+            title: `${reportRecord.summaryTitle} - ${appDocumentTitle}`,
+            user: resolved.user,
+        }),
+        ownerViewParticipantLabel: reportRecord.participantProfileName
+            || participantUser?.fullName
+            || participantUser?.email
+            || translate(request.locale, 'quizzes.resultsAnonymousParticipant'),
+        reportRecord,
+        selectedPracticeGuide: resolved.practiceGuide,
+    });
 }
 function renderPracticeGuideAuthoring(request, response, input) {
     response.render('practice-guides-authoring', {
@@ -514,9 +601,22 @@ export function handleCreatePracticeGuideConversation(request, response) {
         response.redirect('/resources');
         return;
     }
-    const conversation = createConversationFromPracticeGuide(user.id, practiceGuide, resourceAccess?.accessKind === 'shared' ? activeProfile.id : practiceGuide.profileId);
+    // The guide author's own sessions are private and never collect. A shared
+    // participant's session snapshots the grant's results-feedback flag, so the
+    // finalized report can flow back to the owner — the same primitive quizzes
+    // and roleplays use.
+    const isSharedAccess = resourceAccess?.accessKind === 'shared';
+    const collectResults = isSharedAccess
+        ? findResourceAccessGrant({
+            profileId: activeProfile.id,
+            resourceId: practiceGuide.id,
+            userId: user.id,
+        })?.collectResults ?? false
+        : false;
+    const conversation = createConversationFromPracticeGuide(user.id, practiceGuide, isSharedAccess ? activeProfile.id : practiceGuide.profileId, { collectResults });
     logger.info('practice_guide_conversation_created', {
         accessKind: resourceAccess?.accessKind ?? 'owner',
+        collectResults,
         conversationId: conversation.id,
         profileId: conversation.profileId,
         resourceId: practiceGuide.id,
@@ -551,6 +651,7 @@ export function handleStartSharedPracticeGuide(request, response) {
         return;
     }
     grantResourceAccess({
+        collectResults: shareLink.collectResults,
         grantedByUserId: practiceGuide.userId,
         grantedVia: 'link',
         profileId: activeProfile.id,
@@ -558,9 +659,10 @@ export function handleStartSharedPracticeGuide(request, response) {
         shareLinkId: shareLink.id,
         userId: user.id,
     });
-    const conversation = createConversationFromPracticeGuide(user.id, practiceGuide, activeProfile.id);
+    const conversation = createConversationFromPracticeGuide(user.id, practiceGuide, activeProfile.id, { collectResults: shareLink.collectResults });
     logger.info('practice_guide_conversation_created', {
         accessKind: 'shared',
+        collectResults: shareLink.collectResults,
         conversationId: conversation.id,
         profileId: conversation.profileId,
         resourceId: practiceGuide.id,

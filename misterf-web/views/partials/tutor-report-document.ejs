@@ -1,0 +1,57 @@
+<div class="conversation-summary-document">
+  <section class="mb-4">
+    <h2 class="h5"><%= t('chat.summaryPracticed') %></h2>
+    <p class="mb-0"><%= report.practicedTopics.join(' ') %></p>
+  </section>
+
+  <section class="mb-4">
+    <h2 class="h5"><%= t('chat.summaryProgress') %></h2>
+    <ul>
+      <% report.progressHighlights.forEach((item) => { %><li><%= item %></li><% }) %>
+    </ul>
+  </section>
+
+  <section class="mb-4">
+    <h2 class="h5"><%= t('chat.summaryDifficulties') %></h2>
+    <% report.difficultyAreas.forEach((area) => { %>
+      <p>
+        <strong><%= area.title %>.</strong>
+        <%= area.description %>
+      </p>
+    <% }) %>
+  </section>
+
+  <section class="mb-4">
+    <h2 class="h5"><%= t('chat.summaryVocabulary') %></h2>
+    <dl class="conversation-summary-vocabulary">
+      <% report.vocabulary.forEach((item) => { %>
+        <dt><%= item.term %></dt>
+        <dd>
+          <%= item.meaning %>
+          <% if (item.example) { %><span class="text-body-secondary"> <%= t('chat.summaryExample') %> <%= item.example %></span><% } %>
+        </dd>
+      <% }) %>
+    </dl>
+  </section>
+
+  <section class="mb-4">
+    <h2 class="h5"><%= t('chat.summaryPhrases') %></h2>
+    <ul>
+      <% report.usefulPhrases.forEach((item) => { %><li><%= item %></li><% }) %>
+    </ul>
+  </section>
+
+  <section class="mb-4">
+    <h2 class="h5"><%= t('chat.summaryRecommendations') %></h2>
+    <ul>
+      <% report.recommendations.forEach((item) => { %><li><%= item %></li><% }) %>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="h5"><%= t('chat.summaryNextSteps') %></h2>
+    <ul class="mb-0">
+      <% report.nextSteps.forEach((item) => { %><li><%= item %></li><% }) %>
+    </ul>
+  </section>
+</div>
