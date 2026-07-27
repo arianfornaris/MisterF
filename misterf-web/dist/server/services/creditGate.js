@@ -33,6 +33,13 @@ export function isCreditExhaustedError(error) {
         text.includes('not enough credits') ||
         text.includes('credit limit') ||
         text.includes('credits exhausted') ||
+        // OpenRouter refuses a request when the key's remaining limit cannot cover
+        // the reserved output window: "This request requires more credits, or fewer
+        // max_tokens. You requested up to 65536 tokens, but can only afford 29744."
+        // The user still has some credit left, but no inference can run until they
+        // add more, so it is the same product state.
+        text.includes('requires more credits') ||
+        text.includes('can only afford') ||
         (text.includes('balance') && text.includes('credit')) ||
         (text.includes('402') && text.includes('credit')));
 }
