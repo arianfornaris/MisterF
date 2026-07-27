@@ -54,11 +54,6 @@
                       <%= t('resources.options') %>
                     </button>
                     <ul class="dropdown-menu">
-                      <li>
-                        <a class="dropdown-item" href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/participation">
-                          <i class="bi bi-people me-2" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
-                        </a>
-                      </li>
                       <% if (!selectedPracticeGuide.archivedAt) { %>
                         <% if (showPracticeGuideMoveOption) { %>
                           <li>
@@ -145,20 +140,6 @@
                   </div>
                 <% } %>
 
-                <p class="app-page-section-copy"><%= t('resources.description') %></p>
-                <div class="card">
-                  <div class="card-body">
-                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.description %></div>
-                  </div>
-                </div>
-
-                <p class="app-page-section-copy"><%= t('practiceGuides.tutorInstructions') %></p>
-                <div class="card">
-                  <div class="card-body">
-                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.tutorInstructions %></div>
-                  </div>
-                </div>
-
                 <% if (canManagePracticeGuide) { %>
                   <div class="card mb-3">
                     <div class="card-body">
@@ -178,6 +159,20 @@
                     </div>
                   </div>
                 <% } %>
+
+                <p class="app-page-section-copy"><%= t('resources.description') %></p>
+                <div class="card">
+                  <div class="card-body">
+                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.description %></div>
+                  </div>
+                </div>
+
+                <p class="app-page-section-copy"><%= t('practiceGuides.tutorInstructions') %></p>
+                <div class="card">
+                  <div class="card-body">
+                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.tutorInstructions %></div>
+                  </div>
+                </div>
 
                 <p class="app-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
                 <% if (practiceGuideConversations.length > 0) { %>

@@ -54,11 +54,6 @@
           <%= t('resources.options') %>
         </button>
         <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/participation">
-              <i class="bi bi-people me-2" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
-            </a>
-          </li>
           <% if (!selectedRoleplay.archivedAt) { %>
             <% if (showRoleplayMoveOption) { %>
               <li>
@@ -128,6 +123,29 @@
     </div>
   <% } %>
 
+  <% if (canManageRoleplay) { %>
+    <section class="resource-section">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
+            <a class="btn btn-outline-secondary btn-sm" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/participation">
+              <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
+            </a>
+          </div>
+          <% if (roleplayParticipationCounts.submissions === 0) { %>
+            <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
+          <% } else { %>
+            <div class="resource-meta-row">
+              <span><i class="bi bi-check-circle" aria-hidden="true"></i> <%= t('resources.participantsCompletedCount', { count: roleplayParticipationCounts.completed }) %></span>
+              <span><i class="bi bi-inbox" aria-hidden="true"></i> <%= t('resources.participantsSubmissionsCount', { count: roleplayParticipationCounts.submissions }) %></span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+
   <section class="resource-section">
     <h2 class="h5"><%= t('roleplays.characters') %></h2>
     <div class="row g-3">
@@ -157,29 +175,11 @@
     </div>
   </section>
 
-  <% if (canManageRoleplay) { %>
-    <section class="resource-section">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-            <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
-            <a class="btn btn-outline-secondary btn-sm" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/participation">
-              <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
-            </a>
-          </div>
-          <% if (roleplayParticipationCounts.submissions === 0) { %>
-            <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
-          <% } else { %>
-            <div class="resource-meta-row">
-              <span><i class="bi bi-check-circle" aria-hidden="true"></i> <%= t('resources.participantsCompletedCount', { count: roleplayParticipationCounts.completed }) %></span>
-              <span><i class="bi bi-inbox" aria-hidden="true"></i> <%= t('resources.participantsSubmissionsCount', { count: roleplayParticipationCounts.submissions }) %></span>
-            </div>
-          <% } %>
-        </div>
-      </div>
-    </section>
-  <% } %>
-
+  <%# Mirrors the quiz detail page: the owner's own attempts here are their test
+      runs, and they already have the Participantes card for other people's
+      attempts, so this list only serves a non-owner recipient who needs to
+      reach their own result. %>
+  <% if (!canManageRoleplay) { %>
   <section class="resource-section">
     <h2 class="h5"><%= t('roleplays.attemptsTitle') %></h2>
     <% if (roleplayAttempts.length > 0) { %>
@@ -201,6 +201,7 @@
       <p class="text-body-secondary mb-0"><%= t('roleplays.noAttempts') %></p>
     <% } %>
   </section>
+  <% } %>
 </section>
 
 <% if (canManageRoleplay) { %>
