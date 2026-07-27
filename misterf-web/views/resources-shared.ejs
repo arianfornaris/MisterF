@@ -31,7 +31,7 @@
         <div class="resource-markdown" data-render-markdown><%= sharedResource.description %></div>
       <% } %>
 
-      <% if (quizTakeAction && shareLink.collectResults) { %>
+      <% if ((quizTakeAction || startAction) && shareLink.collectResults) { %>
         <div class="alert alert-info d-flex align-items-start gap-2 mb-0" role="note">
           <i class="bi bi-eye flex-shrink-0" aria-hidden="true"></i>
           <span><%= t('resources.sharedResultsNotice') %></span>

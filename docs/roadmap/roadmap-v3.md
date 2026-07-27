@@ -429,9 +429,10 @@ stays out of V3.
 - [x] Manual QA of the full teacher cycle against live inference (create →
   share → guest attempt → signup/claim → evaluation → follow-up practice →
   owner report). Completed 2026-07-26; founder-confirmed end-to-end pass.
-- [ ] Extend participant results to **roleplays and practice guides** (moved
+- [~] Extend participant results to **roleplays and practice guides** (moved
   from Roadmap V4 Step 2.5 on 2026-07-26 at the founder's direction; previously
-  the planned first post-MVP extension). The resource-generic pieces already
+  the planned first post-MVP extension). Code-complete 2026-07-26 (phases A–C
+  done, D partial); pending: owner-side share toggles and live QA — see below. The resource-generic pieces already
   cover all three types — the sharing primitive (`resource_share_links`,
   `resource_access_grants`), the `collect_results` flag + start-time snapshot,
   the disclosure-at-start consent, and the "Compartido por mí" catalog. What is
@@ -443,18 +444,25 @@ stays out of V3.
   account and profile to run** (no guest flow — confirmed 2026-07-26), so a
   participant is always a known profile; the quiz guest→signup→claim path has no
   analog here and is out of scope.
-  - [ ] Phase A — Generalize the participation surface: make the owner
-    participation page/handler and the collected-attempts query resource-typed
-    rather than quiz-specific, keeping the quiz behavior identical.
-  - [ ] Phase B — Roleplay results (first; cheap): `roleplay_attempts` already
+  - [x] Phase A — Generalize the participation surface. Done 2026-07-26:
+    pragmatic reuse rather than a merged page — each type gets its own
+    owner-only `*-participation` page (quiz behavior unchanged), sharing the
+    quiz participation vocabulary (`quizzes.participationKicker`,
+    `participantsSectionTitle`, `participantsEmpty{Title,Body}`,
+    `resultOwnerView`, `resultsAnonymousParticipant`) and the friendly
+    empty-state pattern. The tutor report markup was extracted to
+    `partials/tutor-report-document.ejs` (shared by chat + owner view).
+  - [x] Phase B — Roleplay results (first; cheap): `roleplay_attempts` already
     carries an evaluated `result_json` + transcript. Add `collect_results` to it
     (mirror migration 24), snapshot the flag at attempt start
     (`handleStartRoleplayAttempt` + `handleStartSharedRoleplayAttempt`,
     inheriting the share-link / grant flag), add
     `listCollectedRoleplayAttemptsForOwner` (keyed on the author profile,
     excluding the owner's own `Probar`), and an owner read-only mode of
-    `roleplays-result` (evaluation + transcript).
-  - [ ] Phase C — Practice-guide results (also cheap; no new artifact): the
+    `roleplays-result` (evaluation + transcript). Done 2026-07-26 (migration 2):
+    `/roleplays/:id/participation` reached from the options menu, owner result
+    view with a participant banner and no learner actions. Repo test added.
+  - [x] Phase C — Practice-guide results (also cheap; no new artifact): the
     finalized report **already exists** — the learner's "Finalizar y resumir"
     persists a `tutor_conversation_reports` row (`summary_title`/
     `summary_description` + `report_json`) already linked to the guide via
@@ -466,8 +474,23 @@ stays out of V3.
     `tutor_conversation_reports` (by `practice_guide_id`, collect flag on,
     excluding the author profile); (3) surface the existing report read-only to
     the owner. The raw chat is never shared — only the finalized report.
-  - [ ] Phase D — Extend the §1.6 funnel instrumentation to the new types and QA
-    each against live inference (disclosure/consent shown per share flag).
+    Done 2026-07-26 (migration 3): implementation note — the report's own
+    `practice_guide_id` is never populated by the current finalize flow, so the
+    query filters on the **conversation's** `practice_guide_id` +
+    `collect_results` instead (the conversation always carries both). Owner
+    report view at `/practice-guides/:id/reports/:conversationId`, reached from
+    `/practice-guides/:id/participation`. Repo test added.
+  - [~] Phase D — Funnel instrumentation + QA. Done 2026-07-26: start events now
+    log `collectResults`, and owner-view events were added
+    (`roleplay_owner_result_viewed`, `practice_guide_owner_report_viewed`);
+    disclosure-at-start now shows for roleplay/guide shares on the shared
+    resource page, gated on the collect flag. **Pending:** (a) owner-side share
+    toggles on the roleplay/guide share modals (both default-collect via the
+    generic `resource_share_links.collect_results`, so results are collected
+    today, but the owner has no per-resource on/off control or reassurance like
+    the quiz modal — reuses the existing generic
+    `POST /resources/:resourceId/share/collect-results`); (b) live logged-in QA
+    of both full cycles against real inference.
 
 ## 1.7 Pilot Readiness
 
