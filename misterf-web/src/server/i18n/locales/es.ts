@@ -85,6 +85,7 @@ export const es: LocaleCatalog = {
     editFolder: 'Editar carpeta',
     shared: 'Compartido',
     sharedByMeBadge: 'Compartido por mí',
+    pageEditing: 'Editando',
     sharedByMeBadgeTooltip: 'Compartido por mí · {{count}} perfiles con acceso',
     sharedByMeBadgeTooltipOne: 'Compartido por mí · 1 perfil con acceso',
     sharedWithMeBadge: 'Compartido conmigo',
@@ -166,6 +167,7 @@ export const es: LocaleCatalog = {
   },
   mediaLibrary: {
     applyFilters: 'Aplicar filtros',
+    mediaKicker: 'Medio',
     archive: 'Archivar',
     audio: 'Audio',
     audioClipProgress: 'Fragmento {{current}} de {{total}}',
@@ -701,6 +703,7 @@ export const es: LocaleCatalog = {
   },
   practiceGuides: {
     kicker: 'Guías de práctica',
+    guideKicker: 'Guía de práctica',
     newTitle: 'Nueva guía de práctica',
     editTitle: 'Editar guía de práctica',
     describeLabel: 'Describe la guía',

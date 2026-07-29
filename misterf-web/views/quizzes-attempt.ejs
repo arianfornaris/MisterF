@@ -3,7 +3,7 @@
 <section class="app-page quizzes-page">
   <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="app-page-kicker">Quiz</p>
+      <%- include('partials/resource-page-kicker', { resourceType: 'quiz' }) %>
       <h1><%= draft.title %></h1>
       <% if (isAuthenticated) { %>
         <%- include('partials/breadcrumb', { crumbs: [

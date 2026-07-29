@@ -10,7 +10,7 @@
 <section class="app-page" aria-label="<%= mediaItem.title %>">
   <div class="app-page-header app-page-header-has-close app-page-header-detail">
     <div>
-      <p class="app-page-kicker"><%= t('mediaLibrary.detailKicker') %></p>
+      <%- include('partials/resource-page-kicker', { resourceType: 'scene_media' }) %>
       <h1 class="app-page-title"><%= mediaItem.title %></h1>
       <%- include('partials/breadcrumb', { crumbs: [
         { label: t('mediaLibrary.title'), href: '/media-library' },

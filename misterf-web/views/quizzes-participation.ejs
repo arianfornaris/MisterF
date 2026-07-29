@@ -3,7 +3,7 @@
 <section class="app-page quizzes-page">
   <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="app-page-kicker"><%= t('quizzes.participationKicker') %></p>
+      <%- include('partials/resource-page-kicker', { resourceType: 'quiz', pageLabel: t('quizzes.participationKicker') }) %>
       <h1 class="app-page-title"><%= selectedQuiz.title %></h1>
       <%- include('partials/breadcrumb', { crumbs: [
         { label: t('resources.title'), href: '/resources' },

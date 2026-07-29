@@ -3,7 +3,7 @@
 <section class="app-page">
   <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="app-page-kicker"><%= t('chat.summaryKicker') %></p>
+      <%- include('partials/resource-page-kicker', { resourceType: 'practice_guide', pageLabel: t('chat.summaryKicker') }) %>
       <h1 class="app-page-title"><%= reportRecord.summaryTitle %></h1>
       <%- include('partials/breadcrumb', { crumbs: [
         { label: t('resources.title'), href: '/resources' },

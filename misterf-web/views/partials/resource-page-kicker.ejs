@@ -1,0 +1,26 @@
+<%
+  /*
+   * The kicker above a resource page title. Every page scoped to one resource
+   * uses this, so the icon and the resource type are always present no matter
+   * how deep the page is (detail, authoring, participation, attempt, result).
+   *
+   * Params:
+   *   resourceType  'quiz' | 'practice_guide' | 'roleplay' | 'scene_media'
+   *   pageLabel     optional; what this page is ("Participación", "Editando").
+   *                 Omit on the resource's own detail page.
+   *
+   * Icons match the catalog rows in resources/handlers.ts, so a resource looks
+   * the same in the list and on its pages.
+   */
+  const resourcePageKickerMeta = {
+    quiz: { icon: 'bi-ui-checks-grid', label: t('quizzes.quizKicker') },
+    practice_guide: { icon: 'bi-journal-text', label: t('practiceGuides.guideKicker') },
+    roleplay: { icon: 'bi-person-video3', label: t('roleplays.roleplayKicker') },
+    scene_media: { icon: 'bi-images', label: t('mediaLibrary.mediaKicker') },
+  }[resourceType];
+  const resourcePageKickerLabel =
+    typeof pageLabel === 'undefined' ? '' : String(pageLabel || '').trim();
+%>
+<p class="app-page-kicker">
+  <i class="bi <%= resourcePageKickerMeta.icon %> me-1" aria-hidden="true"></i><%= resourcePageKickerMeta.label %><% if (resourcePageKickerLabel) { %> <span aria-hidden="true">·</span> <%= resourcePageKickerLabel %><% } %>
+</p>

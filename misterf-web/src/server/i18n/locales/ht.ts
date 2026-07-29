@@ -94,6 +94,7 @@ export const ht: LocaleCatalog = {
     editFolder: 'Modifye katab',
     shared: 'Pataje',
     sharedByMeBadge: 'Mwen pataje',
+    pageEditing: 'Ap modifye',
     sharedByMeBadgeTooltip: 'Mwen pataje · {{count}} pwofil ki gen aksè',
     sharedByMeBadgeTooltipOne: 'Mwen pataje · 1 pwofil ki gen aksè',
     sharedWithMeBadge: 'Pataje avè m',
@@ -175,6 +176,7 @@ export const ht: LocaleCatalog = {
   },
   mediaLibrary: {
     applyFilters: 'Aplike filtè yo',
+    mediaKicker: 'Medya',
     archive: 'Achive',
     audio: 'Odyo',
     audioClipProgress: 'Klip {{current}} sou {{total}}',
@@ -690,6 +692,7 @@ export const ht: LocaleCatalog = {
   },
   practiceGuides: {
     kicker: 'Gid pratik',
+    guideKicker: 'Gid pratik',
     newTitle: 'Nouvo gid pratik',
     editTitle: 'Modifye gid pratik',
     describeLabel: 'Dekri gid la',

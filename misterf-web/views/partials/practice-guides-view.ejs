@@ -14,7 +14,7 @@
         >
           <div class="app-page-header app-page-header-detail">
             <div>
-              <p class="app-page-kicker"><%= t('practiceGuides.kicker') %></p>
+              <%- include('resource-page-kicker', { resourceType: 'practice_guide' }) %>
               <h1 class="app-page-title">
                 <%= selectedPracticeGuide ? selectedPracticeGuide.title : t('practiceGuides.defaultTitle') %>
               </h1>

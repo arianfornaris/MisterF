@@ -30,6 +30,36 @@ media items are resources too, so they follow the same navigation conventions
   without one.
 - Result pages place follow-up actions directly below the title/summary area so
   desktop and mobile layouts expose the same action order.
+- Every page scoped to one resource carries the resource kicker above the
+  title — see [Resource Page Kicker](#resource-page-kicker).
+
+## Resource Page Kicker
+
+A page that belongs to a single resource must always say **what kind of resource
+it is**, with its icon, no matter how deep it sits. Otherwise a page like
+participation or a result shows only a title, and the reader cannot tell a quiz
+from a roleplay from a practice guide.
+
+- Render it through the shared partial `views/partials/resource-page-kicker.ejs`,
+  placed directly above the `app-page-title`. Do not hand-write an
+  `app-page-kicker` paragraph on a resource page.
+- Parameters:
+  - `resourceType` — `quiz`, `practice_guide`, `roleplay`, or `scene_media`.
+  - `pageLabel` — optional; what *this* page is (`Participación`, `Editando`,
+    `Resultado`). **Omit it on the resource's own detail page**, where the type
+    alone is the kicker.
+- It renders `<icon> <Type>` and, with a label, `<icon> <Type> · <Page>`. The
+  icon set is the same one the catalog rows use in
+  `src/server/resources/handlers.ts`, so a resource looks the same in the list
+  and on its pages. Add new types to both places together.
+- Reuse the existing type names (`quizzes.quizKicker`,
+  `practiceGuides.guideKicker`, `roleplays.roleplayKicker`,
+  `mediaLibrary.mediaKicker`) rather than adding a per-page combined string like
+  "Quiz en edición"; the page part belongs in `pageLabel`
+  (`resources.pageEditing` and friends), so the type stays one translation.
+- Remember `ejs-nested-include-paths`: from a top-level view the include is
+  `partials/resource-page-kicker`, but from another partial it is the relative
+  `resource-page-kicker`. Only rendering catches a wrong path.
 
 ## Breadcrumb Navigation
 

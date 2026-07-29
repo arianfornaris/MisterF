@@ -81,6 +81,7 @@ export const en = {
         editFolder: 'Edit folder',
         shared: 'Shared',
         sharedByMeBadge: 'Shared by me',
+        pageEditing: 'Editing',
         sharedByMeBadgeTooltip: 'Shared by me · {{count}} profiles with access',
         sharedByMeBadgeTooltipOne: 'Shared by me · 1 profile with access',
         sharedWithMeBadge: 'Shared with me',
@@ -155,6 +156,7 @@ export const en = {
     },
     mediaLibrary: {
         applyFilters: 'Apply filters',
+        mediaKicker: 'Media',
         archive: 'Archive',
         audio: 'Audio',
         audioClipProgress: 'Clip {{current}} of {{total}}',
@@ -638,6 +640,7 @@ export const en = {
     },
     practiceGuides: {
         kicker: 'Practice guides',
+        guideKicker: 'Practice guide',
         newTitle: 'New practice guide',
         editTitle: 'Edit practice guide',
         describeLabel: 'Describe the guide',

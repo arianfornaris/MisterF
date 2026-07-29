@@ -3,7 +3,7 @@
 <section class="app-page quizzes-page <%= activeTab === 'blocks' ? 'quiz-authoring-blocks-page' : '' %>">
   <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="app-page-kicker"><%= t('quizzes.editingKicker') %></p>
+      <%- include('partials/resource-page-kicker', { resourceType: 'quiz', pageLabel: t('resources.pageEditing') }) %>
       <h1><%= draft.title %></h1>
       <%- include('partials/breadcrumb', { crumbs: [
         { label: t('resources.title'), href: '/resources' },
