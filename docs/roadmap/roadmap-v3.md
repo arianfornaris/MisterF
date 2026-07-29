@@ -515,14 +515,29 @@ stays out of V3.
 Added 2026-07-18. Operational items that make the pilot runnable within the
 business constraints ([Presupuesto inicial](../business/presupuesto-inicial.md)).
 
-- [ ] Pilot credit mechanics: document the existing superadmin per-user
-  OpenRouter limit flow as the way to fund pilot teachers/students, and
-  define the pilot credit policy with the founder (cap per participant, total
-  pilot budget, behavior when a cap is hit). No new payment infrastructure.
+- [x] Pilot credit mechanics. **Closed 2026-07-27 (founder decision): the pilot
+  runs on the existing self-serve model, so there is nothing to define.** This
+  item was written on 2026-07-18 assuming the founder would fund pilot
+  participants through superadmin per-user OpenRouter limits, which would have
+  needed a per-participant cap and a pilot budget. That assumption is dropped.
+  What ships today already covers the whole loop: a new user's key is
+  provisioned with a welcome credit (`OPENROUTER_USER_KEY_LIMIT_USD`), spending
+  draws it down, `assertUserHasLlmCredit` raises `CreditExhaustedError` when it
+  runs out, and every credit-gated surface redirects to the purchase flow
+  (`/credits` → `/credits/checkout`), which raises the key limit by the amount
+  bought. The superadmin per-user limit flow stays an admin tool, not the pilot
+  funding mechanism.
+  **Working assumption (founder, 2026-07-27): the welcome credit is enough for a
+  participant to complete one full cycle.** It is not measured yet, so it is an
+  assumption, not a verified fact — the item below is what would confirm it. If
+  it turns out to be false, a student invited by a pilot teacher would hit the
+  purchase wall part-way through the activity their teacher assigned, so revisit
+  `OPENROUTER_USER_KEY_LIMIT_USD` before widening the pilot.
 - [ ] Measure the real AI cost and latency of one full teacher cycle per
   operation (quiz generation/modification, evaluation, follow-up tutoring,
   report summary), feeding the contribution-margin input the business docs
-  need. (This is the slice of section 2.1 kept in V3.)
+  need. (This is the slice of section 2.1 kept in V3.) Concrete output: the cost
+  of one cycle, and whether the welcome credit above covers it.
 
 ---
 
