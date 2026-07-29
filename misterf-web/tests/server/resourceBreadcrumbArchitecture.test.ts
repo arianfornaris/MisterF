@@ -136,4 +136,32 @@ describe('resource + media breadcrumb architecture', () => {
         + unclassified.join(', '),
     ).toEqual([]);
   });
+
+  /**
+   * An owner-facing page for a filed resource must keep the folder ancestry in
+   * its trail, or the breadcrumb jumps from Recursos straight to the resource
+   * and loses where it lives. Learner-facing attempt/result pages are excluded
+   * on purpose: the viewer may not own the resource, so the owner's folder
+   * structure is not theirs to see.
+   */
+  it('keeps folder ancestry in the trail of owner-facing resource pages', () => {
+    const ownerFacingViews = [
+      'quizzes-show.ejs',
+      'quizzes-participation.ejs',
+      'roleplays-show.ejs',
+      'roleplays-participation.ejs',
+      'practice-guides-participation.ejs',
+    ];
+
+    const missingAncestry = ownerFacingViews.filter((name) => {
+      const view = fs.readFileSync(path.join(process.cwd(), 'views', name), 'utf8');
+      return !/resourceFolderPath|FolderPath\b/.test(view);
+    });
+
+    expect(
+      missingAncestry,
+      'These owner-facing views must map the folder path into their breadcrumb: '
+        + missingAncestry.join(', '),
+    ).toEqual([]);
+  });
 });

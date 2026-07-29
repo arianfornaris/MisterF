@@ -1102,6 +1102,7 @@ export function renderRoleplayParticipationPage(request, response) {
         evaluatedCount: collectedAttempts.filter((attempt) => attempt.status === 'evaluated' && attempt.result).length,
         participationSummary,
         participationSummaryError: readParticipationSummaryError(request.query.summaryError, request.locale),
+        resourceFolderPath: listResourceFolderPathForResource(resolved.roleplay.id, resolved.user.id),
         selectedRoleplay: resolved.roleplay,
     });
 }

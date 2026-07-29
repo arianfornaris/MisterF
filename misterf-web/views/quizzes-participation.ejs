@@ -7,6 +7,10 @@
       <h1 class="app-page-title"><%= selectedQuiz.title %></h1>
       <%- include('partials/breadcrumb', { crumbs: [
         { label: t('resources.title'), href: '/resources' },
+        ...(resourceFolderPath || []).map((folder) => ({
+          label: folder.title,
+          href: `/resources/folders/${encodeURIComponent(folder.id)}`,
+        })),
         { label: selectedQuiz.title, href: `/quizzes/${encodeURIComponent(selectedQuiz.id)}` },
         { label: t('quizzes.participationKicker') },
       ] }) %>

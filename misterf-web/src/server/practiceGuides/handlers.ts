@@ -440,6 +440,7 @@ export function renderPracticeGuideParticipationPage(
       request.query.summaryError,
       request.locale,
     ),
+    resourceFolderPath: listResourceFolderPathForResource(resolved.practiceGuide.id, resolved.user.id),
     selectedPracticeGuide: resolved.practiceGuide,
   });
 }

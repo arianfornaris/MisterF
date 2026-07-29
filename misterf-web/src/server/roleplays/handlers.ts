@@ -1440,6 +1440,7 @@ export function renderRoleplayParticipationPage(
       request.query.summaryError,
       request.locale,
     ),
+    resourceFolderPath: listResourceFolderPathForResource(resolved.roleplay.id, resolved.user.id),
     selectedRoleplay: resolved.roleplay,
   });
 }

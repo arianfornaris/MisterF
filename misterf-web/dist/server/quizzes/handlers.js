@@ -1399,6 +1399,7 @@ export async function renderQuizParticipationPage(request, response) {
         quizCollectedAttempts: buildCollectedQuizAttemptListItems(collectedAttempts, request.locale),
         quizResponsesSummary: responsesSummary,
         quizResponsesSummaryError: readQuizResponsesSummaryError(request.query.summaryError, request.locale),
+        resourceFolderPath: listResourceFolderPathForResource(resolved.quiz.id, resolved.user.id),
         selectedQuiz: resolved.quiz,
     });
 }

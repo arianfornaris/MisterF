@@ -7,6 +7,10 @@
       <h1 class="app-page-title"><%= selectedPracticeGuide.title %></h1>
       <%- include('partials/breadcrumb', { crumbs: [
         { label: t('resources.title'), href: '/resources' },
+        ...(resourceFolderPath || []).map((folder) => ({
+          label: folder.title,
+          href: `/resources/folders/${encodeURIComponent(folder.id)}`,
+        })),
         { label: selectedPracticeGuide.title, href: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}` },
         { label: t('quizzes.participationKicker') },
       ] }) %>

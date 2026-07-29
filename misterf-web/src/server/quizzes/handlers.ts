@@ -1919,6 +1919,7 @@ export async function renderQuizParticipationPage(
       request.query.summaryError,
       request.locale,
     ),
+    resourceFolderPath: listResourceFolderPathForResource(resolved.quiz.id, resolved.user.id),
     selectedQuiz: resolved.quiz,
   });
 }

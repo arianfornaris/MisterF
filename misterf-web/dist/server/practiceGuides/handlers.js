@@ -290,6 +290,7 @@ export function renderPracticeGuideParticipationPage(request, response) {
         collectedReports: buildCollectedPracticeGuideReportListItems(reports, request.locale),
         participationSummary,
         participationSummaryError: readParticipationSummaryError(request.query.summaryError, request.locale),
+        resourceFolderPath: listResourceFolderPathForResource(resolved.practiceGuide.id, resolved.user.id),
         selectedPracticeGuide: resolved.practiceGuide,
     });
 }
