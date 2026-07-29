@@ -74,6 +74,14 @@
                           </li>
                         <% } %>
                         <li>
+                          <form method="post" action="/resources/<%= encodeURIComponent(selectedPracticeGuide.id) %>/duplicate">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="dropdown-item" type="submit">
+                              <i class="bi bi-copy me-2" aria-hidden="true"></i><%= t('resources.duplicate') %>
+                            </button>
+                          </form>
+                        </li>
+                        <li>
                           <button
                             class="dropdown-item"
                             type="button"

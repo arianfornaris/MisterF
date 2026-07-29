@@ -86,7 +86,7 @@ describe('server route architecture', () => {
     expect(routes).toContain('/edit/modify');
     expect(view).not.toContain('data-authoring-chat-form');
     expect(view).not.toContain('authoring-tabs');
-    expect(view).toContain('data-practice-guide-modify-modal');
+    expect(view).toContain('data-modify-modal');
   });
 
   it('replaces the quiz authoring chat with scoped modify operations', () => {

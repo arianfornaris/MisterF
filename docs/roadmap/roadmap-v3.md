@@ -220,20 +220,22 @@ The preceding Media Library decision and implementation history now live in
     noted); the feature doc got a prominent supersedence note and an updated
     Implementation Status, keeping the original chat design as historical
     record.
-- [ ] Migrate roleplay and practice-guide modification modals onto the shared
-  controller. Optional for V3 (2026-07-18, MVP refocus): keep only if it stays
-  cheap; otherwise it moves to Roadmap V4. Split out of the quiz work on
-  2026-07-17: Phase 1 extracted a
-  generic pending-modification store (`server/resources/modificationPreviewStore.ts`)
-  and a generic client modal controller (`client/shared/modificationModal.js`,
-  with multi-trigger + per-open `resolveContext`), and all four quiz operations
-  use them. Roleplays and practice guides still carry their own near-duplicate
-  `modificationPreviewStore.ts` and their own copies of the modal logic inside
-  `client/roleplays/index.js` and `client/practiceGuides/index.js`. Port them to
-  the shared store and controller (roleplay avatar diffs and practice-guide
-  Markdown fields become custom `renderChanges` implementations), then delete the
-  duplicates. Low risk but touches two shipped flows, so it needs its own
-  before/after click-through.
+- [x] Migrate roleplay and practice-guide modification modals onto the shared
+  controller. Done 2026-07-27. Server: both resources now use the generic
+  `resources/modificationPreviewStore.ts` (keyed by `operation` + resource), so
+  the two near-duplicate stores are gone; what remains of each old file is only
+  its domain diff (`listRoleplayModificationChanges` for avatars,
+  `listPracticeGuideModificationChanges` for Markdown fields), renamed to
+  `modificationChanges.ts` since they no longer store anything. Client: the two
+  bespoke modal controllers (~240 and ~180 lines) were replaced by
+  `initializeModificationModal` from `client/shared/modificationModal.js`, with
+  only `buildCurrentDraft` and `renderChanges` supplied per resource; the
+  per-resource `data-roleplay-modify-*` / `data-practice-guide-modify-*`
+  attributes were renamed to the shared `data-modify-*` contract in both views,
+  and the route guard tests were updated to assert the shared contract.
+  Verified: typecheck, test:typecheck, 311 tests, client build (both bundles
+  import the shared chunk), server healthy. **Pending:** the before/after
+  click-through this item asked for, since it touches two shipped flows.
 - [x] Sweep the dead chat i18n keys left by the quiz chat retirement
   (`quizzes.tabChat`, `modifyWithAi`, `modifyWithAiCopy`, `authoringChat*`,
   `quizzes.message`, `describeChangesPlaceholder`, `applyChanges`, `blockTypeAria`,
@@ -679,19 +681,28 @@ group its own resource and therefore its own segmented evaluations and summary.
 Scope: duplication applies to **resources** (quizzes, roleplays, practice guides,
 and scene media) and to **folders**.
 
-- [ ] Duplicate a resource from the catalog and its detail page, producing an
+- [x] Duplicate a resource from the catalog and its detail page, producing an
   independent copy owned by the active profile, with a clearly derived title.
   Copy only the authored content; never copy participation data — no attempts,
   reports, share links, grants, or participation summary carry over, and the copy
-  starts unshared so the new group's results stay separate.
-- [ ] Duplicate a folder, including the resources filed inside it. Decide and
-  record whether nested folders recurse (default expectation: yes) and what
-  happens to resources shared *with* the owner rather than owned by them
-  (expected: skipped, since duplication produces owned copies).
-- [ ] Keep it archive- and Trash-aware: archived resources are not duplicated
-  silently, and a duplicate never resurrects archived content.
-- [ ] Cover with route and repository tests (independent copy, no participation
-  data carried over, folder recursion, ownership/profile scoping), plus a live
+  starts unshared so the new group's results stay separate. Done 2026-07-27:
+  `resources/duplicate.ts` + `POST /resources/:resourceId/duplicate`, offered
+  from the catalog row menu and each detail page's `Opciones`. A duplicate is
+  written as a fresh original — no `source*` or `sharedVia` marks — so it is not
+  confused with an imported share, and the owner lands on the copy.
+- [x] Duplicate a folder, including the resources filed inside it. Done
+  2026-07-27. **Recorded decisions:** nested folders **do** recurse (bounded to
+  10 levels, since the schema does not prevent a pathological chain); resources
+  shared *with* the owner are **skipped**, as are archived ones, because
+  duplication produces owned copies; and only the duplicated folder itself is
+  renamed — its contents keep their titles, so the copy reads like the original.
+- [x] Keep it archive- and Trash-aware. Done 2026-07-27: duplicating an archived
+  resource is refused outright, and archived children are skipped when copying a
+  folder, so a duplicate never resurrects Trash content.
+- [~] Cover with tests. Done 2026-07-27 for repository/service behavior
+  (`tests/db/resourceDuplication.test.ts`, 5 tests: independent copy with derived
+  title, no attempts or share link carried over, folder recursion with nested
+  subfolder, archived refusal, and other-profile refusal). **Pending:** the live
   click-through duplicating a resource that already has participation and
   confirming the copy starts clean.
 

@@ -17,56 +17,6 @@ export type RoleplayModificationChange = {
   field: RoleplayModificationField;
 };
 
-export type RoleplayModificationPreviewOwner = {
-  profileId: string;
-  roleplayId: string;
-  userId: string;
-};
-
-export type PendingRoleplayModification = {
-  baseStoredDraft: RoleplayDraft;
-  baseUpdatedAt: string;
-  createdAt: number;
-  draft: RoleplayDraft;
-  previewId: string;
-};
-
-const maxAgeMs = 30 * 60 * 1000;
-const store = new Map<string, PendingRoleplayModification>();
-
-function keyOf(owner: RoleplayModificationPreviewOwner): string {
-  return `${owner.userId}:${owner.profileId}:${owner.roleplayId}`;
-}
-
-function sweepExpired(): void {
-  const cutoff = Date.now() - maxAgeMs;
-  for (const [key, preview] of store) {
-    if (preview.createdAt < cutoff) {
-      store.delete(key);
-    }
-  }
-}
-
-export function getPendingRoleplayModification(
-  owner: RoleplayModificationPreviewOwner,
-): PendingRoleplayModification | undefined {
-  sweepExpired();
-  return store.get(keyOf(owner));
-}
-
-export function setPendingRoleplayModification(
-  owner: RoleplayModificationPreviewOwner,
-  preview: PendingRoleplayModification,
-): void {
-  store.set(keyOf(owner), preview);
-}
-
-export function deletePendingRoleplayModification(
-  owner: RoleplayModificationPreviewOwner,
-): void {
-  store.delete(keyOf(owner));
-}
-
 export function listRoleplayModificationChanges(
   before: RoleplayDraft,
   after: RoleplayDraft,

@@ -1,26 +1,3 @@
-const maxAgeMs = 30 * 60 * 1000;
-const store = new Map();
-function keyOf(owner) {
-    return `${owner.userId}:${owner.profileId}:${owner.roleplayId}`;
-}
-function sweepExpired() {
-    const cutoff = Date.now() - maxAgeMs;
-    for (const [key, preview] of store) {
-        if (preview.createdAt < cutoff) {
-            store.delete(key);
-        }
-    }
-}
-export function getPendingRoleplayModification(owner) {
-    sweepExpired();
-    return store.get(keyOf(owner));
-}
-export function setPendingRoleplayModification(owner, preview) {
-    store.set(keyOf(owner), preview);
-}
-export function deletePendingRoleplayModification(owner) {
-    store.delete(keyOf(owner));
-}
 export function listRoleplayModificationChanges(before, after) {
     const changes = [];
     const add = (field, beforeValue, afterValue) => {
@@ -43,4 +20,4 @@ export function listRoleplayModificationChanges(before, after) {
     add('ai.avatarId', beforeAi?.avatarId ?? '', afterAi?.avatarId ?? '');
     return changes;
 }
-//# sourceMappingURL=modificationPreviewStore.js.map
+//# sourceMappingURL=modificationChanges.js.map

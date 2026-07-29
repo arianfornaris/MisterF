@@ -19,7 +19,7 @@
       </form>
     </div>
     <div class="app-page-header-actions position-static flex-shrink-0">
-      <button class="btn btn-outline-primary" type="button" data-practice-guide-modify-open>
+      <button class="btn btn-outline-primary" type="button" data-modify-open>
         <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('practiceGuides.modifyWithAiButton') %>
       </button>
       <a
@@ -116,12 +116,12 @@
   tabindex="-1"
   aria-labelledby="practiceGuideModifyModalTitle"
   aria-hidden="true"
-  data-practice-guide-modify-modal
+  data-modify-modal
   data-bs-backdrop="static"
   data-bs-keyboard="false"
-  data-practice-guide-modify-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify"
-  data-practice-guide-modify-apply-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify/apply"
-  data-practice-guide-modify-discard-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify/discard"
+  data-modify-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify"
+  data-modify-apply-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify/apply"
+  data-modify-discard-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify/discard"
   data-generic-error="<%= t('practiceGuides.modificationFailed') %>"
   data-current-label="<%= t('practiceGuides.currentVersion') %>"
   data-proposed-label="<%= t('practiceGuides.proposedVersion') %>"
@@ -135,10 +135,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title h5" id="practiceGuideModifyModalTitle"><%= t('practiceGuides.modifyPracticeGuideTitle') %></h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-practice-guide-modify-dismiss></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-modify-dismiss></button>
       </div>
       <div class="modal-body">
-        <div data-practice-guide-modify-phase="describe">
+        <div data-modify-phase="describe">
           <label class="form-label" for="practiceGuideModificationRequest"><%= t('practiceGuides.modificationLabel') %></label>
           <textarea
             class="form-control"
@@ -148,44 +148,44 @@
             minlength="3"
             maxlength="2000"
             required
-            data-practice-guide-modify-request
+            data-modify-request
             placeholder="<%= t('practiceGuides.modificationPlaceholder') %>"
           ></textarea>
           <div class="form-text"><%= t('practiceGuides.modificationHelp') %></div>
         </div>
 
-        <div class="text-center py-4 d-none" data-practice-guide-modify-phase="generating">
+        <div class="text-center py-4 d-none" data-modify-phase="generating">
           <div class="spinner-border text-primary mb-3" role="status">
             <span class="visually-hidden"><%= t('common.loading') %></span>
           </div>
           <p class="mb-0 fw-semibold"><%= t('practiceGuides.generatingProposal') %></p>
         </div>
 
-        <div class="d-none" data-practice-guide-modify-phase="preview">
+        <div class="d-none" data-modify-phase="preview">
           <p class="text-body-secondary"><%= t('practiceGuides.reviewModificationHelp') %></p>
-          <div data-practice-guide-modify-comparison></div>
+          <div data-modify-comparison></div>
         </div>
 
-        <div class="alert alert-danger d-none mb-0" role="alert" data-practice-guide-modify-error>
-          <span data-practice-guide-modify-error-message><%= t('practiceGuides.modificationFailed') %></span>
+        <div class="alert alert-danger d-none mb-0" role="alert" data-modify-error>
+          <span data-modify-error-message><%= t('practiceGuides.modificationFailed') %></span>
           <a
             class="alert-link d-none ms-1"
             href="/credits?returnTo=<%= encodeURIComponent(`/practice-guides/${selectedPracticeGuide.id}/edit`) %>"
-            data-practice-guide-modify-credit-link
+            data-modify-credit-link
           ><%= t('credits.buyCredits') %></a>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-practice-guide-modify-dismiss><%= t('common.cancel') %></button>
-        <button class="btn btn-outline-primary d-none" type="button" data-practice-guide-modify-retry>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-modify-retry>
           <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('practiceGuides.tryAnotherModification') %>
         </button>
-        <button class="btn btn-primary" type="button" data-practice-guide-modify-generate>
+        <button class="btn btn-primary" type="button" data-modify-generate>
           <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('practiceGuides.generateProposal') %>
         </button>
-        <button class="btn btn-primary d-none" type="button" data-practice-guide-modify-apply>
-          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-practice-guide-modify-apply-spinner></span>
-          <i class="bi bi-check-lg me-1" aria-hidden="true" data-practice-guide-modify-apply-icon></i><span data-practice-guide-modify-apply-label><%= t('practiceGuides.approveAndSave') %></span>
+        <button class="btn btn-primary d-none" type="button" data-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-modify-apply-icon></i><span data-modify-apply-label><%= t('practiceGuides.approveAndSave') %></span>
         </button>
       </div>
     </div>

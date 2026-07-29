@@ -5,6 +5,7 @@ import {
   handleCreateResourceFolder,
   handleMoveResourceToFolder,
   handleRemoveResourceFromFolder,
+  handleDuplicateResource,
   handleRestoreResource,
   handleShareResourceToProfile,
   handleUpdateResourceFolder,
@@ -29,3 +30,4 @@ resourcesRouter.post('/resources/:resourceId/share/profile', handleShareResource
 resourcesRouter.post('/resources/:resourceId/share/collect-results', handleUpdateResourceShareCollectResults);
 resourcesRouter.post('/resources/:resourceId/archive', handleArchiveResource);
 resourcesRouter.post('/resources/:resourceId/restore', handleRestoreResource);
+resourcesRouter.post('/resources/:resourceId/duplicate', handleDuplicateResource);

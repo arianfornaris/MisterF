@@ -79,6 +79,15 @@
           <% } %>
           <% if (!resource.archivedAt) { %>
             <li>
+              <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/duplicate">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                <button class="dropdown-item" type="submit">
+                  <i class="bi bi-copy me-2" aria-hidden="true"></i><%= t('resources.duplicate') %>
+                </button>
+              </form>
+            </li>
+            <li>
               <a class="dropdown-item" href="<%= resource.detailPath %>?share=profile">
                 <i class="bi bi-person me-2" aria-hidden="true"></i><%= t('resources.shareWithProfile') %>
               </a>

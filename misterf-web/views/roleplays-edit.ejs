@@ -13,7 +13,7 @@
       <p class="app-page-copy"><%= t('roleplays.editCopy') %></p>
     </div>
     <div class="app-page-header-actions position-static flex-shrink-0">
-      <button class="btn btn-outline-primary" type="button" data-roleplay-modify-open>
+      <button class="btn btn-outline-primary" type="button" data-modify-open>
         <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('roleplays.modifyWithAiButton') %>
       </button>
       <a
@@ -177,12 +177,12 @@
   tabindex="-1"
   aria-labelledby="roleplayModifyModalTitle"
   aria-hidden="true"
-  data-roleplay-modify-modal
+  data-modify-modal
   data-bs-backdrop="static"
   data-bs-keyboard="false"
-  data-roleplay-modify-endpoint="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/modify"
-  data-roleplay-modify-apply-endpoint="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/modify/apply"
-  data-roleplay-modify-discard-endpoint="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/modify/discard"
+  data-modify-endpoint="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/modify"
+  data-modify-apply-endpoint="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/modify/apply"
+  data-modify-discard-endpoint="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/modify/discard"
   data-generic-error="<%= t('roleplays.modificationFailed') %>"
   data-current-label="<%= t('roleplays.currentVersion') %>"
   data-proposed-label="<%= t('roleplays.proposedVersion') %>"
@@ -203,10 +203,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title h5" id="roleplayModifyModalTitle"><%= t('roleplays.modifyRoleplayTitle') %></h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-roleplay-modify-dismiss></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-modify-dismiss></button>
       </div>
       <div class="modal-body">
-          <div data-roleplay-modify-phase="describe">
+          <div data-modify-phase="describe">
             <label class="form-label" for="roleplayModificationRequest"><%= t('roleplays.modificationLabel') %></label>
             <textarea
               class="form-control"
@@ -216,44 +216,44 @@
               minlength="3"
               maxlength="2000"
               required
-              data-roleplay-modify-request
+              data-modify-request
               placeholder="<%= t('roleplays.modificationPlaceholder') %>"
             ></textarea>
             <div class="form-text"><%= t('roleplays.modificationHelp') %></div>
           </div>
 
-          <div class="text-center py-4 d-none" data-roleplay-modify-phase="generating">
+          <div class="text-center py-4 d-none" data-modify-phase="generating">
             <div class="spinner-border text-primary mb-3" role="status">
               <span class="visually-hidden"><%= t('common.loading') %></span>
             </div>
             <p class="mb-0 fw-semibold"><%= t('roleplays.generatingProposal') %></p>
           </div>
 
-          <div class="d-none" data-roleplay-modify-phase="preview">
+          <div class="d-none" data-modify-phase="preview">
             <p class="text-body-secondary"><%= t('roleplays.reviewModificationHelp') %></p>
-            <div data-roleplay-modify-comparison></div>
+            <div data-modify-comparison></div>
           </div>
 
-          <div class="alert alert-danger d-none mb-0" role="alert" data-roleplay-modify-error>
-            <span data-roleplay-modify-error-message><%= t('roleplays.modificationFailed') %></span>
+          <div class="alert alert-danger d-none mb-0" role="alert" data-modify-error>
+            <span data-modify-error-message><%= t('roleplays.modificationFailed') %></span>
             <a
               class="alert-link d-none ms-1"
               href="/credits?returnTo=<%= encodeURIComponent(`/roleplays/${selectedRoleplay.id}/edit`) %>"
-              data-roleplay-modify-credit-link
+              data-modify-credit-link
             ><%= t('credits.buyCredits') %></a>
           </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-roleplay-modify-dismiss><%= t('common.cancel') %></button>
-        <button class="btn btn-outline-primary d-none" type="button" data-roleplay-modify-retry>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-modify-retry>
           <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('roleplays.tryAnotherModification') %>
         </button>
-        <button class="btn btn-primary" type="button" data-roleplay-modify-generate>
+        <button class="btn btn-primary" type="button" data-modify-generate>
           <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('roleplays.generateProposal') %>
         </button>
-        <button class="btn btn-primary d-none" type="button" data-roleplay-modify-apply>
-          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-roleplay-modify-apply-spinner></span>
-          <i class="bi bi-check-lg me-1" aria-hidden="true" data-roleplay-modify-apply-icon></i><span data-roleplay-modify-apply-label><%= t('roleplays.approveAndSave') %></span>
+        <button class="btn btn-primary d-none" type="button" data-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-modify-apply-icon></i><span data-modify-apply-label><%= t('roleplays.approveAndSave') %></span>
         </button>
       </div>
     </div>

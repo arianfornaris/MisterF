@@ -1,3 +1,4 @@
+import { initializeModificationModal } from '../shared/modificationModal.js';
 import { t } from '../shared/i18n.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
@@ -219,70 +220,17 @@ function renderPracticeGuideModificationChanges(container, changes, labels) {
   return renderedCount > 0;
 }
 
-async function postPracticeGuideModification(endpoint, fields) {
-  return fetch(endpoint, {
-    body: new URLSearchParams(fields),
-    credentials: 'same-origin',
-    headers: {
-      Accept: 'application/json',
-      'X-Requested-With': 'fetch',
-    },
-    method: 'POST',
-  });
-}
 
 function initializePracticeGuideModification() {
   const formEl = document.querySelector('[data-practice-guide-authoring-form]');
-  const modalEl = document.querySelector('[data-practice-guide-modify-modal]');
-  const openButtonEl = document.querySelector('[data-practice-guide-modify-open]');
-  if (
-    !(formEl instanceof HTMLFormElement)
-    || !(modalEl instanceof HTMLElement)
-    || !(openButtonEl instanceof HTMLButtonElement)
-    || !window.bootstrap?.Modal
-  ) {
+  const modalEl = document.querySelector('[data-modify-modal]');
+  if (!(formEl instanceof HTMLFormElement) || !(modalEl instanceof HTMLElement)) {
     return;
   }
 
-  const requestEl = modalEl.querySelector('[data-practice-guide-modify-request]');
-  const comparisonEl = modalEl.querySelector('[data-practice-guide-modify-comparison]');
-  const generateButtonEl = modalEl.querySelector('[data-practice-guide-modify-generate]');
-  const retryButtonEl = modalEl.querySelector('[data-practice-guide-modify-retry]');
-  const applyButtonEl = modalEl.querySelector('[data-practice-guide-modify-apply]');
-  const applyLabelEl = modalEl.querySelector('[data-practice-guide-modify-apply-label]');
-  const applySpinnerEl = modalEl.querySelector('[data-practice-guide-modify-apply-spinner]');
-  const applyIconEl = modalEl.querySelector('[data-practice-guide-modify-apply-icon]');
-  const errorEl = modalEl.querySelector('[data-practice-guide-modify-error]');
-  const errorMessageEl = modalEl.querySelector('[data-practice-guide-modify-error-message]');
-  const creditLinkEl = modalEl.querySelector('[data-practice-guide-modify-credit-link]');
-  const csrfEl = formEl.querySelector('input[name="_csrf"]');
-  const previewEndpoint = modalEl.dataset.practiceGuideModifyEndpoint || '';
-  const applyEndpoint = modalEl.dataset.practiceGuideModifyApplyEndpoint || '';
-  const discardEndpoint = modalEl.dataset.practiceGuideModifyDiscardEndpoint || '';
-  if (
-    !(requestEl instanceof HTMLTextAreaElement)
-    || !(comparisonEl instanceof HTMLElement)
-    || !(generateButtonEl instanceof HTMLButtonElement)
-    || !(retryButtonEl instanceof HTMLButtonElement)
-    || !(applyButtonEl instanceof HTMLButtonElement)
-    || !(applyLabelEl instanceof HTMLElement)
-    || !(applySpinnerEl instanceof HTMLElement)
-    || !(applyIconEl instanceof HTMLElement)
-    || !(errorEl instanceof HTMLElement)
-    || !(errorMessageEl instanceof HTMLElement)
-    || !(creditLinkEl instanceof HTMLElement)
-    || !(csrfEl instanceof HTMLInputElement)
-    || !previewEndpoint
-    || !applyEndpoint
-    || !discardEndpoint
-  ) {
-    return;
-  }
-
-  const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-  const dismissButtons = Array.from(
-    modalEl.querySelectorAll('[data-practice-guide-modify-dismiss]'),
-  ).filter((element) => element instanceof HTMLButtonElement);
+  // Only the guide-specific pieces stay here: reading the current draft off the
+  // authoring form, and rendering a diff whose fields are Markdown rather than
+  // plain strings. The shared controller owns the rest of the cycle.
   const labels = {
     current: modalEl.dataset.currentLabel || '',
     fields: {
@@ -292,168 +240,16 @@ function initializePracticeGuideModification() {
     },
     proposed: modalEl.dataset.proposedLabel || '',
   };
-  let previewId = '';
-  let applied = false;
-  let isBusy = false;
 
-  const show = (element, visible) => element?.classList.toggle('d-none', !visible);
-  const setPhase = (phase) => {
-    for (const element of modalEl.querySelectorAll('[data-practice-guide-modify-phase]')) {
-      show(element, element.getAttribute('data-practice-guide-modify-phase') === phase);
-    }
-    const generating = phase === 'generating';
-    show(generateButtonEl, phase === 'describe');
-    show(retryButtonEl, phase === 'preview');
-    show(applyButtonEl, phase === 'preview');
-    for (const button of dismissButtons) {
-      show(button, !generating);
-    }
-  };
-  const showError = (message, creditExhausted = false) => {
-    errorMessageEl.textContent = message || modalEl.dataset.genericError || '';
-    errorEl.classList.remove('d-none');
-    creditLinkEl.classList.toggle('d-none', !creditExhausted);
-  };
-  const hideError = () => {
-    errorEl.classList.add('d-none');
-    creditLinkEl.classList.add('d-none');
-  };
-  const discardPreview = () => {
-    if (!previewId || applied) {
-      return;
-    }
-    const discardedPreviewId = previewId;
-    previewId = '';
-    postPracticeGuideModification(discardEndpoint, {
-      _csrf: csrfEl.value,
-      previewId: discardedPreviewId,
-    }).catch(() => {});
-  };
-
-  openButtonEl.addEventListener('click', () => {
-    discardPreview();
-    previewId = '';
-    applied = false;
-    requestEl.value = '';
-    requestEl.setCustomValidity('');
-    comparisonEl.replaceChildren();
-    hideError();
-    setPhase('describe');
-    modal.show();
-  });
-
-  requestEl.addEventListener('input', () => requestEl.setCustomValidity(''));
-  modalEl.addEventListener('shown.bs.modal', () => {
-    if (!requestEl.closest('.d-none')) {
-      requestEl.focus();
-    }
-  });
-  modalEl.addEventListener('hidden.bs.modal', discardPreview);
-
-  generateButtonEl.addEventListener('click', async () => {
-    const requestedChange = requestEl.value.trim();
-    if (isBusy) {
-      return;
-    }
-    if (requestedChange.length < 3) {
-      requestEl.setCustomValidity(modalEl.dataset.genericError || '');
-      requestEl.reportValidity();
-      return;
-    }
-
-    const currentDraft = buildCurrentPracticeGuideDraft(formEl);
-    hideError();
-    if (!currentDraft) {
-      showError('');
-      return;
-    }
-
-    discardPreview();
-    isBusy = true;
-    setPhase('generating');
-    try {
-      const response = await postPracticeGuideModification(previewEndpoint, {
-        _csrf: csrfEl.value,
-        currentDraft: JSON.stringify(currentDraft),
-        requestedChange,
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (
-        !response.ok
-        || typeof payload.previewId !== 'string'
-        || !renderPracticeGuideModificationChanges(comparisonEl, payload.changes, labels)
-      ) {
-        showError(payload.error, Boolean(payload.creditExhausted));
-        setPhase('describe');
-        return;
-      }
-
-      previewId = payload.previewId;
-      setPhase('preview');
-    } catch {
-      showError('');
-      setPhase('describe');
-    } finally {
-      isBusy = false;
-    }
-  });
-
-  retryButtonEl.addEventListener('click', () => {
-    discardPreview();
-    comparisonEl.replaceChildren();
-    hideError();
-    setPhase('describe');
-    requestEl.focus();
-  });
-
-  applyButtonEl.addEventListener('click', async () => {
-    if (isBusy || !previewId) {
-      return;
-    }
-
-    isBusy = true;
-    hideError();
-    applyButtonEl.disabled = true;
-    applyLabelEl.textContent = modalEl.dataset.applyingLabel || '';
-    applySpinnerEl.classList.remove('d-none');
-    applyIconEl.classList.add('d-none');
-    retryButtonEl.disabled = true;
-    for (const button of dismissButtons) {
-      button.disabled = true;
-    }
-    try {
-      const response = await postPracticeGuideModification(applyEndpoint, {
-        _csrf: csrfEl.value,
-        previewId,
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.ok) {
-        if (response.status === 409) {
-          previewId = '';
-          comparisonEl.replaceChildren();
-          setPhase('describe');
-        }
-        showError(payload.error);
-        return;
-      }
-
-      applied = true;
-      window.location.assign(payload.redirect || window.location.href);
-    } catch {
-      showError('');
-    } finally {
-      isBusy = false;
-      applyButtonEl.disabled = false;
-      applyLabelEl.textContent = modalEl.dataset.applyLabel || '';
-      applySpinnerEl.classList.add('d-none');
-      applyIconEl.classList.remove('d-none');
-      retryButtonEl.disabled = false;
-      for (const button of dismissButtons) {
-        button.disabled = false;
-      }
-    }
+  initializeModificationModal({
+    buildCurrentDraft: () => buildCurrentPracticeGuideDraft(formEl),
+    modalEl,
+    renderChanges: (container, changes) =>
+      renderPracticeGuideModificationChanges(container, changes, labels),
+    triggers: document.querySelectorAll('[data-modify-open]'),
   });
 }
+
 
 initializePracticeGuideSharingUi();
 initializeAutoOpenModal();

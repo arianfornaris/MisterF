@@ -9,13 +9,16 @@ import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRela
 import { countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, roleplayLevelOptions, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
 import { generateRoleplayDraft, generateRoleplayParticipationSummary, generateRoleplayRevision, } from '../services/resourceDrafts.js';
 import { computeParticipationFingerprint, readParticipationSummaryError, } from '../resources/participationSummary.js';
+import { deletePendingModification, getPendingModification, setPendingModification, } from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
 import { findRoleplayCharacterAvatar, listRoleplayCharacterAvatars, normalizeRoleplayCharacterAvatarId, } from './avatarRegistry.js';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordRoleplayAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
-import { deletePendingRoleplayModification, getPendingRoleplayModification, listRoleplayModificationChanges, setPendingRoleplayModification, } from './modificationPreviewStore.js';
+import { listRoleplayModificationChanges, } from './modificationChanges.js';
+/** Namespaces this resource's previews in the shared modification store. */
+const roleplayModificationOperation = 'roleplay';
 function ensureVerifiedRoleplayUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -456,16 +459,17 @@ export async function handlePreviewRoleplayModification(request, response) {
         }
         const previewId = randomUUID();
         const owner = {
+            operation: roleplayModificationOperation,
             profileId: resolved.activeProfile.id,
-            roleplayId: resolved.roleplay.id,
+            resourceId: resolved.roleplay.id,
             userId: resolved.user.id,
         };
-        setPendingRoleplayModification(owner, {
-            baseStoredDraft: storedRoleplayToDraft(resolved.roleplay),
+        setPendingModification(owner, {
+            baseSnapshot: storedRoleplayToDraft(resolved.roleplay),
             baseUpdatedAt: resolved.roleplay.updatedAt,
             createdAt: Date.now(),
-            draft: revision.draft,
             previewId,
+            proposed: revision.draft,
         });
         logger.info('roleplay_modification_preview_generated', {
             changedFields: changes.map((change) => change.field),
@@ -502,31 +506,32 @@ export function handleApplyRoleplayModification(request, response) {
         return;
     }
     const owner = {
+        operation: roleplayModificationOperation,
         profileId: resolved.activeProfile.id,
-        roleplayId: resolved.roleplay.id,
+        resourceId: resolved.roleplay.id,
         userId: resolved.user.id,
     };
-    const pending = getPendingRoleplayModification(owner);
+    const pending = getPendingModification(owner);
     const previewId = readField(request.body.previewId, 100);
     const currentStoredDraft = storedRoleplayToDraft(resolved.roleplay);
     if (!pending
         || !previewId
         || pending.previewId !== previewId
         || pending.baseUpdatedAt !== resolved.roleplay.updatedAt
-        || JSON.stringify(pending.baseStoredDraft) !== JSON.stringify(currentStoredDraft)) {
+        || JSON.stringify(pending.baseSnapshot) !== JSON.stringify(currentStoredDraft)) {
         response.status(409).json({
             error: translate(request.locale, 'roleplays.modificationExpired'),
         });
         return;
     }
-    const updatedRoleplay = updateRoleplayWithDraft(resolved.roleplay, resolved.user.id, pending.draft);
+    const updatedRoleplay = updateRoleplayWithDraft(resolved.roleplay, resolved.user.id, pending.proposed);
     if (!updatedRoleplay) {
         response.status(422).json({
             error: translate(request.locale, 'msg.saveRoleplayError'),
         });
         return;
     }
-    deletePendingRoleplayModification(owner);
+    deletePendingModification(owner);
     logger.info('roleplay_modification_applied', {
         resourceId: resolved.roleplay.id,
         resourceType: 'roleplay',
@@ -544,14 +549,15 @@ export function handleDiscardRoleplayModification(request, response) {
         return;
     }
     const owner = {
+        operation: roleplayModificationOperation,
         profileId: resolved.activeProfile.id,
-        roleplayId: resolved.roleplay.id,
+        resourceId: resolved.roleplay.id,
         userId: resolved.user.id,
     };
-    const pending = getPendingRoleplayModification(owner);
+    const pending = getPendingModification(owner);
     const previewId = readField(request.body.previewId, 100);
     if (pending && previewId && pending.previewId === previewId) {
-        deletePendingRoleplayModification(owner);
+        deletePendingModification(owner);
     }
     response.json({ ok: true });
 }

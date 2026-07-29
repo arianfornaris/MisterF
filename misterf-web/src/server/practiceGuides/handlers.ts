@@ -48,6 +48,12 @@ import {
   readParticipationSummaryError,
 } from '../resources/participationSummary.js';
 import {
+  deletePendingModification,
+  getPendingModification,
+  setPendingModification,
+  type ModificationPreviewOwner,
+} from '../resources/modificationPreviewStore.js';
+import {
   appDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
@@ -55,13 +61,7 @@ import {
   getHomeAuthMessage,
 } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
-import {
-  deletePendingPracticeGuideModification,
-  getPendingPracticeGuideModification,
-  listPracticeGuideModificationChanges,
-  setPendingPracticeGuideModification,
-  type PracticeGuideModificationPreviewOwner,
-} from './modificationPreviewStore.js';
+import { listPracticeGuideModificationChanges } from './modificationChanges.js';
 import {
   resolveOriginFolderContext,
   type OriginFolderContext,
@@ -321,6 +321,9 @@ async function renderPracticeGuidesPage(
     shareTargetPracticeGuideProfiles: viewModel.shareTargetPracticeGuideProfiles,
   });
 }
+
+/** Namespaces this resource's previews in the shared modification store. */
+const practiceGuideModificationOperation = 'practice-guide';
 
 function ensureVerifiedPracticeGuideUser(
   request: Request,
@@ -796,17 +799,18 @@ export async function handlePreviewPracticeGuideModification(
     }
 
     const previewId = randomUUID();
-    const owner: PracticeGuideModificationPreviewOwner = {
-      practiceGuideId: resolved.practiceGuide.id,
+    const owner: ModificationPreviewOwner = {
+      operation: practiceGuideModificationOperation,
       profileId: resolved.activeProfile.id,
+      resourceId: resolved.practiceGuide.id,
       userId: resolved.user.id,
     };
-    setPendingPracticeGuideModification(owner, {
-      baseStoredDraft: storedPracticeGuideToDraft(resolved.practiceGuide),
+    setPendingModification<PracticeGuideDraft, PracticeGuideDraft>(owner, {
+      baseSnapshot: storedPracticeGuideToDraft(resolved.practiceGuide),
       baseUpdatedAt: resolved.practiceGuide.updatedAt,
       createdAt: Date.now(),
-      draft: revision.guide,
       previewId,
+      proposed: revision.guide,
     });
     logger.info('practice_guide_modification_preview_generated', {
       changedFields: changes.map((change) => change.field),
@@ -842,19 +846,20 @@ export function handleApplyPracticeGuideModification(
     return;
   }
 
-  const owner: PracticeGuideModificationPreviewOwner = {
-    practiceGuideId: resolved.practiceGuide.id,
+  const owner: ModificationPreviewOwner = {
+    operation: practiceGuideModificationOperation,
     profileId: resolved.activeProfile.id,
+    resourceId: resolved.practiceGuide.id,
     userId: resolved.user.id,
   };
-  const pending = getPendingPracticeGuideModification(owner);
+  const pending = getPendingModification<PracticeGuideDraft, PracticeGuideDraft>(owner);
   const previewId = readMultilineField(request.body.previewId, 100);
   if (
     !pending
     || !previewId
     || pending.previewId !== previewId
     || pending.baseUpdatedAt !== resolved.practiceGuide.updatedAt
-    || JSON.stringify(pending.baseStoredDraft)
+    || JSON.stringify(pending.baseSnapshot)
       !== JSON.stringify(storedPracticeGuideToDraft(resolved.practiceGuide))
   ) {
     response.status(409).json({
@@ -864,10 +869,10 @@ export function handleApplyPracticeGuideModification(
   }
 
   const updatedPracticeGuide = updatePracticeGuide({
-    description: pending.draft.description,
+    description: pending.proposed.description,
     practiceGuideId: resolved.practiceGuide.id,
-    title: pending.draft.title,
-    tutorInstructions: pending.draft.tutorInstructions,
+    title: pending.proposed.title,
+    tutorInstructions: pending.proposed.tutorInstructions,
     userId: resolved.user.id,
   });
   if (!updatedPracticeGuide) {
@@ -877,7 +882,7 @@ export function handleApplyPracticeGuideModification(
     return;
   }
 
-  deletePendingPracticeGuideModification(owner);
+  deletePendingModification(owner);
   logger.info('practice_guide_modification_applied', {
     profileId: resolved.activeProfile.id,
     resourceId: resolved.practiceGuide.id,
@@ -899,15 +904,16 @@ export function handleDiscardPracticeGuideModification(
     return;
   }
 
-  const owner: PracticeGuideModificationPreviewOwner = {
-    practiceGuideId: resolved.practiceGuide.id,
+  const owner: ModificationPreviewOwner = {
+    operation: practiceGuideModificationOperation,
     profileId: resolved.activeProfile.id,
+    resourceId: resolved.practiceGuide.id,
     userId: resolved.user.id,
   };
-  const pending = getPendingPracticeGuideModification(owner);
+  const pending = getPendingModification<PracticeGuideDraft, PracticeGuideDraft>(owner);
   const previewId = readMultilineField(request.body.previewId, 100);
   if (pending && previewId && pending.previewId === previewId) {
-    deletePendingPracticeGuideModification(owner);
+    deletePendingModification(owner);
   }
   response.json({ ok: true });
 }

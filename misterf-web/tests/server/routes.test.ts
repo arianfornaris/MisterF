@@ -501,15 +501,15 @@ describe('main route smoke tests', () => {
     expect(editHtml).toContain('app-page-header app-page-header-has-close mb-4 pe-0');
     expect(editHtml).toContain('app-page-header-actions position-static flex-shrink-0');
     expect(editHtml).toContain('name="description"');
-    expect(editHtml).toContain(`data-roleplay-modify-endpoint="/roleplays/${roleplay.id}/edit/modify"`);
-    expect(editHtml).toContain(`data-roleplay-modify-apply-endpoint="/roleplays/${roleplay.id}/edit/modify/apply"`);
-    expect(editHtml).toContain(`data-roleplay-modify-discard-endpoint="/roleplays/${roleplay.id}/edit/modify/discard"`);
-    expect(editHtml.match(/data-roleplay-modify-open/g)).toHaveLength(1);
-    expect(editHtml).toContain('data-roleplay-modify-modal');
+    expect(editHtml).toContain(`data-modify-endpoint="/roleplays/${roleplay.id}/edit/modify"`);
+    expect(editHtml).toContain(`data-modify-apply-endpoint="/roleplays/${roleplay.id}/edit/modify/apply"`);
+    expect(editHtml).toContain(`data-modify-discard-endpoint="/roleplays/${roleplay.id}/edit/modify/discard"`);
+    expect(editHtml.match(/data-modify-open/g)).toHaveLength(1);
+    expect(editHtml).toContain('data-modify-modal');
     expect(editHtml).toContain('modal-dialog-scrollable');
-    expect(editHtml).not.toContain('data-roleplay-modify-form');
-    expect(editHtml).toContain('data-roleplay-modify-comparison');
-    expect(editHtml).toContain('data-roleplay-modify-phase="preview"');
+    expect(editHtml).not.toContain('data-modify-form');
+    expect(editHtml).toContain('data-modify-comparison');
+    expect(editHtml).toContain('data-modify-phase="preview"');
     expect(editHtml).toContain('Aprobar y guardar');
     expect(editHtml).toContain('name="requestedChange"');
     expect(editHtml).toContain('Modificar con IA');
@@ -761,11 +761,11 @@ describe('main route smoke tests', () => {
     expect(editHtml).toContain('app-page-header app-page-header-has-close mb-4 pe-0');
     expect(editHtml).toContain('app-page-header-actions position-static flex-shrink-0');
     expect(editHtml).toContain('Modificar con IA');
-    expect(editHtml).toContain('data-practice-guide-modify-modal');
+    expect(editHtml).toContain('data-modify-modal');
     expect(editHtml).toContain(
-      `data-practice-guide-modify-endpoint="/practice-guides/${practiceGuide.id}/edit/modify"`,
+      `data-modify-endpoint="/practice-guides/${practiceGuide.id}/edit/modify"`,
     );
-    expect(editHtml).toContain('data-practice-guide-modify-comparison');
+    expect(editHtml).toContain('data-modify-comparison');
     expect(editHtml).not.toContain('Chat IA');
     expect(editHtml).not.toContain('authoring-tabs');
     expect(editHtml).not.toContain('data-authoring-chat-form');

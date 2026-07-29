@@ -90,6 +90,8 @@ export const ht = {
         editFolder: 'Modifye katab',
         shared: 'Pataje',
         sharedByMeBadge: 'Mwen pataje',
+        duplicate: 'Fè yon kopi',
+        duplicateTitle: 'Kopi {{title}}',
         pageEditing: 'Ap modifye',
         sharedByMeBadgeTooltip: 'Mwen pataje · {{count}} pwofil ki gen aksè',
         sharedByMeBadgeTooltipOne: 'Mwen pataje · 1 pwofil ki gen aksè',

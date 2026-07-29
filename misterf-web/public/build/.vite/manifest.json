@@ -10,8 +10,8 @@
     "file": "chunks/i18n-2I5lZjwx.js",
     "name": "i18n"
   },
-  "_listGroupDropdownStacking-COEh2Rcy.js": {
-    "file": "chunks/listGroupDropdownStacking-COEh2Rcy.js",
+  "_listGroupDropdownStacking-Dr3OG4BN.js": {
+    "file": "chunks/listGroupDropdownStacking-Dr3OG4BN.js",
     "name": "listGroupDropdownStacking"
   },
   "_markdownEditor-B5Etm46p.js": {
@@ -20,6 +20,10 @@
     "imports": [
       "_staticMarkdown-D0Hkxzvx.js"
     ]
+  },
+  "_modificationModal-DOTdwxJQ.js": {
+    "file": "chunks/modificationModal-DOTdwxJQ.js",
+    "name": "modificationModal"
   },
   "_quizItemRenderer-BIc_Qv7t.js": {
     "file": "chunks/quizItemRenderer-BIc_Qv7t.js",
@@ -55,7 +59,7 @@
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-B83LCfFO.js",
+    "file": "entries/practice-guides-DngLQrdI.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
@@ -63,12 +67,13 @@
       "_markdownEditor-B5Etm46p.js",
       "_staticMarkdown-D0Hkxzvx.js",
       "_i18n-2I5lZjwx.js",
-      "_listGroupDropdownStacking-COEh2Rcy.js",
+      "_listGroupDropdownStacking-Dr3OG4BN.js",
+      "_modificationModal-DOTdwxJQ.js",
       "_resourceMoveModal-Bo3VauQc.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-C9JAoXUW.js",
+    "file": "entries/quizzes-P1CNZcH5.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
@@ -77,23 +82,24 @@
       "_staticMarkdown-D0Hkxzvx.js",
       "_createResourceFromContext-CRUkdCiM.js",
       "_i18n-2I5lZjwx.js",
+      "_modificationModal-DOTdwxJQ.js",
       "_resourceMoveModal-Bo3VauQc.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-BRmONrDW.js",
+    "file": "entries/resources-DUbsV6kn.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
       "_staticMarkdown-D0Hkxzvx.js",
       "_i18n-2I5lZjwx.js",
-      "_listGroupDropdownStacking-COEh2Rcy.js",
+      "_listGroupDropdownStacking-Dr3OG4BN.js",
       "_resourceMoveModal-Bo3VauQc.js"
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-DTY1TlBI.js",
+    "file": "entries/roleplays-DSEXV52m.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
@@ -102,6 +108,7 @@
       "_staticMarkdown-D0Hkxzvx.js",
       "_createResourceFromContext-CRUkdCiM.js",
       "_i18n-2I5lZjwx.js",
+      "_modificationModal-DOTdwxJQ.js",
       "_resourceMoveModal-Bo3VauQc.js"
     ]
   },

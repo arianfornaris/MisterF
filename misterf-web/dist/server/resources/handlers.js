@@ -2,6 +2,7 @@ import QRCode from 'qrcode';
 import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
+import { duplicateResourceForProfile } from './duplicate.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -610,6 +611,38 @@ export function handleArchiveResource(request, response) {
         });
     }
     response.redirect(normalizeReturnTo(request.body.returnTo));
+}
+/**
+ * Duplicates an owned resource (or folder) into the active profile. The copy is
+ * independent: no participation, shares, or grants travel with it, which is what
+ * lets the same activity run with a separate group.
+ */
+export function handleDuplicateResource(request, response) {
+    const auth = ensureVerifiedResourceUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const returnTo = normalizeReturnTo(request.body.returnTo);
+    const duplicated = duplicateResourceForProfile({
+        locale: request.locale,
+        profileId: auth.activeProfile.id,
+        resourceId: readField(request.params.resourceId, 100),
+        userId: auth.user.id,
+    });
+    if (!duplicated) {
+        response.redirect(returnTo);
+        return;
+    }
+    logger.info('resource_duplicated', {
+        duplicatedCount: duplicated.duplicatedCount,
+        profileId: auth.activeProfile.id,
+        resourceId: duplicated.resource.id,
+        resourceType: duplicated.resource.type,
+        sourceResourceId: readField(request.params.resourceId, 100),
+        userId: auth.user.id,
+    });
+    // Land on the copy so the owner can rename it or start sharing it right away.
+    response.redirect(buildResourceDetailPath(duplicated.resource));
 }
 export function handleRestoreResource(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);

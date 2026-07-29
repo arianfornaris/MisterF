@@ -69,6 +69,12 @@ import {
   computeParticipationFingerprint,
   readParticipationSummaryError,
 } from '../resources/participationSummary.js';
+import {
+  deletePendingModification,
+  getPendingModification,
+  setPendingModification,
+  type ModificationPreviewOwner,
+} from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
 import {
   findRoleplayCharacterAvatar,
@@ -89,12 +95,11 @@ import {
 import { recordRoleplayAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 import {
-  deletePendingRoleplayModification,
-  getPendingRoleplayModification,
   listRoleplayModificationChanges,
-  setPendingRoleplayModification,
-  type RoleplayModificationPreviewOwner,
-} from './modificationPreviewStore.js';
+} from './modificationChanges.js';
+
+/** Namespaces this resource's previews in the shared modification store. */
+const roleplayModificationOperation = 'roleplay';
 
 function ensureVerifiedRoleplayUser(
   request: Request,
@@ -681,17 +686,18 @@ export async function handlePreviewRoleplayModification(
     }
 
     const previewId = randomUUID();
-    const owner: RoleplayModificationPreviewOwner = {
+    const owner: ModificationPreviewOwner = {
+      operation: roleplayModificationOperation,
       profileId: resolved.activeProfile.id,
-      roleplayId: resolved.roleplay.id,
+      resourceId: resolved.roleplay.id,
       userId: resolved.user.id,
     };
-    setPendingRoleplayModification(owner, {
-      baseStoredDraft: storedRoleplayToDraft(resolved.roleplay),
+    setPendingModification<RoleplayDraft, RoleplayDraft>(owner, {
+      baseSnapshot: storedRoleplayToDraft(resolved.roleplay),
       baseUpdatedAt: resolved.roleplay.updatedAt,
       createdAt: Date.now(),
-      draft: revision.draft,
       previewId,
+      proposed: revision.draft,
     });
 
     logger.info('roleplay_modification_preview_generated', {
@@ -733,12 +739,13 @@ export function handleApplyRoleplayModification(
     return;
   }
 
-  const owner: RoleplayModificationPreviewOwner = {
+  const owner: ModificationPreviewOwner = {
+    operation: roleplayModificationOperation,
     profileId: resolved.activeProfile.id,
-    roleplayId: resolved.roleplay.id,
+    resourceId: resolved.roleplay.id,
     userId: resolved.user.id,
   };
-  const pending = getPendingRoleplayModification(owner);
+  const pending = getPendingModification<RoleplayDraft, RoleplayDraft>(owner);
   const previewId = readField(request.body.previewId, 100);
   const currentStoredDraft = storedRoleplayToDraft(resolved.roleplay);
   if (
@@ -746,7 +753,7 @@ export function handleApplyRoleplayModification(
     || !previewId
     || pending.previewId !== previewId
     || pending.baseUpdatedAt !== resolved.roleplay.updatedAt
-    || JSON.stringify(pending.baseStoredDraft) !== JSON.stringify(currentStoredDraft)
+    || JSON.stringify(pending.baseSnapshot) !== JSON.stringify(currentStoredDraft)
   ) {
     response.status(409).json({
       error: translate(request.locale, 'roleplays.modificationExpired'),
@@ -757,7 +764,7 @@ export function handleApplyRoleplayModification(
   const updatedRoleplay = updateRoleplayWithDraft(
     resolved.roleplay,
     resolved.user.id,
-    pending.draft,
+    pending.proposed,
   );
   if (!updatedRoleplay) {
     response.status(422).json({
@@ -766,7 +773,7 @@ export function handleApplyRoleplayModification(
     return;
   }
 
-  deletePendingRoleplayModification(owner);
+  deletePendingModification(owner);
   logger.info('roleplay_modification_applied', {
     resourceId: resolved.roleplay.id,
     resourceType: 'roleplay',
@@ -788,15 +795,16 @@ export function handleDiscardRoleplayModification(
     return;
   }
 
-  const owner: RoleplayModificationPreviewOwner = {
+  const owner: ModificationPreviewOwner = {
+    operation: roleplayModificationOperation,
     profileId: resolved.activeProfile.id,
-    roleplayId: resolved.roleplay.id,
+    resourceId: resolved.roleplay.id,
     userId: resolved.user.id,
   };
-  const pending = getPendingRoleplayModification(owner);
+  const pending = getPendingModification<RoleplayDraft, RoleplayDraft>(owner);
   const previewId = readField(request.body.previewId, 100);
   if (pending && previewId && pending.previewId === previewId) {
-    deletePendingRoleplayModification(owner);
+    deletePendingModification(owner);
   }
   response.json({ ok: true });
 }

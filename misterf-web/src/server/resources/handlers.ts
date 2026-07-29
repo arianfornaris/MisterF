@@ -34,6 +34,7 @@ import {
   normalizeSearchText,
 } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
+import { duplicateResourceForProfile } from './duplicate.js';
 
 type ResourceFilterType = StoredResource['type'] | 'all' | 'by_me' | 'with_me';
 type ResourceSortOption = 'title_asc' | 'type' | 'updated_desc';
@@ -816,6 +817,43 @@ export function handleArchiveResource(request: Request, response: Response): voi
     });
   }
   response.redirect(normalizeReturnTo(request.body.returnTo));
+}
+
+/**
+ * Duplicates an owned resource (or folder) into the active profile. The copy is
+ * independent: no participation, shares, or grants travel with it, which is what
+ * lets the same activity run with a separate group.
+ */
+export function handleDuplicateResource(request: Request, response: Response): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const returnTo = normalizeReturnTo(request.body.returnTo);
+  const duplicated = duplicateResourceForProfile({
+    locale: request.locale,
+    profileId: auth.activeProfile.id,
+    resourceId: readField(request.params.resourceId, 100),
+    userId: auth.user.id,
+  });
+
+  if (!duplicated) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  logger.info('resource_duplicated', {
+    duplicatedCount: duplicated.duplicatedCount,
+    profileId: auth.activeProfile.id,
+    resourceId: duplicated.resource.id,
+    resourceType: duplicated.resource.type,
+    sourceResourceId: readField(request.params.resourceId, 100),
+    userId: auth.user.id,
+  });
+
+  // Land on the copy so the owner can rename it or start sharing it right away.
+  response.redirect(buildResourceDetailPath(duplicated.resource));
 }
 
 export function handleRestoreResource(request: Request, response: Response): void {

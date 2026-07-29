@@ -81,6 +81,8 @@ export const es = {
         editFolder: 'Editar carpeta',
         shared: 'Compartido',
         sharedByMeBadge: 'Compartido por mí',
+        duplicate: 'Duplicar',
+        duplicateTitle: 'Copia de {{title}}',
         pageEditing: 'Editando',
         sharedByMeBadgeTooltip: 'Compartido por mí · {{count}} perfiles con acceso',
         sharedByMeBadgeTooltipOne: 'Compartido por mí · 1 perfil con acceso',
