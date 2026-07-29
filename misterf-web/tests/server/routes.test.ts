@@ -1099,6 +1099,21 @@ describe('main route smoke tests', () => {
     expect(allHtml).toContain('Compartido por mí');
     expect(allHtml).toContain('Compartido conmigo');
 
+    // The badges are icon-only; the label moves to the tooltip, and the
+    // "shared by me" one carries how many profiles hold access. This quiz is
+    // only behind a link so far, so nobody has acquired it yet.
+    expect(allHtml).toContain('Compartido por mí · 0 perfiles con acceso');
+
+    // Granting access to a profile increments the count on the badge.
+    grantResourceAccess({
+      grantedByUserId: owner.id,
+      grantedVia: 'profile',
+      profileId: otherProfile.id,
+      resourceId: sharedByMeQuiz.id,
+      userId: otherOwner.id,
+    });
+    expect(await getResources()).toContain('Compartido por mí · 1 perfil con acceso');
+
     // The sharing categories live inside the type filter: type=by_me keeps only
     // the resource the owner shared out.
     const byMeHtml = await getResources('?type=by_me');

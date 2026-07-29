@@ -13,14 +13,25 @@
         <i class="bi <%= resource.iconClass %> me-2" aria-hidden="true"></i><%= resource.title %>
       </h2>
       <span class="badge rounded-pill <%= resource.badgeClass %>"><%= resource.label %></span>
+      <%# Compact badges: the icon carries the meaning and the label moves to the
+          tooltip, so a long title keeps the row readable. The visually-hidden
+          text is what a screen reader announces, since the icon is decorative. %>
       <% if (resource.isSharedWithMe) { %>
-        <span class="badge text-bg-light border">
-          <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('resources.sharedWithMeBadge') %>
+        <span class="badge text-bg-light border" title="<%= t('resources.sharedWithMeBadge') %>">
+          <i class="bi bi-people" aria-hidden="true"></i>
+          <span class="visually-hidden"><%= t('resources.sharedWithMeBadge') %></span>
         </span>
       <% } %>
       <% if (resource.isSharedByMe) { %>
-        <span class="badge text-bg-light border">
-          <i class="bi bi-share me-1" aria-hidden="true"></i><%= t('resources.sharedByMeBadge') %>
+        <% const sharedByMeTooltip = resource.sharedByMeProfileCount === 1
+          ? t('resources.sharedByMeBadgeTooltipOne')
+          : t('resources.sharedByMeBadgeTooltip', {
+              count: resource.sharedByMeProfileCount,
+            }); %>
+        <span class="badge text-bg-light border" title="<%= sharedByMeTooltip %>">
+          <i class="bi bi-share" aria-hidden="true"></i>
+          <span class="ms-1"><%= resource.sharedByMeProfileCount %></span>
+          <span class="visually-hidden"><%= sharedByMeTooltip %></span>
         </span>
       <% } %>
       <% if (resource.archivedAt) { %>

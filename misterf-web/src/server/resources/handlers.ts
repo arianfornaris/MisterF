@@ -51,6 +51,8 @@ type ResourceListItem = StoredAccessibleResource & {
   canManage: boolean;
   /** Owned by the active profile and put up for sharing (link or grant). */
   isSharedByMe: boolean;
+  /** How many profiles currently hold access to it. Zero until someone opens the link. */
+  sharedByMeProfileCount: number;
   /** Reached through a share (the active profile is not the owner). */
   isSharedWithMe: boolean;
   /** Parent folder title, shown only in the flat global ("Todo") scope. */
@@ -187,7 +189,7 @@ function toAccessibleOwnerResource(resource: StoredResource): StoredAccessibleRe
 
 function buildResourceListItem(
   resource: StoredAccessibleResource,
-  sharedByMeIds?: ReadonlySet<string>,
+  sharedByMeIds?: ReadonlyMap<string, number>,
   folderTitle: string | null = null,
 ): ResourceListItem {
   const meta = {
@@ -230,6 +232,7 @@ function buildResourceListItem(
     canManage: resource.accessKind === 'owner',
     isSharedByMe:
       resource.accessKind === 'owner' && (sharedByMeIds?.has(resource.id) ?? false),
+    sharedByMeProfileCount: sharedByMeIds?.get(resource.id) ?? 0,
     isSharedWithMe: resource.accessKind === 'shared',
     folderTitle,
   };
@@ -287,7 +290,7 @@ function filterAndSortResources(
     sort: ResourceSortOption;
     type: ResourceFilterType;
   },
-  sharedByMeIds: ReadonlySet<string>,
+  sharedByMeIds: ReadonlyMap<string, number>,
 ): StoredAccessibleResource[] {
   const normalizedQuery = normalizeSearchText(filters.query);
   const filteredResources = resources.filter((resource) => {
@@ -443,11 +446,13 @@ export async function renderResourcesListPage(
     : selectedFolder
     ? scopedResources
     : removeFiledResourcesFromRoot(scopedResources, folderOptions, auth.user.id);
-  const sharedByMeIds = new Set(
+  // Keyed by resource id, valued by how many profiles currently hold access, so
+  // the "shared by me" badge can show the count without a second query.
+  const sharedByMeIds = new Map(
     listSharedResourcesForProfile({
       profileId: auth.activeProfile.id,
       userId: auth.user.id,
-    }).map((resource) => resource.id),
+    }).map((resource) => [resource.id, resource.activeGrantCount] as const),
   );
   const filters = {
     query: readField(request.query.q, 160),

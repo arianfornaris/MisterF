@@ -85,6 +85,8 @@ export const es: LocaleCatalog = {
     editFolder: 'Editar carpeta',
     shared: 'Compartido',
     sharedByMeBadge: 'Compartido por mí',
+    sharedByMeBadgeTooltip: 'Compartido por mí · {{count}} perfiles con acceso',
+    sharedByMeBadgeTooltipOne: 'Compartido por mí · 1 perfil con acceso',
     sharedWithMeBadge: 'Compartido conmigo',
     sharedByMeOption: 'Compartido por mí',
     sharedWithMeOption: 'Compartido conmigo',

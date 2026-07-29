@@ -81,6 +81,8 @@ export const en = {
         editFolder: 'Edit folder',
         shared: 'Shared',
         sharedByMeBadge: 'Shared by me',
+        sharedByMeBadgeTooltip: 'Shared by me · {{count}} profiles with access',
+        sharedByMeBadgeTooltipOne: 'Shared by me · 1 profile with access',
         sharedWithMeBadge: 'Shared with me',
         sharedByMeOption: 'Shared by me',
         sharedWithMeOption: 'Shared with me',

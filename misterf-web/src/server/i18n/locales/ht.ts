@@ -94,6 +94,8 @@ export const ht: LocaleCatalog = {
     editFolder: 'Modifye katab',
     shared: 'Pataje',
     sharedByMeBadge: 'Mwen pataje',
+    sharedByMeBadgeTooltip: 'Mwen pataje · {{count}} pwofil ki gen aksè',
+    sharedByMeBadgeTooltipOne: 'Mwen pataje · 1 pwofil ki gen aksè',
     sharedWithMeBadge: 'Pataje avè m',
     sharedByMeOption: 'Mwen pataje',
     sharedWithMeOption: 'Pataje avè m',
