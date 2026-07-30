@@ -930,6 +930,100 @@ export const es: LocaleCatalog = {
     statusPending: 'Pendiente',
     noPurchases: 'Todavía no tienes compras registradas.',
   },
+  landing: {
+    metaDescription:
+      'Mister F convierte la tarea que ya asignas en práctica guiada que tus estudiantes adultos hacen desde un enlace, y te da un reporte para la próxima clase con lo que necesita cada uno.',
+    skipToContent: 'Ir al contenido',
+    signIn: 'Iniciar sesión',
+    heroEyebrow: 'Para profesores y tutores independientes de inglés',
+    heroTitle:
+      'Convierte cada tarea en práctica guiada y llega a la próxima clase sabiendo qué repasar.',
+    heroSubtitle:
+      'Para profesores y tutores que enseñan inglés a adultos. Con tu propio material: sin plataforma escolar ni currículo obligatorio.',
+    heroPrimaryCta: 'Crea tu primera actividad',
+    heroSecondaryCta: 'Prueba una actividad de ejemplo',
+    heroFootnote: 'Gratis durante el piloto. Sin tarjeta.',
+    reportExampleLabel: 'Ejemplo',
+    reportExampleTitle: 'Reporte para la próxima clase',
+    reportExampleActivity: 'Pedir cita en la clínica · A2',
+    reportExampleCompleted: '5 de 8 estudiantes la completaron',
+    reportExampleWeakestLabel: 'Lo que más falló',
+    reportExampleWeakest: 'Preguntas en pasado simple',
+    reportExampleFollowUpLabel: 'Siguieron practicando',
+    reportExampleFollowUp: '3 estudiantes',
+    proofTitle: 'Míralo en 30 segundos',
+    proofBody:
+      'Abre la actividad de ejemplo como lo haría uno de tus estudiantes: respóndela desde el teléfono, sin cuenta. Crea una cuenta gratis cuando quieras ver la evaluación y la práctica que viene después.',
+    proofCta: 'Abrir la actividad de ejemplo',
+    stepsTitle: 'Cómo funciona',
+    step1Title: 'Parte de tu material',
+    step1Body:
+      'Pega tu texto, el tema o la tarea que ya tenías pensada. Mister F redacta la actividad a partir de eso.',
+    step2Title: 'Revisa la actividad',
+    step2Body:
+      'Lee lo que generó y ajusta lo que quieras antes de que llegue a tus estudiantes. Nada se comparte hasta que tú lo decidas.',
+    step3Title: 'Comparte un enlace',
+    step3Body:
+      'Mándalo por WhatsApp o por donde ya hablas con tu clase. Tus estudiantes lo abren en el teléfono: no instalan nada.',
+    step4Title: 'Reciben retroalimentación y practican',
+    step4Body:
+      'Cada estudiante recibe su evaluación al terminar y puede seguir practicando justo lo que falló, sin esperarte.',
+    step5Title: 'Lees el reporte para la próxima clase',
+    step5Body:
+      'Quién la hizo, qué falló más y qué conviene repasar juntos. Listo antes de entrar al aula.',
+    notTitle: 'Lo que Mister F no es',
+    not1: 'No es un LMS. No hay que migrar nada ni montar un curso.',
+    not2: 'No te impone un currículo ni un libro. Tu material manda.',
+    not3: 'Tus estudiantes no instalan nada. Abren un enlace.',
+    learnerTitle: '¿Estudias por tu cuenta?',
+    learnerBody:
+      'No necesitas un profesor para usar Mister F. Practica con Mr. F, recibe correcciones sobre la marcha y lleva un registro de lo que vas mejorando.',
+    learnerCta: 'Practicar con Mr. F',
+    founderTitle: 'Quién está detrás de Mister F',
+    founderBody1:
+      'Mister F lo construye Arian Fornaris, un desarrollador de software que llegó al sur de Florida en 2023 y aprendió inglés siendo adulto, como los estudiantes para los que está pensado.',
+    founderBody2:
+      'El Mister F real es su padre, que enseñó inglés durante décadas en Cuba y hoy lo enseña en Florida. Su manera de acompañar a un estudiante fuera de clase es la idea sobre la que está construido el producto.',
+    founderBody3:
+      'Mister F es operado por Little Software LLC, Florida, Estados Unidos.',
+    pilotTitle: 'En piloto con profesores del sur de Florida',
+    pilotBody:
+      'Mister F está corriendo su primer piloto con un grupo pequeño de profesores independientes, y todavía se está afinando con quienes lo usan. Las plazas son limitadas.',
+    pilotCta: 'Pide una plaza en el piloto',
+    priceTitle: 'Cuánto cuesta',
+    priceBody:
+      'Gratis durante el piloto. El precio final lo definiremos junto a los profesores del piloto: preferimos fijarlo con ellos antes que adivinarlo ahora.',
+    privacyTitle: 'Datos y privacidad',
+    privacy1: 'El piloto se hace solo con estudiantes adultos.',
+    privacy2:
+      'Cuando compartes una actividad que recoge resultados, tus estudiantes ven un aviso claro antes de responder.',
+    privacy3: 'También puedes compartir una actividad sin recoger nada.',
+    privacy4: 'Tu material sigue siendo tuyo.',
+    privacyLink: 'Leer la política de privacidad',
+    faqTitle: 'Preguntas',
+    faq1Question: '¿Mis estudiantes necesitan cuenta?',
+    faq1Answer:
+      'Pueden abrir una actividad compartida y responderla sin cuenta. La cuenta hace falta para ver la evaluación y seguir practicando, y crearla es gratis.',
+    faq2Question: '¿Funciona con mi propio material?',
+    faq2Answer:
+      'De eso se trata. Pegas tu texto, tu tema o tu tarea y la actividad se construye a partir de eso, no de un catálogo fijo.',
+    faq3Question: '¿Y si la IA se equivoca?',
+    faq3Answer:
+      'Revisas cada actividad antes de compartirla y puedes cambiar lo que no te guste. Nada llega a tus estudiantes sin que lo hayas visto.',
+    faq4Question: '¿En qué idiomas está?',
+    faq4Answer:
+      'La práctica es en inglés. La interfaz y las explicaciones están en español, inglés y criollo haitiano.',
+    faq5Question: '¿Hay que instalar algo?',
+    faq5Answer:
+      'No. Funciona en el navegador, en el teléfono o en la computadora, para ti y para tus estudiantes.',
+    faq6Question: '¿Cuántos estudiantes puedo tener?',
+    faq6Answer:
+      'No hay lista de clase que configurar. Compartes el enlace con quien quieras y ves los resultados de todos los que la completen.',
+    footerTagline:
+      'Práctica de inglés con un tutor de IA, construida alrededor de un profesor real.',
+    footerCompany: 'Little Software LLC · Florida, Estados Unidos',
+    footerContact: 'Contacto',
+  },
   legal: {
     back: 'Volver a Mister F',
     lastUpdated: 'Última actualización: 2 de junio de 2026',

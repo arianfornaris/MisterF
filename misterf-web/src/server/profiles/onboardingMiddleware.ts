@@ -16,7 +16,9 @@ const bypassExactPaths = new Set([
   '/profiles/onboarding/skip',
   '/register',
   '/reset-password',
+  '/robots.txt',
   '/signup',
+  '/sitemap.xml',
   '/terms',
   '/verify-needed',
 ]);

@@ -99,6 +99,12 @@ export const env = {
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
     stripeCredits200PriceId: process.env.STRIPE_CREDITS_200_PRICE_ID ?? '',
     appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
+    // Share URL of the public example activity the landing page points visitors
+    // at. Empty means "not chosen yet": the landing then hides the demo call to
+    // action instead of shipping a dead link.
+    landingDemoUrl: process.env.LANDING_DEMO_URL ?? '',
+    // Where the landing's pilot call to action writes to.
+    landingContactEmail: process.env.LANDING_CONTACT_EMAIL ?? 'support@littlesoftware.info',
     sessionSecret: process.env.APP_SESSION_SECRET ?? '',
     smtpHost: process.env.SMTP_HOST ?? '',
     smtpPort: readInteger('SMTP_PORT', 587),

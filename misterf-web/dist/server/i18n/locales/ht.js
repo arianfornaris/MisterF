@@ -1,11 +1,17 @@
 /**
  * Haitian Creole (Kreyòl ayisyen) UI catalog.
  *
- * Coverage is complete (every namespace present, no English fallback). The
- * copy is a careful machine translation that keeps Creole orthography and
- * avoids drifting into French; the legal bodies and other high-visibility text
- * still merit a fluent-speaker review, but the catalog is not gated behind the
- * experimental flag anymore.
+ * Coverage is complete for the application UI (every namespace present, no
+ * English fallback). The copy is a careful machine translation that keeps
+ * Creole orthography and avoids drifting into French; the legal bodies and
+ * other high-visibility text still merit a fluent-speaker review, but the
+ * catalog is not gated behind the experimental flag anymore.
+ *
+ * Deliberate exception: the `landing` namespace is absent, so the public
+ * landing page falls back to English for `ht` visitors. Marketing prose is the
+ * one place where a machine translation is likely to read as untrustworthy to
+ * the audience it is trying to convince. Whether Creole ships with the landing
+ * is an open decision in `docs/roadmap/roadmap-v3-5.md`, section 1.4.
  */
 export const ht = {
     common: {

@@ -1,6 +1,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= title %></title>
+    <%# Optional, and read through `locals` so the app pages that include this
+        partial without them keep rendering. Only public pages need them. %>
+    <% if (locals.metaDescription) { %>
+      <meta name="description" content="<%= locals.metaDescription %>">
+      <meta property="og:description" content="<%= locals.metaDescription %>">
+    <% } %>
+    <% if (locals.canonicalUrl) { %>
+      <link rel="canonical" href="<%= locals.canonicalUrl %>">
+      <meta property="og:url" content="<%= locals.canonicalUrl %>">
+      <meta property="og:type" content="website">
+      <meta property="og:site_name" content="Mister F">
+      <meta property="og:title" content="<%= title %>">
+      <meta name="twitter:card" content="<%= locals.ogImageUrl ? 'summary_large_image' : 'summary' %>">
+    <% } %>
+    <% if (locals.ogImageUrl) { %>
+      <meta property="og:image" content="<%= locals.ogImageUrl %>">
+    <% } %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">

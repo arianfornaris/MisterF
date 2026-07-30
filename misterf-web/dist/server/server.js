@@ -12,6 +12,7 @@ import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
 import { attachLocale } from './i18n/middleware.js';
 import { translate } from './i18n/index.js';
+import { landingRouter } from './landing/routes.js';
 import { legalRouter } from './legal/routes.js';
 import { paymentsRouter, stripeWebhookRouter } from './payments/routes.js';
 import { practiceGuidesRouter } from './practiceGuides/routes.js';
@@ -60,6 +61,9 @@ app.use(settingsRouter);
 app.use(paymentsRouter);
 app.use(legalRouter);
 app.use(progressRouter);
+// Before the chat router: it owns `/` for visitors without a session and
+// passes authenticated requests through, so `/` still opens the app.
+app.use(landingRouter);
 app.use(chatRouter);
 app.get('/session', (request, response) => {
     response.json({
