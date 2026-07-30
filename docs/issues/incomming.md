@@ -6,6 +6,12 @@ Nota: planificado como V3 en el roadmap V1. Diseño detallado en
 `docs/features/home-start-experience.md`. Las sugerencias del home deberían
 referenciar resource ids donde sea útil.
 
+Nota (2026-07-30): las dos variantes quedaron separadas. La **landing page**
+para visitantes no logueados pasó a su propio roadmap,
+`docs/roadmap/roadmap-v3-5.md`, dirigida al profesor/tutor independiente. La
+**home del usuario logueado** sigue aquí, sin empezar, con el diseño en los dos
+documentos citados arriba.
+
 ---
 
 Consider whether tutor plans should support sub-plans, so an individual plan

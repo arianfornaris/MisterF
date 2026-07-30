@@ -17,11 +17,21 @@ deferrals.
 - [Roadmap V1](./roadmap/roadmap-v1.md): the first production version.
   **Complete — deployed to production (misterf.us) on 2026-07-02** with the
   clean database baseline.
-- [Roadmap V2](./roadmap/roadmap-v2.md): in planning. Two product pillars —
-  English-first internationalization and comprehension exercises
-  (reading/listening/image) — plus the engineering items deferred from V1.
-  Other product-feature candidates live in the idea inbox,
-  [issues/incomming.md](./issues/incomming.md).
+- [Roadmap V2](./roadmap/roadmap-v2.md): the English-first internationalization
+  release. **Shipped 2026-07-08 as `2.0.0`.**
+- [Roadmap V3](./roadmap/roadmap-v3.md): the Teacher Pilot MVP — the full
+  assigned-practice cycle, from a quiz made with the teacher's own material to
+  the next-class report. **Released 2026-07-26 as `3.0.0`;** the document
+  remains the living tracker for the rest of V3.
+- [Roadmap V3.5](./roadmap/roadmap-v3-5.md): a single-purpose mini-roadmap for
+  the public landing page and the entry-surface infrastructure it needs
+  (routing, language editions, share previews, crawlability, conversion
+  counts). Not a MAJOR bump — it ships as `3.x` MINOR releases.
+- [Roadmap V4](./roadmap/roadmap-v4.md): the deferred backlog, waiting for
+  pilot evidence before it is re-scoped.
+
+Other product-feature candidates live in the idea inbox,
+[issues/incomming.md](./issues/incomming.md).
 
 ## Structure
 
