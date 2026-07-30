@@ -136,10 +136,11 @@ export const env = {
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
   stripeCredits200PriceId: process.env.STRIPE_CREDITS_200_PRICE_ID ?? '',
   appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
-  // Share URL of the public example activity the landing page points visitors
-  // at. Empty means "not chosen yet": the landing then hides the demo call to
-  // action instead of shipping a dead link.
-  landingDemoUrl: process.env.LANDING_DEMO_URL ?? '',
+  // Account that owns the landing's public example activities. The landing
+  // offers a random one of its shared quizzes; when the seed has not run in
+  // this environment there are none, and the demo call to action is hidden
+  // rather than shipping a dead link. See `scripts/seed-landing-demos.ts`.
+  landingDemoEmail: process.env.LANDING_DEMO_EMAIL ?? 'examples@misterf.us',
   // Where the landing's pilot call to action writes to.
   landingContactEmail:
     process.env.LANDING_CONTACT_EMAIL ?? 'support@littlesoftware.info',

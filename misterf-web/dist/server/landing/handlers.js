@@ -1,4 +1,5 @@
 import { env } from '../config/env.js';
+import { listDemoActivitiesForUserEmail } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl } from '../pages/shell.js';
 /**
  * The public landing page, shown at `/` to visitors without a session.
@@ -13,14 +14,32 @@ export function renderLandingPage(request, response, next) {
         next();
         return;
     }
-    // No `ogImageUrl` yet: the share card is still an unbuilt asset, and an
-    // `og:image` pointing at a 404 previews worse than no tag at all.
+    const demoActivity = pickDemoActivity();
     response.render('landing', {
         canonicalUrl: buildAbsoluteAppUrl('/'),
         contactEmail: env.landingContactEmail,
-        demoUrl: env.landingDemoUrl,
+        demoActivity,
+        ogImageUrl: buildAbsoluteAppUrl('/public/brand/share-card.png'),
         title: `Mister F · ${appDocumentTitle}`,
     });
+}
+/**
+ * One of the seeded example activities, chosen at random per visit so the pool
+ * gets exercised and no single activity carries the whole first impression.
+ * Returns null when the environment has no seeded demos, which hides the demo
+ * section rather than offering a link that goes nowhere.
+ */
+function pickDemoActivity() {
+    const activities = listDemoActivitiesForUserEmail(env.landingDemoEmail);
+    if (activities.length === 0) {
+        return null;
+    }
+    const activity = activities[Math.floor(Math.random() * activities.length)];
+    return {
+        level: activity.level,
+        title: activity.title,
+        url: `/resources/shared/${encodeURIComponent(activity.shareId)}`,
+    };
 }
 /**
  * Served from a route rather than `public/`, which is mounted under `/public`

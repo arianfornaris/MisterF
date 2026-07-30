@@ -127,10 +127,10 @@ assets or on a chosen demo activity carry their own note.
   indistinguishable from every other AI product. **Shipped with a labelled
   example card**, not a screenshot — it carries an `Example` badge so it is
   never read as a real class. Replacing it with a real screenshot is item 2.5.
-- [~] **The 30-second proof.** A link to a real shared activity the visitor can
-  complete without an account (see 1.2). The section and both calls to action
-  are built and render only when `LANDING_DEMO_URL` is set, so the page never
-  ships a dead link; **choosing the activity is what is left.**
+- [x] **The 30-second proof.** Done 2026-07-30: the section names the activity
+  the visitor is about to open, with its level, and links to a real shared
+  quiz. It renders only when the environment has seeded demos (see 1.2), so the
+  page never ships a dead link.
 - [x] **How it works**, in five steps: your material → review → share the link
   → the student gets feedback and practices → you read the report. Shipped with
   text and numbered cards; real screenshots are item 2.5.
@@ -170,27 +170,44 @@ repeated at most three times down the page.
 
 ## 1.2 The 30-Second Proof (Public Example Activity)
 
-The strongest asset available is that shared links with guest attempts already
-work ([Propuesta de MVP](../business/propuesta-mvp.md), section 3, step 2). The
-demo does not need to be built — it needs to be chosen and curated.
+Shipped 2026-07-30 as a **pool of ten hand-authored activities**, one picked at
+random per visit, rather than a single link. A pool spreads the first
+impression across levels and situations, survives one activity going stale, and
+lets a teacher reload to see the range.
 
-The page side is ready: `LANDING_DEMO_URL` drives both calls to action and the
-whole proof section, which stays hidden while the variable is empty. Everything
-below is content and policy work the founder owns.
-
-- [ ] Author a demo activity aimed at the pilot audience (adult, practical
-  situation, A2–B1) and share it with a stable link.
-- [ ] Decide how the demo link is protected from drift: it must not be
-  archivable, deletable, or editable by accident, and its attempts must not
-  pollute the founder's own results views.
-- [ ] Verify the full guest path from the landing on a phone: open → answer →
-  create an account → evaluation. Note that evaluation is gated behind signup
-  today (`handleStartSharedQuizAttempt`), so the demo converts *before* it pays
-  off rather than after. The landing copy says so plainly; whether that is the
-  right trade for a public demo is worth revisiting once the funnel is measured.
-- [ ] Decide whether the demo attempt's evaluation consumes credits and, if so,
-  whose — a public demo that silently spends inference has a cost ceiling that
-  must be known before the link is public.
+- [x] Author the demo activities aimed at the pilot audience (adult, practical
+  situations, A1–B2). Ten quizzes live in
+  `src/server/landing/demoActivities.ts`: first day at a new job, bus and
+  directions, clinic appointment, grocery store, routine and shifts, calling
+  about an apartment, a problem with a bill, a job interview, a meeting at your
+  child's school, and reporting a safety problem / asking for time off. Between
+  them they cover all seven item kinds a landing visitor can meet, both
+  multiple-choice selection modes, and sections.
+  - Hand-authored fixtures, not generated: no inference cost, reviewed in a
+    pull request, identical in every environment, and immune to model drift.
+  - Quizzes only. A roleplay or practice guide spends inference on every turn,
+    and this pool is opened by anonymous visitors; a quiz costs nothing until
+    it is submitted, and submission is already gated behind signup.
+  - No `quiz_translate_to_english` / `quiz_understand_in_spanish` items: both
+    are Spanish-coupled, and a landing visitor has not chosen an instruction
+    language.
+- [x] Decide how the demo link is protected from drift. The activities live in
+  a dedicated account (`LANDING_DEMO_EMAIL`, default `examples@misterf.us`)
+  with no password and no identity row, so it cannot be signed into. Resource
+  ids are derived from the fixture slug, which makes
+  `npm run seed:landing-demos` idempotent: re-running updates content in place
+  and every share URL already handed out keeps working. Their share links are
+  set to **not** collect results, so no stranger's attempt lands in anyone's
+  report.
+- [x] Decide whether the demo attempt's evaluation consumes credits and whose.
+  **Left exactly as it is (founder decision, 2026-07-30):** the visitor answers
+  anonymously, creates an account to see the evaluation, and the welcome credit
+  covers that first evaluation. Payment details are only ever needed to buy a
+  second balance, so the demo has no anonymous inference cost at all.
+- [ ] Verify the full guest path on a phone, end to end, against production
+  once seeded: open → answer → create an account → evaluation. Locally the
+  anonymous half is verified (open, all item kinds render and accept answers);
+  the account half needs a real signup.
 
 ## 1.3 Root Routing And The Guest Experience
 
@@ -246,9 +263,12 @@ therefore a more valuable surface than any meta keyword.
   `og:type`, `og:site_name`, `og:description`, `twitter:card`, plus
   `meta description` and `canonical`. All optional and read through `locals`,
   so the app pages that include the partial without them are unaffected.
-- [ ] Design a share image for the landing. Until it exists no `og:image` is
-  emitted at all — a tag pointing at a 404 previews worse than none — and the
-  card degrades to `summary`.
+- [~] Design a share image for the landing. **Placeholder shipped 2026-07-30**
+  at `public/brand/share-card.png`: 1200×630, the Mister F logo centred on
+  white, composed from `design/MisterF-v2.png`. Deliberately open — a card that
+  says what the product does, or shows the report, would convert better than a
+  bare logo, and this is the image dozens of students see when a teacher
+  forwards a link.
 - [ ] Give **shared resources** their own preview (activity title, level, and
   who shared it). This is the card dozens of students actually see, and it is
   the closest thing the product has to an organic growth loop.
@@ -348,11 +368,14 @@ crawlers ask for.
 
 ## 2.5 Assets
 
-- [ ] Real product screenshots for the hero and the four steps, from a seeded
-  account with presentable content (not the founder's live data).
+- [~] Real product screenshots for the hero and the steps. The seeded demo
+  activities (1.2) are now the presentable content to shoot against, and the
+  **student-side** screens are reachable with no account. The **teacher-side**
+  screens — authoring, sharing, and the next-class report — need an
+  authenticated session and, for the report, at least two evaluated attempts.
+  Decide who captures those and against which account.
 - [ ] Founder photo.
-- [ ] Share image (1.5). `public/brand/` currently holds only a favicon and the
-  panel logo.
+- [x] Share image (1.5), as a logo placeholder. Replacing it stays open there.
 
 ---
 
@@ -365,8 +388,11 @@ included where the roadmap has one.
    Spanish and Creole one click away in the header.
 2. ~~**Does guest chat survive**, and at which URL?~~ Decided 2026-07-30: yes,
    at `/chat`.
-3. **Which demo activity** is the public example, and who pays for the inference
-   its evaluations consume?
+3. ~~**Which demo activity** is the public example, and who pays for the
+   inference its evaluations consume?~~ Decided 2026-07-30: a pool of ten
+   hand-authored quizzes, picked at random; the visitor's own welcome credit
+   pays for the evaluation after they sign up, so nothing changes in the
+   payment flow.
 4. **Analytics mechanism** for the two conversion counts, within budget and
    within the current privacy posture.
 5. **Exact wording of the pilot and price statement** — this is the sentence
@@ -384,10 +410,12 @@ included where the roadmap has one.
 - [x] A logged-out visitor at the root sees the landing; an authenticated user
   is unaffected; every existing deep link still works. Verified 2026-07-30 by
   the route tests and a click-through on the local server.
-- [ ] The example activity can be completed end to end from a phone, with no
-  account, starting from the landing.
+- [~] The example activity can be completed end to end from a phone, starting
+  from the landing. The anonymous half works; the signup-to-evaluation half
+  still needs a real run (1.2).
 - [ ] Share previews render correctly in WhatsApp for both the landing and a
-  shared activity.
+  shared activity. The landing has a placeholder card; a shared activity has no
+  preview of its own yet (1.5).
 - [ ] The landing exists in at least the two committed language editions, at
   real URLs, cross-linked with `hreflang`.
 - [x] `robots.txt`, `sitemap.xml`, meta descriptions, and canonicals are in

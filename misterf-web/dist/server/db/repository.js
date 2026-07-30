@@ -1444,6 +1444,35 @@ export function findResourceShareLinkForResource(resourceId) {
         .get(resourceId);
     return row ? toStoredResourceShareLink(row) : null;
 }
+/**
+ * Active share links for the quizzes owned by the landing's demo account, used
+ * to offer a visitor a real activity without a hard-coded URL. Seeded by
+ * `scripts/seed-landing-demos.ts`; an environment where the seed never ran
+ * simply returns an empty list and the landing hides the section.
+ */
+export function listDemoActivitiesForUserEmail(email) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          resources.title AS title,
+          resources.level AS level,
+          resource_share_links.id AS share_id
+        FROM resource_share_links
+        JOIN resources ON resources.id = resource_share_links.resource_id
+        JOIN users ON users.id = resources.user_id
+        WHERE users.email = ?
+          AND resources.type = 'quiz'
+          AND resources.archived_at IS NULL
+          AND resource_share_links.revoked_at IS NULL
+        ORDER BY resources.created_at ASC, resources.id ASC
+      `)
+        .all(email);
+    return rows.map((row) => ({
+        level: row.level,
+        shareId: row.share_id,
+        title: row.title,
+    }));
+}
 export function getOrCreateResourceShareLink(resourceId) {
     const existing = findResourceShareLinkForResource(resourceId);
     if (existing) {
@@ -2021,7 +2050,7 @@ export function upsertLearnerProgressEvent(input) {
     return toStoredLearnerProgressEvent(row);
 }
 export function createQuiz(input) {
-    const id = randomUUID();
+    const id = input.id ?? randomUUID();
     const db = getDb();
     const transaction = db.transaction(() => {
         insertResource(db, {

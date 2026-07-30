@@ -954,7 +954,9 @@ export const en: LocaleCatalog = {
     proofTitle: 'See it in 30 seconds',
     proofBody:
       'Open the example activity the way one of your students would: answer it on your phone, no account needed. Create a free account when you want to see the evaluation and the practice that follows.',
-    proofCta: 'Open the example activity',
+    proofCta: 'Open the example',
+    proofActivityLabel: 'Example activity',
+    proofRandomNote: 'One of ten example activities, picked at random.',
     stepsTitle: 'How it works',
     step1Title: 'Start from your material',
     step1Body:

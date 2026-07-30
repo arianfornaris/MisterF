@@ -15,7 +15,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 const originalAppBaseUrl = process.env.APP_BASE_URL;
 const originalDatabasePath = process.env.DATABASE_PATH;
 const originalEnvFile = process.env.ENV_FILE;
-const originalLandingDemoUrl = process.env.LANDING_DEMO_URL;
+const originalLandingDemoEmail = process.env.LANDING_DEMO_EMAIL;
 const originalNodeEnv = process.env.NODE_ENV;
 const originalSessionSecret = process.env.APP_SESSION_SECRET;
 
@@ -29,7 +29,7 @@ beforeAll(async () => {
   process.env.DATABASE_PATH = path.join(tempDir, 'landing.sqlite');
   process.env.ENV_FILE = '/dev/null';
   process.env.NODE_ENV = 'test';
-  delete process.env.LANDING_DEMO_URL;
+  process.env.LANDING_DEMO_EMAIL = 'landing-examples@example.com';
   vi.resetModules();
 
   const serverModule = await import('../../src/server/server.js');
@@ -54,7 +54,7 @@ afterAll(async () => {
   restoreEnvValue('APP_BASE_URL', originalAppBaseUrl);
   restoreEnvValue('DATABASE_PATH', originalDatabasePath);
   restoreEnvValue('ENV_FILE', originalEnvFile);
-  restoreEnvValue('LANDING_DEMO_URL', originalLandingDemoUrl);
+  restoreEnvValue('LANDING_DEMO_EMAIL', originalLandingDemoEmail);
   restoreEnvValue('NODE_ENV', originalNodeEnv);
   restoreEnvValue('APP_SESSION_SECRET', originalSessionSecret);
 });
@@ -113,17 +113,74 @@ describe('public landing page', () => {
     expect(html).toContain('<meta name="description"');
     expect(html).toContain('<link rel="canonical" href="https://misterf.test/">');
     expect(html).toContain('<meta property="og:url" content="https://misterf.test/">');
-    // The share card asset does not exist yet, so no og:image may be claimed.
-    expect(html).not.toContain('og:image');
+    expect(html).toContain(
+      '<meta property="og:image" content="https://misterf.test/public/brand/share-card.png">',
+    );
   });
 
-  it('hides the demo call to action while no example activity is configured', async () => {
+  it('hides the demo call to action while no example activity is seeded', async () => {
     const response = await fetch(baseUrl, {
       headers: { 'Accept-Language': 'en-US,en;q=0.9' },
     });
     const html = await response.text();
 
-    expect(html).not.toContain('Open the example activity');
+    expect(html).not.toContain('Example activity');
+    expect(html).not.toContain('/resources/shared/');
+  });
+
+  it('offers a seeded example activity from the demo account', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      getOrCreateResourceShareLink,
+    } = await import('../../src/server/db/repository.js');
+    const { landingDemoActivities } = await import(
+      '../../src/server/landing/demoActivities.js'
+    );
+
+    const demoUser = createExternalUser({
+      email: 'landing-examples@example.com',
+      emailVerified: true,
+      fullName: 'Mister F examples',
+      provider: 'google',
+      providerSubject: 'landing-examples',
+    });
+    const demoProfile = createProfile({
+      instructionLanguage: 'en',
+      name: 'Examples',
+      userId: demoUser.id,
+    });
+    const [first] = landingDemoActivities;
+    const quiz = createQuiz({
+      description: first.draft.description,
+      id: `landing-demo-${first.slug}`,
+      instructions: first.draft.instructions,
+      level: first.draft.level,
+      profileId: demoProfile.id,
+      quiz: first.draft,
+      sharedVia: 'link',
+      targetTopic: first.draft.targetTopic,
+      title: first.draft.title,
+      userId: demoUser.id,
+    });
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+
+    const response = await fetch(baseUrl, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+    });
+    const html = await response.text();
+
+    expect(html).toContain(`/resources/shared/${shareLink.id}`);
+    expect(html).toContain(first.draft.title);
+    expect(html).toContain('Example activity');
+
+    // And the visitor can actually open it without an account.
+    const shared = await fetch(`${baseUrl}/resources/shared/${shareLink.id}`, {
+      redirect: 'manual',
+    });
+    expect(shared.status).toBe(200);
+    await expect(shared.text()).resolves.toContain(first.draft.title);
   });
 
   it('keeps the root as the app for an authenticated session', async () => {

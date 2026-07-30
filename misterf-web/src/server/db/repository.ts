@@ -2512,6 +2512,47 @@ export function findResourceShareLinkForResource(
   return row ? toStoredResourceShareLink(row) : null;
 }
 
+export type StoredDemoActivity = {
+  level: string;
+  shareId: string;
+  title: string;
+};
+
+/**
+ * Active share links for the quizzes owned by the landing's demo account, used
+ * to offer a visitor a real activity without a hard-coded URL. Seeded by
+ * `scripts/seed-landing-demos.ts`; an environment where the seed never ran
+ * simply returns an empty list and the landing hides the section.
+ */
+export function listDemoActivitiesForUserEmail(
+  email: string,
+): StoredDemoActivity[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          resources.title AS title,
+          resources.level AS level,
+          resource_share_links.id AS share_id
+        FROM resource_share_links
+        JOIN resources ON resources.id = resource_share_links.resource_id
+        JOIN users ON users.id = resources.user_id
+        WHERE users.email = ?
+          AND resources.type = 'quiz'
+          AND resources.archived_at IS NULL
+          AND resource_share_links.revoked_at IS NULL
+        ORDER BY resources.created_at ASC, resources.id ASC
+      `,
+    )
+    .all(email) as Array<{ level: string; share_id: string; title: string }>;
+
+  return rows.map((row) => ({
+    level: row.level,
+    shareId: row.share_id,
+    title: row.title,
+  }));
+}
+
 export function getOrCreateResourceShareLink(
   resourceId: string,
 ): StoredResourceShareLink {
@@ -3438,6 +3479,12 @@ export function upsertLearnerProgressEvent(input: {
 export function createQuiz(input: {
   authoringMessages?: QuizAuthoringMessage[];
   description?: string;
+  /**
+   * Explicit resource id. Only the landing demo seed passes one, so that
+   * re-running the seed updates the same activities instead of creating
+   * duplicates; everything else takes the generated UUID.
+   */
+  id?: string;
   instructions?: string;
   level?: string;
   profileId: string;
@@ -3450,7 +3497,7 @@ export function createQuiz(input: {
   title: string;
   userId: string;
 }): StoredQuiz {
-  const id = randomUUID();
+  const id = input.id ?? randomUUID();
   const db = getDb();
   const transaction = db.transaction(() => {
     insertResource(db, {
