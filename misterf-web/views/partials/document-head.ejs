@@ -22,9 +22,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
-    <link rel="stylesheet" href="/vendor/bootswatch/flatly/bootstrap.min.css">
-    <% if (includeBootstrapIcons) { %>
-      <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+    <%# The application theme. A public page can opt out with
+        `includeAppStyles: false` and bring its own stylesheet instead — the
+        landing does, so it ships no Bootstrap, no icon font, and no script. %>
+    <% if (locals.includeAppStyles !== false) { %>
+      <link rel="stylesheet" href="/vendor/bootswatch/flatly/bootstrap.min.css">
+      <% if (locals.includeBootstrapIcons) { %>
+        <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+      <% } %>
+      <%- include('app-stylesheet') %>
+      <%- include('client-error-telemetry-script') %>
     <% } %>
-    <%- include('app-stylesheet') %>
-    <%- include('client-error-telemetry-script') %>
+    <% if (locals.pageStylesheet) { %>
+      <link rel="stylesheet" href="<%= locals.pageStylesheet %>">
+    <% } %>

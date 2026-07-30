@@ -2,246 +2,249 @@
 <html lang="<%= htmlLang %>">
   <head>
     <%- include('partials/document-head', {
-      includeBootstrapIcons: true,
+      includeAppStyles: false,
       metaDescription: t('landing.metaDescription'),
+      pageStylesheet: locals.pageStylesheet,
     }) %>
   </head>
   <body>
-    <a class="visually-hidden-focusable btn btn-primary m-2" href="#landing-main"><%= t('landing.skipToContent') %></a>
+    <a class="skip-link" href="#landing-main"><%= t('landing.skipToContent') %></a>
 
-    <header class="border-bottom">
-      <nav class="container d-flex flex-wrap align-items-center justify-content-between gap-2 py-3">
-        <span class="d-inline-flex align-items-center gap-2 fw-semibold">
-          <img src="/public/brand/panel-brand-64.png" alt="" width="28" height="28" aria-hidden="true">
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <img src="/public/brand/panel-brand-64.png" alt="" width="30" height="30" aria-hidden="true">
           Mister F
-        </span>
-        <div class="d-flex align-items-center gap-2">
-          <%- include('partials/language-switcher', { languageSwitcherPath: '/' }) %>
-          <a class="btn btn-sm btn-outline-secondary" href="/login"><%= t('landing.signIn') %></a>
+        </a>
+        <div class="header-actions">
+          <nav class="langs" aria-label="<%= t('language.label') %>">
+            <% languages.forEach((language) => { %>
+              <a
+                href="/?lang=<%= language.code %>"
+                <%= locale === language.code ? 'aria-current="true"' : '' %>
+              ><span class="lang-full"><%= language.endonym %></span><span class="lang-code"><%= language.code.toUpperCase() %></span></a>
+            <% }) %>
+          </nav>
+          <a class="signin" href="/login"><%= t('landing.signIn') %></a>
         </div>
-      </nav>
+      </div>
     </header>
 
     <main id="landing-main">
-      <section class="container py-5">
-        <div class="row gy-5 align-items-center">
-          <div class="col-lg-6">
-            <p class="text-uppercase text-body-secondary small fw-semibold mb-2"><%= t('landing.heroEyebrow') %></p>
-            <h1 class="display-6 fw-bold mb-3"><%= t('landing.heroTitle') %></h1>
-            <p class="fs-5 text-body-secondary"><%= t('landing.heroSubtitle') %></p>
-            <div class="d-flex flex-wrap gap-2 mt-4">
-              <a class="btn btn-primary btn-lg" href="/signup"><%= t('landing.heroPrimaryCta') %></a>
+      <section class="hero">
+        <div class="wrap">
+          <div>
+            <p class="eyebrow"><%= t('landing.heroEyebrow') %></p>
+            <h1><%= t('landing.heroTitle') %></h1>
+            <p class="lede"><%= t('landing.heroSubtitle') %></p>
+            <div class="btn-row">
+              <a class="btn btn--primary" href="/signup"><%= t('landing.heroPrimaryCta') %></a>
               <% if (locals.demoActivity) { %>
-                <a class="btn btn-outline-secondary btn-lg" href="<%= locals.demoActivity.url %>"><%= t('landing.heroSecondaryCta') %></a>
+                <a class="btn btn--ghost" href="<%= locals.demoActivity.url %>"><%= t('landing.heroSecondaryCta') %></a>
               <% } %>
             </div>
-            <p class="small text-body-secondary mt-3 mb-0"><%= t('landing.heroFootnote') %></p>
+            <p class="fineprint"><%= t('landing.heroFootnote') %></p>
           </div>
 
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                  <h2 class="h6 text-body-secondary mb-0"><%= t('landing.reportExampleTitle') %></h2>
-                  <span class="badge text-bg-secondary"><%= t('landing.reportExampleLabel') %></span>
-                </div>
-                <p class="fw-semibold mb-3"><%= t('landing.reportExampleActivity') %></p>
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item d-flex align-items-start gap-3 px-0">
-                    <i class="bi bi-check2-circle fs-5 text-success" aria-hidden="true"></i>
-                    <span><%= t('landing.reportExampleCompleted') %></span>
-                  </li>
-                  <li class="list-group-item d-flex align-items-start gap-3 px-0">
-                    <i class="bi bi-exclamation-circle fs-5 text-warning" aria-hidden="true"></i>
-                    <span>
-                      <span class="d-block small text-body-secondary"><%= t('landing.reportExampleWeakestLabel') %></span>
-                      <%= t('landing.reportExampleWeakest') %>
-                    </span>
-                  </li>
-                  <li class="list-group-item d-flex align-items-start gap-3 px-0">
-                    <i class="bi bi-arrow-repeat fs-5 text-primary" aria-hidden="true"></i>
-                    <span>
-                      <span class="d-block small text-body-secondary"><%= t('landing.reportExampleFollowUpLabel') %></span>
-                      <%= t('landing.reportExampleFollowUp') %>
-                    </span>
-                  </li>
-                </ul>
+          <div class="hero-visual">
+            <div class="card card--lift">
+              <div class="card-head">
+                <p class="card-kicker"><%= t('landing.reportExampleTitle') %></p>
+                <span class="pill"><%= t('landing.reportExampleLabel') %></span>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <% if (locals.demoActivity) { %>
-        <section class="bg-body-tertiary border-top border-bottom py-5">
-          <div class="container">
-            <div class="row justify-content-center text-center">
-              <div class="col-lg-8">
-                <h2 class="h3 mb-3"><%= t('landing.proofTitle') %></h2>
-                <p class="text-body-secondary"><%= t('landing.proofBody') %></p>
-                <div class="card mt-4 text-start">
-                  <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 p-4">
-                    <div>
-                      <p class="small text-body-secondary mb-1"><%= t('landing.proofActivityLabel') %></p>
-                      <p class="h5 mb-0">
-                        <%= locals.demoActivity.title %>
-                        <% if (locals.demoActivity.level) { %>
-                          <span class="badge text-bg-secondary align-middle ms-1"><%= locals.demoActivity.level %></span>
-                        <% } %>
-                      </p>
-                    </div>
-                    <a class="btn btn-primary btn-lg" href="<%= locals.demoActivity.url %>"><%= t('landing.proofCta') %></a>
-                  </div>
-                </div>
-                <p class="small text-body-secondary mt-3 mb-0"><%= t('landing.proofRandomNote') %></p>
-              </div>
-            </div>
-          </div>
-        </section>
-      <% } %>
-
-      <section class="container py-5">
-        <h2 class="h3 mb-4"><%= t('landing.stepsTitle') %></h2>
-        <ol class="list-unstyled row row-cols-1 row-cols-md-2 row-cols-lg-3 gy-4 mb-0">
-          <% [1, 2, 3, 4, 5].forEach((step) => { %>
-            <li class="col">
-              <div class="card h-100">
-                <div class="card-body">
-                  <span class="badge text-bg-primary rounded-pill mb-3"><%= step %></span>
-                  <h3 class="h6"><%= t(`landing.step${step}Title`) %></h3>
-                  <p class="text-body-secondary mb-0"><%= t(`landing.step${step}Body`) %></p>
-                </div>
-              </div>
-            </li>
-          <% }) %>
-        </ol>
-      </section>
-
-      <section class="bg-body-tertiary border-top border-bottom py-5">
-        <div class="container">
-          <div class="row gy-4">
-            <div class="col-lg-4">
-              <h2 class="h3 mb-0"><%= t('landing.notTitle') %></h2>
-            </div>
-            <div class="col-lg-8">
-              <ul class="list-unstyled d-grid gap-3 mb-0">
-                <% [1, 2, 3].forEach((item) => { %>
-                  <li class="d-flex align-items-start gap-3">
-                    <i class="bi bi-x-circle fs-5 text-body-secondary" aria-hidden="true"></i>
-                    <span><%= t(`landing.not${item}`) %></span>
-                  </li>
-                <% }) %>
+              <p class="card-title"><%= t('landing.reportExampleActivity') %></p>
+              <ul class="report-rows">
+                <li>
+                  <svg class="icon icon--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"></path>
+                    <path d="m9 11 3 3 9-9"></path>
+                  </svg>
+                  <span class="row-value"><%= t('landing.reportExampleCompleted') %></span>
+                </li>
+                <li>
+                  <svg class="icon icon--warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 8v5"></path>
+                    <path d="M12 16.5h.01"></path>
+                  </svg>
+                  <span>
+                    <span class="row-label"><%= t('landing.reportExampleWeakestLabel') %></span>
+                    <span class="row-value"><%= t('landing.reportExampleWeakest') %></span>
+                  </span>
+                </li>
+                <li>
+                  <svg class="icon icon--loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                    <path d="M21 3v5h-5"></path>
+                    <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                    <path d="M3 21v-5h5"></path>
+                  </svg>
+                  <span>
+                    <span class="row-label"><%= t('landing.reportExampleFollowUpLabel') %></span>
+                    <span class="row-value"><%= t('landing.reportExampleFollowUp') %></span>
+                  </span>
+                </li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="container py-5">
-        <div class="row gy-4">
-          <div class="col-lg-6">
-            <h2 class="h4"><%= t('landing.founderTitle') %></h2>
-            <p class="text-body-secondary"><%= t('landing.founderBody1') %></p>
-            <p class="text-body-secondary"><%= t('landing.founderBody2') %></p>
-            <p class="text-body-secondary mb-0"><%= t('landing.founderBody3') %></p>
-          </div>
-          <div class="col-lg-6">
-            <div class="card h-100">
-              <div class="card-body p-4">
-                <h2 class="h5"><%= t('landing.pilotTitle') %></h2>
-                <p class="text-body-secondary"><%= t('landing.pilotBody') %></p>
-                <h3 class="h6 mt-4"><%= t('landing.priceTitle') %></h3>
-                <p class="text-body-secondary"><%= t('landing.priceBody') %></p>
-                <a class="btn btn-primary" href="mailto:<%= locals.contactEmail %>"><%= t('landing.pilotCta') %></a>
+      <% if (locals.demoActivity) { %>
+        <section class="band band--dark">
+          <div class="wrap center">
+            <h2><%= t('landing.proofTitle') %></h2>
+            <p class="lede"><%= t('landing.proofBody') %></p>
+            <div class="demo">
+              <div>
+                <p class="card-kicker"><%= t('landing.proofActivityLabel') %></p>
+                <p class="demo-name">
+                  <%= locals.demoActivity.title %>
+                  <% if (locals.demoActivity.level) { %>
+                    <span class="level"><%= locals.demoActivity.level %></span>
+                  <% } %>
+                </p>
               </div>
+              <a class="btn btn--primary" href="<%= locals.demoActivity.url %>"><%= t('landing.proofCta') %></a>
             </div>
+            <p class="fineprint"><%= t('landing.proofRandomNote') %></p>
+          </div>
+        </section>
+      <% } %>
+
+      <section class="band band--paper">
+        <div class="wrap">
+          <div class="section-head">
+            <h2><%= t('landing.stepsTitle') %></h2>
+          </div>
+          <ol class="steps">
+            <% [1, 2, 3, 4, 5].forEach((step) => { %>
+              <li>
+                <div>
+                  <h3><%= t(`landing.step${step}Title`) %></h3>
+                  <p><%= t(`landing.step${step}Body`) %></p>
+                </div>
+              </li>
+            <% }) %>
+          </ol>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="wrap">
+          <div class="section-head">
+            <h2><%= t('landing.notTitle') %></h2>
+          </div>
+          <ul class="denials">
+            <% [1, 2, 3].forEach((item) => { %>
+              <li>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="m15 9-6 6"></path>
+                  <path d="m9 9 6 6"></path>
+                </svg>
+                <span><%= t(`landing.not${item}`) %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </section>
+
+      <section class="band band--paper">
+        <div class="wrap cols">
+          <div>
+            <div class="section-head">
+              <h2><%= t('landing.founderTitle') %></h2>
+            </div>
+            <div class="prose founder-quote">
+              <p><%= t('landing.founderBody1') %></p>
+              <p><%= t('landing.founderBody2') %></p>
+            </div>
+            <p class="stamp"><%= t('landing.founderBody3') %></p>
+          </div>
+
+          <div class="panel">
+            <h2><%= t('landing.pilotTitle') %></h2>
+            <p><%= t('landing.pilotBody') %></p>
+            <h3><%= t('landing.priceTitle') %></h3>
+            <p><%= t('landing.priceBody') %></p>
+            <a class="btn btn--primary" href="mailto:<%= locals.contactEmail %>"><%= t('landing.pilotCta') %></a>
           </div>
         </div>
       </section>
 
-      <section class="bg-body-tertiary border-top border-bottom py-5">
-        <div class="container">
-          <div class="row gy-4 align-items-center">
-            <div class="col-lg-7">
-              <h2 class="h4"><%= t('landing.learnerTitle') %></h2>
-              <p class="text-body-secondary mb-0"><%= t('landing.learnerBody') %></p>
-            </div>
-            <div class="col-lg-5 text-lg-end">
-              <a class="btn btn-outline-secondary btn-lg" href="/chat"><%= t('landing.learnerCta') %></a>
-            </div>
+      <section class="band">
+        <div class="wrap cols cols--tight cols--middle">
+          <div>
+            <h2><%= t('landing.learnerTitle') %></h2>
+            <p class="lede"><%= t('landing.learnerBody') %></p>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn--ghost" href="/chat"><%= t('landing.learnerCta') %></a>
           </div>
         </div>
       </section>
 
-      <section class="container py-5">
-        <div class="row gy-4">
-          <div class="col-lg-5">
-            <h2 class="h4"><%= t('landing.privacyTitle') %></h2>
-            <ul class="list-unstyled d-grid gap-2 text-body-secondary">
+      <section class="band band--paper">
+        <div class="wrap cols">
+          <div>
+            <div class="section-head">
+              <h2><%= t('landing.faqTitle') %></h2>
+            </div>
+            <div class="faq">
+              <% [1, 2, 3, 4, 5, 6].forEach((item) => { %>
+                <details>
+                  <summary><%= t(`landing.faq${item}Question`) %></summary>
+                  <p><%= t(`landing.faq${item}Answer`) %></p>
+                </details>
+              <% }) %>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-head">
+              <h2><%= t('landing.privacyTitle') %></h2>
+            </div>
+            <ul class="checks">
               <% [1, 2, 3, 4].forEach((item) => { %>
-                <li class="d-flex align-items-start gap-2">
-                  <i class="bi bi-shield-check text-success" aria-hidden="true"></i>
+                <li>
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
                   <span><%= t(`landing.privacy${item}`) %></span>
                 </li>
               <% }) %>
             </ul>
-            <a class="link-secondary" href="/privacy"><%= t('landing.privacyLink') %></a>
-          </div>
-
-          <div class="col-lg-7">
-            <h2 class="h4 mb-3"><%= t('landing.faqTitle') %></h2>
-            <div class="accordion" id="landingFaq">
-              <% [1, 2, 3, 4, 5, 6].forEach((item) => { %>
-                <div class="accordion-item">
-                  <h3 class="accordion-header">
-                    <button
-                      class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#landingFaqAnswer<%= item %>"
-                      aria-expanded="false"
-                      aria-controls="landingFaqAnswer<%= item %>"
-                    ><%= t(`landing.faq${item}Question`) %></button>
-                  </h3>
-                  <div id="landingFaqAnswer<%= item %>" class="accordion-collapse collapse" data-bs-parent="#landingFaq">
-                    <div class="accordion-body text-body-secondary"><%= t(`landing.faq${item}Answer`) %></div>
-                  </div>
-                </div>
-              <% }) %>
-            </div>
+            <a href="/privacy"><%= t('landing.privacyLink') %></a>
           </div>
         </div>
       </section>
 
-      <section class="container pb-5">
-        <div class="card">
-          <div class="card-body p-4 p-md-5 text-center">
-            <h2 class="h3 mb-3"><%= t('landing.heroTitle') %></h2>
-            <a class="btn btn-primary btn-lg" href="/signup"><%= t('landing.heroPrimaryCta') %></a>
-            <p class="small text-body-secondary mt-3 mb-0"><%= t('landing.heroFootnote') %></p>
+      <section class="band">
+        <div class="wrap">
+          <div class="closing">
+            <h2><%= t('landing.heroTitle') %></h2>
+            <div class="btn-row">
+              <a class="btn btn--primary" href="/signup"><%= t('landing.heroPrimaryCta') %></a>
+            </div>
+            <p class="fineprint"><%= t('landing.heroFootnote') %></p>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="border-top py-4">
-      <div class="container">
-        <div class="row gy-3 align-items-center">
-          <div class="col-md-8">
-            <p class="mb-1"><%= t('landing.footerTagline') %></p>
-            <p class="small text-body-secondary mb-0"><%= t('landing.footerCompany') %></p>
-          </div>
-          <div class="col-md-4 text-md-end small">
-            <a class="link-secondary" href="mailto:<%= locals.contactEmail %>"><%= t('landing.footerContact') %></a>
-            <span aria-hidden="true">·</span>
-            <a class="link-secondary" href="/privacy"><%= t('nav.privacy') %></a>
-            <span aria-hidden="true">·</span>
-            <a class="link-secondary" href="/terms"><%= t('nav.terms') %></a>
-          </div>
+    <footer class="site-footer">
+      <div class="wrap">
+        <div>
+          <p><%= t('landing.footerTagline') %></p>
+          <p class="stamp"><%= t('landing.footerCompany') %></p>
         </div>
+        <nav class="footer-links">
+          <a href="mailto:<%= locals.contactEmail %>"><%= t('landing.footerContact') %></a>
+          <a href="/privacy"><%= t('nav.privacy') %></a>
+          <a href="/terms"><%= t('nav.terms') %></a>
+        </nav>
       </div>
     </footer>
-
-    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

@@ -85,6 +85,19 @@ describe('public landing page', () => {
     expect(html).not.toContain('undefined');
   });
 
+  it('ships its own stylesheet, with no app theme and no script', async () => {
+    const response = await fetch(baseUrl);
+    const html = await response.text();
+
+    expect(html).toContain('/public/landing.css');
+    // The landing opts out of the app theme on purpose: a first impression
+    // read on mobile data should not pay for Bootstrap, an icon font, and a
+    // script it never uses. The FAQ is native <details>, so nothing runs.
+    expect(html).not.toContain('bootswatch');
+    expect(html).not.toContain('bootstrap-icons');
+    expect(html).not.toContain('<script');
+  });
+
   it('localizes the landing', async () => {
     const response = await fetch(baseUrl, {
       headers: { 'Accept-Language': 'es-ES,es;q=0.9' },

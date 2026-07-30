@@ -312,16 +312,26 @@ the product can already generate.
 ## 2.1 Landing Rendering And Performance
 
 - [x] Build the landing inside the existing stack: an EJS view, server-rendered,
-  Bootstrap/Flatly primitives per
-  [Visual Design](../design/visual-design.md), no new front-end framework and no
-  new build target. Done 2026-07-30, with no custom CSS at all.
-- [x] Keep the page usable with no client JavaScript beyond what Bootstrap
-  needs. The only script is the Bootstrap bundle, used by the FAQ accordion.
+  no new front-end framework and no new build target. Done 2026-07-30.
+  **Rebuilt on its own visual system the same day (founder direction): the
+  landing is exempt from [Visual Design](../design/visual-design.md), which
+  governs the application.** It ships `public/landing.css` and nothing else —
+  no Bootswatch, no icon font, no app stylesheet, no script. The rationale is
+  that a marketing page and a working tool have different jobs: the app should
+  look native to its theme, the landing should look like it was designed. The
+  palette is taken from the brand mark (`rgb(0, 73, 106)`) over warm paper with
+  a single terracotta accent, and headlines use Literata, the serif the product
+  already uses for learning content. Icons are inline SVG.
+- [x] Keep the page usable with no client JavaScript. **Zero scripts**: the FAQ
+  is native `<details>`, and a route test asserts no `<script>` and no
+  Bootstrap reach the page.
 - [ ] Optimize the screenshots and the founder photo; a landing that loads
   slowly on a phone over mobile data fails with exactly the audience it targets.
   Nothing to optimize yet — the page ships with no photographic assets.
-- [ ] Decide whether the landing loads the app stylesheet and icon font at all,
-  or a reduced subset. Today it loads both.
+- [x] Decide whether the landing loads the app stylesheet and icon font at all.
+  **Neither.** `document-head.ejs` takes `includeAppStyles: false` plus a
+  `pageStylesheet`, so a public page can bring its own CSS; the landing is the
+  only caller today. Payload: ~17 KB of HTML and ~15 KB of CSS, uncompressed.
 
 ## 2.2 Crawlability Infrastructure
 
@@ -361,10 +371,12 @@ crawlers ask for.
   demo call to action hidden while unconfigured, `robots.txt`, and `sitemap.xml`.
 - [x] EJS render coverage: the tests fetch the page, so a bad include path fails
   the suite rather than production.
-- [x] Manual pass at mobile width in both editions. Found and fixed a real
-  overflow: `g-*` gutters above the container's own `1.5rem` make a `.row`'s
-  negative margins exceed the container padding, so the body scrolled 12px
-  sideways at 375px. The landing uses `gy-*` only.
+- [x] A guard test for the standalone stylesheet decision: the landing must
+  keep shipping no Bootstrap, no icon font, and no script.
+- [x] Manual pass at mobile width in both editions, repeated after the visual
+  rebuild. No horizontal scroll at 375px in either language; the sticky header
+  swaps language endonyms for two-letter codes under 560px so it stays one row
+  even in Spanish, where `Iniciar sesión` was reaching the edge.
 
 ## 2.5 Assets
 

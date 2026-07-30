@@ -20,6 +20,8 @@ export function renderLandingPage(request, response, next) {
         contactEmail: env.landingContactEmail,
         demoActivity,
         ogImageUrl: buildAbsoluteAppUrl('/public/brand/share-card.png'),
+        // Served straight from `public/`, so the app version busts the cache.
+        pageStylesheet: `/public/landing.css?v=${env.appVersion}`,
         title: `Mister F · ${appDocumentTitle}`,
     });
 }
