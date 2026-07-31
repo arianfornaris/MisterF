@@ -141,6 +141,14 @@ assets or on a chosen demo activity carry their own note.
   prompt with its correct tally, and the AI summary. The rule this leaves
   behind: **landing copy may promise outcomes, never name screens or metrics
   the product does not have.**
+  A second pass on the same card, the same day, caught one more: the row was
+  labelled "Most missed", and the app ranks nothing — the participation page
+  lists every question in the quiz's own order with its correct/partial/
+  to-improve tallies, and the teacher reads the pattern themselves. The row now
+  mirrors one of those list items. Whether the app *should* surface the
+  most-missed question is a real product question, logged in the idea inbox
+  ([issues/incomming.md](../issues/incomming.md)); the landing may not claim it
+  until it ships.
 - [x] **The 30-second proof.** Done 2026-07-30: the section names the activity
   the visitor is about to open, with its level, and links to a real shared
   quiz. It renders only when the environment has seeded demos (see 1.2), so the

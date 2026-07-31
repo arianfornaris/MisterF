@@ -1,3 +1,13 @@
+Resumen de respuestas de un quiz: hoy la página de Participación lista todas
+las preguntas en el orden del quiz, cada una con su conteo correctas/parciales/
+a mejorar, y el profesor deduce a ojo cuál falló más. Vale la pena evaluar si
+la vista debe destacar u ordenar por lo que más falló — es el dato que el
+profesor está buscando cuando abre esa página, y ya está calculado en
+`buildQuizResponsesSummary`. Detectado el 2026-07-30 escribiendo la landing:
+el copy quiso decir "lo que más falló" y resultó que la app no lo dice.
+
+---
+
 Hay que pensar en en Home. Hay dos variantes, una especie landing page cuando el usuario no está logueado, que muestra las features, etc... landing page normal.
 La otra variante es la home del usuario logueado. Lo más sencillo es que muestre lo que se muestre ahora, el composer pero además unas cards en el chat con variantes de cuestiones que se pueden repasar en ese chat. Entonces, la idea es tener pre-generado un número determinados de cards y mostrar de forma aleatoria algún número de estas cards en el chat. Luego podemos implementar un sistema de recomendación que vaya mostrando las cards más relevantes según el uso del usuario. Estos cards son una especia de "guia de practica". Si ya el usuario tiene guias de practicas, también puede mostrar alguna de ellas, las recientes quizás. Este sistema de recomendación se puede accionar en el mismo momento que se actualiza el Progreso del perfil. Se el usuario debe poder desplegar más cards built-in del sistema, pero eso ya es una segunda fase.
 
