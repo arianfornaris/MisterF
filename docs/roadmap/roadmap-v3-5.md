@@ -269,27 +269,25 @@ for a crawler, which will only ever index whichever edition it is served first.
   academies and investors read English; the learner-facing section and the
   product itself remain multilingual. Implemented 2026-07-30 through the app's
   existing locale resolution (`defaultLocale` is already `en`).
-- [~] Decide whether Haitian Creole ships with the first version or follows.
-  Shipped **without** it: the `ht` catalog deliberately omits the `landing`
-  namespace and falls back to English, because a machine translation of
-  marketing prose reads as untrustworthy to exactly the audience it is trying
-  to convince. Reversible in one file when a fluent speaker can review it.
-- [ ] **Selecting Kreyòl on the landing appears to do nothing** (founder
-  observation, 2026-07-30). This is the fallback above seen from the outside,
-  and as a first impression it reads as a broken switcher rather than as a
-  deliberate gap: the pill highlights, the page reloads, and the copy stays in
-  English. Offering a language and then not honoring it is worse than not
-  offering it. Pick one:
-  1. translate the `landing` namespace into `ht` and have a fluent speaker
-     review it (removes the problem, and Creole speakers are a named part of
-     the audience);
-  2. hide `ht` from the landing switcher only, keeping it in the app, until
-     that translation exists;
-  3. keep the pill and add a one-line notice in Creole saying the page is in
-     English for now and the product itself speaks Kreyòl.
-  Recommendation: 2 as an immediate stopgap, 1 as the real fix. Note the
-  switcher still has to set the app's language cookie, so a Creole visitor who
-  signs up lands in a Creole product either way.
+- [x] Decide whether Haitian Creole ships with the first version or follows.
+  **Shipped 2026-07-30.** It was briefly left out on the argument that a
+  machine translation of marketing prose reads as untrustworthy to the very
+  audience it is trying to convince. That argument does not survive contact
+  with the rest of the product: the `ht` catalog already serves the whole
+  application UI, the privacy policy, and the terms as a careful machine
+  translation, at higher stakes than a landing page. Applying a stricter
+  standard here was inconsistent, and the cost was real — see the item below.
+- [x] **Selecting Kreyòl appeared to do nothing** (founder observation,
+  2026-07-30). The pill highlighted, the page reloaded, and the copy stayed in
+  English, which reads as a broken switcher rather than as a deliberate gap.
+  Fixed the same day by translating the `landing` namespace into `ht` rather
+  than by hiding the pill: Haitian adults in South Florida are a named part of
+  the pilot audience, and a Creole speaker opening a link forwarded by their
+  teacher should see their own language. A route test now asserts the page
+  really changes language, so the failure mode cannot come back silently.
+- [ ] Have a fluent Creole speaker review the landing copy. Same standing
+  caveat as the legal pages: the catalog is a careful machine translation and
+  says so in its own header comment.
 
 ## 1.5 Share Previews (Open Graph)
 
@@ -471,8 +469,8 @@ These block implementation and are the founder's to make. Recommendations are
 included where the roadmap has one.
 
 1. ~~**Default language edition.**~~ Decided 2026-07-30: English default,
-   Spanish and Creole one click away in the header. **Reopened for Creole
-   only** — see 7.
+   Spanish and Creole one click away in the header, all three fully
+   translated.
 2. ~~**Does guest chat survive**, and at which URL?~~ Decided 2026-07-30: yes,
    at `/chat`.
 3. ~~**Which demo activity** is the public example, and who pays for the
@@ -485,10 +483,9 @@ included where the roadmap has one.
 5. **Exact wording of the pilot and price statement** — this is the sentence
    most likely to be quoted back by a prospect.
 6. **Founder section depth**: photo plus a short paragraph, or a fuller story.
-7. **What the Creole pill does until the landing is translated** (section 1.4).
-   Today it highlights and the copy stays in English, which reads as a broken
-   switcher. Recommendation: hide it on the landing as a stopgap, translate and
-   restore it as the real fix.
+7. ~~**What the Creole pill does until the landing is translated**~~ (section
+   1.4). Decided 2026-07-30: translate it, do not hide it. What remains is a
+   fluent-speaker review of the Creole copy, tracked in 1.4.
 8. **Whether shared resource pages should be indexable** (gates 1.7). Blocked
    in `robots.txt` until this is answered.
 9. **Domain and URL shape** for the language editions.

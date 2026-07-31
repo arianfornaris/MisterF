@@ -1,17 +1,18 @@
 /**
  * Haitian Creole (Kreyòl ayisyen) UI catalog.
  *
- * Coverage is complete for the application UI (every namespace present, no
- * English fallback). The copy is a careful machine translation that keeps
- * Creole orthography and avoids drifting into French; the legal bodies and
- * other high-visibility text still merit a fluent-speaker review, but the
- * catalog is not gated behind the experimental flag anymore.
+ * Coverage is complete (every namespace present, no English fallback). The
+ * copy is a careful machine translation that keeps Creole orthography and
+ * avoids drifting into French; the legal bodies, and now the `landing`
+ * marketing copy, still merit a fluent-speaker review, but the catalog is not
+ * gated behind the experimental flag anymore.
  *
- * Deliberate exception: the `landing` namespace is absent, so the public
- * landing page falls back to English for `ht` visitors. Marketing prose is the
- * one place where a machine translation is likely to read as untrustworthy to
- * the audience it is trying to convince. Whether Creole ships with the landing
- * is an open decision in `docs/roadmap/roadmap-v3-5.md`, section 1.4.
+ * The `landing` namespace shipped 2026-07-30. It was briefly left out on the
+ * argument that machine-translated marketing reads as untrustworthy — an
+ * argument that does not survive the fact that this catalog already serves the
+ * privacy policy and the terms the same way, at higher stakes. Leaving it out
+ * meant a Creole speaker opening a forwarded link saw the switcher highlight
+ * `Kreyòl` and the page stay in English, which is worse.
  */
 export const ht = {
     common: {
@@ -1098,6 +1099,79 @@ export const ht = {
         ttl1: '1 èdtan',
         expiresNote: 'Kòd sa a ekspire nan {{ttl}}. Pa pataje kòd sa a ak pèsonn.',
         configError: 'SMTP_HOST, SMTP_USER, SMTP_PASSWORD oswa RESEND_SMTP_API_KEY, ak MAIL_FROM dwe konfigire nan ecosystem.config.cjs.',
+    },
+    landing: {
+        metaDescription: 'Mister F transfòme devwa ou deja bay la an pratik gide elèv adilt ou yo ka fè apati yon lyen, epi apre li montre ou ki moun ki reponn, ki kesyon yo rate, ak sa ki vo lapèn pou nou revize ansanm.',
+        skipToContent: 'Ale nan kontni an',
+        signIn: 'Konekte',
+        heroEyebrow: 'Pou pwofesè ak titè anglè endepandan',
+        heroTitle: 'Transfòme chak devwa an pratik gide, epi rive nan pwochen klas ou a konnen kisa pou w revize.',
+        heroSubtitle: 'Pou pwofesè ak titè k ap anseye anglè bay adilt. Ak pwòp materyèl pa ou: san platfòm lekòl, san pwogram obligatwa.',
+        heroPrimaryCta: 'Kreye premye aktivite ou',
+        heroSecondaryCta: 'Eseye yon aktivite egzanp',
+        heroFootnote: 'Gratis pandan pilòt la. San kat kredi.',
+        reportExampleLabel: 'Egzanp',
+        reportExampleTitle: 'Rezime repons yo',
+        reportExampleActivity: 'Pran yon randevou nan klinik la · A2',
+        reportExampleCompleted: '6 reponn · 5 evalye',
+        reportExamplePerQuestionLabel: 'Kesyon 3 sou 4',
+        reportExamplePerQuestion: '“Have you been here before?” · 2/5 kòrèk · 3/5 pou amelyore',
+        reportExampleSummaryLabel: 'Rezime ak AI',
+        reportExampleSummary: 'Sa ki vo lapèn pou revize nan pwochen klas la',
+        proofTitle: 'Wè li nan 30 segond',
+        proofBody: 'Louvri aktivite egzanp lan menm jan youn nan elèv ou yo ta fè l: reponn li sou telefòn ou, san kont. Kreye yon kont gratis lè ou vle wè evalyasyon an ak pratik ki vin apre a.',
+        proofCta: 'Louvri egzanp lan',
+        proofActivityLabel: 'Aktivite egzanp',
+        proofRandomNote: 'Youn nan dis aktivite egzanp, chwazi o aza.',
+        stepsTitle: 'Kijan li mache',
+        step1Title: 'Kòmanse ak materyèl ou',
+        step1Body: 'Kole tèks ou, sijè a, oswa devwa ou te deja prepare a. Mister F ekri aktivite a apati sa.',
+        step2Title: 'Revize aktivite a',
+        step2Body: 'Li sa li jenere epi ajiste tou sa ou vle anvan li rive kot elèv ou yo. Anyen pa pataje jiskaske ou di wi.',
+        step3Title: 'Pataje yon lyen',
+        step3Body: 'Voye l sou WhatsApp oswa kote ou deja pale ak klas ou a. Elèv ou yo louvri l sou telefòn yo — pa gen anyen pou enstale.',
+        step4Title: 'Yo resevwa fidbak, epi yo pratike',
+        step4Body: 'Chak elèv resevwa evalyasyon l lè l fini, epi li ka kontinye pratike egzakteman sa l te rate a, san tann ou.',
+        step5Title: 'Ou wè kijan klas la fè',
+        step5Body: 'Ki moun ki reponn, ki kesyon yo rate, ak yon rezime ak AI sou sa ki vo lapèn pou nou revize ansanm. Pare anvan ou antre nan klas la.',
+        notTitle: 'Sa Mister F pa ye',
+        not1: 'Se pa yon LMS. Pa gen anyen pou migre ni okenn kou pou monte.',
+        not2: 'Li pa enpoze ou yon pwogram ni yon liv. Se materyèl ou ki mennen.',
+        not3: 'Elèv ou yo pa enstale anyen. Yo louvri yon lyen.',
+        learnerTitle: 'W ap aprann pou kont ou?',
+        learnerBody: 'Ou pa bezwen yon pwofesè pou itilize Mister F. Pratike ak Mr. F, resevwa koreksyon pandan w ap travay, epi kenbe yon dosye sou sa w ap amelyore.',
+        learnerCta: 'Pratike ak Mr. F',
+        founderTitle: 'Ki moun ki dèyè Mister F',
+        founderBody1: 'Se Arian Fornaris ki bati Mister F, yon devlopè lojisyèl ki vin nan sid Florid an 2023 epi ki aprann anglè kòm adilt — menm jan ak elèv li fèt pou yo.',
+        founderBody2: 'Vrè Mister F la se papa l, ki anseye anglè pandan plizyè dizèn ane nan Kiba epi k ap anseye l jodi a nan Florid. Fason li akonpaye yon elèv deyò klas la se lide pwodwi a chita sou li.',
+        founderBody3: 'Little Software LLC, Florid, Etazini, opere Mister F.',
+        pilotTitle: 'Nan pilòt ak pwofesè nan sid Florid',
+        pilotBody: 'Mister F ap fè premye pilòt li ak yon ti gwoup pwofesè endepandan, epi l ap fòme toujou ak moun k ap itilize l yo. Plas yo limite.',
+        pilotCta: 'Mande yon plas nan pilòt la',
+        priceTitle: 'Konbyen li koute',
+        priceBody: 'Gratis pandan pilòt la. N ap fikse pri final la ansanm ak pwofesè pilòt yo — nou pito deside l avèk yo pase devine l kounye a.',
+        privacyTitle: 'Done ak konfidansyalite',
+        privacy1: 'Pilòt la fèt ak elèv adilt sèlman.',
+        privacy2: 'Lè ou pataje yon aktivite ki kolekte rezilta, elèv ou yo wè yon avi klè anvan yo reponn.',
+        privacy3: 'Ou ka pataje yon aktivite san kolekte anyen tou.',
+        privacy4: 'Materyèl ou rete pou ou.',
+        privacyLink: 'Li règleman sou konfidansyalite a',
+        faqTitle: 'Kesyon',
+        faq1Question: 'Èske elèv mwen yo bezwen yon kont?',
+        faq1Answer: 'Yo ka louvri yon aktivite pataje epi reponn li san kont. Kont lan nesesè pou wè evalyasyon an ak pou kontinye pratike, epi li gratis pou kreye l.',
+        faq2Question: 'Èske li mache ak pwòp materyèl mwen?',
+        faq2Answer: 'Se sa menm ki bi a. Ou kole tèks ou, sijè ou, oswa devwa ou, epi aktivite a bati apati sa, se pa apati yon katalòg fiks.',
+        faq3Question: 'E si AI a fè yon erè?',
+        faq3Answer: 'Ou revize chak aktivite anvan ou pataje l, epi ou ka chanje sa ou pa renmen. Anyen pa rive kot elèv ou yo san ou pa wè l.',
+        faq4Question: 'Ki lang li sipòte?',
+        faq4Answer: 'Pratik la an anglè. Entèfas la ak eksplikasyon yo disponib an panyòl, anglè, ak kreyòl ayisyen.',
+        faq5Question: 'Èske mwen bezwen enstale anyen?',
+        faq5Answer: 'Non. Li mache nan navigatè a, sou yon telefòn oswa yon òdinatè, pou ou menm ak pou elèv ou yo.',
+        faq6Question: 'Konbyen elèv mwen ka genyen?',
+        faq6Answer: 'Pa gen okenn lis klas pou konfigire. Ou pataje yon lyen ak moun ou vle, epi ou wè rezilta tout moun ki fini l.',
+        footerTagline: 'Pratik anglè ak yon titè AI, bati alantou yon vrè pwofesè.',
+        footerCompany: 'Little Software LLC · Florid, Etazini',
+        footerContact: 'Kontak',
     },
     legal: {
         back: 'Retounen nan Mister F',

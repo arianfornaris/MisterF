@@ -109,14 +109,17 @@ describe('public landing page', () => {
     expect(html).not.toContain('For independent English teachers and tutors');
   });
 
-  it('falls back to English copy for a locale without landing translations', async () => {
+  it('serves the landing in Haitian Creole', async () => {
     const response = await fetch(baseUrl, {
       headers: { 'Accept-Language': 'ht' },
     });
     const html = await response.text();
 
     expect(html).toContain('<html lang="ht">');
-    expect(html).toContain('For independent English teachers and tutors');
+    expect(html).toContain('Pou pwofesè ak titè anglè endepandan');
+    // Offering the language in the switcher and then serving English is worse
+    // than not offering it: this asserts the page really changes.
+    expect(html).not.toContain('For independent English teachers and tutors');
   });
 
   it('emits the description, canonical, and Open Graph tags', async () => {
