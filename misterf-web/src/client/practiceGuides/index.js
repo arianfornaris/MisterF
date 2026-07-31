@@ -7,6 +7,7 @@ import {
   initializeMarkdownEditors,
 } from '../shared/markdownEditor.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
+import { initializePendingModalForms } from '../shared/pendingModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
 function fallbackCopyText(content) {
@@ -97,36 +98,11 @@ function initializeAutoOpenModal() {
 }
 
 function initializeResourceGenerationPendingUi() {
-  if (!window.bootstrap?.Modal) {
-    return;
-  }
-
-  for (const formEl of document.querySelectorAll('[data-resource-generate-form]')) {
-    if (!(formEl instanceof HTMLFormElement)) {
-      continue;
-    }
-
-    const submitButtonEl = formEl.querySelector('[data-resource-generate-submit]');
-    const parentModalEl = formEl.closest('.modal');
-    const pendingModalEl = document.querySelector('[data-resource-pending-modal]');
-
-    formEl.addEventListener('submit', () => {
-      if (submitButtonEl instanceof HTMLButtonElement) {
-        submitButtonEl.disabled = true;
-        submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Procesando...';
-      }
-
-      if (parentModalEl) {
-        window.bootstrap.Modal.getOrCreateInstance(parentModalEl).hide();
-      }
-
-      if (pendingModalEl) {
-        window.setTimeout(() => {
-          window.bootstrap.Modal.getOrCreateInstance(pendingModalEl).show();
-        }, 120);
-      }
-    });
-  }
+  initializePendingModalForms({
+    formSelector: '[data-resource-generate-form]',
+    pendingModalSelector: '[data-resource-pending-modal]',
+    submitSelector: '[data-resource-generate-submit]',
+  });
 }
 
 function getPracticeGuideFormControl(formEl, name) {

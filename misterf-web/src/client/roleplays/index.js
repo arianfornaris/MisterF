@@ -7,6 +7,7 @@ import {
   initializeMarkdownEditors,
 } from '../shared/markdownEditor.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
+import { initializePendingModalForms } from '../shared/pendingModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
 function fallbackCopyText(content) {
@@ -88,40 +89,12 @@ function initializeRoleplaySharingUi() {
 }
 
 function initializeRoleplayPendingUi() {
-  if (!window.bootstrap?.Modal) {
-    return;
-  }
-
-  for (const formEl of document.querySelectorAll('[data-roleplay-pending-form]')) {
-    if (!(formEl instanceof HTMLFormElement)) {
-      continue;
-    }
-
-    if (formEl.matches('[data-roleplay-turn-form]')) {
-      continue;
-    }
-
-    const submitButtonEl = formEl.querySelector('[data-roleplay-pending-submit]');
-    const parentModalEl = formEl.closest('.modal');
-    const pendingModalEl = document.querySelector('[data-roleplay-pending-modal]');
-
-    formEl.addEventListener('submit', () => {
-      if (submitButtonEl instanceof HTMLButtonElement) {
-        submitButtonEl.disabled = true;
-        submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Procesando...';
-      }
-
-      if (parentModalEl) {
-        window.bootstrap.Modal.getOrCreateInstance(parentModalEl).hide();
-      }
-
-      if (pendingModalEl) {
-        window.setTimeout(() => {
-          window.bootstrap.Modal.getOrCreateInstance(pendingModalEl).show();
-        }, 120);
-      }
-    });
-  }
+  initializePendingModalForms({
+    formSelector: '[data-roleplay-pending-form]',
+    pendingModalSelector: '[data-roleplay-pending-modal]',
+    skipSelector: '[data-roleplay-turn-form]',
+    submitSelector: '[data-roleplay-pending-submit]',
+  });
 }
 
 function findAvatarInput(target) {

@@ -3,6 +3,7 @@ import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
+import { initializePendingModalForms } from '../shared/pendingModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 import {
   initializeModificationModal,
@@ -94,41 +95,11 @@ function initializeQuizSharingUi() {
 }
 
 function initializeQuizPendingUi() {
-  if (!window.bootstrap?.Modal) {
-    return;
-  }
-
-  for (const formEl of document.querySelectorAll('[data-quiz-generate-form], [data-quiz-submit-form]')) {
-    if (!(formEl instanceof HTMLFormElement)) {
-      continue;
-    }
-
-    const submitButtonEl = formEl.querySelector(
-      '[data-quiz-generate-submit], [data-quiz-submit-button]',
-    );
-    const parentModalEl = formEl.closest('.modal');
-    const pendingModalEl = document.querySelector('[data-quiz-pending-modal]');
-
-    formEl.addEventListener('submit', (event) => {
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      if (submitButtonEl instanceof HTMLButtonElement) {
-        submitButtonEl.disabled = true;
-      }
-
-      if (parentModalEl) {
-        window.bootstrap.Modal.getOrCreateInstance(parentModalEl).hide();
-      }
-
-      if (pendingModalEl) {
-        window.setTimeout(() => {
-          window.bootstrap.Modal.getOrCreateInstance(pendingModalEl).show();
-        }, 120);
-      }
-    });
-  }
+  initializePendingModalForms({
+    formSelector: '[data-quiz-generate-form], [data-quiz-submit-form]',
+    pendingModalSelector: '[data-quiz-pending-modal]',
+    submitSelector: '[data-quiz-generate-submit], [data-quiz-submit-button]',
+  });
 }
 
 /**

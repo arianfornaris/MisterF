@@ -97,3 +97,56 @@ describe('UI class architecture', () => {
     expect(appShellCss).not.toContain('.practice-guide-');
   });
 });
+
+describe('inference wait states', () => {
+  /**
+   * A form submit starts a navigation, and the browser may stop painting the
+   * outgoing document from that moment — Safari effectively freezes it. Every
+   * pending modal used to be shown from a 120ms timer, so the dialog could
+   * never reach the screen and the user watched nothing happen for the twenty
+   * seconds the model took. The shared helper shows it synchronously instead;
+   * this stops the timer pattern from being reintroduced by copy-paste, which
+   * is exactly how it spread to three modules in the first place.
+   */
+  it('never defers a pending modal behind a timer', () => {
+    const clientRoot = path.resolve(
+      path.dirname(new URL(import.meta.url).pathname),
+      '../../src/client',
+    );
+
+    const offenders: string[] = [];
+    for (const entry of fs.readdirSync(clientRoot, {
+      recursive: true,
+      withFileTypes: true,
+    })) {
+      if (!entry.isFile() || !entry.name.endsWith('.js')) {
+        continue;
+      }
+
+      const file = path.join(entry.parentPath, entry.name);
+      const source = fs.readFileSync(file, 'utf8');
+      for (const match of source.matchAll(/setTimeout\([\s\S]{0,240}?\)/g)) {
+        if (/Modal\.getOrCreateInstance[\s\S]{0,80}?\.show\(\)/.test(match[0])) {
+          offenders.push(path.relative(clientRoot, file));
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('routes every pending form through the shared helper', () => {
+    const clientRoot = path.resolve(
+      path.dirname(new URL(import.meta.url).pathname),
+      '../../src/client',
+    );
+
+    for (const module of ['quizzes', 'roleplays', 'practiceGuides']) {
+      const source = fs.readFileSync(
+        path.join(clientRoot, module, 'index.js'),
+        'utf8',
+      );
+      expect(source).toContain('initializePendingModalForms');
+    }
+  });
+});
