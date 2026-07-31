@@ -39,11 +39,55 @@ Prefer the repo's `deploy.sh` (run from the repo root). It:
 - then on the server runs `git pull` and
   `pm2 restart ecosystem.config.cjs --only misterf-web --env production --update-env`.
 
+It does not seed content — see "Seeding Content After A Deploy" below.
+
 The server checks out the branch that `git pull` advances (currently `main`).
 So the release must be on `main` before deploying — deploying from a feature
 branch (e.g. `v3`) is a no-op (`Already up to date`). See `versioning-and-releases`
 → "Deploy Branch — Merge To main First", which requires user confirmation before
 merging a working branch into `main`.
+
+## Seeding Content After A Deploy
+
+A deploy ships code and re-runs migrations on restart. It does **not** carry
+content rows. Anything the product stores as data has to be written into each
+environment once, on purpose.
+
+Today that means the landing page's public example activities. They live as
+hand-authored fixtures in `src/server/landing/demoActivities.ts`, and a seeder
+writes them into a dedicated demo account:
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=10 arian@misterf.us "
+cd repos/MisterF/misterf-web
+NODE_ENV=production node dist/server/landing/seedDemoActivitiesCli.js
+"
+```
+
+Three things about that command:
+
+- **`NODE_ENV=production` is not optional.** It is what makes `config/env.ts`
+  load the server's `.env.production`, and therefore the production
+  `DATABASE_PATH`. Without it the seed happily targets the wrong database file
+  and reports success.
+- **It runs from `dist/`, not through `tsx`.** `deploy.sh` installs with
+  `npm ci --omit=dev`, so dev dependencies — `tsx` included — are absent in
+  production. The seeder lives under `src/` for exactly this reason (same
+  precedent as `db/migrateCli.ts`), so `npm run build:server` compiles it.
+  `npm run seed:landing-demos` is the local-only equivalent.
+- **It is idempotent.** Resource ids derive from the fixture slug, so re-running
+  updates the activities in place and share links stay stable — URLs already
+  handed out keep working. Re-run it after any change to `demoActivities.ts`.
+
+If it is never run, nothing breaks: the landing hides its example-activity
+section rather than publishing a dead link. The failure is silent, which is
+precisely why it belongs in this checklist.
+
+The seeder creates an account (`LANDING_DEMO_EMAIL`, default
+`examples@misterf.us`) with no password hash and no identity row, so it owns the
+demo content and cannot be signed into. Its share links are created with
+`collect_results` off: a stranger trying the demo is not recorded as a
+participant.
 
 ## Secrets And Environment
 

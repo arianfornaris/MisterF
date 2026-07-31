@@ -523,6 +523,10 @@ included where the roadmap has one.
 - [x] `robots.txt`, `sitemap.xml`, meta descriptions, and canonicals are in
   place. Done 2026-07-30.
 - [ ] The two conversion counts are recorded and can be read.
+- [ ] The example activities are seeded **in production**. A deploy does not
+  carry content: the seeder must be run once on the server, and again after any
+  change to the fixtures. Steps and the two ways to get it wrong are in the
+  `production-server-ops` skill, "Seeding Content After A Deploy".
 - [~] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass, with
   regression coverage for the new routing. Green as of 2026-07-30 (321 tests);
   re-check before the release.

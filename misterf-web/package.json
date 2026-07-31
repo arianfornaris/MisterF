@@ -13,7 +13,7 @@
     "build:client": "node scripts/build-client.mjs",
     "start": "node dist/server/server.js",
     "sync-prod-to-dev": "bash scripts/sync-prod-to-dev.sh",
-    "seed:landing-demos": "tsx scripts/seed-landing-demos.ts",
+    "seed:landing-demos": "tsx src/server/landing/seedDemoActivitiesCli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:typecheck": "tsc -p tsconfig.test.json --noEmit",

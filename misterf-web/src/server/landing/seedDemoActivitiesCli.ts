@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { closeDb, getDb } from '../src/server/db/database.js';
-import { migrate } from '../src/server/db/migrator.js';
-import { env } from '../src/server/config/env.js';
-import { landingDemoActivities } from '../src/server/landing/demoActivities.js';
+import { closeDb, getDb } from '../db/database.js';
+import { migrate } from '../db/migrator.js';
+import { env } from '../config/env.js';
+import { landingDemoActivities } from './demoActivities.js';
 import {
   createProfile,
   createQuiz,
@@ -11,8 +11,8 @@ import {
   listProfilesForUser,
   setResourceShareLinkCollectResults,
   updateQuiz,
-} from '../src/server/db/repository.js';
-import { quizDraftSchema } from '../src/server/services/quizzes.js';
+} from '../db/repository.js';
+import { quizDraftSchema } from '../services/quizzes.js';
 
 /**
  * Writes the landing page's public example activities into a dedicated demo
@@ -21,9 +21,20 @@ import { quizDraftSchema } from '../src/server/services/quizzes.js';
  * Idempotent: resource ids are derived from the fixture slug, so re-running
  * updates the same activities in place and every share URL already handed out
  * keeps working. Run it once per environment, and again whenever
- * `src/server/landing/demoActivities.ts` changes:
+ * `demoActivities.ts` changes.
+ *
+ * Local:
  *
  *     npm run seed:landing-demos
+ *
+ * Production: `npm ci --omit=dev` means `tsx` is not installed there, so this
+ * lives under `src/` (like `db/migrateCli.ts`) to be compiled into `dist/` and
+ * run with plain node. `NODE_ENV=production` is what points `config/env.ts` at
+ * the server's `.env.production`, and therefore at the production database —
+ * without it the seed would silently target the wrong file. See the
+ * `production-server-ops` skill.
+ *
+ *     NODE_ENV=production node dist/server/landing/seedDemoActivitiesCli.js
  */
 async function main(): Promise<void> {
   migrate();
