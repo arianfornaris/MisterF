@@ -403,6 +403,13 @@ Alcance inicial sugerido:
 - entre 4 y 8 semanas de uso;
 - acompañamiento cercano y revisión semanal.
 
+El primer paso concreto de esta fase, la sesión inicial con el primer profesor,
+tiene su propio guion en
+[Primera sesión con un profesor](./primera-sesion-docente.md). Ahí se decide
+deliberadamente dejar fuera la revisión de resultados: el tiempo del profesor
+es la restricción que manda, y esa primera prueba valida solo la mitad del
+ciclo.
+
 Pasos:
 
 - [ ] Incorporar personalmente a cada profesor.
