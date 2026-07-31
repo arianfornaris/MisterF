@@ -1274,10 +1274,10 @@ export const ht: LocaleCatalog = {
     founderBody2:
       'Vrè Mister F la se papa l, ki anseye anglè pandan plizyè dizèn ane nan Kiba epi k ap anseye l jodi a nan Florid. Fason li akonpaye yon elèv deyò klas la se lide pwodwi a chita sou li, epi titè elèv ou yo ap pratike avè l la pote non l: Mr. F.',
     founderBody3: 'Opere pa Little Software LLC, Florid, Etazini.',
-    pilotTitle: 'Nan pilòt ak pwofesè nan sid Florid',
+    pilotTitle: 'Yon pilòt ouvè, ak pwofesè reyèl',
     pilotBody:
-      'Premye pilòt la ap fè ak yon ti gwoup pwofesè endepandan, epi pwodwi a ap fòme toujou ak moun k ap itilize l yo. Plas yo limite.',
-    pilotCta: 'Mande yon plas nan pilòt la',
+      'Pilòt la kòmanse ak pwofesè endepandan nan sid Florid epi li louvri pou nenpòt pwofesè ki vle itilize l. Pwodwi a ap fòme toujou ak moun k ap itilize l yo, epi w ap pale ak moun k ap bati l la.',
+    pilotCta: 'Pale avè m sou klas ou',
     priceTitle: 'Konbyen li koute',
     priceBody:
       'Platfòm nan mache ak kredi. Chak nouvo kont kòmanse ak yon ti kredi, ase pou eksplore pwodwi a epi fè yon aktivite konplè; apre sa, ou achte kredi nan pake 5 dola. Pa gen abònman, epi nou pa chaje anyen jiskaske ou deside achte.',

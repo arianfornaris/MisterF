@@ -169,10 +169,28 @@ assets or on a chosen demo activity carry their own note.
   ([Contexto del fundador](../business/contexto-del-fundador.md)). For a teacher
   evaluating an unknown tool this outweighs any feature claim. **Shipped
   without the photo** — that asset is item 2.5.
-- [x] **Product stage: pilot open.** "In pilot with teachers in South Florida.
+- [x] **Product stage: pilot open.** **Corrected 2026-07-31 (founder):
+  "limited places" was false — the pilot is open to any teacher.** Manufactured
+  scarcity was the one persuasion device on the page that was not backed by
+  anything, and the call to action inherited it ("ask for a place"). The
+  section now says the pilot started with teachers in South Florida and is open
+  to whoever wants it, keeps the local anchor because it is true and credible,
+  and swaps the call to action for an invitation to talk — which also surfaces
+  a real advantage at this stage: the teacher would be talking to the person
+  building the product. Original wording: "In pilot with teachers in South Florida.
   Limited places." Creates real (not manufactured) urgency, sets expectations
   that this is not a finished suite, and tells an investor the stage without a
   traction section.
+- [ ] **Say how long a package lasts.** Proposed by the founder 2026-07-31:
+  tell the reader that one USD 5 package typically covers a month of practice.
+  It would be a strong sentence — "how fast does this drain?" is the question a
+  buyer actually has — and it is **not writable yet**. The AI cost of one full
+  cycle has never been measured; it is open in [Roadmap V3](roadmap-v3.md) §1.7,
+  in that roadmap's exit criteria, and as the third question in
+  [Roadmap X §X.1](roadmap-x.md). Writing it now would be the fourth time this
+  page stated something the code cannot back, after the next-class report, the
+  roster, and "free during the pilot". **When X.1 measures cost per cycle, this
+  becomes writable and should be written.**
 - [x] **Price, stated honestly.** **Rewritten 2026-07-30 — the first version was
   simply false, and the founder called it "absolutely wrong".** It said "free
   during the pilot", which describes no state the product has ever been in: the

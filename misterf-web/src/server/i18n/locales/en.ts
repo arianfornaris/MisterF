@@ -990,10 +990,10 @@ export const en: LocaleCatalog = {
     founderBody2:
       'The real Mister F is his father, who taught English for decades in Cuba and teaches it today in Florida. His way of following a student outside of class is the idea the product is built on, and the tutor your students practice with carries his name: Mr. F.',
     founderBody3: 'Operated by Little Software LLC, Florida, United States.',
-    pilotTitle: 'In pilot with teachers in South Florida',
+    pilotTitle: 'An open pilot, with real teachers',
     pilotBody:
-      'The first pilot is running with a small group of independent teachers, and the product is still being shaped with the people using it. Places are limited.',
-    pilotCta: 'Ask for a place in the pilot',
+      'The pilot started with independent teachers in South Florida and is open to any teacher who wants to use it. The product is still being shaped with the people using it, and you would be talking to the person building it.',
+    pilotCta: 'Tell me about your class',
     priceTitle: 'What it costs',
     priceBody:
       'Mister F runs on credits. Every new account starts with a balance, enough to explore the product and run an activity end to end; after that, credits are bought in USD 5 packages. No subscription, and nothing is charged until you choose to buy.',
