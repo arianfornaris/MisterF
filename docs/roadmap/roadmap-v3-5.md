@@ -376,22 +376,20 @@ therefore a more valuable surface than any meta keyword.
   Needs a real phone; the tags and the image are in place and asserted by
   tests, but only a real paste proves it.
 
-## 1.6 Conversion Instrumentation
+## 1.6 Conversion Instrumentation — moved to Roadmap X
 
-Two numbers, from day one, so the page can be fixed with evidence instead of
-taste.
+**Deferred 2026-07-31 at the founder's direction, to
+[Roadmap X §X.1](roadmap-x.md).** The two counts this section asked for — how
+many visitors open the example activity, and how many of those create an
+account — turned out to be one instance of a larger gap: the platform emits
+structured events but nothing aggregates them, which also blocks the pilot
+funnel and the AI-cost-per-cycle work in [Roadmap V3](roadmap-v3.md) §1.7.
+Building a measurement path for the landing alone would have been the third
+place the same missing capability was worked around.
 
-- [ ] Count landing visits that **open the example activity**. A low number
-  means the hero is failing.
-- [ ] Count those visitors who then **create an account**. A high first number
-  with a low second means the problem is the product or the timing of the
-  signup prompt, not the copy.
-- [ ] Decide the measurement mechanism within the budget and the existing
-  privacy posture — the app has client error telemetry
-  (`src/server/telemetry/clientErrors.ts`) but no analytics.
-- [ ] Connect these two counts to the pilot funnel instrumentation still open in
-  [Roadmap V3](roadmap-v3.md), section 1.7, so the funnel starts at the first
-  visit rather than at the first account.
+The trade is stated in Roadmap X and is deliberate: the first visits are the
+most informative and are not recoverable, but instrumentation built before
+there is traffic ages before it is used.
 
 ## 1.7 Indexable Public Practice Content
 
@@ -595,7 +593,10 @@ included where the roadmap has one.
   cross-linked with `hreflang`. Done 2026-07-31.
 - [x] `robots.txt`, `sitemap.xml`, meta descriptions, and canonicals are in
   place. Done 2026-07-30.
-- [ ] The two conversion counts are recorded and can be read.
+- [x] ~~The two conversion counts are recorded and can be read.~~ Removed from
+  V3.5 on 2026-07-31: the work moved to [Roadmap X §X.1](roadmap-x.md), so it
+  can no longer gate this release. V3.5 ships measured by nothing, which is a
+  known and accepted cost.
 - [x] The example activities are seeded **in production**. Done 2026-07-31,
   right after the 3.3.0 deploy: all ten created and share-linked, and the
   landing is serving one at random. A deploy does not carry content, so the

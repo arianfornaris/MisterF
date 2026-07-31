@@ -29,6 +29,11 @@ deferrals.
   counts). Not a MAJOR bump — it ships as `3.x` MINOR releases.
 - [Roadmap V4](./roadmap/roadmap-v4.md): the deferred backlog, waiting for
   pilot evidence before it is re-scoped.
+- [Roadmap X](./roadmap/roadmap-x.md): work that is understood well enough to
+  start and has been deliberately postponed, with the trigger that would pull
+  each item into a real roadmap. Not a release, and not the idea inbox — an
+  idea graduates here once it has been thought through and the deferral is a
+  decision rather than neglect.
 
 Other product-feature candidates live in the idea inbox,
 [issues/incomming.md](./issues/incomming.md).
