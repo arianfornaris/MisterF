@@ -122,18 +122,33 @@ assets or on a chosen demo activity carry their own note.
 - [x] **Hero.** The approved promise as the headline, a one-line statement of
   who it is for ("independent teachers and tutors of adult learners — with your
   own material, no school platform, no imposed curriculum"), one primary call to
-  action, one secondary. The hero image is the **next-class report**, not the
-  chat: the report is the proof of the promise, and a chat screenshot is
+  action, one secondary. The hero image is the teacher's **results view**, not
+  the chat: the results are the proof of the promise, and a chat screenshot is
   indistinguishable from every other AI product. **Shipped with a labelled
   example card**, not a screenshot — it carries an `Example` badge so it is
   never read as a real class. Replacing it with a real screenshot is item 2.5.
+  **Corrected 2026-07-30 (founder caught it): the first version described a
+  product surface that does not exist.** It called the card a "next-class
+  report" — a phrase from the business documents, not a screen; the app calls
+  it `Participación`, with a `Resumen de respuestas` and an on-demand
+  `Resumen con IA`. It also showed "5 of 8 students completed it", implying a
+  roster the product has no concept of, and "kept practicing: 3 students",
+  which no owner-facing view exposes — the follow-up practice is stored against
+  the student's own conversation and, per
+  [Propuesta de MVP](../business/propuesta-mvp.md) §4.A, sharing it with the
+  teacher is deliberately out of the MVP. The card now shows only what the
+  participation page really renders: responded/evaluated counts, a question
+  prompt with its correct tally, and the AI summary. The rule this leaves
+  behind: **landing copy may promise outcomes, never name screens or metrics
+  the product does not have.**
 - [x] **The 30-second proof.** Done 2026-07-30: the section names the activity
   the visitor is about to open, with its level, and links to a real shared
   quiz. It renders only when the environment has seeded demos (see 1.2), so the
   page never ships a dead link.
 - [x] **How it works**, in five steps: your material → review → share the link
-  → the student gets feedback and practices → you read the report. Shipped with
-  text and numbered cards; real screenshots are item 2.5.
+  → the student gets feedback and practices → you see how the class did.
+  Shipped with text and numbered cards; real screenshots are item 2.5. Step 5
+  was reworded 2026-07-30 with the hero correction above.
 - [x] **"What Mister F is not."** Three lines: not an LMS, no curriculum
   imposed, students install nothing and open a link. Differentiation for this
   category communicates better by negation than by a feature list.
@@ -251,6 +266,22 @@ for a crawler, which will only ever index whichever edition it is served first.
   namespace and falls back to English, because a machine translation of
   marketing prose reads as untrustworthy to exactly the audience it is trying
   to convince. Reversible in one file when a fluent speaker can review it.
+- [ ] **Selecting Kreyòl on the landing appears to do nothing** (founder
+  observation, 2026-07-30). This is the fallback above seen from the outside,
+  and as a first impression it reads as a broken switcher rather than as a
+  deliberate gap: the pill highlights, the page reloads, and the copy stays in
+  English. Offering a language and then not honoring it is worse than not
+  offering it. Pick one:
+  1. translate the `landing` namespace into `ht` and have a fluent speaker
+     review it (removes the problem, and Creole speakers are a named part of
+     the audience);
+  2. hide `ht` from the landing switcher only, keeping it in the app, until
+     that translation exists;
+  3. keep the pill and add a one-line notice in Creole saying the page is in
+     English for now and the product itself speaks Kreyòl.
+  Recommendation: 2 as an immediate stopgap, 1 as the real fix. Note the
+  switcher still has to set the app's language cookie, so a Creole visitor who
+  signs up lands in a Creole product either way.
 
 ## 1.5 Share Previews (Open Graph)
 
@@ -304,6 +335,41 @@ the product can already generate.
   landing.
 - [ ] Confirm this does not conflict with the resource sharing and consent rules
   already shipped.
+
+---
+
+## 1.8 "Mister F" Or "Mr. F" In English Copy
+
+Raised by the founder on 2026-07-30 after reading the English landing: the page
+says "Mister F" many times, and it is not obvious that spelling it out is
+natural in English, where the honorific is normally abbreviated.
+
+Today both forms are in use, and arguably for different jobs:
+
+- **Mister F** is the product and the company-facing name — the repository, the
+  documentation, the brand mark, the page title.
+- **Mr. F** is the tutor persona the learner talks to — `appDocumentTitle` is
+  `Mr. F, tutor de inglés`, the side panel says `Mr. F`, and the landing's
+  learner call to action is "Practice with Mr. F".
+
+So the landing is already following a rule; what is untested is whether that
+rule reads as deliberate or as inconsistent to a native speaker seeing the page
+for the first time.
+
+- [ ] Decide the rule and write it down: keep the split (product =
+  "Mister F", tutor = "Mr. F"), or collapse everything to one form.
+- [ ] If the split stays, check the English landing copy sentence by sentence
+  for places where the *tutor* is meant but the product name is used.
+- [ ] Count the repetitions regardless. Even under the right rule, a landing
+  that names itself in most paragraphs reads as insecure; pronouns and "it"
+  carry more of the copy in confident marketing writing.
+- [ ] Have a native English speaker read the page once this is settled — the
+  cheapest possible review, and the founder has flagged commercial English as a
+  development area
+  ([Contexto del fundador](../business/contexto-del-fundador.md)).
+
+Applies to the English edition first; Spanish and Creole inherit whatever rule
+is chosen.
 
 ---
 
@@ -397,7 +463,8 @@ These block implementation and are the founder's to make. Recommendations are
 included where the roadmap has one.
 
 1. ~~**Default language edition.**~~ Decided 2026-07-30: English default,
-   Spanish and Creole one click away in the header.
+   Spanish and Creole one click away in the header. **Reopened for Creole
+   only** — see 7.
 2. ~~**Does guest chat survive**, and at which URL?~~ Decided 2026-07-30: yes,
    at `/chat`.
 3. ~~**Which demo activity** is the public example, and who pays for the
@@ -410,10 +477,15 @@ included where the roadmap has one.
 5. **Exact wording of the pilot and price statement** — this is the sentence
    most likely to be quoted back by a prospect.
 6. **Founder section depth**: photo plus a short paragraph, or a fuller story.
-7. **Whether Haitian Creole ships with version one** or follows.
+7. **What the Creole pill does until the landing is translated** (section 1.4).
+   Today it highlights and the copy stays in English, which reads as a broken
+   switcher. Recommendation: hide it on the landing as a stopgap, translate and
+   restore it as the real fix.
 8. **Whether shared resource pages should be indexable** (gates 1.7). Blocked
    in `robots.txt` until this is answered.
 9. **Domain and URL shape** for the language editions.
+10. **"Mister F" or "Mr. F" in English copy** (section 1.8), and how often the
+    page should name itself at all.
 
 ---
 

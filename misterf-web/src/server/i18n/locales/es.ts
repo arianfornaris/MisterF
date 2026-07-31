@@ -932,7 +932,7 @@ export const es: LocaleCatalog = {
   },
   landing: {
     metaDescription:
-      'Mister F convierte la tarea que ya asignas en práctica guiada que tus estudiantes adultos hacen desde un enlace, y te da un reporte para la próxima clase con lo que necesita cada uno.',
+      'Mister F convierte la tarea que ya asignas en práctica guiada que tus estudiantes adultos hacen desde un enlace, y después te muestra quién respondió, qué preguntas fallaron y qué conviene repasar.',
     skipToContent: 'Ir al contenido',
     signIn: 'Iniciar sesión',
     heroEyebrow: 'Para profesores y tutores independientes de inglés',
@@ -944,13 +944,13 @@ export const es: LocaleCatalog = {
     heroSecondaryCta: 'Prueba una actividad de ejemplo',
     heroFootnote: 'Gratis durante el piloto. Sin tarjeta.',
     reportExampleLabel: 'Ejemplo',
-    reportExampleTitle: 'Reporte para la próxima clase',
+    reportExampleTitle: 'Resumen de respuestas',
     reportExampleActivity: 'Pedir cita en la clínica · A2',
-    reportExampleCompleted: '5 de 8 estudiantes la completaron',
+    reportExampleCompleted: '6 respondieron · 5 evaluadas',
     reportExampleWeakestLabel: 'Lo que más falló',
-    reportExampleWeakest: 'Preguntas en pasado simple',
-    reportExampleFollowUpLabel: 'Siguieron practicando',
-    reportExampleFollowUp: '3 estudiantes',
+    reportExampleWeakest: '“Have you been here before?” — 2 de 5 correctas',
+    reportExampleSummaryLabel: 'Resumen con IA',
+    reportExampleSummary: 'Qué conviene repasar en la próxima clase',
     proofTitle: 'Míralo en 30 segundos',
     proofBody:
       'Abre la actividad de ejemplo como lo haría uno de tus estudiantes: respóndela desde el teléfono, sin cuenta. Crea una cuenta gratis cuando quieras ver la evaluación y la práctica que viene después.',
@@ -970,9 +970,9 @@ export const es: LocaleCatalog = {
     step4Title: 'Reciben retroalimentación y practican',
     step4Body:
       'Cada estudiante recibe su evaluación al terminar y puede seguir practicando justo lo que falló, sin esperarte.',
-    step5Title: 'Lees el reporte para la próxima clase',
+    step5Title: 'Ves cómo le fue a la clase',
     step5Body:
-      'Quién la hizo, qué falló más y qué conviene repasar juntos. Listo antes de entrar al aula.',
+      'Quién respondió, qué preguntas fallaron y un resumen con IA de qué conviene repasar juntos. Listo antes de entrar al aula.',
     notTitle: 'Lo que Mister F no es',
     not1: 'No es un LMS. No hay que migrar nada ni montar un curso.',
     not2: 'No te impone un currículo ni un libro. Tu material manda.',
