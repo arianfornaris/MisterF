@@ -173,9 +173,25 @@ assets or on a chosen demo activity carry their own note.
   Limited places." Creates real (not manufactured) urgency, sets expectations
   that this is not a finished suite, and tells an investor the stage without a
   traction section.
-- [x] **Price, stated honestly.** Free during the pilot; the final price will be
-  defined with the pilot teachers. A vague pricing section destroys B2B trust; a
-  stated "not yet, and here is why" does not.
+- [x] **Price, stated honestly.** **Rewritten 2026-07-30 — the first version was
+  simply false, and the founder called it "absolutely wrong".** It said "free
+  during the pilot", which describes no state the product has ever been in: the
+  platform runs on credits, a new account starts with a welcome balance
+  (`OPENROUTER_USER_KEY_LIMIT_USD`), and more credits are bought in one package
+  of **200 credits for USD 5.00**
+  (`src/server/payments/packages.ts`) — there is no subscription and no pilot
+  tariff. The claim came from reading the pilot's *credit policy* item in
+  [Roadmap V3](roadmap-v3.md) §1.7 as "the pilot is free", when what that item
+  actually closed with is the opposite: the pilot runs on the ordinary
+  self-serve model, unchanged. Saying "free" would have been the single most
+  damaging sentence on the page — a teacher who signs up on that promise hits a
+  purchase wall and stops trusting everything else. The section now says what
+  is true: credits, a starting balance to explore, USD 5 packages after that,
+  nothing charged until the user chooses to buy. The hero and closing footnote
+  carried the same claim and were corrected with it.
+  The rule this adds to the one from the hero card: **the landing may not state
+  a commercial term that is not readable in the code or in an approved business
+  document.**
 - [x] **Data and privacy, in four lines.** Adults only; a student sees a notice
   before answering when the person who shared the activity will see the results;
   your material stays yours. The consent model already exists
@@ -494,7 +510,13 @@ included where the roadmap has one.
 4. **Analytics mechanism** for the two conversion counts, within budget and
    within the current privacy posture.
 5. **Exact wording of the pilot and price statement** — this is the sentence
-   most likely to be quoted back by a prospect.
+   most likely to be quoted back by a prospect, and the one the page has
+   already got wrong once (see 1.1). Open sub-questions: whether to name the
+   welcome balance in a concrete unit a teacher can picture ("enough for one
+   full activity" rather than a credit count or a dollar figure), and whether
+   the pilot should carry any commercial term at all beyond the ordinary
+   self-serve model — [Roadmap V3](roadmap-v3.md) §1.7 closed that it should
+   not, and the landing must not re-open it by accident.
 6. **Founder section depth**: photo plus a short paragraph, or a fuller story.
 7. ~~**What the Creole pill does until the landing is translated**~~ (section
    1.4). Decided 2026-07-30: translate it, do not hide it. What remains is a

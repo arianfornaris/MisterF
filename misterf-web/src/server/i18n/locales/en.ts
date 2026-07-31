@@ -942,7 +942,7 @@ export const en: LocaleCatalog = {
       'For teachers and tutors who teach English to adults. Built around your own material: no school platform, no imposed curriculum.',
     heroPrimaryCta: 'Create your first activity',
     heroSecondaryCta: 'Try an example activity',
-    heroFootnote: 'Free during the pilot. No credit card.',
+    heroFootnote: 'Every new account starts with a balance to try it. No credit card.',
     reportExampleLabel: 'Example',
     reportExampleTitle: 'Responses summary',
     reportExampleActivity: 'Making a clinic appointment · A2',
@@ -993,7 +993,7 @@ export const en: LocaleCatalog = {
     pilotCta: 'Ask for a place in the pilot',
     priceTitle: 'What it costs',
     priceBody:
-      'Free during the pilot. The final price will be defined together with the pilot teachers — we would rather set it with them than guess it now.',
+      'Mister F runs on credits. Every new account starts with a balance, enough to explore the product and run an activity end to end; after that, credits are bought in USD 5 packages. No subscription, and nothing is charged until you choose to buy.',
     privacyTitle: 'Data and privacy',
     privacy1: 'The pilot runs with adult learners only.',
     privacy2:

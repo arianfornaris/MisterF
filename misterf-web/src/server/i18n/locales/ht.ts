@@ -1226,7 +1226,7 @@ export const ht: LocaleCatalog = {
       'Pou pwofesè ak titè k ap anseye anglè bay adilt. Ak pwòp materyèl pa ou: san platfòm lekòl, san pwogram obligatwa.',
     heroPrimaryCta: 'Kreye premye aktivite ou',
     heroSecondaryCta: 'Eseye yon aktivite egzanp',
-    heroFootnote: 'Gratis pandan pilòt la. San kat kredi.',
+    heroFootnote: 'Chak nouvo kont kòmanse ak yon ti kredi pou eseye l. San kat kredi.',
     reportExampleLabel: 'Egzanp',
     reportExampleTitle: 'Rezime repons yo',
     reportExampleActivity: 'Pran yon randevou nan klinik la · A2',
@@ -1277,7 +1277,7 @@ export const ht: LocaleCatalog = {
     pilotCta: 'Mande yon plas nan pilòt la',
     priceTitle: 'Konbyen li koute',
     priceBody:
-      'Gratis pandan pilòt la. N ap fikse pri final la ansanm ak pwofesè pilòt yo — nou pito deside l avèk yo pase devine l kounye a.',
+      'Platfòm nan mache ak kredi. Chak nouvo kont kòmanse ak yon ti kredi, ase pou eksplore pwodwi a epi fè yon aktivite konplè; apre sa, ou achte kredi nan pake 5 dola. Pa gen abònman, epi nou pa chaje anyen jiskaske ou deside achte.',
     privacyTitle: 'Done ak konfidansyalite',
     privacy1: 'Pilòt la fèt ak elèv adilt sèlman.',
     privacy2:

@@ -942,7 +942,7 @@ export const es: LocaleCatalog = {
       'Para profesores y tutores que enseñan inglés a adultos. Con tu propio material: sin plataforma escolar ni currículo obligatorio.',
     heroPrimaryCta: 'Crea tu primera actividad',
     heroSecondaryCta: 'Prueba una actividad de ejemplo',
-    heroFootnote: 'Gratis durante el piloto. Sin tarjeta.',
+    heroFootnote: 'Cada cuenta nueva empieza con saldo para probarlo. Sin tarjeta.',
     reportExampleLabel: 'Ejemplo',
     reportExampleTitle: 'Resumen de respuestas',
     reportExampleActivity: 'Pedir cita en la clínica · A2',
@@ -994,7 +994,7 @@ export const es: LocaleCatalog = {
     pilotCta: 'Pide una plaza en el piloto',
     priceTitle: 'Cuánto cuesta',
     priceBody:
-      'Gratis durante el piloto. El precio final lo definiremos junto a los profesores del piloto: preferimos fijarlo con ellos antes que adivinarlo ahora.',
+      'La plataforma funciona con créditos. Cada cuenta nueva empieza con un saldo inicial, suficiente para explorar el producto y hacer una actividad completa; después, los créditos se compran en paquetes de 5 dólares. Sin suscripción, y no se cobra nada hasta que decidas comprar.',
     privacyTitle: 'Datos y privacidad',
     privacy1: 'El piloto se hace solo con estudiantes adultos.',
     privacy2:
