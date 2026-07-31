@@ -362,20 +362,33 @@ So the landing is already following a rule; what is untested is whether that
 rule reads as deliberate or as inconsistent to a native speaker seeing the page
 for the first time.
 
-- [ ] Decide the rule and write it down: keep the split (product =
-  "Mister F", tutor = "Mr. F"), or collapse everything to one form.
-- [ ] If the split stays, check the English landing copy sentence by sentence
-  for places where the *tutor* is meant but the product name is used.
-- [ ] Count the repetitions regardless. Even under the right rule, a landing
-  that names itself in most paragraphs reads as insecure; pronouns and "it"
-  carry more of the copy in confident marketing writing.
+- [x] Decide the rule and write it down. **Decided 2026-07-30: keep the split**
+  — product = "Mister F", tutor = "Mr. F" — and make it legible once instead of
+  leaving the reader to infer it. Spelling out "Mister" is not an error in
+  English; it is a brand device with good precedent (Mister Rogers, Mister
+  Softee) and it reads warm and neighborly, which is the register this product
+  wants. The problem was never the spelling, it was showing two forms and
+  explaining neither. The founder section now closes the loop in one clause:
+  the real Mister F is the founder's father, "and the tutor your students
+  practice with carries his name: Mr. F".
+- [x] Check the English copy sentence by sentence for places where the *tutor*
+  is meant but the product name is used. Fixed 2026-07-30: step 1 said
+  "Mister F drafts the activity" (the drafting is the tutor's job — the name is
+  now dropped entirely), and the learner section put both forms in consecutive
+  sentences, the one spot where the split reads as sloppiness rather than as a
+  distinction.
+- [x] Count the repetitions regardless. Was **9 "Mister F" to 2 "Mr. F"** in
+  roughly 700 words. Now **5 to 3**, with the product named where it belongs —
+  the meta description, the "What Mister F is not" heading, and the founder
+  section — and "it" carrying the rest. Applied to all three locales.
 - [ ] Have a native English speaker read the page once this is settled — the
   cheapest possible review, and the founder has flagged commercial English as a
   development area
   ([Contexto del fundador](../business/contexto-del-fundador.md)).
 
-Applies to the English edition first; Spanish and Creole inherit whatever rule
-is chosen.
+The rule applies to all three editions and is already reflected in `en`, `es`,
+and `ht`. What remains is the native-speaker read, which no amount of internal
+reasoning replaces.
 
 ---
 

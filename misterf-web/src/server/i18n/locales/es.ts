@@ -960,7 +960,7 @@ export const es: LocaleCatalog = {
     stepsTitle: 'Cómo funciona',
     step1Title: 'Parte de tu material',
     step1Body:
-      'Pega tu texto, el tema o la tarea que ya tenías pensada. Mister F redacta la actividad a partir de eso.',
+      'Pega tu texto, el tema o la tarea que ya tenías pensada. El primer borrador de la actividad sale de ahí.',
     step2Title: 'Revisa la actividad',
     step2Body:
       'Lee lo que generó y ajusta lo que quieras antes de que llegue a tus estudiantes. Nada se comparte hasta que tú lo decidas.',
@@ -979,18 +979,18 @@ export const es: LocaleCatalog = {
     not3: 'Tus estudiantes no instalan nada. Abren un enlace.',
     learnerTitle: '¿Estudias por tu cuenta?',
     learnerBody:
-      'No necesitas un profesor para usar Mister F. Practica con Mr. F, recibe correcciones sobre la marcha y lleva un registro de lo que vas mejorando.',
+      'No necesitas un profesor para usarlo. Practica con Mr. F, recibe correcciones sobre la marcha y lleva un registro de lo que vas mejorando.',
     learnerCta: 'Practicar con Mr. F',
     founderTitle: 'Quién está detrás de Mister F',
     founderBody1:
       'Mister F lo construye Arian Fornaris, un desarrollador de software que llegó al sur de Florida en 2023 y aprendió inglés siendo adulto, como los estudiantes para los que está pensado.',
     founderBody2:
-      'El Mister F real es su padre, que enseñó inglés durante décadas en Cuba y hoy lo enseña en Florida. Su manera de acompañar a un estudiante fuera de clase es la idea sobre la que está construido el producto.',
+      'El Mister F real es su padre, que enseñó inglés durante décadas en Cuba y hoy lo enseña en Florida. Su manera de acompañar a un estudiante fuera de clase es la idea sobre la que está construido el producto, y el tutor con el que practican tus estudiantes lleva su nombre: Mr. F.',
     founderBody3:
-      'Mister F es operado por Little Software LLC, Florida, Estados Unidos.',
+      'Operado por Little Software LLC, Florida, Estados Unidos.',
     pilotTitle: 'En piloto con profesores del sur de Florida',
     pilotBody:
-      'Mister F está corriendo su primer piloto con un grupo pequeño de profesores independientes, y todavía se está afinando con quienes lo usan. Las plazas son limitadas.',
+      'El primer piloto está en marcha con un grupo pequeño de profesores independientes, y el producto todavía se está afinando con quienes lo usan. Las plazas son limitadas.',
     pilotCta: 'Pide una plaza en el piloto',
     priceTitle: 'Cuánto cuesta',
     priceBody:

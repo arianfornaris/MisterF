@@ -1244,7 +1244,7 @@ export const ht: LocaleCatalog = {
     stepsTitle: 'Kijan li mache',
     step1Title: 'Kòmanse ak materyèl ou',
     step1Body:
-      'Kole tèks ou, sijè a, oswa devwa ou te deja prepare a. Mister F ekri aktivite a apati sa.',
+      'Kole tèks ou, sijè a, oswa devwa ou te deja prepare a. Premye bouyon aktivite a soti la.',
     step2Title: 'Revize aktivite a',
     step2Body:
       'Li sa li jenere epi ajiste tou sa ou vle anvan li rive kot elèv ou yo. Anyen pa pataje jiskaske ou di wi.',
@@ -1263,17 +1263,17 @@ export const ht: LocaleCatalog = {
     not3: 'Elèv ou yo pa enstale anyen. Yo louvri yon lyen.',
     learnerTitle: 'W ap aprann pou kont ou?',
     learnerBody:
-      'Ou pa bezwen yon pwofesè pou itilize Mister F. Pratike ak Mr. F, resevwa koreksyon pandan w ap travay, epi kenbe yon dosye sou sa w ap amelyore.',
+      'Ou pa bezwen yon pwofesè pou itilize l. Pratike ak Mr. F, resevwa koreksyon pandan w ap travay, epi kenbe yon dosye sou sa w ap amelyore.',
     learnerCta: 'Pratike ak Mr. F',
     founderTitle: 'Ki moun ki dèyè Mister F',
     founderBody1:
       'Se Arian Fornaris ki bati Mister F, yon devlopè lojisyèl ki vin nan sid Florid an 2023 epi ki aprann anglè kòm adilt — menm jan ak elèv li fèt pou yo.',
     founderBody2:
-      'Vrè Mister F la se papa l, ki anseye anglè pandan plizyè dizèn ane nan Kiba epi k ap anseye l jodi a nan Florid. Fason li akonpaye yon elèv deyò klas la se lide pwodwi a chita sou li.',
-    founderBody3: 'Little Software LLC, Florid, Etazini, opere Mister F.',
+      'Vrè Mister F la se papa l, ki anseye anglè pandan plizyè dizèn ane nan Kiba epi k ap anseye l jodi a nan Florid. Fason li akonpaye yon elèv deyò klas la se lide pwodwi a chita sou li, epi titè elèv ou yo ap pratike avè l la pote non l: Mr. F.',
+    founderBody3: 'Opere pa Little Software LLC, Florid, Etazini.',
     pilotTitle: 'Nan pilòt ak pwofesè nan sid Florid',
     pilotBody:
-      'Mister F ap fè premye pilòt li ak yon ti gwoup pwofesè endepandan, epi l ap fòme toujou ak moun k ap itilize l yo. Plas yo limite.',
+      'Premye pilòt la ap fè ak yon ti gwoup pwofesè endepandan, epi pwodwi a ap fòme toujou ak moun k ap itilize l yo. Plas yo limite.',
     pilotCta: 'Mande yon plas nan pilòt la',
     priceTitle: 'Konbyen li koute',
     priceBody:

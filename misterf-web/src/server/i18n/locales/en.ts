@@ -960,7 +960,7 @@ export const en: LocaleCatalog = {
     stepsTitle: 'How it works',
     step1Title: 'Start from your material',
     step1Body:
-      'Paste your text, the topic, or the homework you had already planned. Mister F drafts the activity from it.',
+      'Paste your text, the topic, or the homework you had already planned. The first draft of the activity comes from that.',
     step2Title: 'Review the activity',
     step2Body:
       'Read what it generated and adjust anything before it reaches your students. Nothing is shared until you say so.',
@@ -979,17 +979,17 @@ export const en: LocaleCatalog = {
     not3: 'Your students install nothing. They open a link.',
     learnerTitle: 'Learning on your own?',
     learnerBody:
-      'You do not need a teacher to use Mister F. Practice with Mr. F, get corrected as you go, and keep a record of what you are improving.',
+      'You do not need a teacher to use it. Practice with Mr. F, get corrected as you go, and keep a record of what you are improving.',
     learnerCta: 'Practice with Mr. F',
     founderTitle: 'Who is behind Mister F',
     founderBody1:
       'Mister F is built by Arian Fornaris, a software developer who moved to South Florida in 2023 and learned English as an adult — like the students it is made for.',
     founderBody2:
-      'The real Mister F is his father, who taught English for decades in Cuba and teaches it today in Florida. His way of following a student outside of class is the idea the product is built on.',
-    founderBody3: 'Mister F is operated by Little Software LLC, Florida, United States.',
+      'The real Mister F is his father, who taught English for decades in Cuba and teaches it today in Florida. His way of following a student outside of class is the idea the product is built on, and the tutor your students practice with carries his name: Mr. F.',
+    founderBody3: 'Operated by Little Software LLC, Florida, United States.',
     pilotTitle: 'In pilot with teachers in South Florida',
     pilotBody:
-      'Mister F is running its first pilot with a small group of independent teachers, and it is still being shaped with the people using it. Places are limited.',
+      'The first pilot is running with a small group of independent teachers, and the product is still being shaped with the people using it. Places are limited.',
     pilotCta: 'Ask for a place in the pilot',
     priceTitle: 'What it costs',
     priceBody:
