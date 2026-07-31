@@ -51,42 +51,66 @@
           </div>
 
           <div class="hero-visual">
-            <div class="card card--lift">
+            <%
+              /*
+               * A mockup, not a screenshot: it mirrors the real participation
+               * page — kicker, count badge, one row per question with its
+               * correct / to-improve tallies, and the AI summary — using the
+               * product's own labels. Built in HTML so the page still ships no
+               * images, and badged "Example" so nobody reads it as a real class.
+               * Instructions follow the reader's language while the practice
+               * itself stays English, which is how the product actually works.
+               */
+              const mockQuestions = [
+                { correct: 5, improve: 0, prompt: t('landing.reportExampleQ1'), total: 5 },
+                { correct: 2, improve: 3, prompt: t('landing.reportExampleQ2'), total: 5 },
+                { correct: 3, improve: 2, prompt: t('landing.reportExampleQ3'), total: 5 },
+              ];
+            %>
+            <div class="card card--lift mock">
               <div class="card-head">
                 <p class="card-kicker"><%= t('landing.reportExampleTitle') %></p>
                 <span class="pill"><%= t('landing.reportExampleLabel') %></span>
               </div>
               <p class="card-title"><%= t('landing.reportExampleActivity') %></p>
-              <ul class="report-rows">
-                <li>
-                  <svg class="icon icon--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"></path>
-                    <path d="m9 11 3 3 9-9"></path>
-                  </svg>
-                  <span class="row-value"><%= t('landing.reportExampleCompleted') %></span>
-                </li>
-                <li>
-                  <svg class="icon icon--warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 8v5"></path>
-                    <path d="M12 16.5h.01"></path>
-                  </svg>
-                  <span>
-                    <span class="row-label"><%= t('landing.reportExamplePerQuestionLabel') %></span>
-                    <span class="row-value"><%= t('landing.reportExamplePerQuestion') %></span>
-                  </span>
-                </li>
-                <li>
-                  <svg class="icon icon--loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 3.5 13.9 8l4.6 1.9-4.6 1.9L12 16.4l-1.9-4.6L5.5 9.9 10.1 8Z"></path>
-                    <path d="M18.5 15.2l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7Z"></path>
-                  </svg>
-                  <span>
-                    <span class="row-label"><%= t('landing.reportExampleSummaryLabel') %></span>
-                    <span class="row-value"><%= t('landing.reportExampleSummary') %></span>
-                  </span>
-                </li>
-              </ul>
+
+              <p class="mock-count">
+                <svg class="icon icon--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"></path>
+                  <path d="m9 11 3 3 9-9"></path>
+                </svg>
+                <%= t('landing.reportExampleCompleted') %>
+              </p>
+
+              <ol class="mock-questions">
+                <% mockQuestions.forEach((question, questionIndex) => { %>
+                  <li>
+                    <span class="mock-index">#<%= questionIndex + 1 %></span>
+                    <div>
+                      <p class="mock-prompt"><%= question.prompt %></p>
+                      <p class="mock-tallies">
+                        <% if (question.correct > 0) { %>
+                          <span class="tally tally--ok"><%= question.correct %>/<%= question.total %> <%= t('quizzes.correctSuffix') %></span>
+                        <% } %>
+                        <% if (question.improve > 0) { %>
+                          <span class="tally tally--bad"><%= question.improve %>/<%= question.total %> <%= t('quizzes.toImproveSuffix') %></span>
+                        <% } %>
+                      </p>
+                    </div>
+                  </li>
+                <% }) %>
+              </ol>
+
+              <p class="mock-summary">
+                <svg class="icon icon--loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3.5 13.9 8l4.6 1.9-4.6 1.9L12 16.4l-1.9-4.6L5.5 9.9 10.1 8Z"></path>
+                  <path d="M18.5 15.2l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7Z"></path>
+                </svg>
+                <span>
+                  <span class="row-label"><%= t('landing.reportExampleSummaryLabel') %></span>
+                  <span class="row-value"><%= t('landing.reportExampleSummary') %></span>
+                </span>
+              </p>
             </div>
           </div>
         </div>

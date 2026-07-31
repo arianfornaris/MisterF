@@ -372,9 +372,8 @@ therefore a more valuable surface than any meta keyword.
   now crawlable and carry `noindex, follow`. The policy is unchanged — these
   links stay out of the index — but it is now expressed the way it can actually
   be honored, and §1.7 becomes a one-line change if the answer there is yes.
-- [ ] Verify the rendered cards in WhatsApp, Messenger, and one desktop client.
-  Needs a real phone; the tags and the image are in place and asserted by
-  tests, but only a real paste proves it.
+- [x] Verify the rendered cards in WhatsApp. Founder-confirmed 2026-07-31: the
+  links were pasted and the previews render.
 
 ## 1.6 Conversion Instrumentation — moved to Roadmap X
 
@@ -391,19 +390,33 @@ The trade is stated in Roadmap X and is deliberate: the first visits are the
 most informative and are not recoverable, but instrumentation built before
 there is traffic ages before it is used.
 
-## 1.7 Indexable Public Practice Content
+## 1.7 Indexable Public Practice Content — dropped
 
-Second track, deliberately after the landing ships. A new domain will not rank
-for head terms; the realistic search surface is long-tail practice content, which
-the product can already generate.
+**Closed 2026-07-31 (founder decision): not needed for now, and the question as
+originally framed was the wrong one.**
 
-- [ ] Decide whether selected shared activities can be published as public,
-  indexable pages (for example "English practice A2: making a clinic
-  appointment"), and what the owner's consent for that looks like.
-- [ ] Define the URL shape, metadata, and how such pages link back to the
-  landing.
-- [ ] Confirm this does not conflict with the resource sharing and consent rules
-  already shipped.
+It asked whether *shared user activities* could be made indexable. They should
+not be, and not merely for now:
+
+- **It would pollute the report the product promises.** A share link that
+  collects results turns every stranger arriving from a search engine into an
+  attempt row on that teacher's participation page — inside the very report
+  sold as "know how your class did".
+- **The material is not ours to republish.** Teachers paste their own content,
+  some of it from published textbooks. Indexing it republishes it at scale
+  under this domain, across hundreds of activities nobody will ever read.
+- **A teacher shared with their class, not with the internet.** The link is
+  technically public and socially private; indexing changes a contract the
+  owner never agreed to.
+
+If long-tail search is wanted later, the answer is **product-owned content**,
+not user content: a curated library published deliberately, at its own slugged
+URLs. The mechanism already exists — the ten hand-authored example activities
+and their seeder — so growing it is a content exercise, not an engineering one.
+That would be a new item in its own roadmap, not this one.
+
+Shared resource pages keep `noindex, follow` (see §2.2), which is now the
+permanent posture rather than a holding position.
 
 ---
 
@@ -536,7 +549,10 @@ crawlers ask for.
   screens — authoring, sharing, and the next-class report — need an
   authenticated session and, for the report, at least two evaluated attempts.
   Decide who captures those and against which account.
-- [ ] Founder photo.
+- [x] ~~Founder photo.~~ Dropped 2026-07-31 at the founder's request. The
+  section never depended on it: what makes it work is a named person, a
+  registered company, and the origin story. A photo would have been one more
+  signal, not the one carrying the weight.
 - [x] Share image (1.5), as a logo placeholder. Replacing it stays open there.
 
 ---
@@ -586,8 +602,8 @@ included where the roadmap has one.
 - [~] The example activity can be completed end to end from a phone, starting
   from the landing. The anonymous half works; the signup-to-evaluation half
   still needs a real run (1.2).
-- [ ] Share previews render correctly in WhatsApp for both the landing and a
-  shared activity. The landing has a placeholder card; a shared activity has no
+- [x] Share previews render correctly in WhatsApp for both the landing and a
+  shared activity. Founder-confirmed 2026-07-31. The landing has a placeholder card; a shared activity has no
   preview of its own yet (1.5).
 - [x] The landing exists in all three language editions, at real URLs,
   cross-linked with `hreflang`. Done 2026-07-31.
