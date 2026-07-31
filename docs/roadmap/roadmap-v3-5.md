@@ -596,12 +596,16 @@ included where the roadmap has one.
 - [x] `robots.txt`, `sitemap.xml`, meta descriptions, and canonicals are in
   place. Done 2026-07-30.
 - [ ] The two conversion counts are recorded and can be read.
-- [ ] The example activities are seeded **in production**. A deploy does not
-  carry content: the seeder must be run once on the server, and again after any
-  change to the fixtures. Steps and the two ways to get it wrong are in the
-  `production-server-ops` skill, "Seeding Content After A Deploy".
-- [~] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass, with
-  regression coverage for the new routing. Green as of 2026-07-30 (321 tests);
+- [x] The example activities are seeded **in production**. Done 2026-07-31,
+  right after the 3.3.0 deploy: all ten created and share-linked, and the
+  landing is serving one at random. A deploy does not carry content, so the
+  seeder must be re-run after any change to the fixtures. Steps and the two
+  ways to get it wrong are in the `production-server-ops` skill, "Seeding
+  Content After A Deploy".
+- [x] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass, with
+  regression coverage for the new routing. 332 tests green at the 3.3.0
+  release. Green as of 2026-07-30 (321 tests);
   re-check before the release.
-- [ ] Deployed to production per the `versioning-and-releases` skill, as a `3.x`
-  MINOR release.
+- [x] Deployed to production per the `versioning-and-releases` skill, as a
+  `3.x` MINOR release. **Shipped 2026-07-31 as `3.3.0`**; `/health` confirms
+  it, and the three language editions answer 200 in their own language.
