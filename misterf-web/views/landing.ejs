@@ -17,10 +17,14 @@
           Mister F
         </a>
         <div class="header-actions">
+          <%# Each language is a real URL, not a query parameter that reloads
+              the same one: that is what a crawler follows and what a visitor
+              can bookmark or forward. %>
           <nav class="langs" aria-label="<%= t('language.label') %>">
             <% languages.forEach((language) => { %>
               <a
-                href="/?lang=<%= language.code %>"
+                href="<%= language.code === 'en' ? '/en' : locals.editionPaths[language.code] %>"
+                hreflang="<%= language.code %>"
                 <%= locale === language.code ? 'aria-current="true"' : '' %>
               ><span class="lang-full"><%= language.endonym %></span><span class="lang-code"><%= language.code.toUpperCase() %></span></a>
             <% }) %>

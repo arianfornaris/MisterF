@@ -162,6 +162,106 @@ describe('public landing page', () => {
     expect(html).not.toContain('For independent English teachers and tutors');
   });
 
+  it('serves each language edition at its own URL, whatever the browser asks for', async () => {
+    // The point of an edition URL is that the path wins: a crawler sending
+    // English headers must still get Spanish from /es, or it can only ever
+    // index one of the three.
+    const spanish = await fetch(`${baseUrl}/es`, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+    });
+    const spanishHtml = await spanish.text();
+
+    expect(spanish.status).toBe(200);
+    expect(spanishHtml).toContain('<html lang="es">');
+    expect(spanishHtml).toContain('Para profesores y tutores independientes de inglés');
+    expect(spanishHtml).toContain('<link rel="canonical" href="https://misterf.test/es">');
+    // And the choice follows the visitor into the app they sign up for.
+    expect(spanish.headers.get('set-cookie')).toContain('misterf_lang=es');
+
+    const creole = await fetch(`${baseUrl}/ht`, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+    });
+    const creoleHtml = await creole.text();
+
+    expect(creoleHtml).toContain('<html lang="ht">');
+    expect(creoleHtml).toContain('Pou pwofesè ak titè anglè endepandan');
+    expect(creoleHtml).toContain('<link rel="canonical" href="https://misterf.test/ht">');
+  });
+
+  it('keeps /en from competing with the root for the English index entry', async () => {
+    const response = await fetch(`${baseUrl}/en`, {
+      headers: { 'Accept-Language': 'es-ES,es;q=0.9' },
+    });
+    const html = await response.text();
+
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('<link rel="canonical" href="https://misterf.test/">');
+  });
+
+  it('cross-links every edition with reciprocal hreflang', async () => {
+    for (const path of ['/', '/es', '/ht', '/en']) {
+      const html = await (await fetch(`${baseUrl}${path}`)).text();
+
+      expect(html).toContain('<link rel="alternate" hreflang="en" href="https://misterf.test/">');
+      expect(html).toContain('<link rel="alternate" hreflang="es" href="https://misterf.test/es">');
+      expect(html).toContain('<link rel="alternate" hreflang="ht" href="https://misterf.test/ht">');
+      expect(html).toContain(
+        '<link rel="alternate" hreflang="x-default" href="https://misterf.test/">',
+      );
+    }
+  });
+
+  it('declares that the root varies by language, and switches by URL', async () => {
+    const response = await fetch(baseUrl);
+    const html = await response.text();
+
+    expect(response.headers.get('vary')).toContain('Accept-Language');
+    // The switcher has to move the visitor to a real URL; `?lang=` reloads the
+    // same one, which a crawler cannot follow and a visitor cannot forward.
+    expect(html).toContain('href="/es"');
+    expect(html).toContain('href="/ht"');
+    expect(html).not.toContain('href="/?lang=');
+  });
+
+  it('sends a signed-in visitor from a language edition to the app', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'landing-edition@example.com',
+      emailVerified: true,
+      fullName: 'Landing Edition',
+      provider: 'google',
+      providerSubject: 'landing-edition',
+    });
+    const profile = createProfile({
+      instructionLanguage: 'en',
+      name: 'Edition profile',
+      profileOnboardingCompleted: true,
+      userId: user.id,
+    });
+    const cookie = await createAuthenticatedCookie(user.id, profile.id);
+
+    const response = await fetch(`${baseUrl}/es`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('/');
+  });
+
+  it('gives a crawler that states no language the default edition', async () => {
+    // Express negotiation returns the first supported locale for a request with
+    // no Accept-Language header, which is how the root ended up canonicalising
+    // to /es for crawlers and leaving English behind /en.
+    const response = await fetch(baseUrl);
+    const html = await response.text();
+
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('<link rel="canonical" href="https://misterf.test/">');
+  });
+
   it('emits the description, canonical, and Open Graph tags', async () => {
     const response = await fetch(baseUrl);
     const html = await response.text();
@@ -286,6 +386,8 @@ describe('crawler surfaces', () => {
     expect(response.headers.get('content-type')).toContain('text/plain');
     expect(body).toContain('Sitemap: https://misterf.test/sitemap.xml');
     expect(body).toContain('Disallow: /');
+    expect(body).toContain('Allow: /es');
+    expect(body).toContain('Allow: /ht');
   });
 
   it('serves a sitemap covering the public pages', async () => {
@@ -295,8 +397,13 @@ describe('crawler surfaces', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toContain('xml');
     expect(body).toContain('<loc>https://misterf.test/</loc>');
+    expect(body).toContain('<loc>https://misterf.test/es</loc>');
+    expect(body).toContain('<loc>https://misterf.test/ht</loc>');
     expect(body).toContain('<loc>https://misterf.test/privacy</loc>');
     expect(body).toContain('<loc>https://misterf.test/terms</loc>');
+    expect(body).toContain(
+      '<xhtml:link rel="alternate" hreflang="es" href="https://misterf.test/es"/>',
+    );
   });
 });
 

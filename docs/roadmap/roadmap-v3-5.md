@@ -283,13 +283,39 @@ logged-out visitors get a chat composer with `guestInitialGreeting`.
 The app already ships three instruction languages with typed, parity-enforced
 catalogs (`src/server/i18n/locales/{en,es,ht}.ts`).
 
-**Not done, and this is the gap that matters for search.** The first slice
-reuses the app's existing `?lang=` switcher, which stores a cookie and
-redirects: one URL, content varying by cookie. That is fine for a human and bad
-for a crawler, which will only ever index whichever edition it is served first.
+**Done 2026-07-31.** The first slice reused the app's `?lang=` switcher, which
+stored a cookie and redirected: one URL, content varying by cookie, fine for a
+human and useless for a crawler.
 
-- [ ] Serve one real URL per language edition rather than switching content on
-  a single URL, and cross-link them with `hreflang`.
+- [x] Serve one real URL per language edition rather than switching content on
+  a single URL, and cross-link them with `hreflang`. Shape: English keeps `/`
+  (the URL people type, share, and print, so it renders instead of
+  redirecting), Spanish is `/es`, Creole is `/ht`, and `/en` exists for the
+  switcher while declaring `/` as its canonical so the two never compete for
+  the same index entry. On an edition path the locale is forced over both the
+  cookie and `Accept-Language` — that is what makes it a page rather than a
+  cookie state — and the cookie is written so the app the visitor signs into
+  speaks the language the landing did. The root still negotiates and says which
+  edition it served through its canonical, with `Vary: Accept-Language`.
+  Reciprocal `hreflang` (plus `x-default`) on all four URLs, and the sitemap
+  carries `xhtml:link` alternates. A signed-in visitor hitting an edition path
+  is redirected to `/`, the app.
+  Two defects found while building it, both silent:
+  1. **The root stopped being the landing entirely.** `renderLanding` grew a
+     fourth parameter, and Express infers handler *kind* from arity — a
+     four-argument function is an error handler, skipped during normal routing.
+     The root fell through to the chat page with a 200 and nothing in the logs.
+     The exported handlers are now deliberately three-argument wrappers, with a
+     comment saying why. The existing route test would have caught this
+     immediately; it was found in the browser because the suite had not been
+     re-run after the rewrite.
+  2. **A crawler would have been served Spanish at `/`.** Express's
+     `acceptsLanguages` returns the first supported locale when a request
+     states no preference — `es`, purely from key order in the language
+     registry — and crawlers routinely send no `Accept-Language` header or the
+     wildcard `*`. The root would have canonicalised to `/es`, leaving the
+     chain `/en` → `/` → `/es` and English effectively unindexed. No stated
+     preference now means the default edition, wildcard included.
 - [x] Decide the default edition: **English by default, Spanish one click
   away.** The buyer's professional identity is teaching English, and both
   academies and investors read English; the learner-facing section and the
@@ -470,8 +496,10 @@ crawlers ask for.
   parity-enforced (`LocaleCatalog` is an index signature), which is what makes
   the deliberate `ht` omission possible without breaking the build. The keys are
   server-rendered only, so they never reach the client catalog.
-- [ ] Ensure the language switcher on the landing changes the **edition URL**,
-  not just the session language. Blocked on 1.4; today it uses the app's
+- [x] Ensure the language switcher on the landing changes the **edition URL**,
+  not just the session language. Done 2026-07-31 with §1.4: the switcher links
+  to `/en`, `/es`, and `/ht` with `hreflang` on each anchor, so it is something
+  a crawler can follow and a visitor can bookmark or forward. Blocked on 1.4; today it uses the app's
   `?lang=` cookie switcher.
 
 ## 2.4 Tests And Regression Coverage
@@ -550,8 +578,8 @@ included where the roadmap has one.
 - [ ] Share previews render correctly in WhatsApp for both the landing and a
   shared activity. The landing has a placeholder card; a shared activity has no
   preview of its own yet (1.5).
-- [ ] The landing exists in at least the two committed language editions, at
-  real URLs, cross-linked with `hreflang`.
+- [x] The landing exists in all three language editions, at real URLs,
+  cross-linked with `hreflang`. Done 2026-07-31.
 - [x] `robots.txt`, `sitemap.xml`, meta descriptions, and canonicals are in
   place. Done 2026-07-30.
 - [ ] The two conversion counts are recorded and can be read.
