@@ -1,6 +1,6 @@
 ---
 name: versioning-and-releases
-description: Use when deploying to production, bumping the app version, tagging a release, or answering which version runs in production. Covers the MAJOR.MINOR.PATCH scheme anchored to roadmap versions, how to choose the bump for a deploy, the tag-before-deploy requirement enforced by deploy.sh, merging the release onto the production branch (main) before deploying — with a confirmation gate when the working branch is not main — and where the version is exposed at runtime.
+description: Use when deploying to production, bumping the app version, tagging a release, or answering which version runs in production. Covers the MAJOR.MINOR.PATCH scheme anchored to roadmap versions, how to choose the bump for a deploy, the tag-before-deploy requirement enforced by deploy.sh, merging the release onto the production branch (main) before deploying — a deploy request authorizes that merge, which is announced rather than asked about — and where the version is exposed at runtime.
 ---
 
 # Versioning And Releases
@@ -57,12 +57,11 @@ Before deploying, check the branch you are on:
 
 1. **On `main`** → proceed straight to the Release Steps above.
 2. **On another branch** (e.g. `v3`) → that branch is not the deploy branch.
-   **Stop and ask the user to confirm before merging to `main`.** Merging brings
-   *everything* on that branch into production, which is often more than the one
-   change at hand, so it must be an explicit decision — never merge to `main`
-   and deploy silently.
-3. After the user confirms, fast-forward `main` to the working branch, then bump
-   / tag (Release Steps) and deploy **from `main`**:
+   **A request to deploy to production is the authorization to merge it into
+   `main`.** Do not stop to ask again: asking to deploy from a working branch
+   has no other possible meaning, since deploying from anywhere else is a no-op.
+   Fast-forward `main` to the working branch, then bump / tag (Release Steps)
+   and deploy **from `main`**:
    ```bash
    git merge-base --is-ancestor origin/main <branch> \
      && git checkout main && git merge --ff-only <branch> \
@@ -71,6 +70,14 @@ Before deploying, check the branch you are on:
    If the fast-forward is not possible (the branches diverged), do not force it
    or create a merge commit blindly — surface the divergence and let the user
    decide how to reconcile.
+
+What the merge still requires is **telling the user what is going with it**,
+before running it, not asking permission for it. Merging brings *everything* on
+the branch into production, which is usually more than the change at hand, so
+list the commits (`git log origin/main..HEAD --oneline`), name any behavior
+change that affects people already using the site, and say whether there are
+database migrations. Then merge and deploy. The user can stop it; they cannot
+un-deploy something they were never told about.
 
 After deploying, verify production actually moved:
 `curl -s https://misterf.us/health` must report the new version (pm2's version

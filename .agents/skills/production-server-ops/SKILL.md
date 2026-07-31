@@ -44,8 +44,9 @@ It does not seed content — see "Seeding Content After A Deploy" below.
 The server checks out the branch that `git pull` advances (currently `main`).
 So the release must be on `main` before deploying — deploying from a feature
 branch (e.g. `v3`) is a no-op (`Already up to date`). See `versioning-and-releases`
-→ "Deploy Branch — Merge To main First", which requires user confirmation before
-merging a working branch into `main`.
+→ "Deploy Branch — Merge To main First": a request to deploy authorizes the
+merge, so state what is going out with it and then merge, rather than stopping
+to ask.
 
 ## Seeding Content After A Deploy
 
