@@ -152,6 +152,12 @@ tiene sentido la segunda sesión, que es la otra mitad de la promesa: enseñarle
 lo que volvió. Ahí se prueba si el resumen de respuestas le ahorra tiempo o se
 lo quita, que es la pregunta comercial de verdad.
 
+Y abre además el canal más accesible que hay hoy: sus colegas imparten el mismo
+curso que él, de modo que una actividad hecha para ese curso les sirve a todos.
+Eso tiene su propio plan en la
+[Fase 4.1 del roadmap del negocio](./negocio-roadmap.md), y depende de que esta
+primera sesión termine bien.
+
 Y si eso funciona, aparece el primer material real que hoy no existe para nada
 más: una historia concreta que contar a los profesores dos y tres, y el
 contenido que le falta al blog aplazado en

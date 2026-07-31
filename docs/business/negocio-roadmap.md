@@ -449,6 +449,76 @@ Criterio para completar la fase:
   acuerdo comercial concreto;
 - costos conocidos y compatibles con al menos una hipótesis de precio.
 
+### Fase 4.1 — Material impreso para los colegas del primer profesor
+
+Estado: `[ ]` Pendiente. Depende de que la
+[primera sesión](./primera-sesion-docente.md) termine bien: promocionar algo
+cuyo primer usuario todavía no lo ha usado en un aula real es propaganda, no
+distribución.
+
+Idea del fundador (31 de julio de 2026): los colegas del primer profesor
+imparten **el mismo curso** que él. Eso convierte una sala de profesores en el
+público más accesible que existe hoy, y por dos razones distintas.
+
+**La primera es de contenido.** Si todos dan el mismo curso, una actividad
+hecha para ese curso sirve a todos. No hay que producir material genérico ni
+adivinar el nivel: se puede preparar en Mister F un conjunto de actividades
+sobre lo que ellos ya enseñan, y cada profesor lo comparte con su propio grupo
+sin cambiar nada de su planificación. Es la forma más barata de saltarse la
+barrera del plan de trabajo oficial.
+
+**La segunda es de canal.** Llega por un colega de confianza dentro del mismo
+centro, no por un vendedor ni por una página web. Es exactamente la
+recomendación entre profesores que la Fase 6 quiere probar, solo que empezando
+por el caso más fácil.
+
+Sobre el formato, un documento impreso y ameno tiene una ventaja concreta sobre
+cualquier enlace: en una sala de profesores un papel se queda encima de la mesa
+y alguien lo recoge. Pero conviene distinguir dos cosas que se parecen y no lo
+son:
+
+- **Un folleto sobre Mister F** se lee una vez y se tira.
+- **Un material que el profesor pueda usar en su clase** —actividades reales
+  del curso que imparte, listas para fotocopiar— se queda, y lleva Mister F
+  dentro sin tener que argumentar nada.
+
+La segunda opción es la que merece el esfuerzo. La plataforma ya genera códigos
+QR para los enlaces compartidos, así que cada actividad impresa puede llevar el
+acceso a su versión interactiva: el papel sirve por sí solo, y el QR es lo que
+la mejora. Quien no quiera saber nada de tecnología se queda con la hoja; quien
+tenga curiosidad ya tiene la puerta abierta.
+
+Pasos sugeridos:
+
+- [ ] Confirmar con el primer profesor qué curso imparten en común y con qué
+  material trabajan.
+- [ ] Preparar en Mister F un conjunto pequeño de actividades para ese curso, y
+  que él las revise antes de que las vea nadie más.
+- [ ] Maquetar una versión imprimible: la actividad legible en papel, el QR al
+  enlace compartido, y una sola línea sobre qué es Mister F y a quién escribir.
+- [ ] Preguntar antes si el centro tiene alguna norma sobre repartir
+  herramientas externas entre el profesorado. Es más barato averiguarlo que
+  arreglarlo después.
+- [ ] Entregarlo él, no el fundador.
+- [ ] Anotar cuántos colegas preguntan y cuántos llegan a compartir una
+  actividad con sus estudiantes.
+
+Advertencias:
+
+- **No escala, y a esta altura eso está bien.** Preparar contenido a medida de
+  un curso concreto es trabajo manual que no se puede repetir para cien
+  profesores. Con tres o cinco es la manera correcta de aprender qué necesitan;
+  el
+  [Contexto del fundador](./contexto-del-fundador.md) §6.4 avisa justamente de
+  automatizar antes de entender el proceso.
+- **La impresión cuesta dinero real**, de los pocos gastos de este plan que lo
+  hacen. Unas decenas de fotocopias caben de sobra en el
+  [presupuesto](./presupuesto-inicial.md), pero conviene decidir la cantidad
+  antes y no imprimir para un centro entero de golpe.
+- **El sesgo del primer profesor se hereda.** Sus colegas comparten centro,
+  curso y probablemente forma de trabajar. Que funcione ahí no dice todavía
+  nada sobre un tutor independiente que trabaja solo.
+
 ### Fase 5 — Validar ingresos, precio y retención
 
 Estado: `[ ]` Pendiente
@@ -491,7 +561,8 @@ medirse.
 
 Canales iniciales para probar, uno a la vez:
 
-- recomendaciones entre profesores;
+- recomendaciones entre profesores (la Fase 4.1 prueba el caso más fácil de
+  este canal: colegas del mismo centro que imparten el mismo curso);
 - invitaciones de estudiantes desde quizzes compartidos;
 - asociaciones con tutores independientes y pequeñas academias;
 - organizaciones comunitarias de Florida;
