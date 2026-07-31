@@ -281,7 +281,9 @@ describe('public landing page', () => {
     const html = await response.text();
 
     expect(html).not.toContain('Example activity');
-    expect(html).not.toContain('/resources/shared/');
+    // No dead link. The step-3 mockup prints a share URL as illustration, so
+    // this asserts the absence of a real one rather than of the string.
+    expect(html).not.toContain('href="/resources/shared/');
   });
 
   it('offers a seeded example activity from the demo account', async () => {

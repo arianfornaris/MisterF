@@ -115,7 +115,8 @@ state changes.
 
 Use `design/` for visual design, UI conventions, and theme philosophy.
 
-- [Visual Design](./design/visual-design.md): theme philosophy, Bootstrap usage, and custom color token rules
+- [Visual Design](./design/visual-design.md): theme philosophy, Bootstrap usage, and custom color token rules — governs the **application**
+- [Public Pages Design System](./design/public-pages-design-system.md): principles, palette, type, layout grammar, and mockup rules for the **public, logged-out** surfaces (landing today, blog and public library next), plus what would transfer to a Bootstrap theme variation and what should not
 
 ### Operations
 

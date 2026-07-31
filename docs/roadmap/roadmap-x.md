@@ -122,3 +122,59 @@ Any one of these:
 
 - [Roadmap V3.5 §1.6](roadmap-v3-5.md) — the landing counts, now pointing here.
 - [Roadmap V3 §1.7](roadmap-v3.md) — pilot funnel and AI cost per cycle.
+
+---
+
+# X.2 A Blog
+
+Raised by the founder on 2026-07-31, while the landing was being finished.
+
+## The Idea
+
+Publish articles on the site to attract visitors and build credibility with
+teachers. Claude can draft them, which removes the constraint people usually
+assume is the blocker.
+
+## Why It Is Not The Blocker
+
+Writing capacity is not what makes a blog work, and treating it as the
+constraint is how blogs die. Two harder problems come first:
+
+- **A blog with three posts and a last entry from eight months ago is worse
+  than no blog.** It is the clearest public signal that a product is
+  abandoned, and it sits on the same domain as the landing that says the
+  product is being actively shaped with its pilot teachers.
+- **Articles have to say something only this founder knows.** Generic,
+  model-written SEO filler about "10 tips to learn English" is precisely what
+  search engines have spent years demoting, and a working teacher recognises it
+  in one paragraph. What would be worth reading is what the pilot produces:
+  what actually happens when adult immigrant learners are given practice
+  between classes, what teachers do with the results, what fails. That material
+  does not exist yet.
+
+## The Cheaper Version Of The Same Bet
+
+[Roadmap V3.5 §1.7](roadmap-v3-5.md) closed the question of indexing
+user-shared activities with a no, and pointed at the alternative: a **curated,
+product-owned practice library** at its own slugged URLs. That is the same
+acquisition play as a blog — long-tail search traffic on a new domain — but the
+content is the product itself rather than writing about the product, it is
+already half-built (ten hand-authored activities and a seeder), and it does not
+rot when nobody publishes for a month.
+
+If only one of the two gets done, it should probably be the library.
+
+## Why It Is Deferred
+
+It belongs to a marketing campaign, and there is no campaign: acquisition today
+is the founder sending links to teachers he can reach. Marketing content before
+there is a validated message is content written about a hypothesis.
+
+## What Would Pull It In
+
+- The pilot ends and leaves real material — what happened, with numbers.
+- The positioning is settled with real teachers (see
+  [Roadmap V3.5 §1.9](roadmap-v3-5.md)), so the articles argue a message that
+  has been tested rather than one being guessed at.
+- There is a way to tell whether any of it works, which is X.1.
+

@@ -578,8 +578,7 @@ h2 {
   list-style: none;
   counter-reset: step;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(26px, 4vw, 40px);
+  gap: clamp(26px, 4vw, 38px);
   margin: 0;
   padding: 0;
 }
@@ -588,8 +587,15 @@ h2 {
   counter-increment: step;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 20px;
+  gap: 12px 20px;
   align-items: start;
+  padding-top: clamp(26px, 4vw, 38px);
+  border-top: 1px solid var(--line);
+}
+
+.steps li:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .steps li::before {
@@ -614,6 +620,143 @@ h2 {
 .steps p {
   color: var(--ink-soft);
   max-width: 46ch;
+}
+
+/* --------------------------------------------------------- step mockups */
+
+/*
+ * Schematic on purpose: enough shape to recognise the moment, never enough to
+ * be mistaken for a screenshot.
+ */
+.step-mock {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  background: var(--sand);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.mock-doc {
+  display: grid;
+  gap: 9px;
+}
+
+.mock-line {
+  height: 9px;
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+
+.w-92 { width: 92%; }
+.w-85 { width: 85%; }
+.w-78 { width: 78%; }
+.w-40 { width: 40%; }
+
+.mock-caret {
+  position: relative;
+  background: var(--navy-tint);
+}
+
+.mock-caret::after {
+  content: '';
+  position: absolute;
+  right: -7px;
+  top: -3px;
+  width: 2px;
+  height: 15px;
+  background: var(--navy);
+}
+
+.mock-question {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.mock-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+}
+
+.mock-choice svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.mock-choice.is-right {
+  border-color: #9fcbb6;
+  background: #e3f2ea;
+  color: #1f6f52;
+  font-weight: 600;
+}
+
+.mock-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.mock-url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.mock-copy {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--navy-tint);
+  color: var(--navy);
+}
+
+.mock-copy svg {
+  width: 15px;
+  height: 15px;
+}
+
+.mock-correction s {
+  color: var(--ink-faint);
+}
+
+.mock-correction b {
+  color: #1f6f52;
+}
+
+.mock-chip {
+  justify-self: start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mock-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ------------------------------------------------------------- not-a-lms */
@@ -902,6 +1045,18 @@ h2 {
 
   .steps {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .steps li {
+    grid-template-columns: auto minmax(0, 1fr) 300px;
+    align-items: center;
+  }
+
+  .step-mock {
+    grid-column: 3;
+    align-self: center;
   }
 }
 

@@ -466,6 +466,47 @@ The rule applies to all three editions and is already reflected in `en`, `es`,
 and `ht`. What remains is the native-speaker read, which no amount of internal
 reasoning replaces.
 
+## 1.9 Positioning: One Workflow, Or The Teacher's Own
+
+Raised by the founder on 2026-07-31, reading the shipped page.
+
+The headline promise — *"turn every assignment into guided practice, and reach
+your next class knowing what to review"* — describes **homework after class**.
+The product does not require that. A teacher can just as well send an activity
+*before* a lesson to find out where the difficulty will be, or as preparation,
+or as a warm-up, or as something a student does on their own between sessions.
+The founder's concern is precise: a teacher whose way of working is not the one
+described may conclude on the first screen that this is not for them, and
+leave.
+
+The concern is right about the risk and, I think, wrong about the fix.
+
+**Why the headline should not broaden.** A narrow promise is what makes the
+page land; "use it however you like" sells to nobody, because it asks the
+reader to do the imagining. The approved positioning
+([Investigación de la competencia](../business/investigacion-de-la-competencia.md)
+§13) is deliberately one sentence about one cycle, and V3 built exactly that
+cycle. Trading it for flexibility would cost more readers than it saves.
+
+**Where the fix belongs.** Low on the page, where a skeptical reader is already
+hunting for reasons it does not fit them — the FAQ, which exists to answer
+objections, and possibly one clause in step 1. The cost is a few lines; the
+hero is untouched.
+
+- [ ] Add an FAQ entry along the lines of *"Do I have to use it after class?"*
+  — no: before a lesson to see where the difficulty will be, after it to
+  practice what went wrong, or between sessions. One answer, three uses named
+  explicitly.
+- [ ] Reconsider step 1, which says "the homework you had already planned" and
+  quietly assumes the after-class direction. "Your text, your topic, or the
+  homework you had planned" already almost covers it.
+- [ ] Keep the headline as approved, and treat the whole question as a
+  hypothesis for the pilot rather than a copy decision. The business research
+  is explicit that no message should be adopted before it is tested with real
+  teachers — and the teachers in the pilot are the only people who can say
+  whether the framing helped them or boxed them in. **This item should not be
+  closed by reasoning; it should be closed by asking them.**
+
 ---
 
 # Part 2: Engineering And Quality

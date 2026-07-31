@@ -13,6 +13,15 @@ The design rule is:
 - Links, buttons, menus, forms, alerts, badges, cards, tables, and app chrome
   should use Bootstrap classes and Bootstrap variables.
 
+## Scope
+
+This document governs the **application** — every surface behind a session.
+The public, logged-out pages (the landing today) are a deliberate exception
+with their own system, documented in
+[Public Pages Design System](./public-pages-design-system.md): they ship no
+Bootstrap and no JavaScript, because a first impression and a working tool have
+different jobs. Nothing below is weakened by that exception.
+
 ## Theme Source of Truth
 
 The app uses Bootswatch `Flatly`.

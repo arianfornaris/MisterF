@@ -143,15 +143,82 @@
           <div class="section-head">
             <h2><%= t('landing.stepsTitle') %></h2>
           </div>
+          <%
+            /*
+             * Each step carries a schematic mockup of the moment it describes,
+             * drawn in HTML so the page still ships no images. They are
+             * aria-hidden: they illustrate the sentence beside them rather than
+             * adding to it, and a screen reader should get the step, not a
+             * description of imaginary furniture.
+             *
+             * The English inside them is deliberately not translated — it is
+             * practice content, and practice content is English in every
+             * edition, exactly as in the product.
+             */
+          %>
           <ol class="steps">
-            <% [1, 2, 3, 4, 5].forEach((step) => { %>
-              <li>
-                <div>
-                  <h3><%= t(`landing.step${step}Title`) %></h3>
-                  <p><%= t(`landing.step${step}Body`) %></p>
+            <li>
+              <div class="step-text">
+                <h3><%= t('landing.step1Title') %></h3>
+                <p><%= t('landing.step1Body') %></p>
+              </div>
+              <div class="step-mock" aria-hidden="true">
+                <div class="mock-doc">
+                  <span class="mock-line w-92"></span>
+                  <span class="mock-line w-78"></span>
+                  <span class="mock-line w-85"></span>
+                  <span class="mock-line w-40 mock-caret"></span>
                 </div>
-              </li>
-            <% }) %>
+              </div>
+            </li>
+
+            <li>
+              <div class="step-text">
+                <h3><%= t('landing.step2Title') %></h3>
+                <p><%= t('landing.step2Body') %></p>
+              </div>
+              <div class="step-mock" aria-hidden="true">
+                <p class="mock-question">Does this bus go downtown?</p>
+                <p class="mock-choice is-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Yes, it does.</p>
+                <p class="mock-choice">This bus go downtown?</p>
+              </div>
+            </li>
+
+            <li>
+              <div class="step-text">
+                <h3><%= t('landing.step3Title') %></h3>
+                <p><%= t('landing.step3Body') %></p>
+              </div>
+              <div class="step-mock" aria-hidden="true">
+                <div class="mock-link">
+                  <span class="mock-url">misterf.us/resources/shared/Gt1KP&hellip;</span>
+                  <span class="mock-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></span>
+                </div>
+              </div>
+            </li>
+
+            <li>
+              <div class="step-text">
+                <h3><%= t('landing.step4Title') %></h3>
+                <p><%= t('landing.step4Body') %></p>
+              </div>
+              <div class="step-mock" aria-hidden="true">
+                <p class="mock-correction">I <s>would like</s> <b>&rsquo;d like</b> to make an appointment.</p>
+                <span class="mock-chip"><%= t('quizzes.practice') %></span>
+              </div>
+            </li>
+
+            <li>
+              <div class="step-text">
+                <h3><%= t('landing.step5Title') %></h3>
+                <p><%= t('landing.step5Body') %></p>
+              </div>
+              <div class="step-mock" aria-hidden="true">
+                <p class="mock-row"><span class="mock-index">#1</span><span class="tally tally--ok">5/5</span></p>
+                <p class="mock-row"><span class="mock-index">#2</span><span class="tally tally--ok">2/5</span><span class="tally tally--bad">3/5</span></p>
+                <p class="mock-row"><span class="mock-index">#3</span><span class="tally tally--ok">3/5</span><span class="tally tally--bad">2/5</span></p>
+              </div>
+            </li>
           </ol>
         </div>
       </section>
