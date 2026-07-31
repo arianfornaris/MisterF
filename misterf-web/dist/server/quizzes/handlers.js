@@ -13,6 +13,7 @@ import { buildResourceFromContextPrompt, createResourceFromContextDraft, normali
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
 import { recordQuizAttemptProgress } from '../services/learnerProgress.js';
+import { seededShuffle } from '../services/displayOrder.js';
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
 function getQuizBlockKinds(locale) {
@@ -484,6 +485,11 @@ function renderQuizAttempt(request, response, input) {
         attemptError: input.error || '',
         attemptErrorIsCredit: Boolean(input.errorIsCredit),
         blockSections: buildQuizBlockSectionList(draft),
+        // The no-JS fallback renders matching, ordering, and unscramble exercises
+        // straight from the draft, whose stored order is the answer key. Seeded by
+        // the attempt so a reload does not reshuffle a half-answered exercise.
+        displaySeed: input.attempt.id,
+        shuffleForDisplay: seededShuffle,
         quizQuizJson: serializeViewJson(quizDraftToStudentQuizBlock(draft)),
         draft,
         guestToken: input.attempt.guestToken || '',

@@ -52,6 +52,21 @@
   };
 %>
 
+<%
+  /*
+   * Design mode is the author's view and must keep showing the answer key.
+   * Every other mode is a learner's, where the stored order gives the answer
+   * away: matching pairs line up row by row, ordered sentences arrive in
+   * order, and unscramble tokens arrive already unscrambled.
+   */
+  const orderForDisplay = (values) => {
+    if (isDesignMode || typeof locals.shuffleForDisplay !== 'function') {
+      return values;
+    }
+
+    return locals.shuffleForDisplay(values, `${locals.displaySeed || ''}:${block.id}`);
+  };
+%>
 <article class="card quiz-block-card" id="quiz-block-<%= block.id %>">
   <div class="card-body <%= isDesignMode ? 'resource-card-body' : '' %>">
     <% if (isDesignMode) { %>
@@ -260,14 +275,14 @@
               <% if (isAttemptMode) { %>
                 <select class="form-select" id="<%= fieldPrefix %>_pair_<%= pairIndex %>" name="<%= fieldPrefix %>_pair_<%= pairIndex %>" required>
                   <option value=""><%= t('quizzes.select') %></option>
-                  <% item.rightItems.forEach((right) => { %>
+                  <% orderForDisplay(item.rightItems).forEach((right) => { %>
                     <option value="<%= right %>"><%= right %></option>
                   <% }) %>
                 </select>
               <% } else if (isPreviewMode) { %>
                 <select class="form-select" disabled>
                   <option><%= t('quizzes.select') %></option>
-                  <% item.rightItems.forEach((right) => { %>
+                  <% orderForDisplay(item.rightItems).forEach((right) => { %>
                     <option><%= right %></option>
                   <% }) %>
                 </select>
@@ -281,7 +296,7 @@
 
     <% if (item.kind === 'quiz_unscramble_sentence') { %>
       <div class="<%= isDesignMode ? 'quiz-design-token-bank' : 'd-flex flex-wrap gap-2 mb-3' %>">
-        <% item.tokens.forEach((token) => { %>
+        <% orderForDisplay(item.tokens).forEach((token) => { %>
           <span class="<%= isDesignMode ? 'quiz-design-token' : 'badge text-bg-light border' %>"><%= token %></span>
         <% }) %>
       </div>
@@ -308,21 +323,22 @@
         </ol>
         <% if (item.rubric) { %><p class="small mt-3 mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
       <% } else { %>
+        <% const shuffledSentences = orderForDisplay(item.sentences); %>
         <div class="row g-3">
-          <% item.sentences.forEach((_sentence, positionIndex) => { %>
+          <% shuffledSentences.forEach((_sentence, positionIndex) => { %>
             <div class="col-12">
               <label class="form-label" for="<%= fieldPrefix %>_order_<%= positionIndex %>"><%= t('quizzes.position') %> <%= positionIndex + 1 %></label>
               <% if (isAttemptMode) { %>
                 <select class="form-select" id="<%= fieldPrefix %>_order_<%= positionIndex %>" name="<%= fieldPrefix %>_order_<%= positionIndex %>" required>
                   <option value=""><%= t('quizzes.select') %></option>
-                  <% item.sentences.forEach((sentence) => { %>
+                  <% shuffledSentences.forEach((sentence) => { %>
                     <option value="<%= sentence %>"><%= sentence %></option>
                   <% }) %>
                 </select>
               <% } else if (isPreviewMode) { %>
                 <select class="form-select" disabled>
                   <option><%= t('quizzes.select') %></option>
-                  <% item.sentences.forEach((sentence) => { %>
+                  <% shuffledSentences.forEach((sentence) => { %>
                     <option><%= sentence %></option>
                   <% }) %>
                 </select>
