@@ -619,7 +619,7 @@ h2 {
 
 .steps p {
   color: var(--ink-soft);
-  max-width: 46ch;
+  max-width: var(--measure);
 }
 
 /* --------------------------------------------------------- step mockups */
@@ -1042,15 +1042,18 @@ h2 {
   .denials {
     grid-template-columns: repeat(3, 1fr);
   }
-
-  .steps {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (min-width: 900px) {
   .steps li {
-    grid-template-columns: auto minmax(0, 1fr) 300px;
+    /*
+     * The middle track takes what is left, so the reading line lands near 70
+     * characters. Note `ch` measures the "0" glyph and runs about 25% wide of
+     * an average character in this font — `--measure: 62ch` reads as roughly
+     * 78 characters, which is why the mockup column, not the cap, is what
+     * keeps this comfortable.
+     */
+    grid-template-columns: auto minmax(0, 1fr) minmax(300px, 360px);
     align-items: center;
   }
 
