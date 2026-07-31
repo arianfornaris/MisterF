@@ -79,10 +79,50 @@ describe('public landing page', () => {
     expect(response.status).toBe(200);
     expect(html).toContain('id="landing-main"');
     expect(html).toContain('For independent English teachers and tutors');
-    expect(html).toContain('href="/signup"');
+    expect(html).toContain('/signup?returnTo=');
     // The app shell must not leak into the public page.
     expect(html).not.toContain('class="app-shell"');
     expect(html).not.toContain('undefined');
+  });
+
+  it('sends the primary call to action to activity creation, not the chat', async () => {
+    const response = await fetch(baseUrl);
+    const html = await response.text();
+
+    // "Create your first activity" has to end at the activity editor. Without
+    // returnTo the visitor signs up and lands on `/`, the tutor chat.
+    expect(html).toContain('href="/signup?returnTo=%2Fquizzes%2Fnew"');
+    expect(html).not.toContain('href="/signup"');
+  });
+
+  it('carries the visitor through signup to the activity editor', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'landing-cta@example.com',
+      emailVerified: true,
+      fullName: 'Landing CTA',
+      provider: 'google',
+      providerSubject: 'landing-cta',
+    });
+    const profile = createProfile({
+      instructionLanguage: 'en',
+      name: 'CTA profile',
+      profileOnboardingCompleted: true,
+      userId: user.id,
+    });
+    const cookie = await createAuthenticatedCookie(user.id, profile.id);
+
+    // An already-signed-in visitor must be passed straight through rather than
+    // shown a signup form.
+    const response = await fetch(`${baseUrl}/signup?returnTo=%2Fquizzes%2Fnew`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('/quizzes/new');
   });
 
   it('ships its own stylesheet, with no app theme and no script', async () => {

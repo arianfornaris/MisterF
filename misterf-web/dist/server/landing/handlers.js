@@ -18,6 +18,13 @@ export function renderLandingPage(request, response, next) {
     response.render('landing', {
         canonicalUrl: buildAbsoluteAppUrl('/'),
         contactEmail: env.landingContactEmail,
+        // The primary call to action promises "create your first activity", so it
+        // has to land there. Without `returnTo` the visitor signs up and arrives at
+        // `/`, the tutor chat, having been asked to do something else entirely.
+        // The parameter survives the signup form, Google OAuth, email
+        // verification, and profile onboarding, and an already-signed-in visitor is
+        // redirected straight through by `renderSignup`.
+        createActivityUrl: `/signup?returnTo=${encodeURIComponent(createActivityPath)}`,
         demoActivity,
         ogImageUrl: buildAbsoluteAppUrl('/public/brand/share-card.png'),
         // Served straight from `public/`, so the app version busts the cache.
@@ -25,6 +32,8 @@ export function renderLandingPage(request, response, next) {
         title: `Mister F · ${appDocumentTitle}`,
     });
 }
+/** Where the landing's primary call to action has to end up. */
+const createActivityPath = '/quizzes/new';
 /**
  * One of the seeded example activities, chosen at random per visit so the pool
  * gets exercised and no single activity carries the whole first impression.

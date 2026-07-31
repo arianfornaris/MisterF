@@ -265,6 +265,16 @@ logged-out visitors get a chat composer with `guestInitialGreeting`.
   only claims `/` for sessionless requests — and the route smoke tests still
   pass.
 - [x] Make sure the post-signup destination is still the app, not the landing.
+- [x] **Send the primary call to action where it says it goes.** Founder report,
+  2026-07-30: "Create your first activity" led to signup and then dropped the
+  new user on `/`, the tutor chat — the app, but not what the button promised,
+  and the worst possible first minute for a teacher who came to build
+  something. Fixed by pointing the CTA at
+  `/signup?returnTo=%2Fquizzes%2Fnew`. Nothing new had to be built: `returnTo`
+  already survives the signup form, Google OAuth, email verification, and
+  profile onboarding, and `renderSignup` passes an already-signed-in visitor
+  straight through. Two route tests pin it — the CTA carries the parameter, and
+  a session hitting that URL is redirected to the editor.
   Unchanged: auth redirects to `/`, which resolves to the app once a session
   exists.
 

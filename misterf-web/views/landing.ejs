@@ -38,7 +38,7 @@
             <h1><%= t('landing.heroTitle') %></h1>
             <p class="lede"><%= t('landing.heroSubtitle') %></p>
             <div class="btn-row">
-              <a class="btn btn--primary" href="/signup"><%= t('landing.heroPrimaryCta') %></a>
+              <a class="btn btn--primary" href="<%= locals.createActivityUrl %>"><%= t('landing.heroPrimaryCta') %></a>
               <% if (locals.demoActivity) { %>
                 <a class="btn btn--ghost" href="<%= locals.demoActivity.url %>"><%= t('landing.heroSecondaryCta') %></a>
               <% } %>
@@ -223,7 +223,7 @@
           <div class="closing">
             <h2><%= t('landing.heroTitle') %></h2>
             <div class="btn-row">
-              <a class="btn btn--primary" href="/signup"><%= t('landing.heroPrimaryCta') %></a>
+              <a class="btn btn--primary" href="<%= locals.createActivityUrl %>"><%= t('landing.heroPrimaryCta') %></a>
             </div>
             <p class="fineprint"><%= t('landing.heroFootnote') %></p>
           </div>
