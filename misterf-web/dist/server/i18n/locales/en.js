@@ -70,6 +70,7 @@ export const en = {
         backToResources: 'Back to resources',
         new: 'New',
         typeQuiz: 'Quiz',
+        sharePreviewFallback: 'An English practice activity shared with you on Mister F.',
         typePracticeGuide: 'Practice Guide',
         typeRoleplay: 'Roleplay',
         folder: 'Folder',

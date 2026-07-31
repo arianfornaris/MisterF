@@ -377,6 +377,60 @@ describe('public landing page', () => {
   });
 });
 
+describe('shared resource previews', () => {
+  it('gives a shared activity its own preview card, kept out of the index', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      getOrCreateResourceShareLink,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'share-preview@example.com',
+      emailVerified: true,
+      fullName: 'Share Preview',
+      provider: 'google',
+      providerSubject: 'share-preview',
+    });
+    const profile = createProfile({
+      instructionLanguage: 'en',
+      name: 'Preview profile',
+      profileOnboardingCompleted: true,
+      userId: owner.id,
+    });
+    const quiz = createQuiz({
+      description: 'Book an appointment over the phone.',
+      instructions: '',
+      level: 'A2',
+      profileId: profile.id,
+      quiz: { blocks: [], title: 'Clinic call' },
+      sharedVia: 'link',
+      targetTopic: '',
+      title: 'Clinic call',
+      userId: owner.id,
+    });
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+
+    const response = await fetch(`${baseUrl}/resources/shared/${shareLink.id}`, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+    });
+    const html = await response.text();
+
+    // The card a whole class sees when a teacher pastes the link.
+    expect(html).toContain('<meta property="og:title" content="Clinic call">');
+    expect(html).toContain(
+      'content="Quiz · A2 — Book an appointment over the phone."',
+    );
+    expect(html).toContain('<meta property="og:image"');
+    expect(html).toContain(
+      `<meta property="og:url" content="https://misterf.test/resources/shared/${shareLink.id}">`,
+    );
+    // Public by design, but not something a stranger should find in search.
+    expect(html).toContain('<meta name="robots" content="noindex, follow">');
+  });
+});
+
 describe('crawler surfaces', () => {
   it('serves robots.txt with the sitemap reference', async () => {
     const response = await fetch(`${baseUrl}/robots.txt`);
@@ -388,6 +442,9 @@ describe('crawler surfaces', () => {
     expect(body).toContain('Disallow: /');
     expect(body).toContain('Allow: /es');
     expect(body).toContain('Allow: /ht');
+    // Crawlable so the noindex tag on those pages can actually be read, and so
+    // link-preview bots do not refuse the URL.
+    expect(body).toContain('Allow: /resources/shared/');
   });
 
   it('serves a sitemap covering the public pages', async () => {

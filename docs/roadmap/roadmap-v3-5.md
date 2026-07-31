@@ -358,10 +358,23 @@ therefore a more valuable surface than any meta keyword.
   says what the product does, or shows the report, would convert better than a
   bare logo, and this is the image dozens of students see when a teacher
   forwards a link.
-- [ ] Give **shared resources** their own preview (activity title, level, and
-  who shared it). This is the card dozens of students actually see, and it is
-  the closest thing the product has to an organic growth loop.
+- [x] Give **shared resources** their own preview. Done 2026-07-31: the card
+  carries the activity title, and a description of the form
+  `Quiz · A2 — <the activity's own description>`, falling back to a translated
+  sentence when the resource has none. This is the card a whole class sees when
+  a teacher pastes the link, so it is the closest thing the product has to an
+  organic growth loop.
+  It also corrected the mechanism used to keep those pages out of search.
+  `robots.txt` was disallowing `/resources/shared/`, which does not mean "do
+  not index" — it means "do not crawl", so the page is never fetched, a
+  `noindex` tag there could never be read, and some link-preview bots refuse a
+  disallowed URL outright, which would have left the card blank. The pages are
+  now crawlable and carry `noindex, follow`. The policy is unchanged — these
+  links stay out of the index — but it is now expressed the way it can actually
+  be honored, and §1.7 becomes a one-line change if the answer there is yes.
 - [ ] Verify the rendered cards in WhatsApp, Messenger, and one desktop client.
+  Needs a real phone; the tags and the image are in place and asserted by
+  tests, but only a real paste proves it.
 
 ## 1.6 Conversion Instrumentation
 

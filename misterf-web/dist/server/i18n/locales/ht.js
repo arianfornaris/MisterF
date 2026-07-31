@@ -86,6 +86,7 @@ export const ht = {
         backToResources: 'Retounen nan resous yo',
         new: 'Nouvo',
         typeQuiz: 'Quiz',
+        sharePreviewFallback: 'Yon aktivite pratik anglè yo pataje avè ou sou Mister F.',
         typePracticeGuide: 'Gid Pratik',
         typeRoleplay: 'Roleplay',
         folder: 'Katab',

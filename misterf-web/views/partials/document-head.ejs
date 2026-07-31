@@ -7,12 +7,18 @@
       <meta name="description" content="<%= locals.metaDescription %>">
       <meta property="og:description" content="<%= locals.metaDescription %>">
     <% } %>
+    <% if (locals.noindex) { %>
+      <%# Crawlable but not indexed. The robots.txt route has to allow these
+          paths for this tag to ever be read — a Disallow stops the crawl
+          before the page, and a link-preview bot may refuse it outright. %>
+      <meta name="robots" content="noindex, follow">
+    <% } %>
     <% if (locals.canonicalUrl) { %>
       <link rel="canonical" href="<%= locals.canonicalUrl %>">
       <meta property="og:url" content="<%= locals.canonicalUrl %>">
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="Mister F">
-      <meta property="og:title" content="<%= title %>">
+      <meta property="og:title" content="<%= locals.ogTitle || title %>">
       <meta name="twitter:card" content="<%= locals.ogImageUrl ? 'summary_large_image' : 'summary' %>">
     <% } %>
     <% if (locals.ogImageUrl) { %>

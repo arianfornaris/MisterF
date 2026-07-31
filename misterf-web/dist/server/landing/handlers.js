@@ -179,6 +179,12 @@ export function renderRobotsTxt(_request, response) {
         'Allow: /signup',
         'Allow: /privacy',
         'Allow: /terms',
+        // Allowed so link-preview bots and crawlers can fetch the page; the pages
+        // themselves carry `noindex`, which is the mechanism that keeps them out
+        // of the index. A Disallow here would stop the crawl before the tag is
+        // ever read, and some preview bots refuse a disallowed URL outright — the
+        // card a whole class sees would go blank.
+        'Allow: /resources/shared/',
         'Disallow: /',
         '',
         `Sitemap: ${buildAbsoluteAppUrl('/sitemap.xml')}`,

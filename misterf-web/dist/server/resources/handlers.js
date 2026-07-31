@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+import { translate } from '../i18n/index.js';
 import { logger } from '../services/logger.js';
 import { duplicateResourceForProfile } from './duplicate.js';
 function ensureVerifiedResourceUser(request, response) {
@@ -415,6 +416,15 @@ export function renderSharedResourcePage(request, response) {
         : resource.type === 'practice_guide'
             ? `/practice-guides/shared/${encodeURIComponent(shareLink.id)}/start`
             : '';
+    const typeLabelKeys = {
+        practice_guide: 'resources.typePracticeGuide',
+        quiz: 'resources.typeQuiz',
+        resource_folder: 'resources.typeFolder',
+        roleplay: 'resources.typeRoleplay',
+    };
+    const typeLabel = translate(request.locale, typeLabelKeys[resource.type] ?? 'resources.typeQuiz');
+    const summary = resource.description.trim()
+        || translate(request.locale, 'resources.sharePreviewFallback');
     response.render('resources-shared', {
         ...buildAppShellContext({
             activeProfile: activeProfile ?? null,
@@ -425,6 +435,21 @@ export function renderSharedResourcePage(request, response) {
             title: `${resource.title} - ${appDocumentTitle}`,
             user: user ?? null,
         }),
+        // A teacher shares this link in WhatsApp and a whole class sees the card
+        // that comes back. It is the closest thing the product has to an organic
+        // growth loop, so the preview names the activity, its type, and its level
+        // instead of falling back to a bare URL.
+        canonicalUrl: buildAbsoluteAppUrl(`/resources/shared/${encodeURIComponent(shareLink.id)}`),
+        metaDescription: resource.level
+            ? `${typeLabel} · ${resource.level} — ${summary}`
+            : `${typeLabel} — ${summary}`,
+        // Crawlable so preview bots can read the page, but kept out of the index:
+        // these links are public by design and were still written for a student who
+        // was given one, not for a stranger who found it. Whether they should be
+        // indexable is roadmap V3.5 §1.7.
+        noindex: true,
+        ogImageUrl: buildAbsoluteAppUrl('/public/brand/share-card.png'),
+        ogTitle: resource.title,
         quizTakeAction,
         startAction,
         returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
