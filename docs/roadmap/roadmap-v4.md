@@ -1,6 +1,6 @@
 # Roadmap V4
 
-Date: 2026-07-07 (last updated: 2026-07-26)
+Date: 2026-07-07 (last updated: 2026-08-01)
 
 Status: **Deferred backlog plus the complete Scene Media Library record.** V4
 holds the work explicitly deferred past [Roadmap V3](roadmap-v3.md), together
@@ -529,6 +529,78 @@ content conversationally by using a dedicated set of tools.
   version, how the Master Chat reuses existing deterministic services instead
   of duplicating business logic, and when it should hand the user off to a
   dedicated visual editor.
+
+## 1.9 History-Aware Agents: Resources And Recommendations From The Learner Record (Idea To Consider)
+
+Added 2026-08-01 at the founder's direction. Idea: **agents that work over the
+user's own history** and turn it into something actionable — either generating
+resources the learner can practise with next, or producing recommendations for
+the learner and for the teacher. Today every resource is created by an explicit
+authoring act (someone opens `/quizzes/new`, writes a prompt, generates); the
+learner record is written to, read for the progress page, and otherwise inert.
+
+**This is an exploration, not committed scope.** The point of writing it here
+is that the raw material already exists and nothing consumes it yet.
+
+### What The History Already Contains
+
+- `learner_progress_events` — one row per evaluated attempt or conversation
+  report (`quiz_attempt`, `roleplay_attempt`, `tutor_conversation_report`), with
+  a title, a summary, the originating `resourceId`/`resourceType`, and
+  structured `details`: `difficulties`, `practiced`, `progress`,
+  `recommendations`, `vocabulary`. The per-event `recommendations` are already
+  generated and already persisted — no surface acts on them.
+- The rolled-up progress profile per learner profile (`overview`,
+  `strengths`, `focusAreas`, `recommendedPractice`, `vocabulary`,
+  `updatedFromEvents`).
+- Conversations (including practice-guide chats), quiz and roleplay attempts,
+  and the resources the learner already owns or was shared.
+
+So the first question is not "what data would we need" but "what should read
+the data we already write".
+
+### Open Questions To Settle Before Any Scope
+
+- [ ] **Who is the agent for?** A learner-facing agent (propose and generate
+  the next practice) and a teacher-facing agent (what this student, or this
+  group, needs next class) are different products with different privacy
+  boundaries. Decide whether they are one engine with two audiences or two
+  separate features, and note that the teacher half only makes sense on top of
+  the sharing primitive — see [1.6](#16-guides-aula-section-and-managed-accounts-candidate--gated-on-pilot-evidence)
+  and the V3 next-class report.
+- [ ] **Recommend versus generate.** Recommending existing resources
+  (rank what the learner already has access to, plus built-in content) is
+  cheap, deterministic-ish, and reversible. Generating a new quiz, practice
+  guide, roleplay, or scene media from the history is expensive, credit-gated,
+  and creates clutter the user must then manage. Decide whether v1 recommends
+  only, and treat generation as a second step the user explicitly approves.
+- [ ] **When does it run?** Reactive (the learner asks, or a button on the
+  progress page), event-driven (after an attempt is evaluated), or scheduled
+  (a weekly digest). Background generation implies job infrastructure that
+  1.3 deliberately removed, and credit spend the user did not initiate — that
+  tradeoff must be decided, not inherited.
+- [ ] **Where does it surface?** This overlaps directly with the personalized
+  start surface already designed in
+  [Home Start Experience](../features/home-start-experience.md) and
+  [Home Suggestions Tracker](../issues/home-suggestions-tracker.md), and with
+  the progress page. Do not build a second suggestion ranker beside those;
+  decide whether this initiative *is* their engine.
+- [ ] **Relation to [1.8 Master Chat](#18-master-chat-idea-to-consider).** Both
+  are agentic surfaces over the same deterministic services. Master Chat is
+  user-driven content management; this is history-driven proposal. They may
+  share the tool layer and the preview-before-apply boundary.
+- [ ] **Trust and evidence.** A recommendation should cite the events it came
+  from ("three attempts, past tense errors in each") so learner and teacher can
+  judge it, and so a wrong suggestion is diagnosable rather than mysterious.
+- [ ] **Privacy and boundaries.** The agent reads a learner's record; define
+  what a teacher may see (attempts explicitly shared with them, not the
+  learner's private tutor conversations), and keep every tool call inside the
+  caller's existing authorization boundary.
+- [ ] **Quality gate.** Generated-from-history resources must pass the same
+  level, safety, and prompt-contract bar as authored ones; sequence this after
+  the inference governance work in
+  [2.1](#21-llm-inference-portfolio-audit-and-governance) so a new recurring
+  inference class does not silently inherit an unsuitable default model.
 
 ---
 
