@@ -176,11 +176,34 @@
               <div class="step-text">
                 <h3><%= t('landing.step2Title') %></h3>
                 <p><%= t('landing.step2Body') %></p>
+                <p class="fineprint"><%= t('landing.step2Kinds') %></p>
               </div>
-              <div class="step-mock" aria-hidden="true">
-                <p class="mock-question">Does this bus go downtown?</p>
-                <p class="mock-choice is-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Yes, it does.</p>
-                <p class="mock-choice">This bus go downtown?</p>
+              <%
+                /*
+                 * Three exercise kinds instead of one, crossfading in CSS. The
+                 * doubt this answers — "does it only make multiple choice?" —
+                 * is better shown than listed, and the sentence above carries
+                 * the claim for anyone who never sees the animation.
+                 *
+                 * Stacked in one grid cell rather than positioned absolutely,
+                 * so the box takes the height of the tallest variant and
+                 * nothing jumps as they rotate.
+                 */
+              %>
+              <div class="step-mock step-mock--cycle" aria-hidden="true">
+                <div class="mock-variant">
+                  <p class="mock-question">Does this bus go downtown?</p>
+                  <p class="mock-choice is-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Yes, it does.</p>
+                  <p class="mock-choice">This bus go downtown?</p>
+                </div>
+                <div class="mock-variant">
+                  <p class="mock-question">Complete the sentence.</p>
+                  <p class="mock-fill">The pharmacy <span class="mock-blank">opens</span> at nine.</p>
+                </div>
+                <div class="mock-variant">
+                  <p class="mock-question">Put the words in order.</p>
+                  <p class="mock-tokens"><span>Could</span><span>you</span><span>repeat</span><span>that</span></p>
+                </div>
               </div>
             </li>
 
@@ -220,6 +243,28 @@
               </div>
             </li>
           </ol>
+
+          <%
+            /*
+             * The five steps above describe a quiz, which is what a first-time
+             * reader assumes the product makes. It also makes practice guides
+             * and roleplays, and the same share-and-report flow carries all
+             * three — so this closes the band rather than opening a section of
+             * its own, which would break the paper/plain alternation the page
+             * keeps from the hero down.
+             */
+          %>
+          <div class="formats">
+            <h3><%= t('landing.formatsTitle') %></h3>
+            <ul class="format-list">
+              <% ['Quiz', 'Guide', 'Roleplay'].forEach((format) => { %>
+                <li>
+                  <p class="format-name"><%= t(`landing.format${format}Title`) %></p>
+                  <p><%= t(`landing.format${format}Body`) %></p>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
         </div>
       </section>
 

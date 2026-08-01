@@ -967,6 +967,8 @@ export const en: LocaleCatalog = {
     step2Title: 'Review the activity',
     step2Body:
       'Read what it generated and adjust anything before it reaches your students. Nothing is shared until you say so.',
+    step2Kinds:
+      'Multiple choice, fill in the blank, word order, matching, open answer: nine kinds of exercise in all.',
     step3Title: 'Share a link',
     step3Body:
       'Send it by WhatsApp or however you already talk to your class. Your students open it on their phone — nothing to install.',
@@ -976,6 +978,16 @@ export const en: LocaleCatalog = {
     step5Title: 'You see how the class did',
     step5Body:
       'Who responded, which questions they missed, and an AI summary of what is worth reviewing together. Ready before you walk in.',
+    formatsTitle: 'The same flow, three formats',
+    formatQuizTitle: 'Quiz',
+    formatQuizBody:
+      'Questions your students answer, evaluated one by one. It is what the steps above describe.',
+    formatGuideTitle: 'Practice Guide',
+    formatGuideBody:
+      'You set the goal and how the tutor should help. Your student practices by talking with Mr. F, guided by what you asked for.',
+    formatRoleplayTitle: 'Roleplay',
+    formatRoleplayBody:
+      'A situation with characters. Your student takes a part, holds the conversation in English, and is evaluated at the end.',
     notTitle: 'What Mister F is not',
     not1: 'It is not an LMS. There is nothing to migrate and no course to set up.',
     not2: 'It does not impose a curriculum or a textbook. Your material leads.',

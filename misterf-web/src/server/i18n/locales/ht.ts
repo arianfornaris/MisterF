@@ -1251,6 +1251,8 @@ export const ht: LocaleCatalog = {
     step2Title: 'Revize aktivite a',
     step2Body:
       'Li sa li jenere epi ajiste tou sa ou vle anvan li rive kot elèv ou yo. Anyen pa pataje jiskaske ou di wi.',
+    step2Kinds:
+      'Chwa miltip, ranpli espas vid, mete mo nan lòd, marye eleman, repons lib: nèf kalite egzèsis antou.',
     step3Title: 'Pataje yon lyen',
     step3Body:
       'Voye l sou WhatsApp oswa kote ou deja pale ak klas ou a. Elèv ou yo louvri l sou telefòn yo — pa gen anyen pou enstale.',
@@ -1260,6 +1262,16 @@ export const ht: LocaleCatalog = {
     step5Title: 'Ou wè kijan klas la fè',
     step5Body:
       'Ki moun ki reponn, ki kesyon yo rate, ak yon rezime ak AI sou sa ki vo lapèn pou nou revize ansanm. Pare anvan ou antre nan klas la.',
+    formatsTitle: 'Menm demach la, twa fòma',
+    formatQuizTitle: 'Quiz',
+    formatQuizBody:
+      'Kesyon elèv ou yo reponn epi ki evalye yonn pa yonn. Se sa etap anwo yo dekri.',
+    formatGuideTitle: 'Gid Pratik',
+    formatGuideBody:
+      'Ou fikse objektif la ak jan tutè a dwe ede. Elèv ou a pratike an pale ak Mr. F, gide pa sa ou mande a.',
+    formatRoleplayTitle: 'Roleplay',
+    formatRoleplayBody:
+      'Yon sitiyasyon ak pèsonaj. Elèv ou a pran yon wòl, kenbe konvèsasyon an an anglè, epi li resevwa yon evalyasyon lè l fini.',
     notTitle: 'Sa Mister F pa ye',
     not1: 'Se pa yon LMS. Pa gen anyen pou migre ni okenn kou pou monte.',
     not2: 'Li pa enpoze ou yon pwogram ni yon liv. Se materyèl ou ki mennen.',

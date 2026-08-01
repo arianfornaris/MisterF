@@ -967,6 +967,8 @@ export const es: LocaleCatalog = {
     step2Title: 'Revisa la actividad',
     step2Body:
       'Lee lo que generó y ajusta lo que quieras antes de que llegue a tus estudiantes. Nada se comparte hasta que tú lo decidas.',
+    step2Kinds:
+      'Opción múltiple, completar huecos, ordenar palabras, emparejar, respuesta abierta: nueve tipos de ejercicio en total.',
     step3Title: 'Comparte un enlace',
     step3Body:
       'Mándalo por WhatsApp o por donde ya hablas con tu clase. Tus estudiantes lo abren en el teléfono: no instalan nada.',
@@ -976,6 +978,16 @@ export const es: LocaleCatalog = {
     step5Title: 'Ves cómo le fue a la clase',
     step5Body:
       'Quién respondió, qué preguntas fallaron y un resumen con IA de qué conviene repasar juntos. Listo antes de entrar al aula.',
+    formatsTitle: 'El mismo flujo, tres formatos',
+    formatQuizTitle: 'Quiz',
+    formatQuizBody:
+      'Preguntas que tus estudiantes responden y que se evalúan una por una. Es lo que describen los pasos de arriba.',
+    formatGuideTitle: 'Guía de Práctica',
+    formatGuideBody:
+      'Tú fijas el objetivo y cómo debe ayudar el tutor. Tu estudiante practica conversando con Mr. F, guiado por lo que pediste.',
+    formatRoleplayTitle: 'Roleplay',
+    formatRoleplayBody:
+      'Una situación con personajes. Tu estudiante asume un papel, sostiene la conversación en inglés y recibe una evaluación al terminar.',
     notTitle: 'Lo que Mister F no es',
     not1: 'No es un LMS. No hay que migrar nada ni montar un curso.',
     not2: 'No te impone un currículo ni un libro. Tu material manda.',
