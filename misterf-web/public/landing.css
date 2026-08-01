@@ -764,36 +764,54 @@ h2 {
  * in the same grid cell, so the box is as tall as the tallest of them and the
  * step does not resize mid-cycle.
  *
- * Timing is deliberately unhurried: 4s per variant, 0.8s of crossfade. The
- * reader is reading the sentence beside this, and a faster carousel would
- * compete with it instead of illustrating it.
+ * The rotation reads as a scroll: the current exercise travels up and out
+ * while the next one arrives from below, in lockstep, so the two are always
+ * edge to edge and never overlap. That is what makes the padding live on the
+ * variants instead of on the box — `overflow: hidden` clips at the padding
+ * box, so a variant parked one full height below would still show inside a
+ * padded container. With the padding inside, one height is exactly one turn.
+ *
+ * Timing is deliberately unhurried: 3.3s at rest, 0.7s of travel. The reader
+ * is reading the sentence beside this, and a faster ticker would compete with
+ * it instead of illustrating it.
  */
 .step-mock--cycle {
-  align-items: center;
+  padding: 0;
+  overflow: hidden;
 }
 
 .mock-variant {
   grid-area: 1 / 1;
   display: grid;
+  align-content: center;
   gap: 8px;
-  opacity: 0;
+  padding: 18px;
+  /*
+   * Parked below the box. Variants 2 and 3 hold this through their delay,
+   * which is what keeps them out of sight before their first turn.
+   */
+  transform: translateY(100%);
   animation: mock-cycle 12s linear infinite;
 }
 
-/*
- * The first variant starts mid-fade-in so the box is never blank on arrival;
- * the others wait out their delay at the static opacity 0 above.
- */
-.mock-variant:nth-child(1) { animation-delay: -0.8s; }
-.mock-variant:nth-child(2) { animation-delay: 3.2s; }
-.mock-variant:nth-child(3) { animation-delay: 7.2s; }
+/* The first variant starts already in place, so the box is never blank. */
+.mock-variant:nth-child(1) { animation-delay: -0.7s; }
+.mock-variant:nth-child(2) { animation-delay: 3.3s; }
+.mock-variant:nth-child(3) { animation-delay: 7.3s; }
 
 @keyframes mock-cycle {
-  0% { opacity: 0; }
-  6.7% { opacity: 1; }
-  33.3% { opacity: 1; }
-  40% { opacity: 0; }
-  100% { opacity: 0; }
+  0% {
+    transform: translateY(100%);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  5.83% { transform: translateY(0); }
+  33.33% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  39.17% { transform: translateY(-100%); }
+  /* Waits above the box until the cycle wraps it back underneath. */
+  100% { transform: translateY(-100%); }
 }
 
 .mock-fill {
@@ -872,6 +890,82 @@ h2 {
   font-family: var(--font-display);
   font-size: 17px;
   font-weight: 600;
+}
+
+/*
+ * Fixed height so the three names sit on one line across the row, whatever
+ * each schematic needs inside it.
+ */
+.format-mock {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  min-height: 132px;
+  margin-bottom: 16px;
+  padding: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.fm-q {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.fm-opt {
+  padding: 5px 10px;
+  background: var(--sand);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.fm-opt.is-right {
+  border-color: #9fcbb6;
+  background: #e3f2ea;
+  color: #1f6f52;
+  font-weight: 600;
+}
+
+.fm-line {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+
+.fm-bubble {
+  padding: 7px 11px;
+  background: var(--navy-tint);
+  border-radius: 12px 12px 12px 3px;
+  color: var(--navy);
+}
+
+.fm-turn {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.fm-turn--you {
+  justify-content: flex-end;
+}
+
+.fm-bubble--you {
+  background: var(--accent-soft);
+  border-radius: 12px 12px 3px;
+  color: var(--accent);
+}
+
+.fm-face {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sand);
+  border: 1px solid var(--line);
+  object-fit: cover;
 }
 
 /* ------------------------------------------------------------- not-a-lms */
@@ -1200,14 +1294,10 @@ h2 {
   }
 
   /*
-   * With the rotation stopped, the stack would render every variant on top of
-   * the others: show only the one the cycle starts on.
+   * With the rotation stopped, every variant holds the parked transform above
+   * and the box renders empty: bring the one the cycle starts on into place.
    */
-  .mock-variant {
-    opacity: 0;
-  }
-
   .mock-variant:first-child {
-    opacity: 1;
+    transform: translateY(0);
   }
 }

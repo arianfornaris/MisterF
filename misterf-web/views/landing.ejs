@@ -256,13 +256,55 @@
           %>
           <div class="formats">
             <h3><%= t('landing.formatsTitle') %></h3>
+            <%
+              /*
+               * One schematic per format, in the same register as the step
+               * mockups: enough shape to tell the three apart at a glance,
+               * never enough to read as a screenshot.
+               *
+               * The roleplay one carries the page's only content images — two
+               * character avatars from the real roleplay registry, since a
+               * roleplay is the one format whose whole point is that someone
+               * is on the other side. They are below the fold and lazy, so
+               * they cost nothing at first paint.
+               */
+            %>
             <ul class="format-list">
-              <% ['Quiz', 'Guide', 'Roleplay'].forEach((format) => { %>
-                <li>
-                  <p class="format-name"><%= t(`landing.format${format}Title`) %></p>
-                  <p><%= t(`landing.format${format}Body`) %></p>
-                </li>
-              <% }) %>
+              <li>
+                <div class="format-mock" aria-hidden="true">
+                  <p class="fm-q">Have you been here before?</p>
+                  <p class="fm-opt is-right">No, this is my first time.</p>
+                  <p class="fm-opt">No, this is my first times.</p>
+                </div>
+                <p class="format-name"><%= t('landing.formatQuizTitle') %></p>
+                <p><%= t('landing.formatQuizBody') %></p>
+              </li>
+
+              <li>
+                <div class="format-mock" aria-hidden="true">
+                  <p class="fm-q">Making an appointment</p>
+                  <span class="fm-line w-92"></span>
+                  <span class="fm-line w-64"></span>
+                  <p class="fm-bubble">Let&rsquo;s try it. What do you say first?</p>
+                </div>
+                <p class="format-name"><%= t('landing.formatGuideTitle') %></p>
+                <p><%= t('landing.formatGuideBody') %></p>
+              </li>
+
+              <li>
+                <div class="format-mock" aria-hidden="true">
+                  <div class="fm-turn">
+                    <img class="fm-face" src="/public/roleplay-characters/mateo.png" alt="" width="34" height="34" loading="lazy" decoding="async">
+                    <p class="fm-bubble">Good morning. Do you have an appointment?</p>
+                  </div>
+                  <div class="fm-turn fm-turn--you">
+                    <p class="fm-bubble fm-bubble--you">No, but I&rsquo;d like to make one.</p>
+                    <img class="fm-face" src="/public/roleplay-characters/nora.png" alt="" width="34" height="34" loading="lazy" decoding="async">
+                  </div>
+                </div>
+                <p class="format-name"><%= t('landing.formatRoleplayTitle') %></p>
+                <p><%= t('landing.formatRoleplayBody') %></p>
+              </li>
             </ul>
           </div>
         </div>
