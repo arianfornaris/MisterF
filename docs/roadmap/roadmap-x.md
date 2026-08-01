@@ -178,3 +178,100 @@ there is a validated message is content written about a hypothesis.
   has been tested rather than one being guessed at.
 - There is a way to tell whether any of it works, which is X.1.
 
+---
+
+# X.3 The Production Server's Node Version
+
+Surfaced 2026-07-31 by the 3.5.0 deploy, which printed `EBADENGINE` warnings
+during the remote install.
+
+## The Problem
+
+Production runs **Node v20.16.0** (npm 9.2.0), installed from the Ubuntu 24.10
+archive as `/usr/bin/node` (package `nodejs 20.16.0+dfsg-1ubuntu1`). There is no
+nvm on the box and the distro offers no newer candidate, so `apt upgrade` cannot
+move it. Local development runs **Node v24.14.1**. Four majors apart, and
+nothing in the repository says which one is correct: `misterf-web/package.json`
+has no `engines` field.
+
+**What is not the problem, despite how it reads.** The warnings name
+`vite@8.0.13` and `rolldown@1.0.1`, both wanting `^20.19.0 || >=22.12.0`. Both
+are devDependencies. `deploy.sh` builds locally (line 14) and the server runs
+`npm ci --omit=dev`, so neither is installed there — confirmed on the server:
+`node_modules` contains no `vite`, `rolldown`, or `typescript`. npm warns while
+resolving the lockfile and then omits them. Today the warnings are noise.
+
+The exposure is what happens next:
+
+1. **A runtime dependency raises its floor.** The day a package under
+   `dependencies` rather than `devDependencies` requires Node ≥ 20.19, `npm ci`
+   on the server fails. That every case so far has been a devDependency is luck,
+   not design — and with no `engines` field, nothing catches it locally, where
+   Node 24 installs it happily.
+2. **That failure lands with production already stopped.** `deploy.sh` runs
+   `pm2 stop` *before* `npm ci`. A failed install therefore does not fall back
+   to the previous version — it leaves the app down, and recovery is manual over
+   SSH.
+3. **Node 20 is out of support.** Its scheduled end-of-life was 2026-04-30, so
+   the server has been running an unpatched runtime for roughly three months.
+   Re-confirm the date against nodejs.org before scheduling the work.
+
+## Shape Of A Solution
+
+Three steps, in this order:
+
+1. **Declare the floor.** Add an `engines` field to `misterf-web/package.json`
+   naming the Node the project supports. Cheap, and it turns a deploy-time
+   surprise into an install-time error — which also makes the next two steps
+   verifiable rather than hopeful.
+2. **Upgrade the server's Node.** Needs the NodeSource repository or nvm, since
+   the Ubuntu archive is pinned at 20.16.0. Node 22 LTS is the conservative
+   target; Node 24 matches local development and closes the gap entirely.
+3. **Rebuild the native module.** `better-sqlite3` is compiled against exactly
+   one ABI (`node_modules/better-sqlite3/build/Release/better_sqlite3.node`).
+   Changing Node without reinstalling `node_modules` crash-loops the app with
+   `ERR_DLOPEN_FAILED`, the same trap that has already bitten this project
+   locally. The next deploy's `npm ci` rebuilds it, so the upgrade must not be
+   left half-applied between deploys.
+
+One more thing worth deciding in the same sitting, independent of the Node
+version: **move `pm2 stop` after `npm ci` in `deploy.sh`.** It is a few lines
+and it removes the failure mode in point 2 — a broken install becomes a failed
+deploy instead of an outage. This is the cheapest risk reduction available here
+and does not need to wait for the rest.
+
+Before touching `apt` at all, check the OS. Ubuntu 24.10 is an interim release
+with a nine-month support window, so it went end-of-life around 2025-07; an
+EOL release's archives move to `old-releases.ubuntu.com`, which has to be sorted
+out before any third-party repository will install cleanly. Whether the OS
+itself deserves an upgrade is a larger question this work will run into.
+
+## Why It Is Deferred
+
+Nothing is broken. The warnings are cosmetic today, the deploy that produced
+them succeeded, and the site is serving. Upgrading Node under a live
+single-server deployment with a native SQLite binding is a real maintenance
+window for a solo operator, and spending it the same week the landing ships
+trades a working system for a tidier one.
+
+The cost of waiting is that the trigger below is not something the founder
+chooses — a dependency bump elsewhere decides it, and it decides it during a
+deploy.
+
+## What Would Pull It In
+
+- Any dependency bump that raises a **runtime** package's engine floor above
+  20.16. At that point this is not maintenance, it is a blocked deploy.
+- A security advisory against Node 20 that reaches this application. There will
+  be no patch for it: the runtime is past end-of-life.
+- The next time `deploy.sh` is edited for any reason — the `pm2 stop` reordering
+  should ride along rather than wait for the rest of this entry.
+- Any maintenance window opened for another reason, since the risky part is the
+  window, not the work.
+
+## Related
+
+- `deploy.sh` — the build/install split and the `pm2 stop` ordering.
+- `.agents/skills/production-server-ops` — server topology and the deploy flow.
+- `.agents/skills/versioning-and-releases` — how a release reaches production.
+
