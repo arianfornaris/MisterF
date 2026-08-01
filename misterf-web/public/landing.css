@@ -1051,6 +1051,20 @@ h2 {
   color: var(--ink-faint);
 }
 
+/*
+ * The company name is a link in both stamps. It belongs to the line it sits
+ * in — an attribution, not a call to action — so it keeps the muted colour and
+ * says it is a link with the underline alone.
+ */
+.stamp a {
+  color: inherit;
+  text-decoration-color: var(--line-strong);
+}
+
+.stamp a:hover {
+  color: var(--navy);
+}
+
 .panel {
   padding: clamp(24px, 3.5vw, 34px);
   background: var(--navy);

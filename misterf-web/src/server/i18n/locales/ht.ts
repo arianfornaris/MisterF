@@ -914,7 +914,7 @@ export const ht: LocaleCatalog = {
     creditsSuffix: 'kredi',
     buyFor: 'Achte pou {{amount}}',
     payDisclaimer:
-      'Chak echanj ak Mr. F konsome kredi. Pake sa a fèt pou apeprè yon mwa pratik regilye; dire egzak la depann de konbyen ou itilize sistèm nan. Peman an fèt bay <a href="https://littlesoftware.info" target="_blank" rel="noopener">Little Software LLC</a>.',
+      'Chak echanj ak Mr. F konsome kredi. Pake sa a fèt pou apeprè yon mwa pratik regilye; dire egzak la depann de konbyen ou itilize sistèm nan. Peman an fèt bay <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
     recentHistory: 'Istwa resan',
     colDate: 'Dat',
     colPackage: 'Pake',
@@ -1285,7 +1285,7 @@ export const ht: LocaleCatalog = {
       'Se Arian Fornaris ki bati Mister F, yon devlopè lojisyèl ki vin nan sid Florid an 2023 epi ki aprann anglè kòm adilt — menm jan ak elèv li fèt pou yo.',
     founderBody2:
       'Vrè Mister F la se papa l, ki anseye anglè pandan plizyè dizèn ane nan Kiba epi k ap anseye l jodi a nan Florid. Fason li akonpaye yon elèv deyò klas la se lide pwodwi a chita sou li, epi titè elèv ou yo ap pratike avè l la pote non l: Mr. F.',
-    founderBody3: 'Opere pa Little Software LLC, Florid, Etazini.',
+    founderBody3: 'Opere pa <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, Florid, Etazini.',
     pilotTitle: 'Yon pilòt ouvè, ak pwofesè reyèl',
     pilotBody:
       'Pilòt la kòmanse ak pwofesè endepandan nan sid Florid epi li louvri pou nenpòt pwofesè ki vle itilize l. Pwodwi a ap fòme toujou ak moun k ap itilize l yo, epi w ap pale ak moun k ap bati l la.',
@@ -1320,7 +1320,7 @@ export const ht: LocaleCatalog = {
     faq6Answer:
       'Pa gen okenn lis klas pou konfigire. Ou pataje yon lyen ak moun ou vle, epi ou wè rezilta tout moun ki fini l.',
     footerTagline: 'Pratik anglè ak yon titè AI, bati alantou yon vrè pwofesè.',
-    footerCompany: 'Little Software LLC · Florid, Etazini',
+    footerCompany: '<a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> · Florid, Etazini',
     footerContact: 'Kontak',
   },
   legal: {
@@ -1329,7 +1329,7 @@ export const ht: LocaleCatalog = {
     privacyTitle: 'Règleman sou konfidansyalite',
     p1Title: 'Ki moun ki opere Mister F',
     p1Body:
-      'Mister F opere pa Little Software LLC, yon konpayi ki baze nan Florid, Etazini. Si ou gen kesyon sou konfidansyalite, ou ka ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+      'Mister F opere pa <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, yon konpayi ki baze nan Florid, Etazini. Si ou gen kesyon sou konfidansyalite, ou ka ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
     p2Title: 'Enfòmasyon nou kolekte',
     p2Body1:
       'Nou kolekte enfòmasyon ki nesesè pou kreye ak kenbe kont ou, tankou non, imèl, estati verifikasyon, sesyon aktif, pwofil aprantisaj, ak preferans.',
@@ -1355,7 +1355,7 @@ export const ht: LocaleCatalog = {
     termsTitle: 'Tèm ak kondisyon',
     t1Title: 'Sèvis',
     t1Body:
-      'Mister F se yon aplikasyon pratik anglè gide ki opere pa Little Software LLC, yon konpayi ki baze nan Florid, Etazini. Lè ou itilize sèvis la, ou aksepte tèm sa yo.',
+      'Mister F se yon aplikasyon pratik anglè gide ki opere pa <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, yon konpayi ki baze nan Florid, Etazini. Lè ou itilize sèvis la, ou aksepte tèm sa yo.',
     t2Title: 'Kont',
     t2Body:
       'Ou dwe kenbe kont ou an sekirite epi itilize enfòmasyon kòrèk. Ou responsab pou aktivite ki fèt ak kalifikasyon ou yo.',
@@ -1369,10 +1369,10 @@ export const ht: LocaleCatalog = {
       'Kredi se pa lajan ki estoke, yo pa touche enterè, epi yo pa ka transfere andeyò Mister F. Nou ka ajiste pake, pri, oswa règ itilizasyon lè sa nesesè pou opere sèvis la.',
     t5Title: 'Peman',
     t5Body:
-      'Peman yo fèt bay Little Software LLC epi yo trete atravè Stripe. Pri a ak pake ki disponib la montre anvan w konplete acha a. Pou sipò oswa kesyon fakti, ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+      'Peman yo fèt bay <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> epi yo trete atravè Stripe. Pri a ak pake ki disponib la montre anvan w konplete acha a. Pou sipò oswa kesyon fakti, ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
     t6Title: 'Itilizasyon akseptab',
     t6Body:
-      'Ou pa dwe itilize Mister F pou abi, fwod, tantativ pou vyole sèvis la, voye kontni ilegal, oswa aktivite ki fè lòt itilizatè, Little Software LLC, oswa founisè ekstèn mal.',
+      'Ou pa dwe itilize Mister F pou abi, fwod, tantativ pou vyole sèvis la, voye kontni ilegal, oswa aktivite ki fè lòt itilizatè, <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, oswa founisè ekstèn mal.',
     t7Title: 'Disponibilite',
     t7Body:
       'Nou travay pou kenbe sèvis la disponib, men nou pa garanti aksè kontinyèl oswa san erè. Nou ka sispann, limite, oswa modifye fonksyon pou rezon antretyen, sekirite, oswa operasyon.',

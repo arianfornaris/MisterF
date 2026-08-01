@@ -918,7 +918,7 @@ export const es: LocaleCatalog = {
     creditsSuffix: 'créditos',
     buyFor: 'Comprar por {{amount}}',
     payDisclaimer:
-      'Cada intercambio con Mr. F consume créditos. Este paquete está pensado para aproximadamente un mes de práctica regular; la duración exacta depende de cuánto uses el sistema. El pago se realiza a <a href="https://littlesoftware.info" target="_blank" rel="noopener">Little Software LLC</a>.',
+      'Cada intercambio con Mr. F consume créditos. Este paquete está pensado para aproximadamente un mes de práctica regular; la duración exacta depende de cuánto uses el sistema. El pago se realiza a <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
     recentHistory: 'Historial reciente',
     colDate: 'Fecha',
     colPackage: 'Paquete',
@@ -1002,7 +1002,7 @@ export const es: LocaleCatalog = {
     founderBody2:
       'El Mister F real es su padre, que enseñó inglés durante décadas en Cuba y hoy lo enseña en Florida. Su manera de acompañar a un estudiante fuera de clase es la idea sobre la que está construido el producto, y el tutor con el que practican tus estudiantes lleva su nombre: Mr. F.',
     founderBody3:
-      'Operado por Little Software LLC, Florida, Estados Unidos.',
+      'Operado por <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, Florida, Estados Unidos.',
     pilotTitle: 'Un piloto abierto, con profesores reales',
     pilotBody:
       'El piloto empezó con profesores independientes del sur de Florida y está abierto a cualquier profesor que quiera usarlo. El producto todavía se está afinando con quienes lo usan, y hablarías con quien lo construye.',
@@ -1038,7 +1038,7 @@ export const es: LocaleCatalog = {
       'No hay lista de clase que configurar. Compartes el enlace con quien quieras y ves los resultados de todos los que la completen.',
     footerTagline:
       'Práctica de inglés con un tutor de IA, construida alrededor de un profesor real.',
-    footerCompany: 'Little Software LLC · Florida, Estados Unidos',
+    footerCompany: '<a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> · Florida, Estados Unidos',
     footerContact: 'Contacto',
   },
   legal: {
@@ -1047,7 +1047,7 @@ export const es: LocaleCatalog = {
     privacyTitle: 'Política de privacidad',
     p1Title: 'Quién opera Mister F',
     p1Body:
-      'Mister F es operado por Little Software LLC, una compañía basada en Florida, Estados Unidos. Si tienes preguntas sobre privacidad, puedes escribirnos a <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+      'Mister F es operado por <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, una compañía basada en Florida, Estados Unidos. Si tienes preguntas sobre privacidad, puedes escribirnos a <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
     p2Title: 'Información que recopilamos',
     p2Body1:
       'Recopilamos la información necesaria para crear y mantener tu cuenta, como nombre, correo electrónico, estado de verificación, sesiones activas, perfiles de aprendizaje y preferencias.',
@@ -1073,7 +1073,7 @@ export const es: LocaleCatalog = {
     termsTitle: 'Términos y condiciones',
     t1Title: 'Servicio',
     t1Body:
-      'Mister F es una aplicación de práctica guiada de inglés operada por Little Software LLC, una compañía basada en Florida, Estados Unidos. Al usar el servicio, aceptas estos términos.',
+      'Mister F es una aplicación de práctica guiada de inglés operada por <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>, una compañía basada en Florida, Estados Unidos. Al usar el servicio, aceptas estos términos.',
     t2Title: 'Cuenta',
     t2Body:
       'Debes mantener segura tu cuenta y usar información correcta. Eres responsable de las actividades que ocurran con tus credenciales.',
@@ -1087,10 +1087,10 @@ export const es: LocaleCatalog = {
       'Los créditos no son dinero almacenado, no generan intereses y no pueden transferirse fuera de Mister F. Podemos ajustar paquetes, precios o reglas de uso cuando sea necesario para operar el servicio.',
     t5Title: 'Pagos',
     t5Body:
-      'Los pagos se realizan a Little Software LLC y se procesan mediante Stripe. El precio y el paquete disponible se muestran antes de completar la compra. Para preguntas de soporte o facturación, escríbenos a <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+      'Los pagos se realizan a <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> y se procesan mediante Stripe. El precio y el paquete disponible se muestran antes de completar la compra. Para preguntas de soporte o facturación, escríbenos a <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
     t6Title: 'Uso aceptable',
     t6Body:
-      'No debes usar Mister F para abuso, fraude, intentos de vulnerar el servicio, envío de contenido ilegal o actividades que perjudiquen a otros usuarios, a Little Software LLC o a proveedores externos.',
+      'No debes usar Mister F para abuso, fraude, intentos de vulnerar el servicio, envío de contenido ilegal o actividades que perjudiquen a otros usuarios, a <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> o a proveedores externos.',
     t7Title: 'Disponibilidad',
     t7Body:
       'Trabajamos para mantener el servicio disponible, pero no garantizamos acceso continuo o libre de errores. Podemos suspender, limitar o modificar funciones por mantenimiento, seguridad o razones operativas.',
