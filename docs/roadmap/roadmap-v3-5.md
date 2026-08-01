@@ -376,6 +376,32 @@ therefore a more valuable surface than any meta keyword.
   says what the product does, or shows the report, would convert better than a
   bare logo, and this is the image dozens of students see when a teacher
   forwards a link.
+
+  Reopened by the founder 2026-07-31, after 3.5.0. Two things the placeholder
+  makes concrete, now that the resource card next to it is finished:
+
+  - **It is the same file both surfaces use.** `resources/handlers.ts:631`
+    points at that identical PNG, so the product's home page and "a teacher
+    shared an activity with you" produce the same picture. The resource card at
+    least carries a specific title and description in text; the landing has
+    nothing to tell it apart. `twitter:card` is `summary_large_image`, so the
+    image renders full width — a small centred mark on an empty white field
+    looks emptier the larger it is drawn.
+  - Sharing a link is the only acquisition channel the product has today, which
+    is what makes this worth more than its size suggests.
+
+- [ ] **Translate the page title.** `og:title` comes from the page `<title>`,
+  which the landing builds as `Mister F · ${appDocumentTitle}` — and
+  `appDocumentTitle` is a hardcoded Spanish constant, `'Mr. F, tutor de inglés'`
+  (`pages/shell.ts:16`). Verified 2026-07-31: the English edition at `/` and the
+  Haitian Creole edition at `/ht` both share as *"Mister F · Mr. F, tutor de
+  inglés"*. The `og:description` is translated correctly; the title above it is
+  not. For a landing whose pitch is that it speaks the teacher's language, the
+  preview says otherwise in its first line.
+
+  This is a translation fix with no design attached — move the constant into the
+  i18n catalogs — and it should not wait for the image above. It also affects
+  the browser tab title on every page, not only the share card.
 - [x] Give **shared resources** their own preview. Done 2026-07-31: the card
   carries the activity title, and a description of the form
   `Quiz · A2 — <the activity's own description>`, falling back to a translated

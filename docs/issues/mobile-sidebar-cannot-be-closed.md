@@ -2,89 +2,104 @@
 
 Date: 2026-07-31
 
-Status: **Open, reproduced, root cause identified.** Reported by the founder on
-an iPhone; reproduced at 375×812 against the local server and confirmed in the
-computed styles. Not yet fixed.
-
-This is filed here rather than in [Roadmap X](../roadmap/roadmap-x.md) because
-it is not deferred work — it is a defect that traps a visitor on the product's
-primary mobile surface, and the holding area is explicitly for things that were
-postponed on purpose.
+Status: **Fixed 2026-07-31.** Reported by the founder on an iPhone, reproduced
+at 375×812 against the local server, and fixed in the same session. Three
+independent defects had to be removed; each one alone would have left a way out,
+which is why this survived until someone used it on a phone.
 
 ## Symptom
 
-On a phone, open any app page, tap the hamburger in the chat toolbar to show
-the side panel, and there is then no way to dismiss it. The panel covers the
-screen and the visitor is stuck with it until they reload or navigate away.
+On a phone, open any app page, tap the hamburger in the chat toolbar to show the
+side panel, and there is then no way to dismiss it. The panel covers the screen
+and the visitor is stuck until they reload or navigate away.
 
 ## Root Cause
 
-Two independent facts combine, and neither alone would trap anyone.
+All three defects trace to the same origin: the panel is
+**`.offcanvas-lg`**, Bootstrap's *responsive* offcanvas variant, and three
+separate mechanisms in Bootstrap and Bootswatch are written against
+`.offcanvas`, which `.offcanvas-lg` is not.
 
-**1. The close button is white on white.**
+**1. The dismiss button was wired to nothing.**
 
-The panel is `offcanvas-lg offcanvas-start` (`views/partials/app-shell-open.ejs`).
-It does have a dismiss button — `<button class="btn-close d-lg-none"
-data-bs-dismiss="offcanvas">` — and it is present, positioned, and hit-testable
-at the top right. It is simply invisible:
+`<button class="btn-close" data-bs-dismiss="offcanvas">` with no explicit
+target. Bootstrap's dismiss handler resolves the thing to hide as
+`getElementFromSelector(this) || this.closest('.offcanvas')` — and with no
+`data-bs-target`, the fallback walks up looking for `.offcanvas` and finds
+nothing. Verified in the page: `btn.closest('.offcanvas')` → `null`, no
+`data-bs-target`, and tapping the button left `panel.classList.contains('show')`
+still `true`. The button had never worked.
 
-- Bootswatch Flatly sets `--bs-btn-close-color: #fff` and a close icon whose SVG
-  is `fill='%23fff'`, i.e. **white**.
-- Bootstrap ships an override that repaints it black inside overlays:
-  `.modal .btn-close, .offcanvas .btn-close, .toast .btn-close { background-image: … fill='%23000' … }`.
-- That selector is `.offcanvas`. **This panel is `.offcanvas-lg`**, which is a
-  different class — Bootstrap's responsive offcanvas variant. The override never
-  matches, so the button keeps the white icon.
-- Measured on the open panel: icon fill `#fff`, panel background
-  `rgb(255, 255, 255)`, opacity `0.4`.
+**2. The dismiss button was invisible.**
 
-A white glyph at 40% opacity on a white panel is not a visibility problem, it is
-an invisibility one.
+Bootswatch Flatly sets `--bs-btn-close-color: #fff` and a close icon whose SVG
+is `fill='%23fff'`. Bootstrap repaints it black inside overlays with
+`.modal .btn-close, .offcanvas .btn-close, .toast .btn-close` — again a selector
+that `.offcanvas-lg` does not match. Measured on the open panel: icon fill
+`#fff`, panel background `rgb(255, 255, 255)`, opacity `0.4`. A white glyph at
+40% opacity on a white panel.
 
-**2. There is no backdrop left to tap.**
+**3. There was no backdrop left to tap.**
 
-The usual escape hatch is tapping outside the panel. At phone width the panel
-fills the viewport: measured 375×812 inside a 375×812 window, leaving **0 px**
-of backdrop uncovered. The backdrop element exists (`.offcanvas-backdrop fade
-show`, z-index 1040) but none of it is reachable.
+`app-shell.css` had always asked for `.conversation-panel { width: min(86vw,
+360px) }`, which would have left a strip of backdrop to tap. It never applied:
+Bootstrap sets the width through `.offcanvas-lg.offcanvas-start`, **two
+classes**, which outranks a single-class selector. The panel therefore took
+`--bs-offcanvas-width` (400px, clamped by `max-width: 100%`) and measured
+375×812 in a 375×812 window — **0 px** of backdrop uncovered.
 
-`Escape` still dismisses the panel, which is why this does not reproduce on a
-desktop browser at a narrow window — and why a phone, which has no Escape key,
-is the one place it bites.
+`Escape` still dismissed the panel throughout, which is why this never showed up
+in a narrowed desktop browser, and why a phone is the one place it bit.
 
-## Fix
+## The Fix
 
-The one-line version is to make the override match the responsive variant, in
-the app stylesheet rather than by editing Bootstrap:
+`views/partials/app-shell-open.ejs` — name the target, so the dismiss handler
+can resolve it:
 
-```css
-.offcanvas-lg .btn-close { /* the same black-icon background Bootstrap gives .offcanvas */ }
+```html
+<button ... data-bs-dismiss="offcanvas" data-bs-target="#conversationPanel">
 ```
 
-Worth considering in the same pass, since both are cheap and each would have
-prevented the trap on its own:
+`src/client/styles/app-shell.css` — inside `@media (max-width: 991.98px)`,
+matching Bootstrap's own breakpoint:
 
-- Give the panel a `max-width` under `lg` so a strip of backdrop is always
-  tappable. This is the fix that does not depend on anyone noticing a 16 px
-  glyph.
-- Check every other `offcanvas-*` responsive variant in the views for the same
-  inherited-white-icon problem, rather than patching this one instance.
-- Add the close affordance to the panel's own header in a form that does not
-  rely on the Bootstrap icon at all.
+- `.conversation-panel.offcanvas-start { width: min(86vw, 360px) }` — two
+  classes, so the width this file always intended finally wins.
+- `.conversation-panel .btn-close { --bs-btn-close-filter: invert(1)
+  grayscale(100%) }` — the same mechanism `.btn-close-white` uses, in the
+  opposite direction: white icon inverted to black.
 
-## Verifying A Fix
+The width moved out of the unscoped `.conversation-panel` rule, where it was
+dead: below `lg` Bootstrap outranked it, and at `lg` and above the existing
+`@media (min-width: 992px)` block sets `width: 100%`.
 
-At 375×812, with the panel open, all three must hold:
+## Verified
 
-1. The close icon renders dark against the white panel.
-2. Tapping the icon dismisses the panel.
-3. Either some backdrop is tappable, or requirement 2 is genuinely sufficient —
-   decide which, rather than leaving it to chance.
+At 375×812, with transitions disabled to read settled state:
+
+- Panel opens at `x: 0`, width **323 px**, leaving a **53 px** backdrop strip;
+  `elementFromPoint` in that strip returns `offcanvas-backdrop fade show`.
+- Close button: 32×32 at (276, 23), hit target is itself, filter
+  `invert(1) grayscale(1)`.
+- Tapping the close button → `show` goes false.
+- Tapping the backdrop strip → `show` goes false.
+
+At 1280×800, unchanged: panel `position: static`, 320 px in its grid column,
+`transform: none`, visible, with the close and hamburger buttons hidden and no
+backdrop.
+
+## Worth Knowing Next Time
+
+`.offcanvas-lg` is not `.offcanvas`. Any Bootstrap or Bootswatch rule, handler,
+or documented behavior written against `.offcanvas` silently does not apply, and
+"silently" is the operative word — nothing errors, the affordance is simply
+inert or unstyled. This panel is currently the only responsive offcanvas in the
+views; a second one would inherit all three defects.
 
 ## Related
 
-- `views/partials/app-shell-open.ejs` — the panel, the toolbar button, and the
-  dismiss button.
-- `views/partials/app-stylesheet.ejs` — where the override belongs.
+- `views/partials/app-shell-open.ejs` — the panel, toolbar button, and dismiss
+  button.
+- `src/client/styles/app-shell.css` — the responsive block holding the fix.
 - `.agents/skills/bootstrap-ui-conventions` — how this project overrides
   Bootstrap.

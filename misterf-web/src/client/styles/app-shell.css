@@ -153,8 +153,33 @@
 }
 
 .conversation-panel {
-  width: min(86vw, 360px);
   border-right: 0;
+}
+
+/*
+ * Below `lg` the panel is a real offcanvas, and two things have to hold or a
+ * phone visitor cannot dismiss it — there is no Escape key to fall back on.
+ *
+ * The width has to leave a strip of backdrop to tap. Bootstrap sets it through
+ * `.offcanvas-lg.offcanvas-start`, two classes, which outranks a single-class
+ * `.conversation-panel` — so the narrower width this file has always asked for
+ * never applied, and the panel covered the whole screen. Matching that
+ * specificity is what makes the intent take effect.
+ *
+ * And the close button has to be visible. Bootstrap repaints its white icon
+ * black inside overlays with `.modal .btn-close, .offcanvas .btn-close, .toast
+ * .btn-close` — a selector that does not match `.offcanvas-lg`, so Bootswatch's
+ * white glyph survived on a white panel. Inverting the filter is the same
+ * mechanism `.btn-close-white` uses, in the opposite direction.
+ */
+@media (max-width: 991.98px) {
+  .conversation-panel.offcanvas-start {
+    width: min(86vw, 360px);
+  }
+
+  .conversation-panel .btn-close {
+    --bs-btn-close-filter: invert(1) grayscale(100%);
+  }
 }
 
 .conversation-panel .offcanvas-header {

@@ -64,7 +64,11 @@
                   height="24"
                 >
               </a>
-              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="<%= t('common.close') %>"></button>
+              <%# The panel is `.offcanvas-lg`, not `.offcanvas`, so Bootstrap's
+                  dismiss handler cannot find it by walking up to the closest
+                  `.offcanvas` — the button needs to name its target, or the tap
+                  resolves to nothing and the panel stays open. %>
+              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#conversationPanel" aria-label="<%= t('common.close') %>"></button>
             </div>
             <div class="offcanvas-body">
               <div class="panel-nav">
