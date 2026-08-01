@@ -553,6 +553,83 @@ hero is untouched.
 
 ---
 
+## 1.10 "Recientes" As A Timeline, Not Just A Chat List — to evaluate
+
+Raised by the founder on 2026-07-31. **This is an evaluation, not a decision.**
+
+Note the scope tension before anything else: this is authenticated app chrome,
+and the Out Of Scope section above says in as many words that V3.5 must not
+quietly become the authenticated-home work. It is recorded here at the founder's
+direction; if it grows past an evaluation it belongs with
+[Home Start Experience](../features/home-start-experience.md) and
+[Home Suggestions Tracker](../issues/home-suggestions-tracker.md), which already
+own the personalized start surface.
+
+### What The Panel Shows Today
+
+`panel-recents` renders `listConversationsForProfile(userId, profileId)` —
+every conversation for the active profile, newest first, unlimited. So the
+question "does it only show chats with Mr. F?" has a more interesting answer
+than it looks:
+
+- **Practice guides already appear.** The `conversations` table carries a
+  `practice_guide_id`, and a learner practising a guide is having a
+  conversation. Those rows are already in the list — just labelled and iconed
+  exactly like an open-ended tutor chat, with nothing saying which guide they
+  came from.
+- **Quizzes and roleplays never appear.** Their attempts live in
+  `quiz_attempts` and `roleplay_attempts`, which the panel does not read.
+
+So the gap is not "resources are missing" — it is that one of the three formats
+leaks in undifferentiated while the other two are invisible.
+
+### The Timeline Already Exists
+
+`learner_progress_events` is profile-scoped and already records exactly what a
+timeline would need: a stable `sourceType` and `sourceId`, a title, a summary,
+and a details JSON carrying `resourceId` and `resourceType`, written for every
+evaluated attempt and tutor report (`.agents/skills/learner-progress-events`).
+It is what `/progress` renders, and `/progress` is already a nav link in this
+same panel, two rows above Recientes.
+
+That reframes the question. It is not "should we build a timeline" — one exists.
+It is **whether the sidebar should show it, and what that does to the two
+surfaces.**
+
+### The Real Question To Answer
+
+Recientes is a *navigation* list: things you can reopen and act on, with a
+per-row menu offering rename, finalize-and-summarize, and delete. Progress
+events are a *record*: things that already happened and were evaluated.
+
+Merging them mixes those two jobs, and the seams show immediately — none of
+rename, finalize, or delete means anything for a completed quiz attempt. So the
+evaluation has to answer:
+
+- [ ] Does a learner actually want one merged stream, or do they want to resume
+  a chat quickly? Those pull in opposite directions: a timeline that includes
+  every completed attempt pushes the resumable conversation further down a list
+  that is already unlimited.
+- [ ] If merged, what are the row actions for a non-conversation entry, and does
+  a quiz attempt row open the result page or the resource?
+- [ ] What happens to `/progress` if the sidebar shows the same events? Two
+  surfaces for one record is a maintenance cost and a confusion, and the answer
+  might be that Recientes stays a chat list precisely *because* `/progress`
+  exists.
+- [ ] The cheapest partial move, worth considering on its own: **mark the guide
+  conversations that are already there** as belonging to a guide. That fixes a
+  real inconsistency today, needs no new query, and does not commit to the
+  larger question.
+
+### How To Close It
+
+With a pilot learner, not by reasoning. The panel's job depends on whether
+people come back to resume something or to look at what they have done, and
+that is observable. This is also one of the things
+[Roadmap X §X.1](roadmap-x.md) would answer, and cannot answer today.
+
+---
+
 # Part 2: Engineering And Quality
 
 ## 2.1 Landing Rendering And Performance
