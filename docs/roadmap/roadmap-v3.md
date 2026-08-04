@@ -624,7 +624,18 @@ business constraints ([Presupuesto inicial](../business/presupuesto-inicial.md))
   There is therefore no single correct value, only one that covers a session of
   realistic length.
 
-  **Recommendation: `OPENROUTER_USER_KEY_LIMIT_USD = 0.50`** (20 credits, up from
+  **Superseded 2026-08-03 — remeasured after BYOK was removed and the model tier
+  was made profile-driven (shipped in `3.7.0`). `0.05` is now enough.** Both root
+  causes are gone: the tutor report ran on a hardcoded `regular` tier, whose
+  large output ceiling drove the reservation, and it now follows the profile
+  (`lite` by default). Re-run at the production value with a fresh Lite profile:
+  quiz answered and evaluated, guide session of two turns, `Finalizar y resumir`
+  — **all four calls succeeded, no rejection**, ending at `usage` **$0.0233** of
+  the $0.05 limit, $0.0268 left. **Keep `OPENROUTER_USER_KEY_LIMIT_USD = 0.05`;
+  no change needed.** The earlier recommendation below is kept as the record of
+  what the number was while the tier was hardcoded.
+
+  ~~Recommendation: `OPENROUTER_USER_KEY_LIMIT_USD = 0.50`~~ (20 credits, up from
   2). Reasoning: `0.35` is the lowest value observed to work and it worked for a
   *short* session, so it is the floor rather than a safe setting; `0.50` clears it
   with margin for a longer conversation. The expected real cost of a first full

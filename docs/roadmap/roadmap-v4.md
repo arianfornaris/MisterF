@@ -929,17 +929,45 @@ measured guide session (3 turns plus the finalized report) cost **$0.034**, whic
 against a USD 5 package would be ~145 such sessions — but that number is not
 trustworthy yet, for the reasons below.
 
+### Remeasured 2026-08-03, After BYOK And The Tier Fix
+
+The table above was gathered while inference ran through a BYOK provider key and
+while four services hardcoded the `regular` tier. Both are gone as of `3.7.0`, so
+those figures are historical. A clean full **student** cycle on a Lite profile —
+quiz answered and evaluated, guide session of two tutor turns, finalized report —
+now costs, per the key's own billed `usage`, **$0.0233**:
+
+| Call | Logged `upstream_inference_cost` |
+| --- | --- |
+| Quiz evaluation | $0.00213 |
+| Tutor turn | $0.00740 |
+| Tutor turn | $0.00590 |
+| Tutor report | $0.00105 |
+| **Log total** | **$0.01648** |
+| **OpenRouter billed `usage`** | **$0.02328** |
+
+**Use the billed `usage`, not the log.** The two disagree by ~41%: the log records
+`cost_details.upstream_inference_cost`, which excludes OpenRouter's own margin,
+and it is the billed figure that depletes the balance a buyer is paying for. Now
+that BYOK is gone, `usage` is trustworthy and updates within minutes, so the
+estimate should be built from it — the per-call log stays useful for attributing
+cost to operations, not for totals.
+
+On this basis a USD 5 package is on the order of **200 student cycles**, and the
+tutor turn remains the dominant term at roughly $0.006–0.007 each. That is still
+not the sentence to publish: it is one cycle, on one profile, with a two-turn
+session.
+
 ### Why This Is Not Yet An Answer
 
-- [ ] **Quiz evaluation is missing from the telemetry entirely.** It calls
-  `generateText` directly in `llmTutor/index.ts:626` without the wrapper that
-  emits `llm_response`, so the single most-run inference in the teacher cycle has
-  no cost record. **Fix the instrumentation before trusting any total** — this is
-  the prerequisite, not a detail.
-- [ ] **Reconcile against OpenRouter's own usage figures.** The per-call costs
-  are what the provider reported inline; the key's `usage` endpoint lags by long
-  enough that it read `0` immediately after a run. Confirm the two agree before
-  publishing a number.
+- [x] **Quiz evaluation is missing from the telemetry entirely.** It called
+  `generateText` directly without the wrapper that emits `llm_response`, so the
+  single most-run inference in the teacher cycle had no cost record. Fixed in
+  `3.7.0`: it now logs as `Quiz evaluation` / `quiz_evaluation`.
+- [x] **Reconcile against OpenRouter's own usage figures.** Done 2026-08-03, and
+  they do **not** agree — the log undercounts billed usage by ~41%, and the `0`
+  readings that made the endpoint look laggy were BYOK spend being excluded from
+  the limit, not lag. Billed `usage` is the figure to price from.
 - [ ] **Define "regular practice" before estimating its duration.** A month for
   a learner doing two 10-turn sessions a week is a very different number from a
   daily user. The estimate has to name the usage it assumes, or it will be wrong
