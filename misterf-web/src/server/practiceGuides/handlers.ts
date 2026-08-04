@@ -54,7 +54,7 @@ import {
   type ModificationPreviewOwner,
 } from '../resources/modificationPreviewStore.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
   formatRelativeTime,
@@ -277,10 +277,10 @@ async function buildPracticeGuidesPageModel(
     shareTargetPracticeGuideProfiles,
     title:
       pageKind === 'new'
-        ? `${translate(request.locale, 'practiceGuides.newTitle')} · ${appDocumentTitle}`
+        ? buildDocumentTitle(request.locale, translate(request.locale, 'practiceGuides.newTitle'))
         : pageKind === 'edit'
-        ? `${translate(request.locale, 'practiceGuides.editTitle')} · ${appDocumentTitle}`
-        : `${selectedPracticeGuide?.title || translate(request.locale, 'practiceGuides.defaultTitle')} · ${appDocumentTitle}`,
+        ? buildDocumentTitle(request.locale, translate(request.locale, 'practiceGuides.editTitle'))
+        : buildDocumentTitle(request.locale, selectedPracticeGuide?.title || translate(request.locale, 'practiceGuides.defaultTitle')),
     user,
   };
 }
@@ -428,7 +428,7 @@ export function renderPracticeGuideParticipationPage(
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `${resolved.practiceGuide.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, resolved.practiceGuide.title),
       user: resolved.user,
     }),
     collectedReports: buildCollectedPracticeGuideReportListItems(
@@ -477,6 +477,7 @@ export async function handleGeneratePracticeGuideParticipationSummary(
     );
     const result = await generateGuideParticipationSummary({
       instructionLanguage: resolved.activeProfile.instructionLanguage,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       request: {
         description: resolved.practiceGuide.description,
@@ -588,7 +589,7 @@ export function renderPracticeGuideReportPage(
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `${reportRecord.summaryTitle} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, reportRecord.summaryTitle),
       user: resolved.user,
     }),
     ownerViewParticipantLabel:
@@ -618,7 +619,7 @@ function renderPracticeGuideAuthoring(
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `${input.practiceGuide.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, input.practiceGuide.title),
       user: input.user,
     }),
     authoringError: input.error || '',
@@ -660,7 +661,7 @@ function renderPracticeGuideNewView(
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `${translate(request.locale, 'practiceGuides.newTitle')} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'practiceGuides.newTitle')),
       user: input.user,
     }),
     ...(input.originFolder ?? { originFolderId: null, originFolderPath: [] }),
@@ -697,6 +698,7 @@ export async function handleGeneratePracticeGuideDraft(
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = await generatePracticeGuideDraft({
       instructionLanguage: auth.activeProfile?.instructionLanguage,
+      modelTier: auth.activeProfile?.modelTier,
       openRouterApiKey,
       prompt,
     });
@@ -788,6 +790,7 @@ export async function handlePreviewPracticeGuideModification(
     const revision = await generatePracticeGuideRevision({
       instructionLanguage: resolved.activeProfile?.instructionLanguage,
       currentPracticeGuide: currentDraft,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       prompt: requestedChange,
     });

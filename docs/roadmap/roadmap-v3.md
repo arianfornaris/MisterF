@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-26)
+Date: 2026-07-06 (last updated: 2026-08-01)
 
 Status: **Released as 3.0.0 on 2026-07-26; current release 3.0.2.** V3's
 headline is the **Teacher Pilot MVP**: the
@@ -415,10 +415,19 @@ stays out of V3.
   profile back to the author profile on navigation, so the child must have
   their own profile active to attempt as a student — a known interim-model
   wrinkle, not a blocker.
-- [ ] Funnel instrumentation check: verify each pilot funnel step (invited →
+- [x] Funnel instrumentation check: verify each pilot funnel step (invited →
   started → completed → reviewed → practiced → report viewed) is recorded and
   queryable, adding minimal events where missing. Manual SQL is acceptable
-  for the pilot.
+  for the pilot. **Closed 2026-08-01 (founder decision), with the cost
+  measurement in §1.7.** The events themselves are emitted — every step of the
+  cycle writes one, and Phase D of the extension above added the missing
+  owner-view events (`roleplay_owner_result_viewed`,
+  `practice_guide_owner_report_viewed`) and the `collectResults` flag on the
+  start events. What does not exist is anything that *aggregates* them, and that
+  is not a V3 gap: it is the platform-wide problem
+  [Roadmap X §X.1](roadmap-x.md) was opened to hold, where this funnel is
+  written down as blocked item 2. Closing it here stops the same missing
+  capability being tracked in three roadmaps at once.
 - [x] Fix the guest evaluation hand-off. Done 2026-07-20: evaluation used to
   run inside the result page's GET, so a student who had just signed up sat on
   a blank navigation for the whole inference. Evaluation moved to
@@ -431,10 +440,10 @@ stays out of V3.
 - [x] Manual QA of the full teacher cycle against live inference (create →
   share → guest attempt → signup/claim → evaluation → follow-up practice →
   owner report). Completed 2026-07-26; founder-confirmed end-to-end pass.
-- [~] Extend participant results to **roleplays and practice guides** (moved
+- [x] Extend participant results to **roleplays and practice guides** (moved
   from Roadmap V4 Step 2.5 on 2026-07-26 at the founder's direction; previously
-  the planned first post-MVP extension). Code-complete 2026-07-26 (phases A–C
-  done, D partial); pending: owner-side share toggles and live QA — see below. The resource-generic pieces already
+  the planned first post-MVP extension). Code-complete 2026-07-26; **closed
+  2026-08-01 when phases D and E passed live QA** — see below. The resource-generic pieces already
   cover all three types — the sharing primitive (`resource_share_links`,
   `resource_access_grants`), the `collect_results` flag + start-time snapshot,
   the disclosure-at-start consent, and the "Compartido por mí" catalog. What is
@@ -482,7 +491,7 @@ stays out of V3.
     `collect_results` instead (the conversation always carries both). Owner
     report view at `/practice-guides/:id/reports/:conversationId`, reached from
     `/practice-guides/:id/participation`. Repo test added.
-  - [~] Phase D — Funnel instrumentation + QA. Done 2026-07-26: start events now
+  - [x] Phase D — Funnel instrumentation + QA. Done 2026-07-26: start events now
     log `collectResults`, and owner-view events were added
     (`roleplay_owner_result_viewed`, `practice_guide_owner_report_viewed`);
     disclosure-at-start now shows for roleplay/guide shares on the shared
@@ -490,7 +499,31 @@ stays out of V3.
     both the roleplay and practice-guide share modals (profile-share checkbox
     read by the share handler; link-share auto-submit switch reusing the generic
     `POST /resources/:resourceId/share/collect-results`), matching the quiz.
-    **Pending:** live logged-in QA of both full cycles against real inference.
+    **Live QA passed 2026-08-01**, self-served against real inference on the
+    local server. Both cycles run end to end:
+    *Roleplay* — owner creates it, shares it (profile share and link share, each
+    with the `collect_results` toggle present and honoured), participant starts,
+    exchanges turns, finishes; the attempt snapshots `collect_results = 1` from
+    the grant and again from the link; evaluation persists with a progress
+    event; the owner's participation page lists both participants by name.
+    *Practice guide* — owner creates and link-shares it, participant starts the
+    conversation (`conversations.collect_results = 1`), practises, and
+    `Finalizar y resumir` persists a `tutor_conversation_reports` row the owner
+    reaches at `/practice-guides/:id/reports/:conversationId`.
+    The disclosure-at-start notice renders on the shared page for **both** types,
+    gated on the collect flag and in the participant's own language.
+    Wait-state affordances were exercised incidentally and hold: the roleplay
+    turn composer disables its button and shows a thinking turn, and the shared
+    start pages carry the pending modal.
+    **Fixture note for whoever repeats this:** the owner read-only result view is
+    gated on `attempt.userId !== viewer.id` (`roleplays/handlers.ts:1336`), so it
+    is **unreachable with one account holding two profiles** — that setup falls
+    through to the learner's own view, with learner actions, which looks like a
+    bug and is not. A second real user is required. With one
+    (`qa.student@misterf.local`), the owner view is correct: banner *"Estás
+    viendo el resultado de Estudiante QA en modo solo lectura"*, transcript and
+    evaluation present, and **zero** learner action forms. The guide report view
+    behaves the same and leaks no raw chat.
   - [x] Phase E — Owner AI participation summary for roleplays and practice
     guides (added 2026-07-27 at the founder's request; closes the last gap
     against the quiz participation page). Done 2026-07-27: migration 29 adds a
@@ -509,8 +542,14 @@ stays out of V3.
     areas, and next steps — no transcripts and no raw chat are ever sent.
     Per-question tallies stay quiz-only, since only quizzes have right answers.
     Verified: typecheck, test:typecheck, 303 tests (7 new contract/fingerprint
-    tests), build, migration applied, server healthy. **Pending:** live QA
-    against real inference, together with the Phase D click-through.
+    tests), build, migration applied, server healthy. **Live QA passed
+    2026-08-01** with the Phase D click-through. Both summaries generate against
+    real inference and persist to `resource_participation_summaries` with the
+    staleness fingerprint. The roleplay summary correctly aggregated **two**
+    participants' recurring difficulties (fingerprint `2:<timestamp>`) and the
+    guide summary the single finalized report (`1:<timestamp>`), each naming the
+    practised topics and next steps without reproducing a transcript or any raw
+    chat.
 
 ## 1.7 Pilot Readiness
 
@@ -535,11 +574,93 @@ business constraints ([Presupuesto inicial](../business/presupuesto-inicial.md))
   it turns out to be false, a student invited by a pilot teacher would hit the
   purchase wall part-way through the activity their teacher assigned, so revisit
   `OPENROUTER_USER_KEY_LIMIT_USD` before widening the pilot.
-- [ ] Measure the real AI cost and latency of one full teacher cycle per
+
+  **The assumption is false, and it failed for a reason nobody would have found
+  by measuring average cost.** Observed 2026-08-01 during the §1.6 Phase C/D QA,
+  with a genuinely fresh account (`OPENROUTER_USER_KEY_LIMIT_USD=0.05`, the
+  value in both `.env.development` and `.env.production`): the student completed
+  a shared roleplay end to end, then `Finalizar y resumir` on a shared practice
+  guide was **rejected by OpenRouter before any inference ran**:
+
+  > This request requires more credits, or fewer max_tokens. You requested up to
+  > 65536 tokens, but can only afford 33333.
+
+  The mechanism matters more than the number. OpenRouter reserves the request's
+  **maximum possible** output against the key limit, not its actual cost, so a
+  $0.05 key is refused for any operation whose model advertises a large output
+  budget — regardless of how few tokens the answer would really have used, and
+  regardless of how little the key has actually spent (reported usage was still
+  `0` at the time of the refusal). The tutor report runs on the `regular` tier
+  (`services/tutorReports.ts:200`). This interacts directly with the
+  `llm-credit-gate` rule that the app must **not** set application-level
+  `maxOutputTokens` — the rule is right for output quality, and its cost is that
+  the provider's reservation is the model's native ceiling.
+
+  **What worked:** the credit gate itself behaved exactly as designed — the
+  failure surfaced as `credit_exhausted_http_redirect` with no stack trace and
+  no broken page.
+
+  **What this means for the pilot:** a student invited by a pilot teacher can
+  finish a roleplay but cannot finalize a practice-guide report on the welcome
+  credit.
+
+  **Tested 2026-08-01 at the founder's request, to recommend a value.** Fresh
+  accounts, same shared practice guide, three tutor turns, then `Finalizar y
+  resumir`:
+
+  | `OPENROUTER_USER_KEY_LIMIT_USD` | Result |
+  | --- | --- |
+  | `0.05` (current, dev **and** production) | **Rejected** — could afford 33 333 of 65 536 tokens |
+  | `0.20` | **Rejected** — could afford 53 333 |
+  | `0.35` | **Succeeded** |
+  | `0.50` | Succeeded (also the value both QA accounts now run at) |
+
+  The decisive observation is that **the cap is not a budget, it is a
+  reservation**. That session's real cost was **$0.029 for the three turns plus
+  $0.005 for the report — about $0.034 total** — yet $0.20 was refused. OpenRouter
+  reserves the request's maximum possible output, and because the reservation
+  grows with the conversation's accumulated input, **the cap a learner needs
+  scales with how long they have been talking, not with what they have spent.**
+  There is therefore no single correct value, only one that covers a session of
+  realistic length.
+
+  **Recommendation: `OPENROUTER_USER_KEY_LIMIT_USD = 0.50`** (20 credits, up from
+  2). Reasoning: `0.35` is the lowest value observed to work and it worked for a
+  *short* session, so it is the floor rather than a safe setting; `0.50` clears it
+  with margin for a longer conversation. The expected real cost of a first full
+  cycle is **~$0.03–0.05**, so a free account is expected to consume roughly a
+  tenth of its cap — 100 signups cost about $4 in practice, with a worst case of
+  $50 only if every one of them exhausted the ceiling, which takes on the order of
+  70 tutor turns each. Note `.env.example`'s current `0.10` is **worse than
+  useless**: it clears the bare reservation for an empty conversation and fails
+  the moment the learner says anything.
+
+  **The cheaper fix is engineering, not operations.** Setting an explicit output
+  cap for *bounded structured* outputs — the tutor report's schema already
+  constrains what a valid answer can contain — would collapse the reservation and
+  make the welcome credit go far further. That is a deliberate, narrow exception
+  to the `llm-credit-gate` rule against application-level `maxOutputTokens`, which
+  exists to protect open-ended generation quality and has no reason to bind a
+  fixed-shape report. **Both options are the founder's call; the measurement is
+  done.**
+- [x] Measure the real AI cost and latency of one full teacher cycle per
   operation (quiz generation/modification, evaluation, follow-up tutoring,
   report summary), feeding the contribution-margin input the business docs
   need. (This is the slice of section 2.1 kept in V3.) Concrete output: the cost
   of one cycle, and whether the welcome credit above covers it.
+  **Closed 2026-08-01 (founder decision): not measuring it for now.** The
+  reasoning is that inference is paid for by the credits users buy, so cost per
+  cycle is not a margin risk the pilot has to answer before it runs — it is an
+  input to pricing, and pricing is not being set yet
+  ([negocio-roadmap](../business/negocio-roadmap.md), Fase 5).
+  What stays true, and is worth re-reading before the pilot widens: the working
+  assumption above — that the welcome credit covers one full cycle — is still an
+  assumption, and this item was the thing that would have confirmed it. If it is
+  false, a student invited by a pilot teacher hits the purchase wall part-way
+  through the activity their teacher assigned. The measurement itself remains
+  available in [Roadmap X §X.1](roadmap-x.md), which owns the general "the
+  platform emits events but cannot answer questions" gap; it is deferred, not
+  deleted.
 
 ---
 
@@ -570,10 +691,44 @@ the app apart from a freeze.
   pending modal, which was also extracted to
   `views/partials/roleplay-pending-modal.ejs` instead of being duplicated per
   page.
-- [ ] Consider a guard test that keeps this rule from regressing: assert every
+- [x] Consider a guard test that keeps this rule from regressing: assert every
   route whose handler resolves a credit-gated key has a UI trigger carrying a
   known pending marker. Non-trivial because triggers live in EJS and client
-  JS, so it is tracked but not yet scoped.
+  JS, so it is tracked but not yet scoped. **Done 2026-08-01:**
+  `tests/server/inferenceWaitStateArchitecture.test.ts`.
+
+  What made it scopable was noticing that the credit gate is reachable
+  transitively, not just from the handler. The test collects every function in
+  `src/server` whose body calls `getCreditCheckedOpenRouterApiKeyForUser`, then
+  folds in callers to a fixpoint, so a handler still counts when the inference
+  is modules deep — the scene-media routes reach it through `requireCreditKey`,
+  quiz evaluation through `evaluateSubmittedQuizAttemptForUser`. Intersecting
+  that with the handlers registered on a router yields **31 credit-gated
+  routes**, which must equal the inventory: a new one fails the test until
+  someone declares how it tells the user to wait.
+
+  The "triggers live in two places" difficulty became the assertion rather than
+  the obstacle. Each entry names the marker, the **template** that emits it, and
+  the **client module** that reads it, and both are checked — because an
+  attribute no client reads paints nothing, which is precisely the failure the
+  rule exists to prevent. A route may instead be declared `no-ui-trigger` with a
+  reason, and a third test keeps that declaration honest by asserting nothing in
+  `views/` or `src/client/` references the route.
+
+  The inventory documents the six affordances in use: the blocking pending
+  modal, the shared describe→generating→preview modification modal, the
+  scene-media change modal with its progress bar, a disabled button swapped for
+  a loading label, the roleplay transcript's thinking turn, and the evaluating
+  page that renders a spinner and posts itself.
+
+  Verified by breaking it three ways and confirming each failure names the fix:
+  removing an inventory entry, deleting a marker from a view, and pointing a
+  view at the route declared as having no trigger.
+
+  Found in passing, not fixed: **`POST /quizzes/generate-draft` is a dead
+  alias** of `POST /quizzes/generate` on the same handler — nothing in `views/`
+  or `src/client/` posts to it. It is recorded as `no-ui-trigger` rather than
+  deleted, since removing a route is a compatibility decision, not a test one.
 
 ---
 
@@ -699,12 +854,31 @@ and scene media) and to **folders**.
 - [x] Keep it archive- and Trash-aware. Done 2026-07-27: duplicating an archived
   resource is refused outright, and archived children are skipped when copying a
   folder, so a duplicate never resurrects Trash content.
-- [~] Cover with tests. Done 2026-07-27 for repository/service behavior
+- [x] Cover with tests. Done 2026-07-27 for repository/service behavior
   (`tests/db/resourceDuplication.test.ts`, 5 tests: independent copy with derived
   title, no attempts or share link carried over, folder recursion with nested
-  subfolder, archived refusal, and other-profile refusal). **Pending:** the live
-  click-through duplicating a resource that already has participation and
-  confirming the copy starts clean.
+  subfolder, archived refusal, and other-profile refusal). **Live click-through
+  done 2026-08-01**, self-served on the local server with the QA account against
+  a quiz that already had participation (3 attempts, a live share link, and a
+  persisted AI summary). Duplicated from the detail page; the owner landed on
+  the copy, titled `Copia de …`.
+
+  Verified in SQLite and in the UI: the copy carries the 5 authored blocks and
+  **nothing else** — zero attempts, zero grants, no participation summary, and
+  no `source*` or `sharedVia` marks, so it reads as a fresh original rather than
+  an imported share. Its participation page renders the friendly empty state
+  (*"Todavía no hay respuestas"*) while the original still lists its two
+  collectable participants and keeps its AI summary. The `resource_duplicated`
+  event logged with the right source and target; the error log stayed clean.
+
+  One thing worth recording because it looks like a violation and is not: the
+  copy **does** get a `resource_share_links` row. It is not copied — `duplicate.ts`
+  never touches share links — it is minted lazily by `renderQuizShowPage`, which
+  calls `getOrCreateResourceShareLink` for any owner opening the detail page, so
+  the share modal has a URL to show. The id differs from the original's, nobody
+  has been given it, and the copy is unreachable through the original's link.
+  The separation the feature promises holds; the row is pre-existing product
+  behavior, not duplicated participation.
 
 ---
 
@@ -912,8 +1086,13 @@ technical exit criterion.
 - [x] Live logged-in QA of the quiz AI modification operations (section 1.3)
   is done. Completed 2026-07-20; the exit-criteria checkbox was synchronized
   with the detailed section on 2026-07-26.
-- [ ] The pilot funnel is measurable end to end, and the AI cost of one full
-  cycle is known.
+- [x] ~~The pilot funnel is measurable end to end, and the AI cost of one full
+  cycle is known.~~ **Dropped as an exit criterion 2026-08-01 (founder
+  decision).** Both halves depend on aggregation the platform does not have, now
+  owned by [Roadmap X §X.1](roadmap-x.md); the cost half is additionally not a
+  margin risk while inference is paid for by purchased credits (§1.7). V3 ships
+  measured by nothing, which is a known and accepted cost — the same trade V3.5
+  made.
 - [x] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass; new
   surfaces (attempts views, next-class report) have regression coverage.
   Verified for the 3.0.0 release on 2026-07-26.

@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { translate } from '../i18n/index.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
 } from '../pages/shell.js';
@@ -49,7 +49,7 @@ export async function renderCreditsPage(
       currentView: 'credits',
       guestInitialGreeting: '',
       request,
-      title: `${translate(request.locale, 'credits.title')} · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'credits.title')),
       user,
     }),
     balance,

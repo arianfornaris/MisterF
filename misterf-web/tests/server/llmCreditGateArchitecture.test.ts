@@ -78,6 +78,31 @@ describe('LLM credit gate architecture', () => {
     }
   });
 
+  it('keeps every provider key OpenRouter-issued, with no BYOK concept', () => {
+    // The app used to create user keys with `include_byok_in_limit: false`,
+    // which tells OpenRouter not to count BYOK spend against the key limit.
+    // With a BYOK provider key configured upstream that made the whole credit
+    // system stop enforcing: real money was spent while `usage` stayed at 0 and
+    // the limit never depleted. BYOK was removed on 2026-08-03 and is not
+    // coming back, so the concept must not reappear anywhere — a single flag is
+    // enough to silently disable credit limits again.
+    const thisFile = 'tests/server/llmCreditGateArchitecture.test.ts';
+    for (const file of [
+      ...listFiles('src', new Set(['.ts', '.js'])),
+      ...listFiles('tests', new Set(['.ts'])),
+    ]) {
+      if (file === thisFile) {
+        // This file names the thing it bans, in the comment above.
+        continue;
+      }
+
+      expect(
+        readProjectFile(file).toLowerCase(),
+        `${file} must not reintroduce BYOK; every key is issued by OpenRouter`,
+      ).not.toContain('byok');
+    }
+  });
+
   it('lets models use their native output budget', () => {
     for (const file of listFiles('src/server', new Set(['.ts']))) {
       expect(

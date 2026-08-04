@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
@@ -183,7 +184,7 @@ async function generateSceneMediaPackage(input, schema, system, userPrompt, extr
         const result = await generateText({
             messages,
             model: getLanguageModel({
-                modelTier: 'regular',
+                modelTier: input.modelTier ?? defaultProfileModelTier,
                 openRouterApiKey: input.openRouterApiKey,
             }),
             // Media authoring is a bounded structured-generation task. Minimal
@@ -191,7 +192,11 @@ async function generateSceneMediaPackage(input, schema, system, userPrompt, extr
             // schema and retry loop continue to enforce correctness.
             providerOptions: getProviderOptions({ reasoningEffort: 'minimal' }),
             system,
-            temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
+            temperature: shouldUseTemperature({
+                modelTier: input.modelTier ?? defaultProfileModelTier,
+            })
+                ? 0.35
+                : undefined,
         });
         if (isContentPolicyFinish(result.finishReason, result.providerMetadata)) {
             throw new SceneMediaScriptContentPolicyError();

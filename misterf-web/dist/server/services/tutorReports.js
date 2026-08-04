@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, shouldLogFullLlmTrace, } from './llmTutor/logging.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
@@ -103,6 +104,8 @@ function appendStructuredCorrectionRequest(messages, input) {
     });
 }
 export async function generateTutorConversationReport(input) {
+    // Profile-configured model, like every other inference.
+    const tier = input.modelTier ?? defaultProfileModelTier;
     const system = renderSystemPrompt('tutor/conversation-report.md', {
         INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(input.instructionLanguage ?? 'es'),
     });
@@ -131,7 +134,7 @@ export async function generateTutorConversationReport(input) {
             logLlmRequest(messages, system, {
                 actorLabel: 'Tutor report',
                 llm: {
-                    modelTier: 'regular',
+                    modelTier: tier,
                     openRouterApiKey: input.openRouterApiKey,
                 },
                 operation: 'tutor_report',
@@ -139,12 +142,12 @@ export async function generateTutorConversationReport(input) {
             const result = await generateText({
                 messages,
                 model: getLanguageModel({
-                    modelTier: 'regular',
+                    modelTier: tier,
                     openRouterApiKey: input.openRouterApiKey,
                 }),
                 providerOptions: getProviderOptions(),
                 system,
-                temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.4 : undefined,
+                temperature: shouldUseTemperature({ modelTier: tier }) ? 0.4 : undefined,
             });
             logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, {
                 actorLabel: 'Tutor report',

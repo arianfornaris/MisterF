@@ -262,6 +262,43 @@ describe('public landing page', () => {
     expect(html).toContain('<link rel="canonical" href="https://misterf.test/">');
   });
 
+  it('answers the objection that the product is only for after class', async () => {
+    // The headline promises one cycle — homework, then the next class — and
+    // stays that way deliberately. The flexibility is said here instead, so a
+    // teacher who works in the other direction finds it before leaving.
+    const response = await fetch(baseUrl, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+    });
+    const html = await response.text();
+
+    expect(html).toContain('Do I have to use it after class?');
+    expect(html).toContain('before a lesson to see where the difficulty will be');
+    // The view renders a fixed range of FAQ keys, so a question added to the
+    // catalogs without widening it would silently never render.
+    expect(html).toContain('How many students can I have?');
+  });
+
+  it('shares each edition under a title in that edition’s language', async () => {
+    // `og:title` is the first line of the WhatsApp preview card, and it comes
+    // from the page <title>. The application name inside it was a hardcoded
+    // Spanish constant, so the English and Creole editions of a page whose
+    // pitch is that it speaks the teacher's language shared as
+    // "Mister F · Mr. F, tutor de inglés".
+    const editions: Array<[string, string]> = [
+      ['/', 'Mister F · Mr. F, English tutor'],
+      ['/es', 'Mister F · Mr. F, tutor de inglés'],
+      ['/ht', 'Mister F · Mr. F, titè anglè'],
+    ];
+
+    for (const [path, expectedTitle] of editions) {
+      const response = await fetch(`${baseUrl}${path}`);
+      const html = await response.text();
+
+      expect(html).toContain(`<title>${expectedTitle}</title>`);
+      expect(html).toContain(`<meta property="og:title" content="${expectedTitle}">`);
+    }
+  });
+
   it('emits the description, canonical, and Open Graph tags', async () => {
     const response = await fetch(baseUrl);
     const html = await response.text();

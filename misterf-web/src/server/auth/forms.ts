@@ -35,7 +35,7 @@ import {
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { clearActiveProfileCookie } from './profiles.js';
 import {
-  appDocumentTitle as shellAppDocumentTitle,
+  buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage as getShellHomeAuthMessage,
 } from '../pages/shell.js';
@@ -50,10 +50,12 @@ import {
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
-const appDocumentTitle = 'Mr. F, tutor de inglés';
-
 function tr(response: Response): Translator {
-  return createTranslator(response.req?.locale ?? defaultLocale);
+  return createTranslator(localeOf(response));
+}
+
+function localeOf(response: Response): Locale {
+  return response.req?.locale ?? defaultLocale;
 }
 
 type AuthFormView = {
@@ -747,7 +749,7 @@ function renderAuthForm(response: Response, view: AuthFormView): void {
   response.render('auth', {
     ...view,
     csrfToken: response.locals.csrfToken,
-    title: `${documentTitle} · ${appDocumentTitle}`,
+    title: buildDocumentTitle(localeOf(response), documentTitle),
   });
 }
 
@@ -763,7 +765,10 @@ function renderChangePasswordForm(
       currentView: 'settings',
       guestInitialGreeting: '',
       request: view.request,
-      title: `${tr(response)('auth.message.changePasswordTitle')} · ${shellAppDocumentTitle}`,
+      title: buildDocumentTitle(
+        localeOf(response),
+        tr(response)('auth.message.changePasswordTitle'),
+      ),
       user: view.user,
     }),
     csrfToken: response.locals.csrfToken,
@@ -790,7 +795,7 @@ function renderAuthMessage(
     returnTo: view.returnTo ?? '/',
     showVerificationCodeForm: Boolean(view.showVerificationCodeForm),
     showResendVerification: Boolean(view.showResendVerification),
-    title: `${view.title} · ${appDocumentTitle}`,
+    title: buildDocumentTitle(localeOf(response), view.title),
   });
 }
 

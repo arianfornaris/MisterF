@@ -631,6 +631,22 @@ export async function evaluateQuizResultItemsWithLlm(input: {
       temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
     });
 
+    // Quiz evaluation is the most-run inference in the teacher cycle and was
+    // the only one absent from the cost telemetry, so pricing a learner's
+    // cycle had a hole exactly where the volume is.
+    logLlmResponse(
+      result.text,
+      result.finishReason,
+      result.usage,
+      result.providerMetadata,
+      attempt + 1,
+      {
+        actorLabel: 'Quiz evaluation',
+        operation: 'quiz_evaluation',
+        userId: input.llm?.userId ?? null,
+      },
+    );
+
     try {
       const userFacingFinishMessage = getUserFacingFinishReasonMessage(
         result.finishReason,

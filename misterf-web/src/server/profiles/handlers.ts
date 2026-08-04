@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { translate } from '../i18n/index.js';
 import {
   createProfile,
   findProfileForUser,
@@ -8,7 +9,7 @@ import {
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
 } from '../pages/shell.js';
@@ -70,7 +71,7 @@ export function renderProfilesListPage(request: Request, response: Response): vo
       currentView: 'profiles',
       guestInitialGreeting: '',
       request,
-      title: `Perfiles · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.kicker')),
       user,
     }),
     profilePageMode: 'list',
@@ -90,7 +91,7 @@ export function renderNewProfilePage(request: Request, response: Response): void
       currentView: 'profiles',
       guestInitialGreeting: '',
       request,
-      title: `Nuevo perfil · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.newTitle')),
       user,
     }),
     profileFieldLimits,
@@ -123,7 +124,7 @@ export function renderEditProfilePage(request: Request, response: Response): voi
       currentView: 'profiles',
       guestInitialGreeting: '',
       request,
-      title: `Editar perfil · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.editTitle')),
       user,
     }),
     profileFieldLimits,
@@ -156,7 +157,7 @@ export function renderProfileOnboardingPage(
       currentView: 'profiles',
       guestInitialGreeting: '',
       request,
-      title: `Completa tu perfil · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.onbAria')),
       user,
     }),
     error: '',
@@ -210,7 +211,7 @@ export function handleProfileOnboarding(
         currentView: 'profiles',
         guestInitialGreeting: '',
         request,
-        title: `Completa tu perfil · ${appDocumentTitle}`,
+        title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.onbAria')),
         user,
       }),
       error: 'Escribe un nombre para este perfil.',

@@ -5,7 +5,7 @@ import { addResourceToFolder, appendRoleplayAttemptTurns, createConversationFrom
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
 import { defaultProfileModelTier } from '../profiles/modelTier.js';
-import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, roleplayLevelOptions, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
 import { generateRoleplayDraft, generateRoleplayParticipationSummary, generateRoleplayRevision, } from '../services/resourceDrafts.js';
 import { computeParticipationFingerprint, readParticipationSummaryError, } from '../resources/participationSummary.js';
@@ -286,7 +286,7 @@ function renderRoleplayEdit(request, response, input) {
     response.render('roleplays-edit', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: input.activeProfile,
-            title: `${draft.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, draft.title),
             user: input.user,
         }),
         authoringError: input.error || '',
@@ -308,7 +308,7 @@ export function renderRoleplayNewPage(request, response) {
     response.render('roleplays-new', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: auth.activeProfile,
-            title: `Nuevo Roleplay - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'roleplays.newTitle')),
             user: auth.user,
         }),
         ...resolveOriginFolderContext(request.query.folder, auth.user.id),
@@ -327,7 +327,7 @@ export async function handleGenerateRoleplay(request, response) {
         response.status(422).render('roleplays-new', {
             ...buildRoleplaysShellContext(request, {
                 activeProfile: auth.activeProfile,
-                title: `Nuevo Roleplay - ${appDocumentTitle}`,
+                title: buildDocumentTitle(request.locale, translate(request.locale, 'roleplays.newTitle')),
                 user: auth.user,
             }),
             ...originFolder,
@@ -340,6 +340,7 @@ export async function handleGenerateRoleplay(request, response) {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
         const draft = await generateRoleplayDraft({
             instructionLanguage: auth.activeProfile?.instructionLanguage,
+            modelTier: auth.activeProfile?.modelTier,
             openRouterApiKey,
             prompt,
         });
@@ -372,7 +373,7 @@ export async function handleGenerateRoleplay(request, response) {
         response.status(422).render('roleplays-new', {
             ...buildRoleplaysShellContext(request, {
                 activeProfile: auth.activeProfile,
-                title: `Nuevo Roleplay - ${appDocumentTitle}`,
+                title: buildDocumentTitle(request.locale, translate(request.locale, 'roleplays.newTitle')),
                 user: auth.user,
             }),
             ...originFolder,
@@ -447,6 +448,7 @@ export async function handlePreviewRoleplayModification(request, response) {
         const revision = await generateRoleplayRevision({
             instructionLanguage: resolved.activeProfile.instructionLanguage,
             currentDraft,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             prompt: requestedChange,
         });
@@ -619,7 +621,7 @@ export async function renderRoleplayShowPage(request, response) {
     response.render('roleplays-show', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: resolved.activeProfile,
-            title: `${resolved.roleplay.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, resolved.roleplay.title),
             user: resolved.user,
         }),
         aiCharacter,
@@ -821,7 +823,7 @@ function renderRoleplayAttempt(request, response, input) {
     response.render('roleplays-attempt', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: request.activeProfile ?? null,
-            title: `${draft.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, draft.title),
             user: request.authUser ?? null,
         }),
         aiAvatar: resolveCharacterAvatar(aiCharacter),
@@ -1095,7 +1097,7 @@ export function renderRoleplayParticipationPage(request, response) {
     response.render('roleplays-participation', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: resolved.activeProfile,
-            title: `${resolved.roleplay.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, resolved.roleplay.title),
             user: resolved.user,
         }),
         collectedAttempts: buildCollectedRoleplayAttemptListItems(collectedAttempts, request.locale),
@@ -1137,6 +1139,7 @@ export async function handleGenerateRoleplayParticipationSummary(request, respon
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const result = await generateRoleplayParticipationSummary({
             instructionLanguage: resolved.activeProfile.instructionLanguage,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             request: {
                 attempts: evaluatedAttempts.map((attempt) => summarizeRoleplayAttemptForParticipation(attempt.result)),
@@ -1206,7 +1209,7 @@ function renderRoleplayResult(request, response, attempt, options = {}) {
     response.render('roleplays-result', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: request.activeProfile ?? null,
-            title: `${result.data.summaryTitle} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, result.data.summaryTitle),
             user: request.authUser ?? null,
         }),
         attempt,

@@ -2,6 +2,7 @@ import type { LocaleCatalog } from '../index.js';
 
 export const en: LocaleCatalog = {
   common: {
+    appDocumentTitle: 'Mr. F, English tutor',
     cancel: 'Cancel',
     close: 'Close',
     delete: 'Delete',
@@ -918,7 +919,7 @@ export const en: LocaleCatalog = {
     creditsSuffix: 'credits',
     buyFor: 'Buy for {{amount}}',
     payDisclaimer:
-      'Every exchange with Mr. F consumes credits. This package is meant for roughly a month of regular practice; the exact duration depends on how much you use the system. The payment is made to <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
+      'Every exchange with Mr. F consumes credits. The payment is made to <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
     recentHistory: 'Recent history',
     colDate: 'Date',
     colPackage: 'Package',
@@ -963,7 +964,7 @@ export const en: LocaleCatalog = {
     stepsTitle: 'How it works',
     step1Title: 'Start from your material',
     step1Body:
-      'Paste your text, the topic, or the homework you had already planned. The first draft of the activity comes from that.',
+      'Paste your text, the topic, or the homework you had already planned — what you are about to teach, or what you just taught. The first draft of the activity comes from that.',
     step2Title: 'Review the activity',
     step2Body:
       'Read what it generated and adjust anything before it reaches your students. Nothing is shared until you say so.',
@@ -1023,17 +1024,20 @@ export const en: LocaleCatalog = {
     faq2Question: 'Does it work with my own material?',
     faq2Answer:
       'That is the point. You paste your text, topic, or assignment and the activity is built from it, not from a fixed catalog.',
-    faq3Question: 'What if the AI gets something wrong?',
+    faq3Question: 'Do I have to use it after class?',
     faq3Answer:
-      'You review every activity before sharing it, and you can change what you do not like. Nothing reaches your students unreviewed.',
-    faq4Question: 'Which languages does it support?',
+      'No. Send an activity before a lesson to see where the difficulty will be, after it to practice what went wrong, or between sessions so your students keep going on their own.',
+    faq4Question: 'What if the AI gets something wrong?',
     faq4Answer:
-      'The practice is in English. The interface and the explanations are available in Spanish, English, and Haitian Creole.',
-    faq5Question: 'Do I need to install anything?',
+      'You review every activity before sharing it, and you can change what you do not like. Nothing reaches your students unreviewed.',
+    faq5Question: 'Which languages does it support?',
     faq5Answer:
-      'No. It runs in the browser, on a phone or a computer, for you and for your students.',
-    faq6Question: 'How many students can I have?',
+      'The practice is in English. The interface and the explanations are available in Spanish, English, and Haitian Creole.',
+    faq6Question: 'Do I need to install anything?',
     faq6Answer:
+      'No. It runs in the browser, on a phone or a computer, for you and for your students.',
+    faq7Question: 'How many students can I have?',
+    faq7Answer:
       'There is no roster to set up. You share a link with whoever you want, and you see the results of everyone who completes it.',
     footerTagline: 'English practice with an AI tutor, built around a real teacher.',
     footerCompany: '<a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> · Florida, United States',

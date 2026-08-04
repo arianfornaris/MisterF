@@ -5,13 +5,15 @@ import { clearSessionCookie, createSessionCookie, setKnownVisitorCookie, setSess
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { clearActiveProfileCookie } from './profiles.js';
-import { appDocumentTitle as shellAppDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
 import { buildProfileOnboardingPath } from '../profiles/fields.js';
 import { logger } from '../services/logger.js';
 import { createTranslator, defaultLocale, } from '../i18n/index.js';
-const appDocumentTitle = 'Mr. F, tutor de inglés';
 function tr(response) {
-    return createTranslator(response.req?.locale ?? defaultLocale);
+    return createTranslator(localeOf(response));
+}
+function localeOf(response) {
+    return response.req?.locale ?? defaultLocale;
 }
 const loginAttempts = new Map();
 const maxAttempts = 12;
@@ -572,7 +574,7 @@ function renderAuthForm(response, view) {
     response.render('auth', {
         ...view,
         csrfToken: response.locals.csrfToken,
-        title: `${documentTitle} · ${appDocumentTitle}`,
+        title: buildDocumentTitle(localeOf(response), documentTitle),
     });
 }
 function renderChangePasswordForm(response, view) {
@@ -584,7 +586,7 @@ function renderChangePasswordForm(response, view) {
             currentView: 'settings',
             guestInitialGreeting: '',
             request: view.request,
-            title: `${tr(response)('auth.message.changePasswordTitle')} · ${shellAppDocumentTitle}`,
+            title: buildDocumentTitle(localeOf(response), tr(response)('auth.message.changePasswordTitle')),
             user: view.user,
         }),
         csrfToken: response.locals.csrfToken,
@@ -599,7 +601,7 @@ function renderAuthMessage(response, view) {
         returnTo: view.returnTo ?? '/',
         showVerificationCodeForm: Boolean(view.showVerificationCodeForm),
         showResendVerification: Boolean(view.showResendVerification),
-        title: `${view.title} · ${appDocumentTitle}`,
+        title: buildDocumentTitle(localeOf(response), view.title),
     });
 }
 function validateSignup(input, t) {

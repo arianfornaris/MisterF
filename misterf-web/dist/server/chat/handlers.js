@@ -1,7 +1,7 @@
 import { addMessage, closeConversationForUser, createConversationFromTutorReport, findConversationForUser, findProfileForUser, findTutorConversationReport, listMessages, renameConversationForUser, saveTutorConversationReport, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
-import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
 import { generateTutorConversationReport } from '../services/tutorReports.js';
 import { articledContextResourceTypeLabel, buildResourceFromContextPrompt, contextResourceTypeLabel, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
@@ -55,7 +55,7 @@ export function renderChatPage(request, response) {
             guestInitialGreeting: resolveGuestInitialGreeting(request, user),
             initialConversationId,
             request,
-            title: appDocumentTitle,
+            title: buildDocumentTitle(request.locale),
             user,
         }),
         selectedTutorConversation,
@@ -90,6 +90,10 @@ export async function handleFinalizeTutorConversation(request, response) {
         generatedReport = await generateTutorConversationReport({
             instructionLanguage: conversation.instructionLanguage,
             messages,
+            // The conversation's own tier, not the profile's: a conversation
+            // snapshots its model the same way it snapshots its language, so
+            // finalizing an old chat cannot silently switch models on it.
+            modelTier: conversation.modelTier,
             openRouterApiKey,
             userName: user.fullName,
         });

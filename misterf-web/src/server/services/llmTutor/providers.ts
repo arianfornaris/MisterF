@@ -40,10 +40,17 @@ export function getConfiguredModelId(
   return env.llmLiteModel;
 }
 
+/**
+ * Every user-facing inference runs on that user's own credit-gated key. There
+ * is deliberately **no fallback** to the platform key: it used to fall back
+ * silently, so a call site that forgot to thread the user's key would still
+ * work — and spend from the shared account without touching anyone's credit.
+ * Failing loudly is the point.
+ */
 export function getLanguageModel(
   options: LlmRequestOptions = {},
 ): LanguageModel {
-  const apiKey = options.openRouterApiKey || env.openrouterApiKey;
+  const apiKey = options.openRouterApiKey;
   if (!apiKey) {
     throw new MissingLlmApiKeyError('openrouter');
   }

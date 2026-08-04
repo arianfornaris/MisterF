@@ -2,6 +2,7 @@ import type { LocaleCatalog } from '../index.js';
 
 export const es: LocaleCatalog = {
   common: {
+    appDocumentTitle: 'Mr. F, tutor de inglés',
     cancel: 'Cancelar',
     close: 'Cerrar',
     delete: 'Eliminar',
@@ -918,7 +919,7 @@ export const es: LocaleCatalog = {
     creditsSuffix: 'créditos',
     buyFor: 'Comprar por {{amount}}',
     payDisclaimer:
-      'Cada intercambio con Mr. F consume créditos. Este paquete está pensado para aproximadamente un mes de práctica regular; la duración exacta depende de cuánto uses el sistema. El pago se realiza a <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
+      'Cada intercambio con Mr. F consume créditos. El pago se realiza a <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
     recentHistory: 'Historial reciente',
     colDate: 'Fecha',
     colPackage: 'Paquete',
@@ -963,7 +964,7 @@ export const es: LocaleCatalog = {
     stepsTitle: 'Cómo funciona',
     step1Title: 'Parte de tu material',
     step1Body:
-      'Pega tu texto, el tema o la tarea que ya tenías pensada. El primer borrador de la actividad sale de ahí.',
+      'Pega tu texto, el tema o la tarea que ya tenías pensada — lo que vas a dar en la próxima clase o lo que acabas de dar. El primer borrador de la actividad sale de ahí.',
     step2Title: 'Revisa la actividad',
     step2Body:
       'Lee lo que generó y ajusta lo que quieras antes de que llegue a tus estudiantes. Nada se comparte hasta que tú lo decidas.',
@@ -1024,17 +1025,20 @@ export const es: LocaleCatalog = {
     faq2Question: '¿Funciona con mi propio material?',
     faq2Answer:
       'De eso se trata. Pegas tu texto, tu tema o tu tarea y la actividad se construye a partir de eso, no de un catálogo fijo.',
-    faq3Question: '¿Y si la IA se equivoca?',
+    faq3Question: '¿Tengo que usarlo después de la clase?',
     faq3Answer:
-      'Revisas cada actividad antes de compartirla y puedes cambiar lo que no te guste. Nada llega a tus estudiantes sin que lo hayas visto.',
-    faq4Question: '¿En qué idiomas está?',
+      'No. Manda una actividad antes de la clase para ver dónde estará la dificultad, después para practicar lo que salió mal, o entre clases para que tus estudiantes sigan por su cuenta.',
+    faq4Question: '¿Y si la IA se equivoca?',
     faq4Answer:
-      'La práctica es en inglés. La interfaz y las explicaciones están en español, inglés y criollo haitiano.',
-    faq5Question: '¿Hay que instalar algo?',
+      'Revisas cada actividad antes de compartirla y puedes cambiar lo que no te guste. Nada llega a tus estudiantes sin que lo hayas visto.',
+    faq5Question: '¿En qué idiomas está?',
     faq5Answer:
-      'No. Funciona en el navegador, en el teléfono o en la computadora, para ti y para tus estudiantes.',
-    faq6Question: '¿Cuántos estudiantes puedo tener?',
+      'La práctica es en inglés. La interfaz y las explicaciones están en español, inglés y criollo haitiano.',
+    faq6Question: '¿Hay que instalar algo?',
     faq6Answer:
+      'No. Funciona en el navegador, en el teléfono o en la computadora, para ti y para tus estudiantes.',
+    faq7Question: '¿Cuántos estudiantes puedo tener?',
+    faq7Answer:
       'No hay lista de clase que configurar. Compartes el enlace con quien quieras y ves los resultados de todos los que la completen.',
     footerTagline:
       'Práctica de inglés con un tutor de IA, construida alrededor de un profesor real.',

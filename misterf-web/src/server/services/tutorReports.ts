@@ -1,4 +1,8 @@
 import { generateText, type ModelMessage } from 'ai';
+import {
+  defaultProfileModelTier,
+  type ProfileModelTier,
+} from '../profiles/modelTier.js';
 import type { Locale } from '../i18n/index.js';
 import { z } from 'zod';
 import type {
@@ -154,6 +158,7 @@ function appendStructuredCorrectionRequest(
 export async function generateTutorConversationReport(input: {
   instructionLanguage?: Locale;
   messages: StoredMessage[];
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   userName: string;
 }): Promise<{
@@ -161,6 +166,8 @@ export async function generateTutorConversationReport(input: {
   summaryDescription: string;
   summaryTitle: string;
 }> {
+  // Profile-configured model, like every other inference.
+  const tier = input.modelTier ?? defaultProfileModelTier;
   const system = renderSystemPrompt('tutor/conversation-report.md', {
     INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
       input.instructionLanguage ?? 'es',
@@ -197,7 +204,7 @@ export async function generateTutorConversationReport(input: {
         {
           actorLabel: 'Tutor report',
           llm: {
-            modelTier: 'regular',
+            modelTier: tier,
             openRouterApiKey: input.openRouterApiKey,
           },
           operation: 'tutor_report',
@@ -208,12 +215,12 @@ export async function generateTutorConversationReport(input: {
       const result = await generateText({
         messages,
         model: getLanguageModel({
-          modelTier: 'regular',
+          modelTier: tier,
           openRouterApiKey: input.openRouterApiKey,
         }),
         providerOptions: getProviderOptions(),
         system,
-        temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.4 : undefined,
+        temperature: shouldUseTemperature({ modelTier: tier }) ? 0.4 : undefined,
       });
 
       logLlmResponse(

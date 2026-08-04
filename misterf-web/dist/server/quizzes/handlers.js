@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import { addResourceToFolder, archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceAccessGrant, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, getQuizResponseSummary, listCollectedQuizAttemptsForOwner, listQuizAttemptsForUser, upsertQuizResponseSummary, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
-import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { applyQuizMetadataToDraft, buildQuizBlockSectionList, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResponsesSummary, buildQuizResultTitle, computeQuizResponsesFingerprint, canonicalizeQuizDraftBlockOrder, createQuizDraftFromManualInput, applyQuizBlocksAndSectionsToDraft, diffQuizBlocks, duplicateQuizBlock, evaluateQuizAttempt, findQuizBlock, insertQuizBlock, moveQuizBlock, normalizeQuizResponses, quizBlocksDiffHasChanges, quizDraftToMetadata, removeQuizBlock, safeParseQuizDraft, safeParseQuizMetadata, setQuizBlockItem, storedQuizToDraft, } from '../services/quizzes.js';
 import { generateQuizDraft, generateQuizBlockRevision, generateQuizBlocksRevision, generateQuizMetadataRevision, generateQuizResponsesSummary, } from '../services/resourceDrafts.js';
 import { deletePendingModification, getPendingModification, listStringFieldChanges, setPendingModification, } from '../resources/modificationPreviewStore.js';
@@ -366,7 +366,7 @@ function renderQuizAuthoring(request, response, input) {
     renderQuizzesView(response, 'quizzes-authoring', {
         ...buildQuizzesShellContext(request, {
             activeProfile: input.activeProfile,
-            title: `${draft.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, draft.title),
             user: input.user,
         }),
         activeTab: input.activeTab ?? defaultQuizAuthoringTab,
@@ -478,7 +478,7 @@ function renderQuizAttempt(request, response, input) {
     renderQuizzesView(response, 'quizzes-attempt', {
         ...buildQuizzesShellContext(request, {
             activeProfile: request.activeProfile ?? null,
-            title: `${draft.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, draft.title),
             user: request.authUser ?? null,
         }),
         attempt: input.attempt,
@@ -511,7 +511,7 @@ function renderQuizResult(request, response, attempt, options = {}) {
     renderQuizzesView(response, 'quizzes-result', {
         ...buildQuizzesShellContext(request, {
             activeProfile: request.activeProfile ?? null,
-            title: `${draft.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, draft.title),
             user: request.authUser ?? null,
         }),
         attempt,
@@ -536,7 +536,7 @@ export function renderQuizNewPage(request, response) {
     renderQuizzesView(response, 'quizzes-new', {
         ...buildQuizzesShellContext(request, {
             activeProfile: auth.activeProfile,
-            title: `Nuevo quiz - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'quizzes.newTitle')),
             user: auth.user,
         }),
         ...resolveOriginFolderContext(request.query.folder, auth.user.id),
@@ -555,7 +555,7 @@ export async function handleGenerateQuiz(request, response) {
         renderQuizzesView(response.status(422), 'quizzes-new', {
             ...buildQuizzesShellContext(request, {
                 activeProfile: auth.activeProfile,
-                title: `Nuevo quiz - ${appDocumentTitle}`,
+                title: buildDocumentTitle(request.locale, translate(request.locale, 'quizzes.newTitle')),
                 user: auth.user,
             }),
             ...originFolder,
@@ -568,6 +568,7 @@ export async function handleGenerateQuiz(request, response) {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
         const draft = canonicalizeQuizDraftBlockOrder(await generateQuizDraft({
             instructionLanguage: auth.activeProfile?.instructionLanguage,
+            modelTier: auth.activeProfile?.modelTier,
             openRouterApiKey,
             prompt,
         }));
@@ -610,7 +611,7 @@ export async function handleGenerateQuiz(request, response) {
         renderQuizzesView(response.status(422), 'quizzes-new', {
             ...buildQuizzesShellContext(request, {
                 activeProfile: auth.activeProfile,
-                title: `Nuevo quiz - ${appDocumentTitle}`,
+                title: buildDocumentTitle(request.locale, translate(request.locale, 'quizzes.newTitle')),
                 user: auth.user,
             }),
             ...originFolder,
@@ -692,6 +693,7 @@ export async function handlePreviewQuizMetadataModification(request, response) {
         const revision = await generateQuizMetadataRevision({
             currentMetadata,
             instructionLanguage: resolved.activeProfile.instructionLanguage,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             prompt: requestedChange,
         });
@@ -842,6 +844,7 @@ export async function handlePreviewQuizBlockModification(request, response) {
             currentItem: block.item,
             instructionLanguage: resolved.activeProfile.instructionLanguage,
             level: level || draft.level,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             prompt: requestedChange,
             quizContext: buildQuizBlockRevisionContext(draft, blockId),
@@ -979,6 +982,7 @@ export async function handlePreviewQuizAddBlock(request, response) {
         const creation = await generateQuizBlockRevision({
             instructionLanguage: resolved.activeProfile.instructionLanguage,
             level: level || draft.level,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             prompt: requestedChange,
             quizContext: {
@@ -1110,6 +1114,7 @@ export async function handlePreviewQuizBlocksModification(request, response) {
             currentDraft: draft,
             currentMetadata: quizDraftToMetadata(draft),
             instructionLanguage: resolved.activeProfile.instructionLanguage,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             prompt: requestedChange,
         });
@@ -1323,7 +1328,7 @@ export async function renderQuizShowPage(request, response) {
     renderQuizzesView(response, 'quizzes-show', {
         ...buildQuizzesShellContext(request, {
             activeProfile: resolved.activeProfile,
-            title: `${resolved.quiz.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, resolved.quiz.title),
             user: resolved.user,
         }),
         quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
@@ -1397,7 +1402,7 @@ export async function renderQuizParticipationPage(request, response) {
     renderQuizzesView(response, 'quizzes-participation', {
         ...buildQuizzesShellContext(request, {
             activeProfile: resolved.activeProfile,
-            title: `${resolved.quiz.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, resolved.quiz.title),
             user: resolved.user,
         }),
         canManageQuiz: true,
@@ -1463,6 +1468,7 @@ export async function handleGenerateQuizResponsesSummary(request, response) {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const result = await generateQuizResponsesSummary({
             instructionLanguage: resolved.activeProfile.instructionLanguage,
+            modelTier: resolved.activeProfile?.modelTier,
             openRouterApiKey,
             request: {
                 evaluatedCount: summary.evaluatedCount,
@@ -1775,7 +1781,7 @@ export function renderQuizEvaluatingPage(request, response) {
     renderQuizzesView(response, 'quizzes-evaluating', {
         ...buildQuizzesShellContext(request, {
             activeProfile: request.activeProfile,
-            title: `${draft.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, draft.title),
             user,
         }),
         attempt,

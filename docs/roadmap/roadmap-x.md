@@ -50,15 +50,22 @@ each has been written down as if it were its own problem:
    Without it, every change to the landing is a guess: a page nobody converts
    on and a page nobody *reaches* need opposite fixes, and the two are
    indistinguishable from the outside.
-2. **The pilot funnel** ([Roadmap V3](roadmap-v3.md) §1.7 and its exit
+2. **The pilot funnel** ([Roadmap V3](roadmap-v3.md) §1.6 and its exit
    criteria). Guest → starts → completes → reviews → practices → the teacher
    opens the results. This is how the pilot gets measured at all; without it,
-   "the pilot went well" is an anecdote.
-3. **AI cost per cycle** (same section). What one complete teacher cycle costs
-   in inference, per operation. It feeds the contribution margin the business
-   documents need
-   ([negocio-roadmap](../business/negocio-roadmap.md), Fase 5) and the question
-   of whether the welcome credit actually covers a first full activity.
+   "the pilot went well" is an anecdote. *Closed in V3 on 2026-08-01 and left
+   here:* the events are emitted, nothing aggregates them, and V3 stopped
+   tracking a gap this document owns.
+3. **AI cost per cycle** ([Roadmap V3](roadmap-v3.md) §1.7). What one complete
+   teacher cycle costs in inference, per operation. *Closed in V3 on 2026-08-01
+   (founder decision): inference is paid for by the credits users buy, so this
+   is a pricing input rather than a pilot risk.* It stays here because the
+   question does not go away, it only stops blocking: it feeds the contribution
+   margin the business documents need
+   ([negocio-roadmap](../business/negocio-roadmap.md), Fase 5), the question of
+   whether the welcome credit actually covers a first full activity, and the
+   "one package lasts about a month" sentence the landing cannot write yet
+   ([Roadmap V3.5](roadmap-v3-5.md) §1.1).
 
 ## What Exists Today
 
@@ -274,3 +281,68 @@ deploy.
 - `deploy.sh` — the build/install split and the `pm2 stop` ordering.
 - `.agents/skills/production-server-ops` — server topology and the deploy flow.
 - `.agents/skills/versioning-and-releases` — how a release reaches production.
+
+---
+
+# X.4 Native-Speaker Review Of The Public Copy
+
+Deferred 2026-08-01, at the founder's direction, while closing
+[Roadmap V3.5](roadmap-v3-5.md). Two items land here together — the English
+native-speaker read (V3.5 §1.8) and the fluent Creole review (V3.5 §1.4) —
+because they are the same problem twice: the landing page ships public prose in
+two languages the founder does not write natively, and no amount of internal
+reasoning substitutes for someone reading it.
+
+## The Problem
+
+The landing is the first thing a prospective teacher sees, and it exists in
+three editions at real URLs.
+
+- **English is the default edition**, chosen deliberately: the buyer's
+  professional identity is teaching English, and both academies and investors
+  read English. The founder has flagged commercial English as a personal
+  development area
+  ([Contexto del fundador](../business/contexto-del-fundador.md)), so the
+  edition doing the most persuasive work is the one written with the least
+  confidence. §1.8 also settled a naming rule — product = "Mister F", tutor =
+  "Mr. F" — whose whole justification is that it reads as deliberate to a
+  native speaker. That claim is untested.
+- **The Creole edition is a careful machine translation**, and says so in its
+  own catalog header. Haitian adults in South Florida are a named part of the
+  pilot audience, so this is not a courtesy edition — it is copy a real reader
+  will judge the product by.
+
+Both are cheap to fix and impossible to fix alone.
+
+## Why It Is Deferred
+
+Neither is engineering work; both need a person the founder does not currently
+have lined up. Holding a release for an unscheduled favor is how a shipped page
+stops shipping. The cost of waiting is bounded and known: the copy is
+serviceable, not embarrassing, and every claim in it has already been checked
+against the product (the §1.1 corrections).
+
+The risk it does not cover: prose that is *correct* but reads as translated is
+exactly the kind of thing the author cannot see, and it is a trust signal for a
+teacher evaluating an unknown tool.
+
+## What Would Pull It In
+
+- **The founder meets either reader.** For English, one hour from any native
+  speaker who will read the page aloud; for Creole, one Haitian teacher or
+  learner from the pilot audience. This is the likely trigger and it needs no
+  planning — it is an errand, not a project.
+- **The pilot reaches a Creole-speaking teacher or class.** At that point the
+  Creole edition stops being precautionary and becomes the copy a real user
+  reads, and the review should precede the introduction rather than follow it.
+- **Any substantial rewrite of the landing copy** — for example if §1.9's
+  positioning question comes back from the pilot with an answer that changes
+  the hero. Re-reviewing after a rewrite is cheaper than reviewing twice.
+
+## Related
+
+- [Roadmap V3.5](roadmap-v3-5.md) §1.4 (Creole), §1.8 (English, and the
+  "Mister F" / "Mr. F" rule).
+- `src/server/i18n/locales/ht.ts` — the catalog header states the machine
+  translation caveat.
+- [Contexto del fundador](../business/contexto-del-fundador.md).

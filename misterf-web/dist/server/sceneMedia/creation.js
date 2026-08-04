@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { findProfileForUser } from '../db/repository.js';
 import sharp from 'sharp';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { generateSceneMediaAudio, SceneMediaAudioContentPolicyError, SceneMediaAudioProviderError, } from './audioGeneration.js';
@@ -211,6 +212,7 @@ async function generateMetadata(input) {
         imageBytes: input.imageAsset.bytes,
         imageContentType: input.imageAsset.contentType,
         level: input.level,
+        modelTier: findProfileForUser(input.ownerProfileId, input.ownerUserId)?.modelTier,
         openRouterApiKey,
         prompt: input.prompt,
         scriptTypePreference: input.scriptTypePreference,

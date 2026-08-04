@@ -1,4 +1,8 @@
 import { generateText, type ModelMessage } from 'ai';
+import {
+  defaultProfileModelTier,
+  type ProfileModelTier,
+} from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import {
@@ -90,6 +94,7 @@ export type GenerateSceneMediaScriptInput = {
   imageBytes?: Buffer;
   imageContentType?: string;
   level: SceneMediaLevel;
+  modelTier?: ProfileModelTier;
   openRouterApiKey: string;
   prompt: string;
   scriptTypePreference: UserSceneMediaScriptTypePreference;
@@ -268,7 +273,7 @@ async function generateSceneMediaPackage<T>(
     const result = await generateText({
       messages,
       model: getLanguageModel({
-        modelTier: 'regular',
+        modelTier: input.modelTier ?? defaultProfileModelTier,
         openRouterApiKey: input.openRouterApiKey,
       }),
       // Media authoring is a bounded structured-generation task. Minimal
@@ -276,7 +281,11 @@ async function generateSceneMediaPackage<T>(
       // schema and retry loop continue to enforce correctness.
       providerOptions: getProviderOptions({ reasoningEffort: 'minimal' }),
       system,
-      temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
+      temperature: shouldUseTemperature({
+        modelTier: input.modelTier ?? defaultProfileModelTier,
+      })
+        ? 0.35
+        : undefined,
     });
 
     if (isContentPolicyFinish(result.finishReason, result.providerMetadata)) {

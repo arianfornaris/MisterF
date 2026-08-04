@@ -1,4 +1,4 @@
-import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 function ensureVerifiedSettingsUser(request, response) {
     const user = request.authUser;
     if (!user?.emailVerified) {
@@ -19,7 +19,7 @@ export function renderSettingsPage(request, response) {
             currentView: 'settings',
             guestInitialGreeting: '',
             request,
-            title: `${request.res?.locals.t('settings.title')} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, request.res?.locals.t('settings.title')),
             user,
         }),
     });

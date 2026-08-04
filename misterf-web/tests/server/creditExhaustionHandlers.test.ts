@@ -57,7 +57,7 @@ vi.mock('../../src/server/auth/profiles.js', () => ({
   setActiveProfileCookie: vi.fn(),
 }));
 vi.mock('../../src/server/pages/shell.js', () => ({
-  appDocumentTitle: 'Mr. F, tutor de inglés',
+  buildDocumentTitle: vi.fn((_locale: string, pageTitle?: string) => pageTitle ?? ''),
   buildAppShellContext: vi.fn(() => ({})),
   getHomeAuthMessage: vi.fn(() => ''),
   resolveGuestInitialGreeting: vi.fn(() => ''),

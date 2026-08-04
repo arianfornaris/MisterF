@@ -1,12 +1,26 @@
 # Roadmap V3.5 — Public Landing Page
 
-Date: 2026-07-30
+Date: 2026-07-30 (last updated: 2026-08-01)
 
-Status: **In progress.** The first slice shipped to the branch on 2026-07-30:
-the landing page renders at `/` for visitors, in English and Spanish, with the
-crawler surfaces that did not exist before. What remains is mostly content and
-measurement — the example activity, real screenshots, the share card, language
-editions at real URLs, and the two conversion counts.
+Status: **Shipped; every exit criterion met as of 2026-08-01.** The landing went
+to production on 2026-07-31 as `3.3.0`, in three language editions at real URLs,
+with the crawler surfaces and share previews that did not exist before, and the
+example activities seeded. The last two open criteria closed on 2026-08-01: the
+guest path was confirmed end to end on production from a phone, and the page
+title is now translated, so a link preview no longer announces the product in
+Spanish to an English or Creole reader.
+
+Nothing in this document blocks anything. Every initiative is closed as of
+2026-08-01: the positioning question (§1.9) kept the headline as approved and
+said the flexibility in the FAQ instead, the "how long does a package last"
+sentence (§1.1) was dropped outright rather than deferred, and the Recientes
+timeline (§1.10) was dropped as too complex for what it adds — the timeline
+already exists at `/progress`. One small, unrelated fix is carved out of that
+last decision and still open: labelling the practice-guide conversations that
+already appear in Recientes.
+The share image moved to [Roadmap V4 §1.10](roadmap-v4.md), the conversion
+counts to [Roadmap X §X.1](roadmap-x.md), and the two native-speaker copy
+reviews to [Roadmap X §X.4](roadmap-x.md).
 
 V3.5 is a single-purpose mini-roadmap: give
 Mister F a public landing page. It covers only the logged-out entry surface and
@@ -181,16 +195,42 @@ assets or on a chosen demo activity carry their own note.
   Limited places." Creates real (not manufactured) urgency, sets expectations
   that this is not a finished suite, and tells an investor the stage without a
   traction section.
-- [ ] **Say how long a package lasts.** Proposed by the founder 2026-07-31:
+- [x] ~~**Say how long a package lasts.**~~ **Dropped 2026-08-01 (founder
+  decision): the sentence will not be written.** Not deferred — dropped. It was
+  waiting on a cost-per-cycle measurement that was itself dropped the same day
+  ([Roadmap V3](roadmap-v3.md) §1.7), and keeping a copy item alive against a
+  measurement nobody plans to take is how a roadmap accumulates ghosts. If
+  usage data later makes the claim safe, this is a new item, written from
+  evidence rather than resurrected from an assumption. The original reasoning
+  is kept below because the *rule* it established still binds every future
+  price sentence.
+  Proposed by the founder 2026-07-31:
   tell the reader that one USD 5 package typically covers a month of practice.
   It would be a strong sentence — "how fast does this drain?" is the question a
   buyer actually has — and it is **not writable yet**. The AI cost of one full
-  cycle has never been measured; it is open in [Roadmap V3](roadmap-v3.md) §1.7,
-  in that roadmap's exit criteria, and as the third question in
-  [Roadmap X §X.1](roadmap-x.md). Writing it now would be the fourth time this
+  cycle has never been measured. Writing it now would be the fourth time this
   page stated something the code cannot back, after the next-class report, the
-  roster, and "free during the pilot". **When X.1 measures cost per cycle, this
-  becomes writable and should be written.**
+  roster, and "free during the pilot".
+  The rule that survives the drop, and that this page has now broken three
+  times: **the landing may not state a commercial term that is not readable in
+  the code or in an approved business document.** A duration claim is a
+  commercial term. Nothing in the code says how long USD 5 lasts, so nothing on
+  the page may say it either — not in the price section, not in the FAQ, and not
+  in a footnote.
+
+  **Found 2026-08-01, while running unrelated QA: the app already makes this
+  exact claim, and in a worse place.** The credits page says, in all three
+  locales, *"Este paquete está pensado para aproximadamente un mes de práctica
+  regular"* / *"roughly a month of regular practice"* / *"apeprè yon mwa pratik
+  regilye"* (`i18n/locales/{es,en,ht}.ts`, the `credits` purchase note) — sitting
+  directly beside the `Comprar por $5.00` button. It is the same unmeasured
+  duration claim this item just refused to write, made at the point of sale
+  rather than in marketing copy, which is where a wrong estimate does the most
+  damage to trust. The hedge that follows it (*"la duración exacta depende de
+  cuánto uses el sistema"*) softens it but does not source it.
+  **Not changed unilaterally — it is shipped commercial copy and the call is the
+  founder's.** Recorded here so the rule and the live counter-example are in the
+  same place.
 - [x] **Price, stated honestly.** **Rewritten 2026-07-30 — the first version was
   simply false, and the founder called it "absolutely wrong".** It said "free
   during the pilot", which describes no state the product has ever been in: the
@@ -261,10 +301,11 @@ lets a teacher reload to see the range.
   anonymously, creates an account to see the evaluation, and the welcome credit
   covers that first evaluation. Payment details are only ever needed to buy a
   second balance, so the demo has no anonymous inference cost at all.
-- [ ] Verify the full guest path on a phone, end to end, against production
+- [x] Verify the full guest path on a phone, end to end, against production
   once seeded: open → answer → create an account → evaluation. Locally the
-  anonymous half is verified (open, all item kinds render and accept answers);
-  the account half needs a real signup.
+  anonymous half was verified first (open, all item kinds render and accept
+  answers); **founder-confirmed on production 2026-08-01**, including the real
+  signup and the evaluation that follows it.
 
 ## 1.3 Root Routing And The Guest Experience
 
@@ -355,9 +396,12 @@ human and useless for a crawler.
   the pilot audience, and a Creole speaker opening a link forwarded by their
   teacher should see their own language. A route test now asserts the page
   really changes language, so the failure mode cannot come back silently.
-- [ ] Have a fluent Creole speaker review the landing copy. Same standing
-  caveat as the legal pages: the catalog is a careful machine translation and
-  says so in its own header comment.
+- [x] ~~Have a fluent Creole speaker review the landing copy.~~ **Moved to
+  [Roadmap X §X.4](roadmap-x.md) on 2026-08-01**, together with the English
+  native-speaker read from §1.8: both need a person the founder does not have
+  yet, so neither can gate a release. Same standing caveat as the legal pages:
+  the catalog is a careful machine translation and says so in its own header
+  comment.
 
 ## 1.5 Share Previews (Open Graph)
 
@@ -370,15 +414,13 @@ therefore a more valuable surface than any meta keyword.
   `og:type`, `og:site_name`, `og:description`, `twitter:card`, plus
   `meta description` and `canonical`. All optional and read through `locals`,
   so the app pages that include the partial without them are unaffected.
-- [~] Design a share image for the landing. **Placeholder shipped 2026-07-30**
+- [x] Design a share image for the landing. **Placeholder shipped 2026-07-30**
   at `public/brand/share-card.png`: 1200×630, the Mister F logo centred on
-  white, composed from `design/MisterF-v2.png`. Deliberately open — a card that
-  says what the product does, or shows the report, would convert better than a
-  bare logo, and this is the image dozens of students see when a teacher
-  forwards a link.
-
-  Reopened by the founder 2026-07-31, after 3.5.0. Two things the placeholder
-  makes concrete, now that the resource card next to it is finished:
+  white, composed from `design/MisterF-v2.png`. **Moved to
+  [Roadmap V4 §1.10](roadmap-v4.md#110-share-image-for-the-landing-and-shared-resources)
+  on 2026-08-01 at the founder's direction**, since replacing it is a design
+  exercise rather than a landing-infrastructure one, and the placeholder is
+  functional. The reasoning that reopened it on 2026-07-31 carries over to V4:
 
   - **It is the same file both surfaces use.** `resources/handlers.ts:631`
     points at that identical PNG, so the product's home page and "a teacher
@@ -390,18 +432,37 @@ therefore a more valuable surface than any meta keyword.
   - Sharing a link is the only acquisition channel the product has today, which
     is what makes this worth more than its size suggests.
 
-- [ ] **Translate the page title.** `og:title` comes from the page `<title>`,
+- [x] **Translate the page title.** `og:title` comes from the page `<title>`,
   which the landing builds as `Mister F · ${appDocumentTitle}` — and
-  `appDocumentTitle` is a hardcoded Spanish constant, `'Mr. F, tutor de inglés'`
+  `appDocumentTitle` was a hardcoded Spanish constant, `'Mr. F, tutor de inglés'`
   (`pages/shell.ts:16`). Verified 2026-07-31: the English edition at `/` and the
-  Haitian Creole edition at `/ht` both share as *"Mister F · Mr. F, tutor de
-  inglés"*. The `og:description` is translated correctly; the title above it is
-  not. For a landing whose pitch is that it speaks the teacher's language, the
-  preview says otherwise in its first line.
+  Haitian Creole edition at `/ht` both shared as *"Mister F · Mr. F, tutor de
+  inglés"*. The `og:description` was translated correctly; the title above it
+  was not. For a landing whose pitch is that it speaks the teacher's language,
+  the preview said otherwise in its first line.
 
-  This is a translation fix with no design attached — move the constant into the
-  i18n catalogs — and it should not wait for the image above. It also affects
-  the browser tab title on every page, not only the share card.
+  **Done 2026-08-01.** The constant became `common.appDocumentTitle` in the
+  three catalogs (`Mr. F, English tutor` / `Mr. F, tutor de inglés` /
+  `Mr. F, titè anglè`) behind a `buildDocumentTitle(locale, pageTitle?)` helper
+  in `pages/shell.ts`, which every page title now goes through. It takes an
+  explicit locale rather than the request because the landing's editions force a
+  locale that is deliberately not `request.locale`.
+
+  Three things the change turned up, all fixed with it:
+  1. **`auth/forms.ts` had its own copy of the constant** (line 53), shadowing
+     the one it imported from the shell — so the auth pages would have kept the
+     Spanish title even after the shared one was translated.
+  2. **Eight page names were themselves hardcoded Spanish** — `Progreso`,
+     `Recursos`, `Perfiles`, `Nuevo perfil`, `Editar perfil`,
+     `Completa tu perfil`, `Nuevo quiz`, `Nuevo Roleplay` — which would have
+     produced half-translated titles like *"Nuevo quiz · Mr. F, English tutor"*.
+     Every one of them already had a catalog key; they now use it.
+  3. The separator was `·` in some files and `-` in others. It lives in the
+     helper now, so it is uniform.
+
+  Covered by a landing route test asserting `<title>` and `og:title` per
+  edition; verified live on the running server for the three editions and for
+  the auth and legal pages.
 - [x] Give **shared resources** their own preview. Done 2026-07-31: the card
   carries the activity title, and a description of the form
   `Quiz · A2 — <the activity's own description>`, falling back to a translated
@@ -501,18 +562,23 @@ for the first time.
   roughly 700 words. Now **5 to 3**, with the product named where it belongs —
   the meta description, the "What Mister F is not" heading, and the founder
   section — and "it" carrying the rest. Applied to all three locales.
-- [ ] Have a native English speaker read the page once this is settled — the
-  cheapest possible review, and the founder has flagged commercial English as a
-  development area
-  ([Contexto del fundador](../business/contexto-del-fundador.md)).
+- [x] ~~Have a native English speaker read the page once this is settled~~ —
+  the cheapest possible review, and the founder has flagged commercial English
+  as a development area
+  ([Contexto del fundador](../business/contexto-del-fundador.md)). **Moved to
+  [Roadmap X §X.4](roadmap-x.md) on 2026-08-01** with the Creole review from
+  §1.4.
 
 The rule applies to all three editions and is already reflected in `en`, `es`,
 and `ht`. What remains is the native-speaker read, which no amount of internal
-reasoning replaces.
+reasoning replaces — and which is now tracked in Roadmap X.
 
-## 1.9 Positioning: One Workflow, Or The Teacher's Own
+## 1.9 Positioning: One Workflow, Or The Teacher's Own — closed
 
-Raised by the founder on 2026-07-31, reading the shipped page.
+Raised by the founder on 2026-07-31, reading the shipped page. **Closed
+2026-08-01:** the headline stays as approved, and the flexibility it leaves out
+is said in the FAQ and in step 1 instead. What the section could not close, and
+handed to the pilot, is whether the after-class framing actually costs readers.
 
 The headline promise — *"turn every assignment into guided practice, and reach
 your next class knowing what to review"* — describes **homework after class**.
@@ -537,33 +603,79 @@ hunting for reasons it does not fit them — the FAQ, which exists to answer
 objections, and possibly one clause in step 1. The cost is a few lines; the
 hero is untouched.
 
-- [ ] Add an FAQ entry along the lines of *"Do I have to use it after class?"*
+- [x] Add an FAQ entry along the lines of *"Do I have to use it after class?"*
   — no: before a lesson to see where the difficulty will be, after it to
   practice what went wrong, or between sessions. One answer, three uses named
-  explicitly.
-- [ ] Reconsider step 1, which says "the homework you had already planned" and
-  quietly assumes the after-class direction. "Your text, your topic, or the
-  homework you had planned" already almost covers it.
-- [ ] Keep the headline as approved, and treat the whole question as a
+  explicitly. **Done 2026-08-01**, in es/en/ht, inserted as question 3 — after
+  the two questions that establish the basics (accounts, own material) and
+  before the ones that handle doubts, because "is this for me" is answered
+  early or not at all. The existing entries shifted down and the view's fixed
+  FAQ range widened with them; a route test now pins both the new answer and
+  the last question, so a future entry added to the catalogs without widening
+  that range cannot silently fail to render.
+- [x] Reconsider step 1, which says "the homework you had already planned" and
+  quietly assumes the after-class direction. **Done 2026-08-01:** one clause,
+  no restructuring — *"…or the homework you had already planned — what you are
+  about to teach, or what you just taught."* The list of three sources was
+  already direction-neutral in two of its three items; naming both directions
+  explicitly is what removes the assumption, and it costs a line.
+- [x] Keep the headline as approved, and treat the whole question as a
   hypothesis for the pilot rather than a copy decision. The business research
   is explicit that no message should be adopted before it is tested with real
   teachers — and the teachers in the pilot are the only people who can say
   whether the framing helped them or boxed them in. **This item should not be
   closed by reasoning; it should be closed by asking them.**
+  **Founder decision 2026-08-01: the headline stays exactly as written** —
+  *"Convierte cada tarea en práctica guiada y llega a la próxima clase sabiendo
+  qué repasar."* So the "should it broaden?" question is settled: no.
+  What that decision does **not** settle is the risk that raised the section —
+  whether the after-class framing makes a teacher who works differently leave on
+  the first screen. That is still a pilot question, and the two items above are
+  where the flexibility gets said without touching the hero. Nothing about
+  keeping the headline is evidence that it lands; it is a decision to test the
+  approved message rather than a different one.
 
 ---
 
-## 1.10 "Recientes" As A Timeline, Not Just A Chat List — to evaluate
+## 1.10 "Recientes" As A Timeline, Not Just A Chat List — dropped
 
-Raised by the founder on 2026-07-31. **This is an evaluation, not a decision.**
+Raised by the founder on 2026-07-31 as an evaluation. **Closed 2026-08-01
+(founder decision): we are not doing it — too complex for what it adds.**
 
-Note the scope tension before anything else: this is authenticated app chrome,
-and the Out Of Scope section above says in as many words that V3.5 must not
-quietly become the authenticated-home work. It is recorded here at the founder's
-direction; if it grows past an evaluation it belongs with
-[Home Start Experience](../features/home-start-experience.md) and
-[Home Suggestions Tracker](../issues/home-suggestions-tracker.md), which already
-own the personalized start surface.
+The evaluation below is kept because it is the reasoning behind the decision,
+not a backlog. What it established, and what makes the "no" a real answer rather
+than a deferral, is that **the timeline already exists at `/progress`**, two nav
+rows above Recientes in the same panel. So merging would not add a capability;
+it would duplicate one, and pay for the duplication with a list that does its
+own job worse.
+
+The costs that decided it:
+
+- **The row menu stops making sense.** Recientes rows offer rename,
+  finalize-and-summarize, and delete. None of the three means anything for a
+  completed quiz attempt, so a merged list needs either per-kind menus or a menu
+  that is mostly disabled — and the second is worse than not merging at all.
+- **It buries the thing people come back for.** `listConversationsForProfile`
+  is already unlimited and unpaginated; adding every evaluated attempt pushes
+  the resumable conversation down a list that only grows.
+- **Two surfaces for one record** is a maintenance cost and a "which one do I
+  look at" question, for a record that has a perfectly good home.
+
+If the underlying complaint ever resurfaces as *"I cannot see what I have
+done"*, the cheap answer is **discoverability of `/progress`**, not architecture:
+the page exists, it is one click away, and making it easier to find costs
+nothing next to merging two lists with different jobs.
+
+**Not moved to another roadmap.** A dropped evaluation has nothing to move; the
+personalized start surface remains owned by
+[Home Start Experience](../features/home-start-experience.md) and the
+[Home Suggestions Tracker](../issues/home-suggestions-tracker.md), which never
+depended on this.
+
+Note the scope tension that was flagged from the start: this is authenticated
+app chrome, and the Out Of Scope section above says in as many words that V3.5
+must not quietly become the authenticated-home work. Closing it keeps that
+promise.
 
 ### What The Panel Shows Today
 
@@ -606,27 +718,40 @@ Merging them mixes those two jobs, and the seams show immediately — none of
 rename, finalize, or delete means anything for a completed quiz attempt. So the
 evaluation has to answer:
 
-- [ ] Does a learner actually want one merged stream, or do they want to resume
-  a chat quickly? Those pull in opposite directions: a timeline that includes
+- [x] ~~Does a learner actually want one merged stream, or do they want to resume
+  a chat quickly?~~ Those pull in opposite directions: a timeline that includes
   every completed attempt pushes the resumable conversation further down a list
-  that is already unlimited.
-- [ ] If merged, what are the row actions for a non-conversation entry, and does
-  a quiz attempt row open the result page or the resource?
-- [ ] What happens to `/progress` if the sidebar shows the same events? Two
+  that is already unlimited. **Answered by the decision: Recientes stays a
+  navigation list.**
+- [x] ~~If merged, what are the row actions for a non-conversation entry, and does
+  a quiz attempt row open the result page or the resource?~~ **Moot — nothing
+  merges.** The question had no good answer, which is part of why.
+- [x] ~~What happens to `/progress` if the sidebar shows the same events? Two
   surfaces for one record is a maintenance cost and a confusion, and the answer
   might be that Recientes stays a chat list precisely *because* `/progress`
-  exists.
-- [ ] The cheapest partial move, worth considering on its own: **mark the guide
-  conversations that are already there** as belonging to a guide. That fixes a
-  real inconsistency today, needs no new query, and does not commit to the
-  larger question.
+  exists.~~ **That is exactly the answer.**
+- [ ] **Survives the drop, deliberately.** The cheapest partial move, worth
+  considering on its own: **mark the guide conversations that are already
+  there** as belonging to a guide. It is not part of the merge and carries none
+  of its cost — practice-guide conversations *already* appear in Recientes, with
+  the same `bi-chat-dots` icon as an open chat and whatever title the tutor's
+  `update_conversation_title` tool gave them from the topic, so a learner who
+  practiced a guide sees a row indistinguishable from a chat that never says
+  which guide it came from. `practiceGuideId` already travels on the object the
+  view receives (`db/repository.ts:3057`), and the template already varies the
+  icon by state, so this is a third branch and a label — no new query, no
+  commitment to the larger question. Left open pending a separate call.
 
-### How To Close It
+### How It Was Closed
 
-With a pilot learner, not by reasoning. The panel's job depends on whether
-people come back to resume something or to look at what they have done, and
-that is observable. This is also one of the things
-[Roadmap X §X.1](roadmap-x.md) would answer, and cannot answer today.
+The evaluation said it should be closed with a pilot learner rather than by
+reasoning, on the grounds that the panel's job depends on whether people come
+back to resume something or to look at what they have done. That still holds for
+the *merge* question in the abstract — but it stopped mattering once the cost
+side was clear: with `/progress` already rendering the timeline, there is no
+version of the answer that justifies the complexity. Waiting for an observation
+that could not change the outcome would have kept an item open indefinitely,
+with zero pilot learners to observe.
 
 ---
 
@@ -648,9 +773,14 @@ that is observable. This is also one of the things
 - [x] Keep the page usable with no client JavaScript. **Zero scripts**: the FAQ
   is native `<details>`, and a route test asserts no `<script>` and no
   Bootstrap reach the page.
-- [ ] Optimize the screenshots and the founder photo; a landing that loads
+- [x] Optimize the screenshots and the founder photo; a landing that loads
   slowly on a phone over mobile data fails with exactly the audience it targets.
-  Nothing to optimize yet — the page ships with no photographic assets.
+  **Closed 2026-08-01: there is nothing to optimize, and there will not be.**
+  The photo was dropped (2.5) and the screenshots were replaced by HTML mockups
+  (2.5), so the whole page carries three images — the 30px brand mark in the
+  header and two lazy, below-the-fold character avatars in the formats
+  section. The concern that motivated the item was answered by the mockup
+  decision rather than by compression.
 - [x] Decide whether the landing loads the app stylesheet and icon font at all.
   **Neither.** `document-head.ejs` takes `includeAppStyles: false` plus a
   `pageStylesheet`, so a public page can bring its own CSS; the landing is the
@@ -705,12 +835,21 @@ crawlers ask for.
 
 ## 2.5 Assets
 
-- [~] Real product screenshots for the hero and the steps. The seeded demo
-  activities (1.2) are now the presentable content to shoot against, and the
-  **student-side** screens are reachable with no account. The **teacher-side**
-  screens — authoring, sharing, and the next-class report — need an
-  authenticated session and, for the report, at least two evaluated attempts.
-  Decide who captures those and against which account.
+- [x] ~~Real product screenshots for the hero and the steps.~~ **Superseded
+  2026-07-31: the landing uses HTML mockups instead, and that is the settled
+  answer, not a stopgap.** The item existed because the teacher-side screens —
+  authoring, sharing, and the participation page — need an authenticated
+  session and, for the participation page, at least two evaluated attempts, so
+  it was never going to be a quick capture. The mockups solved the same problem
+  better: the hero card mirrors the real participation page using the product's
+  own labels, each of the five steps carries a schematic of its moment, and each
+  of the three formats gets one. They are built in HTML, which keeps the page at
+  zero image payload, makes them translate with the rest of the copy, and stops
+  them going stale every time a screen changes. The hero card is badged
+  `Example`, and the step and format mockups are `aria-hidden` — they illustrate
+  the sentence beside them rather than adding to it. The rule from §1.1 still
+  binds them: a mockup may show what the product does, never a screen or metric
+  it does not have.
 - [x] ~~Founder photo.~~ Dropped 2026-07-31 at the founder's request. The
   section never depended on it: what makes it work is a named person, a
   registered company, and the origin story. A photo would have been one more
@@ -761,9 +900,9 @@ included where the roadmap has one.
 - [x] A logged-out visitor at the root sees the landing; an authenticated user
   is unaffected; every existing deep link still works. Verified 2026-07-30 by
   the route tests and a click-through on the local server.
-- [~] The example activity can be completed end to end from a phone, starting
-  from the landing. The anonymous half works; the signup-to-evaluation half
-  still needs a real run (1.2).
+- [x] The example activity can be completed end to end from a phone, starting
+  from the landing. Founder-confirmed on production 2026-08-01, signup and
+  evaluation included (1.2).
 - [x] Share previews render correctly in WhatsApp for both the landing and a
   shared activity. Founder-confirmed 2026-07-31. The landing has a placeholder card; a shared activity has no
   preview of its own yet (1.5).

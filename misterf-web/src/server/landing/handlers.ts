@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 import { listDemoActivitiesForUserEmail } from '../db/repository.js';
 import { createTranslator, defaultLocale, type Locale } from '../i18n/index.js';
 import { getLocaleCookie, setLocaleCookie } from '../i18n/resolve.js';
-import { appDocumentTitle, buildAbsoluteAppUrl } from '../pages/shell.js';
+import { buildAbsoluteAppUrl, buildDocumentTitle } from '../pages/shell.js';
 
 /**
  * Path each language edition of the landing lives at.
@@ -89,7 +89,7 @@ function renderLanding(
     ogImageUrl: buildAbsoluteAppUrl('/public/brand/share-card.png'),
     // Served straight from `public/`, so the app version busts the cache.
     pageStylesheet: `/public/landing.css?v=${env.appVersion}`,
-    title: `Mister F · ${appDocumentTitle}`,
+    title: buildDocumentTitle(locale, 'Mister F'),
   });
 }
 

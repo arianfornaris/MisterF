@@ -1,5 +1,5 @@
 import { translate } from '../i18n/index.js';
-import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { constructStripeWebhookEvent, createCreditsCheckoutSession, getCreditBalanceForUser, getStripeConfigurationError, getWebhookConfigurationError, fulfillCheckoutSession, } from './credits.js';
 import { defaultCreditPackage } from './packages.js';
 import { listFulfilledCreditPurchasesForUser } from './repository.js';
@@ -26,7 +26,7 @@ export async function renderCreditsPage(request, response) {
             currentView: 'credits',
             guestInitialGreeting: '',
             request,
-            title: `${translate(request.locale, 'credits.title')} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'credits.title')),
             user,
         }),
         balance,

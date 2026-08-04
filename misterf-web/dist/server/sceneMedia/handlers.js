@@ -1,5 +1,5 @@
 import { isCreditExhaustedError, } from '../services/creditGate.js';
-import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { findSceneMediaItemById, listSceneMediaItems, normalizeSceneMediaFormat, normalizeSceneMediaLevel, sceneMediaFormats, sceneMediaLevels, } from './library.js';
 import { applyUserSceneMediaImage, applyUserSceneMediaMetadata, applyUserSceneMediaScript, archiveUserSceneMediaForProfile, createReadyUserSceneMedia, listArchivedUserSceneMediaForProfile, restoreUserSceneMediaForProfile, updateUserSceneMediaTitle, } from './userMediaRepository.js';
 import { generateAndStoreSceneMediaAudio, generateSceneMediaImagePreview, generateSceneMediaMetadataDraft, generateSceneMediaScriptDraft, generateSceneMediaTitleDraft, readSceneMediaReferenceImage, } from './sceneMediaPreview.js';
@@ -40,7 +40,7 @@ export function renderSceneMediaLibraryPage(request, response) {
             currentView: 'mediaLibrary',
             guestInitialGreeting: '',
             request,
-            title: `${response.locals.t('mediaLibrary.title')} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, response.locals.t('mediaLibrary.title')),
             user: auth.user,
         }),
         formatOptions: sceneMediaFormats,
@@ -75,7 +75,7 @@ export function renderSceneMediaTrashPage(request, response) {
             currentView: 'mediaLibrary',
             guestInitialGreeting: '',
             request,
-            title: `${response.locals.t('mediaLibrary.trash')} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, response.locals.t('mediaLibrary.trash')),
             user: auth.user,
         }),
         mediaItems,
@@ -99,7 +99,7 @@ function renderSceneMediaNewView(request, response, auth, input) {
             currentView: 'mediaLibrary',
             guestInitialGreeting: '',
             request,
-            title: `${response.locals.t('mediaLibrary.createMedia')} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, response.locals.t('mediaLibrary.createMedia')),
             user: auth.user,
         }),
         creditExhausted: Boolean(input.creditExhausted),
@@ -127,7 +127,7 @@ function renderSceneMediaVariationView(request, response, resolved, input) {
             currentView: 'mediaLibrary',
             guestInitialGreeting: '',
             request,
-            title: `${response.locals.t('mediaLibrary.createVariation')} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, response.locals.t('mediaLibrary.createVariation')),
             user: resolved.user,
         }),
         creditExhausted: Boolean(input.creditExhausted),
@@ -188,7 +188,7 @@ export function renderSceneMediaDetailPage(request, response) {
             currentView: 'mediaLibrary',
             guestInitialGreeting: '',
             request,
-            title: `${mediaItem.title} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, mediaItem.title),
             user: auth.user,
         }),
         formatOptions: sceneMediaFormats,
@@ -476,7 +476,7 @@ function renderSceneMediaAuthoringView(request, response, resolved, input) {
             currentView: 'mediaLibrary',
             guestInitialGreeting: '',
             request,
-            title: `${resolved.mediaItem.title} · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, resolved.mediaItem.title),
             user: resolved.user,
         }),
         authoringError: input.error,

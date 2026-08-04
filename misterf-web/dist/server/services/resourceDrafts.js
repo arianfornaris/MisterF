@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { quizBlockSchema, quizDraftSchema, quizMetadataSchema, quizSectionSchema, } from './quizzes.js';
 import { quizItemSchema } from './llmTutor/schemas.js';
@@ -128,6 +129,11 @@ function isPlainRecord(value) {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 async function generateStructuredDraft(input) {
+    // The learner's own profile setting decides the model, like every other
+    // inference. This was hardcoded to `regular` until 2026-08-03, so a profile
+    // set to Lite still paid Regular for every quiz, roleplay, guide, and
+    // summary it generated.
+    const tier = input.modelTier ?? defaultProfileModelTier;
     const system = renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables);
     const messages = [
         {
@@ -139,14 +145,14 @@ async function generateStructuredDraft(input) {
         logLlmRequest(messages, system, {
             actorLabel: input.actorLabel,
             llm: {
-                modelTier: 'regular',
+                modelTier: tier,
                 openRouterApiKey: input.openRouterApiKey,
             },
             operation: 'resource_draft',
         }, turn + 1);
         const result = await generateText({
             model: getLanguageModel({
-                modelTier: 'regular',
+                modelTier: tier,
                 openRouterApiKey: input.openRouterApiKey,
             }),
             messages,
@@ -154,7 +160,7 @@ async function generateStructuredDraft(input) {
                 reasoningEffort: input.reasoningEffort,
             }),
             system,
-            temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
+            temperature: shouldUseTemperature({ modelTier: tier }) ? 0.45 : undefined,
         });
         logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
             actorLabel: input.actorLabel,
@@ -235,6 +241,7 @@ export async function generatePracticeGuideDraft(input) {
         actorLabel: 'Practice guide draft',
         correctionPromptPath: 'resources/practice-guide-draft-correction.md',
         initialUserMessage: input.prompt,
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: practiceGuideDraftSchema,
         systemPromptPath: 'resources/practice-guide-draft.md',
@@ -249,6 +256,7 @@ export async function generatePracticeGuideRevision(input) {
             currentPracticeGuide: input.currentPracticeGuide,
             requestedChange: input.prompt,
         }, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: practiceGuideRevisionSchema,
         systemPromptPath: 'resources/practice-guide-revision.md',
@@ -264,6 +272,7 @@ export async function generateQuizDraft(input) {
         actorLabel: 'Quiz draft',
         correctionPromptPath: 'resources/quiz-draft-correction.md',
         initialUserMessage: input.prompt,
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: quizDraftSchema,
         systemPromptPath: 'resources/quiz-draft.md',
@@ -280,6 +289,7 @@ export async function generateQuizResponsesSummary(input) {
         actorLabel: 'Quiz responses summary',
         correctionPromptPath: 'resources/quiz-responses-summary-correction.md',
         initialUserMessage: JSON.stringify(input.request, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: quizResponsesSummarySchema,
         systemPromptPath: 'resources/quiz-responses-summary.md',
@@ -300,6 +310,7 @@ export async function generateRoleplayParticipationSummary(input) {
         actorLabel: 'Roleplay participation summary',
         correctionPromptPath: 'resources/roleplay-participation-summary-correction.md',
         initialUserMessage: JSON.stringify(input.request, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: participationSummarySchema,
         systemPromptPath: 'resources/roleplay-participation-summary.md',
@@ -311,6 +322,7 @@ export async function generateGuideParticipationSummary(input) {
         actorLabel: 'Practice guide participation summary',
         correctionPromptPath: 'resources/guide-participation-summary-correction.md',
         initialUserMessage: JSON.stringify(input.request, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: participationSummarySchema,
         systemPromptPath: 'resources/guide-participation-summary.md',
@@ -325,6 +337,7 @@ export async function generateQuizMetadataRevision(input) {
             currentMetadata: input.currentMetadata,
             requestedChange: input.prompt,
         }, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: quizMetadataRevisionSchema,
         systemPromptPath: 'resources/quiz-metadata-revision.md',
@@ -372,6 +385,7 @@ export async function generateQuizBlocksRevision(input) {
             metadataContext: input.currentMetadata,
             requestedChange: input.prompt,
         }, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: blocksRevisionSchema,
         systemPromptPath: 'resources/quiz-blocks-revision.md',
@@ -403,6 +417,7 @@ export async function generateQuizBlockRevision(input) {
             requestedChange: input.prompt,
             requestedKind: input.targetKind,
         }, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: blockRevisionSchema,
         systemPromptPath: 'resources/quiz-block-revision.md',
@@ -415,6 +430,7 @@ export async function generateRoleplayDraft(input) {
         actorLabel: 'Roleplay draft',
         correctionPromptPath: 'resources/roleplay-draft-correction.md',
         initialUserMessage: input.prompt,
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         schema: roleplayAuthoringDraftSchema,
         systemPromptPath: 'resources/roleplay-draft.md',
@@ -434,6 +450,7 @@ export async function generateRoleplayRevision(input) {
             currentDraft: input.currentDraft,
             requestedChange: input.prompt,
         }, null, 2),
+        modelTier: input.modelTier,
         openRouterApiKey: input.openRouterApiKey,
         reasoningEffort: 'minimal',
         schema: roleplayRevisionSchema,

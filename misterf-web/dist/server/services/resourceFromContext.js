@@ -58,11 +58,16 @@ export function buildResourceFromContextPrompt(input) {
 export async function createResourceFromContextDraft(input) {
     const { openRouterApiKey, profileId, prompt, type, userId } = input;
     const meta = contextResourceTypeMeta[type];
-    const instructionLanguage = findProfileForUser(profileId, userId)
-        ?.instructionLanguage;
+    // One profile lookup already happens here for the instruction language; the
+    // model tier comes from the same row so generation honours the learner's
+    // choice like every other inference.
+    const profile = findProfileForUser(profileId, userId);
+    const instructionLanguage = profile?.instructionLanguage;
+    const modelTier = profile?.modelTier;
     if (type === 'practice_guide') {
         const draft = await generatePracticeGuideDraft({
             instructionLanguage,
+            modelTier,
             openRouterApiKey,
             prompt,
         });
@@ -78,6 +83,7 @@ export async function createResourceFromContextDraft(input) {
     if (type === 'quiz') {
         const draft = await generateQuizDraft({
             instructionLanguage,
+            modelTier,
             openRouterApiKey,
             prompt,
         });
@@ -95,6 +101,7 @@ export async function createResourceFromContextDraft(input) {
     }
     const draft = await generateRoleplayDraft({
         instructionLanguage,
+        modelTier,
         openRouterApiKey,
         prompt,
     });

@@ -540,7 +540,10 @@ authoring act (someone opens `/quizzes/new`, writes a prompt, generates); the
 learner record is written to, read for the progress page, and otherwise inert.
 
 **This is an exploration, not committed scope.** The point of writing it here
-is that the raw material already exists and nothing consumes it yet.
+is that the raw material already exists and nothing consumes it yet. The
+founder's concrete first shape for it — a standing list of *the next five things
+to practise* — is written up below, before the open questions, because it turns
+the abstraction into something that can be shown to a learner and judged.
 
 ### What The History Already Contains
 
@@ -558,6 +561,76 @@ is that the raw material already exists and nothing consumes it yet.
 
 So the first question is not "what data would we need" but "what should read
 the data we already write".
+
+### A Concrete First Shape: "The Next Five Things To Practise"
+
+Added 2026-08-01 (founder). The most useful thing this agent could produce is
+not an open-ended analysis but a **short, standing list: the next five things
+this profile can practise.** Five is small enough to read, to act on, and to
+regenerate cheaply; an unbounded feed is neither.
+
+It is worth writing down because it makes the abstract idea testable — a list of
+five is something you can show a learner and ask "is any of this what you would
+have picked?", which no amount of internal reasoning answers.
+
+**It draws on two sources, and they are not equal.**
+
+1. **What the learner says about themselves** — the profile's own description
+   and learning context. This is the *cold start*: on day one there is no
+   history, and the self-description is the only thing that can make the five
+   items specific rather than generic. It is also what keeps the list anchored
+   to why the person is learning at all, which the history alone never says: an
+   attempt record shows what went wrong, not that the learner needs English for
+   a job interview next month.
+2. **What the profile has already practised** — the `learner_progress_events`
+   record and the rolled-up progress profile. This is what makes the list
+   *change* over time: it should not keep proposing what was already mastered,
+   and it should follow up on recurring difficulties.
+
+The ordering matters for design: source 1 sets the *direction*, source 2 sets
+the *next step*. A list built only from history drifts into remediation of
+whatever the learner happened to attempt; a list built only from the
+self-description never learns.
+
+**Which exposes a real dependency the product does not currently honor.**
+
+If the cold start depends on the self-description, then the moment the learner
+writes it is load-bearing, and today it is treated as optional and minor:
+
+- The onboarding screen offers **`Omitir por ahora`**
+  (`views/profile-onboarding.ejs`, `POST /profiles/onboarding/skip`), so the
+  field can be empty for the entire life of the profile.
+- The copy is permissive rather than motivating — *"Puedes contar para qué
+  quieres aprender inglés…"* (`profiles.onbContextHelp`) and *"Puedes mencionar
+  tus objetivos, intereses, trabajo…"* (`profiles.contextHelp`). It reads like an
+  optional bio, not like the input that shapes everything the tutor proposes.
+- The tutor already substitutes `'No especificado.'` when it is blank
+  (`llmTutor/prompt.ts:230`), which is the honest downstream cost made visible.
+
+- [ ] **Make the self-description feel load-bearing at the moment it is
+  written.** Explain what it is used for in concrete terms ("this is how Mr. F
+  decides what to suggest you practise next"), show an example of a good answer
+  rather than a list of categories, and reconsider whether skipping should stay
+  as frictionless as it is. This is worth doing **independently of the agent** —
+  the tutor and the authoring prompts already consume the field — but it becomes
+  a prerequisite if the five-item list is built on it.
+- [ ] **Decide what the list does when the description is empty and there is no
+  history.** A brand-new profile with a skipped onboarding is the common case,
+  not the edge case, and "five generic suggestions" is worse than showing
+  nothing: it teaches the learner the feature is not about them. The honest
+  answer may be to show the onboarding prompt instead of the list.
+- [ ] **Decide whether the five are recommendations or generated resources.**
+  This is the recommend-versus-generate question below, scoped: five *proposals*
+  ("practise past tense in work situations") cost one cheap call and no clutter;
+  five *generated quizzes* cost five expensive calls and five objects the
+  learner must manage. Recommending, with generation as an explicit per-item
+  action, is the obvious v1.
+- [ ] **Decide when it refreshes.** A standing list implies staleness: after
+  each evaluated attempt, on a schedule, or on demand. The quiz participation
+  summary already solved this exact problem with an input fingerprint plus a
+  "there are new responses since this summary" badge
+  ([Roadmap V3 §1.6](roadmap-v3.md)) — reuse that pattern rather than inventing
+  a refresh policy.
 
 ### Open Questions To Settle Before Any Scope
 
@@ -601,6 +674,295 @@ the data we already write".
   the inference governance work in
   [2.1](#21-llm-inference-portfolio-audit-and-governance) so a new recurring
   inference class does not silently inherit an unsuitable default model.
+
+---
+
+## 1.10 Share Image For The Landing And Shared Resources
+
+Moved here from [Roadmap V3.5 §1.5](roadmap-v3-5.md) on 2026-08-01 at the
+founder's direction. The landing shipped a **placeholder** card on 2026-07-30 —
+`public/brand/share-card.png`, 1200×630, the Mister F logo centred on white,
+composed from `design/MisterF-v2.png`. It works; it just does not do any work.
+Replacing it is a design exercise rather than landing infrastructure, which is
+why it left V3.5 rather than blocking it.
+
+Why it is worth more than its size suggests: **sharing a link is the only
+acquisition channel the product has today.** Traffic comes from founder outreach
+and from teachers pasting links into WhatsApp, so the preview card is a more
+valuable surface than any meta tag.
+
+Two things the placeholder makes concrete:
+
+- **One file serves two very different surfaces.** `resources/handlers.ts:631`
+  points at the same PNG, so "Mister F, the product" and "a teacher shared an
+  activity with you" produce an identical picture. The resource card at least
+  carries a specific title and description in text; the landing has nothing to
+  tell it apart.
+- **It renders full width.** `twitter:card` is `summary_large_image`, so a small
+  centred mark on an empty white field looks emptier the larger it is drawn.
+
+- [ ] Decide whether the two surfaces should share one image at all, or whether
+  a shared activity deserves its own card. The text beside them already differs;
+  the question is whether the picture should.
+- [ ] Design the landing card. A card that says what the product does, or that
+  shows the results view the hero already mockups, would convert better than a
+  bare logo. The landing's own visual system
+  (`public/landing.css`: brand blue over warm paper, Literata headlines, a
+  single terracotta accent) is the obvious source, and the hero mockup is a
+  ready reference.
+- [ ] Keep the §1.1 rule: the card may promise an outcome, never name a screen
+  or a metric the product does not have. It is seen by more people than the page
+  it links to, and by people who will never scroll far enough to be corrected.
+
+---
+
+## 1.11 A Derived Chat Must Say What It Was Derived From
+
+Added 2026-08-01 (founder request): once a practice chat is derived from a
+resource, that conversation should carry a link, somewhere durable, back to the
+resource it came from.
+
+The `resource-follow-up-conversations` skill already states this as a rule —
+*"the conversation UI shows a visible link back to the source resource or result
+so the learner can return to what they practiced from"* — so this is not a new
+convention. It is a convention that half the derivation paths do not honor, and
+that the other half honors in a way that does not survive a real session.
+
+### What Happens Today
+
+There are four ways a conversation gets derived from something, and they behave
+differently:
+
+| Origin | Link back today |
+| --- | --- |
+| Quiz attempt -> `Practicar` | A source-notice message naming the quiz and its result (`addResourceSourceNoticeMessage`) |
+| Roleplay attempt -> `Practicar` | The same message |
+| Practice guide -> chat | **Nothing.** `createConversationFromPracticeGuide` writes the snapshot and stops |
+| Tutor report -> `Practicar` | **Nothing.** `createConversationFromTutorReport` writes the snapshot and stops |
+
+So a learner practising a guide, or following up on a report, has no way back
+from inside the chat — and every one of these conversations *does* store a
+frozen source snapshot, so the link is a rendering gap, not a data gap.
+
+### Three Problems, Not One
+
+1. **Two of the four paths have no link at all.** The practice-guide case is the
+   one a teacher's student is most likely to hit, since a shared guide is one of
+   the three things a teacher assigns.
+2. **The message scrolls away.** Where the link exists, it is the first message
+   in the transcript. That is fine for one exchange and useless after twenty:
+   the learner who wants to re-read the quiz is the learner who has been
+   practising for a while. The skill says *"the conversation UI shows"* a link,
+   which reads as chrome — persistent, next to the title — not as a message the
+   conversation buries. A message is also the wrong place structurally: it is
+   indistinguishable from something the tutor said.
+3. **The copy is hardcoded Spanish.** `addResourceSourceNoticeMessage`
+   (`db/repository.ts:5076`) builds `'el quiz'` / `'el Roleplay'` and its whole
+   sentence inline, so an English or Creole learner who practises from a quiz
+   gets a Spanish sentence from the tutor in an otherwise translated
+   conversation. The conversation already carries `instruction_language`, so the
+   locale is available where the message is written.
+
+### Shape Of A Solution
+
+- [ ] Decide where the link lives. Recommendation: **conversation chrome**, near
+  the title, rendered from the stored snapshot rather than appended as a
+  message — that is what makes it survive a long session and what the skill's
+  wording already implies. Keeping the opening message as well is reasonable
+  (it sets up the first turn), but it should stop being the only affordance.
+- [ ] Cover all four origins, including practice guides and tutor reports. The
+  snapshot tables already identify the source in every case
+  (`conversation_quiz_attempt_snapshots`, `conversation_roleplay_attempt_snapshots`,
+  `conversation_tutor_report_snapshots`, `conversation_practice_guide_snapshots`).
+- [ ] Translate the source notice into es/en/ht, keyed off the conversation's
+  own `instruction_language`.
+- [ ] Handle the source being archived or deleted. The conversation reads its
+  snapshot, not the live resource, so the chat itself keeps working — but a link
+  to a resource the learner can no longer open should degrade to a plain label
+  rather than a dead link.
+- [ ] Decide what a *shared* participant sees. A student who practises from a
+  teacher's shared quiz should reach the quiz they took, not a resource page
+  they do not own; check this against the sharing rules before wiring the href.
+
+### Related
+
+- `.agents/skills/resource-follow-up-conversations` — the rule this closes, and
+  the snapshot model behind it.
+- [Roadmap V3.5 §1.10](roadmap-v3-5.md) — the same blindness one surface over:
+  a practice-guide conversation is also unlabelled in the `Recientes` sidebar,
+  so it is indistinguishable from an open-ended chat. That item is closed except
+  for the labelling fix, which is the sidebar half of this problem and could
+  reasonably ship with it.
+
+---
+
+## 1.12 Chat Groups (Idea To Consider)
+
+Added 2026-08-01 at the founder's direction. Idea: **WhatsApp-style group chats
+where learners write to each other in English**, with an agent reading the
+conversation afterwards to identify each participant's errors and turn them into
+practice.
+
+**This is an exploration, and unlike most of this document it is not an
+extension of an existing surface.** Everything the product does today is either
+solo practice or a teacher assigning to a student; a group chat is the first
+peer-to-peer surface, and that changes what has to be true before it ships.
+
+### Why It Is Interesting
+
+- **It is practice that does not feel like practice.** The learner writes English
+  to be understood by a person, not to be graded, which is the closest thing to
+  real use the product could offer — and error-correcting from authentic output
+  is pedagogically stronger than correcting an exercise the learner knew was an
+  exercise.
+- **It reuses the engine that already exists.** "Read the record, find recurring
+  difficulties, propose the next practice" is exactly
+  [1.9](#19-history-aware-agents-resources-and-recommendations-from-the-learner-record-idea-to-consider),
+  and `learner_progress_events` is already the shape errors get written into. A
+  group chat is a new *source* for that pipeline, not a new pipeline.
+- **It is the first thing in the product with a retention loop that is not the
+  founder.** Today the only reason to come back is an activity someone assigned
+  you; other people waiting for your reply is a different order of pull. Link
+  sharing is the only acquisition channel the product has, and a group is a
+  reason to bring someone in.
+- **It fits the teacher story without needing the classroom entity.** A teacher
+  with a group of adult learners already has a WhatsApp group; this is that
+  group with correction attached.
+
+### What Would Have To Be Decided First
+
+These are not implementation details — several of them can sink the feature.
+
+- [ ] **Moderation.** This would be the product's first user-generated content
+  visible to other users. There is no moderation of any kind today, anywhere,
+  and the audience is adult immigrant learners who may be vulnerable. Decide what
+  happens when someone posts abuse, spam, or personal data, who can remove it and
+  remove a member, and what the operator's obligation is. **A group chat with no
+  answer here should not ship.**
+- [ ] **Privacy of the correction.** Errors are personal. Decide whether an
+  analysis is private to the writer, visible to a group owner (a teacher), or
+  visible to the group. The V3 consent model is a **per-attempt** disclosure
+  shown before answering; a continuous chat has no equivalent moment, so a new
+  consent shape is needed — and "you agreed once at join time" is a weaker
+  promise than what the product currently makes.
+- [ ] **Who pays, and for what.** Group inference is unbounded in a way nothing
+  else in the product is: messages arrive whether or not anyone asked for
+  analysis. Per-message analysis multiplies cost by traffic. Decide whether the
+  agent runs per message, per session, or on an explicit "analyse my week"
+  action, and whose credit it draws — note that the credit model is strictly
+  per-user today, and a group has no wallet. See §1.7 of
+  [Roadmap V3](roadmap-v3.md) for how tight the welcome credit already is.
+- [ ] **Correcting people in front of each other.** The obvious naive design —
+  the tutor replying inline with corrections — would make learners write less,
+  not more, which defeats the entire premise. The likely answer is that the group
+  stays uncorrected and the correction arrives privately, later. Decide this
+  before any UI, because it determines whether the feature helps or harms.
+- [ ] **Relation to the classroom shape.** A group is very close to the `Aula`
+  concept in [1.6](#16-guides-aula-section-and-managed-accounts-candidate--gated-on-pilot-evidence)
+  and to [Classrooms](../features/classrooms.md). Decide whether a chat group
+  *is* a classroom with a chat, or a separate lightweight primitive — building
+  both is how the product ends up with two membership models.
+- [ ] **What it costs to build.** Real-time multi-user chat is meaningfully more
+  infrastructure than anything here today: the socket layer
+  (`socket/chatSocket.ts`) exists but is scoped to one user and one conversation,
+  and there is no membership, presence, notification, or read-state model.
+  Estimate this honestly before it is compared against cheaper items.
+- [ ] **Whether learners actually write to each other.** The failure mode is an
+  empty group, and it is the most likely one: a group with three people and no
+  messages is worse than no group, and the analysis engine has nothing to read.
+  Decide what seeds conversation — a teacher prompt, a daily topic, the tutor as
+  a participant — and treat "will they post" as the hypothesis to test first,
+  cheaply, before building the surface.
+
+### Related
+
+- [1.9](#19-history-aware-agents-resources-and-recommendations-from-the-learner-record-idea-to-consider)
+  — the error-to-practice engine this would feed, including the "next five
+  things to practise" shape.
+- [1.6](#16-guides-aula-section-and-managed-accounts-candidate--gated-on-pilot-evidence)
+  and [Classrooms](../features/classrooms.md) — the membership model this must
+  not duplicate.
+- `.agents/skills/learner-progress-events` — where per-participant findings would
+  be written so the rest of the product can already read them.
+
+---
+
+## 1.13 Estimate What A USD 5 Package Actually Buys
+
+Added 2026-08-01 (founder). The credits page used to tell buyers, in all three
+locales and directly beside the purchase button, that a package covers
+*"aproximadamente un mes de práctica regular."* **That sentence was removed the
+same day** — nothing in the code or in any approved business document supported
+it, and it is the same unmeasured duration claim
+[Roadmap V3.5 §1.1](roadmap-v3-5.md) refused to write on the landing. The
+purchase note now says only what is true: exchanges consume credits, and the
+payment goes to Little Software LLC.
+
+**The claim was worth making, which is why this item exists.** "How fast does
+this drain?" is the question a buyer actually has, and the honest answer is
+better than no answer. It just has to be measured first.
+
+### What Is Already Known
+
+Measured 2026-08-01 from the structured logs, which carry
+`usage.raw.cost_details.upstream_inference_cost` per call — real money, per
+operation, already on disk and never analysed until now:
+
+| Operation | n | Mean cost (USD) |
+| --- | --- | --- |
+| Tutor turn (`Mr. F`) | 56 | 0.00645 |
+| Practice guide draft | 2 | 0.01057 |
+| Quiz draft | 2 | 0.00977 |
+| Roleplay participation summary | 3 | 0.00601 |
+| Practice guide participation summary | 1 | 0.00514 |
+| Tutor report | 3 | 0.00470 |
+| Roleplay evaluation | 4 | 0.00416 |
+| Quiz responses summary | 3 | 0.00383 |
+| Roleplay draft | 1 | 0.00377 |
+| Quiz metadata revision | 2 | 0.00180 |
+| Roleplay turn / opening turn | 26 | ~0.00086 |
+
+Two immediate readings. **The tutor turn dominates everything** — at ~$0.0065 a
+turn it costs more than most one-off generations, and a session is many turns,
+so package duration is essentially a function of how much someone chats. And a
+measured guide session (3 turns plus the finalized report) cost **$0.034**, which
+against a USD 5 package would be ~145 such sessions — but that number is not
+trustworthy yet, for the reasons below.
+
+### Why This Is Not Yet An Answer
+
+- [ ] **Quiz evaluation is missing from the telemetry entirely.** It calls
+  `generateText` directly in `llmTutor/index.ts:626` without the wrapper that
+  emits `llm_response`, so the single most-run inference in the teacher cycle has
+  no cost record. **Fix the instrumentation before trusting any total** — this is
+  the prerequisite, not a detail.
+- [ ] **Reconcile against OpenRouter's own usage figures.** The per-call costs
+  are what the provider reported inline; the key's `usage` endpoint lags by long
+  enough that it read `0` immediately after a run. Confirm the two agree before
+  publishing a number.
+- [ ] **Define "regular practice" before estimating its duration.** A month for
+  a learner doing two 10-turn sessions a week is a very different number from a
+  daily user. The estimate has to name the usage it assumes, or it will be wrong
+  for everyone.
+- [ ] **Run the sessions.** These are live-product runs, not unit tests, and they
+  are mine to execute — see `.agents/skills/live-product-qa`. Concretely: a
+  learner-only week (tutor chat plus follow-up practice), a full teacher cycle
+  (authoring, sharing, evaluation, participation summary), and a
+  chat-heavy session to find the upper bound.
+- [ ] **Then write the sentence, with its assumption visible.** Something the
+  code can back — "about N sessions of practice" beats a duration, because
+  sessions are what the product counts and months are what usage varies over.
+
+### Related
+
+- [Roadmap V3.5 §1.1](roadmap-v3-5.md) — the rule this restores: the product may
+  not state a commercial term that is not readable in the code or an approved
+  business document.
+- [Roadmap V3 §1.7](roadmap-v3.md) — the welcome-credit finding from the same
+  session, and why the free cap is set by a provider reservation rather than by
+  cost.
+- [Roadmap X §X.1](roadmap-x.md) — platform metrics; this item is the narrow,
+  answerable slice that does not wait for it.
 
 ---
 

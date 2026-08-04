@@ -41,7 +41,6 @@ export async function updateOpenRouterUserKeyLimit(input) {
     }
     const remoteInfo = await patchOpenRouterRemoteKey(row.key_hash, {
         disabled: input.disabled,
-        include_byok_in_limit: false,
         limit: input.limitUsd,
         limit_reset: input.limitReset,
     });
@@ -87,7 +86,6 @@ async function provisionOpenRouterKeyForUser(userId) {
 }
 async function createOpenRouterApiKey(name) {
     const body = {
-        include_byok_in_limit: false,
         limit: env.openrouterUserKeyLimitUsd,
         limit_reset: null,
         name,

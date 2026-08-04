@@ -12,8 +12,34 @@ import {
 } from '../db/repository.js';
 import { env } from '../config/env.js';
 import { defaultProfileModelTier } from '../profiles/modelTier.js';
+import { translate, type Locale } from '../i18n/index.js';
 
-export const appDocumentTitle = 'Mr. F, tutor de inglés';
+/**
+ * The application name as it appears in the browser tab and, through
+ * `og:title`, in every link preview the product produces.
+ *
+ * It was a hardcoded Spanish constant until 2026-08-01, so the English and
+ * Haitian Creole landing editions shared as "Mister F · Mr. F, tutor de
+ * inglés" — a page whose pitch is that it speaks the teacher's language,
+ * saying otherwise in the first line of its own preview card.
+ *
+ * Takes an explicit locale rather than the request: the landing's language
+ * editions force a locale that is deliberately not `request.locale`.
+ */
+function appDocumentTitle(locale: Locale): string {
+  return translate(locale, 'common.appDocumentTitle');
+}
+
+/**
+ * Builds a page `<title>`: the page's own name, then the application name.
+ * Call sites used to interpolate the constant themselves, with `·` in some
+ * files and `-` in others; the separator now lives here so it stays uniform.
+ */
+export function buildDocumentTitle(locale: Locale, pageTitle?: string): string {
+  const appTitle = appDocumentTitle(locale);
+  const trimmed = pageTitle?.trim();
+  return trimmed ? `${trimmed} · ${appTitle}` : appTitle;
+}
 
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
   numeric: 'always',

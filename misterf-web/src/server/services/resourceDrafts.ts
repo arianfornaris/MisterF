@@ -1,5 +1,9 @@
 import { generateText, type ModelMessage } from 'ai';
 import type { Locale } from '../i18n/index.js';
+import {
+  defaultProfileModelTier,
+  type ProfileModelTier,
+} from '../profiles/modelTier.js';
 import { z } from 'zod';
 import {
   quizBlockSchema,
@@ -209,12 +213,18 @@ async function generateStructuredDraft<T>(input: {
   actorLabel: string;
   correctionPromptPath: string;
   initialUserMessage: string;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   reasoningEffort?: OpenRouterReasoningEffort;
   schema: z.ZodType<T>;
   systemPromptPath: string;
   systemPromptVariables?: Record<string, string>;
 }): Promise<T> {
+  // The learner's own profile setting decides the model, like every other
+  // inference. This was hardcoded to `regular` until 2026-08-03, so a profile
+  // set to Lite still paid Regular for every quiz, roleplay, guide, and
+  // summary it generated.
+  const tier = input.modelTier ?? defaultProfileModelTier;
   const system = renderSystemPrompt(
     input.systemPromptPath,
     input.systemPromptVariables,
@@ -233,7 +243,7 @@ async function generateStructuredDraft<T>(input: {
       {
         actorLabel: input.actorLabel,
         llm: {
-          modelTier: 'regular',
+          modelTier: tier,
           openRouterApiKey: input.openRouterApiKey,
         },
         operation: 'resource_draft',
@@ -243,7 +253,7 @@ async function generateStructuredDraft<T>(input: {
 
     const result = await generateText({
       model: getLanguageModel({
-        modelTier: 'regular',
+        modelTier: tier,
         openRouterApiKey: input.openRouterApiKey,
       }),
       messages,
@@ -251,7 +261,7 @@ async function generateStructuredDraft<T>(input: {
         reasoningEffort: input.reasoningEffort,
       }),
       system,
-      temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
+      temperature: shouldUseTemperature({ modelTier: tier }) ? 0.45 : undefined,
     });
 
     logLlmResponse(
@@ -347,6 +357,7 @@ async function generateStructuredDraft<T>(input: {
 
 export async function generatePracticeGuideDraft(input: {
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<PracticeGuideDraft> {
@@ -354,6 +365,7 @@ export async function generatePracticeGuideDraft(input: {
     actorLabel: 'Practice guide draft',
     correctionPromptPath: 'resources/practice-guide-draft-correction.md',
     initialUserMessage: input.prompt,
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: practiceGuideDraftSchema,
     systemPromptPath: 'resources/practice-guide-draft.md',
@@ -364,6 +376,7 @@ export async function generatePracticeGuideDraft(input: {
 export async function generatePracticeGuideRevision(input: {
   currentPracticeGuide: PracticeGuideDraft;
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<PracticeGuideRevisionResult> {
@@ -378,6 +391,7 @@ export async function generatePracticeGuideRevision(input: {
       null,
       2,
     ),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: practiceGuideRevisionSchema,
     systemPromptPath: 'resources/practice-guide-revision.md',
@@ -392,6 +406,7 @@ export function safeParsePracticeGuideDraft(value: unknown): PracticeGuideDraft 
 
 export async function generateQuizDraft(input: {
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<QuizDraft> {
@@ -399,6 +414,7 @@ export async function generateQuizDraft(input: {
     actorLabel: 'Quiz draft',
     correctionPromptPath: 'resources/quiz-draft-correction.md',
     initialUserMessage: input.prompt,
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: quizDraftSchema,
     systemPromptPath: 'resources/quiz-draft.md',
@@ -414,6 +430,7 @@ const quizResponsesSummarySchema = z
 
 export async function generateQuizResponsesSummary(input: {
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   request: {
     evaluatedCount: number;
@@ -432,6 +449,7 @@ export async function generateQuizResponsesSummary(input: {
     actorLabel: 'Quiz responses summary',
     correctionPromptPath: 'resources/quiz-responses-summary-correction.md',
     initialUserMessage: JSON.stringify(input.request, null, 2),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: quizResponsesSummarySchema,
     systemPromptPath: 'resources/quiz-responses-summary.md',
@@ -451,6 +469,7 @@ const participationSummarySchema = z
 
 export async function generateRoleplayParticipationSummary(input: {
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   request: {
     attempts: Array<{
@@ -468,6 +487,7 @@ export async function generateRoleplayParticipationSummary(input: {
     actorLabel: 'Roleplay participation summary',
     correctionPromptPath: 'resources/roleplay-participation-summary-correction.md',
     initialUserMessage: JSON.stringify(input.request, null, 2),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: participationSummarySchema,
     systemPromptPath: 'resources/roleplay-participation-summary.md',
@@ -477,6 +497,7 @@ export async function generateRoleplayParticipationSummary(input: {
 
 export async function generateGuideParticipationSummary(input: {
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   request: {
     description: string;
@@ -493,6 +514,7 @@ export async function generateGuideParticipationSummary(input: {
     actorLabel: 'Practice guide participation summary',
     correctionPromptPath: 'resources/guide-participation-summary-correction.md',
     initialUserMessage: JSON.stringify(input.request, null, 2),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: participationSummarySchema,
     systemPromptPath: 'resources/guide-participation-summary.md',
@@ -503,6 +525,7 @@ export async function generateGuideParticipationSummary(input: {
 export async function generateQuizMetadataRevision(input: {
   currentMetadata: QuizMetadata;
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<{ metadata: QuizMetadata }> {
@@ -517,6 +540,7 @@ export async function generateQuizMetadataRevision(input: {
       null,
       2,
     ),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: quizMetadataRevisionSchema,
     systemPromptPath: 'resources/quiz-metadata-revision.md',
@@ -535,6 +559,7 @@ export async function generateQuizBlocksRevision(input: {
   currentMetadata: QuizMetadata;
   currentDraft: QuizDraft;
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<{ blocks: QuizDraft['blocks']; sections: QuizDraft['sections'] }> {
@@ -576,6 +601,7 @@ export async function generateQuizBlocksRevision(input: {
       null,
       2,
     ),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: blocksRevisionSchema,
     systemPromptPath: 'resources/quiz-blocks-revision.md',
@@ -594,6 +620,7 @@ export async function generateQuizBlockRevision(input: {
   currentItem?: TutorQuizItem;
   instructionLanguage?: Locale;
   level: string;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
   quizContext: QuizBlockRevisionContext;
@@ -621,6 +648,7 @@ export async function generateQuizBlockRevision(input: {
       null,
       2,
     ),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: blockRevisionSchema,
     systemPromptPath: 'resources/quiz-block-revision.md',
@@ -630,6 +658,7 @@ export async function generateQuizBlockRevision(input: {
 
 export async function generateRoleplayDraft(input: {
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayDraft> {
@@ -638,6 +667,7 @@ export async function generateRoleplayDraft(input: {
     actorLabel: 'Roleplay draft',
     correctionPromptPath: 'resources/roleplay-draft-correction.md',
     initialUserMessage: input.prompt,
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     schema: roleplayAuthoringDraftSchema,
     systemPromptPath: 'resources/roleplay-draft.md',
@@ -652,6 +682,7 @@ export async function generateRoleplayRevision(input: {
   conversationHistory?: RoleplayRevisionConversationMessage[];
   currentDraft: RoleplayDraft;
   instructionLanguage?: Locale;
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayRevisionResult> {
@@ -670,6 +701,7 @@ export async function generateRoleplayRevision(input: {
       null,
       2,
     ),
+    modelTier: input.modelTier,
     openRouterApiKey: input.openRouterApiKey,
     reasoningEffort: 'minimal',
     schema: roleplayRevisionSchema,

@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { translate } from '../i18n/index.js';
 import {
   findLearnerProgressProfile,
   listLearnerProgressEvents,
@@ -8,7 +9,7 @@ import {
   buildLearnerProgressVocabularyItems,
 } from '../services/learnerProgressView.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
 } from '../pages/shell.js';
@@ -56,7 +57,7 @@ export function renderProgressPage(request: Request, response: Response): void {
       currentView: 'progress',
       guestInitialGreeting: '',
       request,
-      title: `Progreso · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'progress.title')),
       user,
     }),
     events: eventViews,

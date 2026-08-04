@@ -18,6 +18,7 @@ import type { LocaleCatalog } from '../index.js';
  */
 export const ht: LocaleCatalog = {
   common: {
+    appDocumentTitle: 'Mr. F, titè anglè',
     cancel: 'Anile',
     close: 'Fèmen',
     delete: 'Efase',
@@ -914,7 +915,7 @@ export const ht: LocaleCatalog = {
     creditsSuffix: 'kredi',
     buyFor: 'Achte pou {{amount}}',
     payDisclaimer:
-      'Chak echanj ak Mr. F konsome kredi. Pake sa a fèt pou apeprè yon mwa pratik regilye; dire egzak la depann de konbyen ou itilize sistèm nan. Peman an fèt bay <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
+      'Chak echanj ak Mr. F konsome kredi. Peman an fèt bay <a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a>.',
     recentHistory: 'Istwa resan',
     colDate: 'Dat',
     colPackage: 'Pake',
@@ -1247,7 +1248,7 @@ export const ht: LocaleCatalog = {
     stepsTitle: 'Kijan li mache',
     step1Title: 'Kòmanse ak materyèl ou',
     step1Body:
-      'Kole tèks ou, sijè a, oswa devwa ou te deja prepare a. Premye bouyon aktivite a soti la.',
+      'Kole tèks ou, sijè a, oswa devwa ou te deja prepare a — sa ou pral anseye, oswa sa ou fèk anseye. Premye bouyon aktivite a soti la.',
     step2Title: 'Revize aktivite a',
     step2Body:
       'Li sa li jenere epi ajiste tou sa ou vle anvan li rive kot elèv ou yo. Anyen pa pataje jiskaske ou di wi.',
@@ -1307,17 +1308,20 @@ export const ht: LocaleCatalog = {
     faq2Question: 'Èske li mache ak pwòp materyèl mwen?',
     faq2Answer:
       'Se sa menm ki bi a. Ou kole tèks ou, sijè ou, oswa devwa ou, epi aktivite a bati apati sa, se pa apati yon katalòg fiks.',
-    faq3Question: 'E si AI a fè yon erè?',
+    faq3Question: 'Èske mwen oblije sèvi avè l apre klas la?',
     faq3Answer:
-      'Ou revize chak aktivite anvan ou pataje l, epi ou ka chanje sa ou pa renmen. Anyen pa rive kot elèv ou yo san ou pa wè l.',
-    faq4Question: 'Ki lang li sipòte?',
+      'Non. Voye yon aktivite anvan yon leson pou wè kote difikilte a ap ye, apre l pou pratike sa ki pa t mache, oswa ant sesyon yo pou elèv ou yo kontinye pou kont yo.',
+    faq4Question: 'E si AI a fè yon erè?',
     faq4Answer:
-      'Pratik la an anglè. Entèfas la ak eksplikasyon yo disponib an panyòl, anglè, ak kreyòl ayisyen.',
-    faq5Question: 'Èske mwen bezwen enstale anyen?',
+      'Ou revize chak aktivite anvan ou pataje l, epi ou ka chanje sa ou pa renmen. Anyen pa rive kot elèv ou yo san ou pa wè l.',
+    faq5Question: 'Ki lang li sipòte?',
     faq5Answer:
-      'Non. Li mache nan navigatè a, sou yon telefòn oswa yon òdinatè, pou ou menm ak pou elèv ou yo.',
-    faq6Question: 'Konbyen elèv mwen ka genyen?',
+      'Pratik la an anglè. Entèfas la ak eksplikasyon yo disponib an panyòl, anglè, ak kreyòl ayisyen.',
+    faq6Question: 'Èske mwen bezwen enstale anyen?',
     faq6Answer:
+      'Non. Li mache nan navigatè a, sou yon telefòn oswa yon òdinatè, pou ou menm ak pou elèv ou yo.',
+    faq7Question: 'Konbyen elèv mwen ka genyen?',
+    faq7Answer:
       'Pa gen okenn lis klas pou konfigire. Ou pataje yon lyen ak moun ou vle, epi ou wè rezilta tout moun ki fini l.',
     footerTagline: 'Pratik anglè ak yon titè AI, bati alantou yon vrè pwofesè.',
     footerCompany: '<a href="https://littlesoftware.info/" target="_blank" rel="noopener">Little Software LLC</a> · Florid, Etazini',

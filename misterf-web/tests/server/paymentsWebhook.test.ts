@@ -15,7 +15,7 @@ vi.mock('../../src/server/payments/repository.js', () => ({
   listFulfilledCreditPurchasesForUser: vi.fn(() => []),
 }));
 vi.mock('../../src/server/pages/shell.js', () => ({
-  appDocumentTitle: 'Mr. F, tutor de inglés',
+  buildDocumentTitle: vi.fn((_locale: string, pageTitle?: string) => pageTitle ?? ''),
   buildAppShellContext: vi.fn(() => ({})),
   getHomeAuthMessage: vi.fn(() => ''),
 }));

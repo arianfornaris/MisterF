@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
 } from '../pages/shell.js';
@@ -31,7 +31,7 @@ export function renderSettingsPage(request: Request, response: Response): void {
       currentView: 'settings',
       guestInitialGreeting: '',
       request,
-      title: `${request.res?.locals.t('settings.title')} · ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, request.res?.locals.t('settings.title')),
       user,
     }),
   });

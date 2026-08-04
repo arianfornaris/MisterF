@@ -39,7 +39,7 @@ import {
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
   formatRelativeTime,
@@ -609,7 +609,7 @@ function renderQuizAuthoring(
   renderQuizzesView(response, 'quizzes-authoring', {
     ...buildQuizzesShellContext(request, {
       activeProfile: input.activeProfile,
-      title: `${draft.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, draft.title),
       user: input.user,
     }),
     activeTab: input.activeTab ?? defaultQuizAuthoringTab,
@@ -768,7 +768,7 @@ function renderQuizAttempt(
   renderQuizzesView(response, 'quizzes-attempt', {
     ...buildQuizzesShellContext(request, {
       activeProfile: request.activeProfile ?? null,
-      title: `${draft.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, draft.title),
       user: request.authUser ?? null,
     }),
     attempt: input.attempt,
@@ -808,7 +808,7 @@ function renderQuizResult(
   renderQuizzesView(response, 'quizzes-result', {
     ...buildQuizzesShellContext(request, {
       activeProfile: request.activeProfile ?? null,
-      title: `${draft.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, draft.title),
       user: request.authUser ?? null,
     }),
     attempt,
@@ -835,7 +835,7 @@ export function renderQuizNewPage(request: Request, response: Response): void {
   renderQuizzesView(response, 'quizzes-new', {
     ...buildQuizzesShellContext(request, {
       activeProfile: auth.activeProfile,
-      title: `Nuevo quiz - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, translate(request.locale, 'quizzes.newTitle')),
       user: auth.user,
     }),
     ...resolveOriginFolderContext(request.query.folder, auth.user.id),
@@ -860,7 +860,7 @@ export async function handleGenerateQuiz(
     renderQuizzesView(response.status(422), 'quizzes-new', {
       ...buildQuizzesShellContext(request, {
         activeProfile: auth.activeProfile,
-        title: `Nuevo quiz - ${appDocumentTitle}`,
+        title: buildDocumentTitle(request.locale, translate(request.locale, 'quizzes.newTitle')),
         user: auth.user,
       }),
       ...originFolder,
@@ -875,6 +875,7 @@ export async function handleGenerateQuiz(
     const draft = canonicalizeQuizDraftBlockOrder(
       await generateQuizDraft({
         instructionLanguage: auth.activeProfile?.instructionLanguage,
+        modelTier: auth.activeProfile?.modelTier,
         openRouterApiKey,
         prompt,
       }),
@@ -925,7 +926,7 @@ export async function handleGenerateQuiz(
     renderQuizzesView(response.status(422), 'quizzes-new', {
       ...buildQuizzesShellContext(request, {
         activeProfile: auth.activeProfile,
-        title: `Nuevo quiz - ${appDocumentTitle}`,
+        title: buildDocumentTitle(request.locale, translate(request.locale, 'quizzes.newTitle')),
         user: auth.user,
       }),
       ...originFolder,
@@ -1028,6 +1029,7 @@ export async function handlePreviewQuizMetadataModification(
     const revision = await generateQuizMetadataRevision({
       currentMetadata,
       instructionLanguage: resolved.activeProfile.instructionLanguage,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       prompt: requestedChange,
     });
@@ -1219,6 +1221,7 @@ export async function handlePreviewQuizBlockModification(
       currentItem: block.item,
       instructionLanguage: resolved.activeProfile.instructionLanguage,
       level: level || draft.level,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       prompt: requestedChange,
       quizContext: buildQuizBlockRevisionContext(draft, blockId),
@@ -1393,6 +1396,7 @@ export async function handlePreviewQuizAddBlock(
     const creation = await generateQuizBlockRevision({
       instructionLanguage: resolved.activeProfile.instructionLanguage,
       level: level || draft.level,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       prompt: requestedChange,
       quizContext: {
@@ -1550,6 +1554,7 @@ export async function handlePreviewQuizBlocksModification(
       currentDraft: draft,
       currentMetadata: quizDraftToMetadata(draft),
       instructionLanguage: resolved.activeProfile.instructionLanguage,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       prompt: requestedChange,
     });
@@ -1825,7 +1830,7 @@ export async function renderQuizShowPage(
   renderQuizzesView(response, 'quizzes-show', {
     ...buildQuizzesShellContext(request, {
       activeProfile: resolved.activeProfile,
-      title: `${resolved.quiz.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, resolved.quiz.title),
       user: resolved.user,
     }),
     quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
@@ -1911,7 +1916,7 @@ export async function renderQuizParticipationPage(
   renderQuizzesView(response, 'quizzes-participation', {
     ...buildQuizzesShellContext(request, {
       activeProfile: resolved.activeProfile,
-      title: `${resolved.quiz.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, resolved.quiz.title),
       user: resolved.user,
     }),
     canManageQuiz: true,
@@ -1996,6 +2001,7 @@ export async function handleGenerateQuizResponsesSummary(
     );
     const result = await generateQuizResponsesSummary({
       instructionLanguage: resolved.activeProfile.instructionLanguage,
+      modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       request: {
         evaluatedCount: summary.evaluatedCount,
@@ -2356,7 +2362,7 @@ export function renderQuizEvaluatingPage(request: Request, response: Response): 
   renderQuizzesView(response, 'quizzes-evaluating', {
     ...buildQuizzesShellContext(request, {
       activeProfile: request.activeProfile,
-      title: `${draft.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, draft.title),
       user,
     }),
     attempt,

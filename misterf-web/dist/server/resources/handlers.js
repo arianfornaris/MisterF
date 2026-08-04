@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
-import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { translate } from '../i18n/index.js';
 import { logger } from '../services/logger.js';
 import { duplicateResourceForProfile } from './duplicate.js';
@@ -321,8 +321,8 @@ export async function renderResourcesListPage(request, response) {
             guestInitialGreeting: '',
             request,
             title: selectedFolder
-                ? `${selectedFolder.title} - ${appDocumentTitle}`
-                : `Recursos - ${appDocumentTitle}`,
+                ? buildDocumentTitle(request.locale, selectedFolder.title)
+                : buildDocumentTitle(request.locale, response.locals.t('resources.title')),
             user: auth.user,
         }),
         folderBreadcrumbItems: selectedFolderPath.map((item) => buildResourceListItem(item)),
@@ -377,7 +377,7 @@ export function renderResourceTrashPage(request, response) {
             currentView: 'resources',
             guestInitialGreeting: '',
             request,
-            title: `${response.locals.t('resources.trash')} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, response.locals.t('resources.trash')),
             user: auth.user,
         }),
         resourceItems,
@@ -432,7 +432,7 @@ export function renderSharedResourcePage(request, response) {
             currentView: 'resources',
             guestInitialGreeting: '',
             request,
-            title: `${resource.title} - ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, resource.title),
             user: user ?? null,
         }),
         // A teacher shares this link in WhatsApp and a whole class sees the card

@@ -26,7 +26,7 @@ import {
   type StoredResourceFolderMoveOption,
 } from '../db/repository.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
   formatRelativeTime,
@@ -472,8 +472,8 @@ export async function renderResourcesListPage(
       guestInitialGreeting: '',
       request,
       title: selectedFolder
-        ? `${selectedFolder.title} - ${appDocumentTitle}`
-        : `Recursos - ${appDocumentTitle}`,
+        ? buildDocumentTitle(request.locale, selectedFolder.title)
+        : buildDocumentTitle(request.locale, response.locals.t('resources.title')),
       user: auth.user,
     }),
     folderBreadcrumbItems: selectedFolderPath.map((item) => buildResourceListItem(item)),
@@ -545,7 +545,7 @@ export function renderResourceTrashPage(request: Request, response: Response): v
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `${response.locals.t('resources.trash')} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, response.locals.t('resources.trash')),
       user: auth.user,
     }),
     resourceItems,
@@ -612,7 +612,7 @@ export function renderSharedResourcePage(request: Request, response: Response): 
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `${resource.title} - ${appDocumentTitle}`,
+      title: buildDocumentTitle(request.locale, resource.title),
       user: user ?? null,
     }),
     // A teacher shares this link in WhatsApp and a whole class sees the card

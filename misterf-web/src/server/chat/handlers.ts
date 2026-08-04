@@ -19,7 +19,7 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import {
-  appDocumentTitle,
+  buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
   resolveGuestInitialGreeting,
@@ -95,7 +95,7 @@ export function renderChatPage(request: Request, response: Response): void {
       guestInitialGreeting: resolveGuestInitialGreeting(request, user),
       initialConversationId,
       request,
-      title: appDocumentTitle,
+      title: buildDocumentTitle(request.locale),
       user,
     }),
     selectedTutorConversation,
@@ -137,6 +137,10 @@ export async function handleFinalizeTutorConversation(
     generatedReport = await generateTutorConversationReport({
       instructionLanguage: conversation.instructionLanguage,
       messages,
+      // The conversation's own tier, not the profile's: a conversation
+      // snapshots its model the same way it snapshots its language, so
+      // finalizing an old chat cannot silently switch models on it.
+      modelTier: conversation.modelTier,
       openRouterApiKey,
       userName: user.fullName,
     });

@@ -1,6 +1,7 @@
+import { translate } from '../i18n/index.js';
 import { createProfile, findProfileForUser, markProfileOnboardingCompleted, updateConversationModelTierForProfile, updateProfile, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
-import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { normalizeProfileReturnTo, normalizeProfileText, profileDescriptionMaxLength, profileLearningContextMaxLength, profileNameMaxLength, } from './fields.js';
 import { normalizeProfileModelTier } from './modelTier.js';
 import { isInstructionLanguage, normalizeInstructionLanguage, } from './instructionLanguage.js';
@@ -39,7 +40,7 @@ export function renderProfilesListPage(request, response) {
             currentView: 'profiles',
             guestInitialGreeting: '',
             request,
-            title: `Perfiles · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.kicker')),
             user,
         }),
         profilePageMode: 'list',
@@ -57,7 +58,7 @@ export function renderNewProfilePage(request, response) {
             currentView: 'profiles',
             guestInitialGreeting: '',
             request,
-            title: `Nuevo perfil · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.newTitle')),
             user,
         }),
         profileFieldLimits,
@@ -86,7 +87,7 @@ export function renderEditProfilePage(request, response) {
             currentView: 'profiles',
             guestInitialGreeting: '',
             request,
-            title: `Editar perfil · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.editTitle')),
             user,
         }),
         profileFieldLimits,
@@ -112,7 +113,7 @@ export function renderProfileOnboardingPage(request, response) {
             currentView: 'profiles',
             guestInitialGreeting: '',
             request,
-            title: `Completa tu perfil · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.onbAria')),
             user,
         }),
         error: '',
@@ -150,7 +151,7 @@ export function handleProfileOnboarding(request, response) {
                 currentView: 'profiles',
                 guestInitialGreeting: '',
                 request,
-                title: `Completa tu perfil · ${appDocumentTitle}`,
+                title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.onbAria')),
                 user,
             }),
             error: 'Escribe un nombre para este perfil.',

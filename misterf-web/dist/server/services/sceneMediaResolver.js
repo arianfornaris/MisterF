@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
@@ -33,12 +34,16 @@ export async function resolveSceneMedia(request) {
                 role: 'user',
             }],
         model: getLanguageModel({
-            modelTier: 'lite',
+            modelTier: request.modelTier ?? defaultProfileModelTier,
             openRouterApiKey: request.openRouterApiKey,
         }),
         providerOptions: getProviderOptions(),
         system: buildResolverSystemPrompt(),
-        temperature: shouldUseTemperature({ modelTier: 'lite' }) ? 0.1 : undefined,
+        temperature: shouldUseTemperature({
+            modelTier: request.modelTier ?? defaultProfileModelTier,
+        })
+            ? 0.1
+            : undefined,
     });
     let parsedJson;
     try {

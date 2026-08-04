@@ -1,6 +1,7 @@
+import { translate } from '../i18n/index.js';
 import { findLearnerProgressProfile, listLearnerProgressEvents, } from '../db/repository.js';
 import { buildLearnerProgressEventViews, buildLearnerProgressVocabularyItems, } from '../services/learnerProgressView.js';
-import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 function ensureVerifiedProgressUser(request, response) {
     const user = request.authUser;
     if (!user?.emailVerified) {
@@ -33,7 +34,7 @@ export function renderProgressPage(request, response) {
             currentView: 'progress',
             guestInitialGreeting: '',
             request,
-            title: `Progreso · ${appDocumentTitle}`,
+            title: buildDocumentTitle(request.locale, translate(request.locale, 'progress.title')),
             user,
         }),
         events: eventViews,

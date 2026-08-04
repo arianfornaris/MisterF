@@ -1,4 +1,8 @@
 import { generateText } from 'ai';
+import {
+  defaultProfileModelTier,
+  type ProfileModelTier,
+} from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import {
@@ -22,6 +26,7 @@ export type ResolveSceneMediaRequest = {
   desiredLayers?: SceneMediaLayerName[];
   includeUserGenerated?: boolean;
   learnerLevel?: SceneMediaLevel;
+  modelTier?: ProfileModelTier;
   openRouterApiKey: string;
   ownerProfileId?: string;
   ownerUserId?: string;
@@ -93,12 +98,16 @@ export async function resolveSceneMedia(
       role: 'user',
     }],
     model: getLanguageModel({
-      modelTier: 'lite',
+      modelTier: request.modelTier ?? defaultProfileModelTier,
       openRouterApiKey: request.openRouterApiKey,
     }),
     providerOptions: getProviderOptions(),
     system: buildResolverSystemPrompt(),
-    temperature: shouldUseTemperature({ modelTier: 'lite' }) ? 0.1 : undefined,
+    temperature: shouldUseTemperature({
+      modelTier: request.modelTier ?? defaultProfileModelTier,
+    })
+      ? 0.1
+      : undefined,
   });
 
   let parsedJson: unknown;
