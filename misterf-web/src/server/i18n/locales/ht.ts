@@ -507,16 +507,17 @@ export const ht: LocaleCatalog = {
       ht: 'Entèfas la ak eksplikasyon yo an kreyòl. Anglè w ap pratike a rete anglè.',
     },
     modelLegend: 'Modèl pa defo',
-    modelHelp: 'Modèl sa a ap itilize nan nouvo konvèsasyon pwofil sa a.',
+    modelHelp:
+      'Yo itilize l nan nouvo konvèsasyon pwofil sa a ak nan aktivite ou jenere ak AI. Plis modèl la pisan, plis chak itilizasyon konsome kredi.',
     modelLite: 'Lite',
     modelLiteDesc:
-      'Pi rapid e pi bon mache a. Li ka gen plis difikilte ak egzèsis entèaktif yo. Pri apwoksimatif: 1x.',
+      'Pi rapid e pi bon mache a. Li ka gen plis difikilte ak egzèsis entèaktif yo. Se li ki konsome mwens kredi.',
     modelRegular: 'Regilye',
     modelRegularDesc:
-      'Rapid e fyab. Ideyal pou pratik regilye. Pri apwoksimatif: 3x.',
+      'Rapid e fyab. Ideyal pou pratik regilye. Li konsome anviwon 3 fwa plis kredi pase Lite.',
     modelAdvanced: 'Avanse',
     modelAdvancedDesc:
-      'Opsyon Pro a pou travay ki bezwen plis presizyon. Pri apwoksimatif: 5x.',
+      'Opsyon Pro a pou travay ki bezwen plis presizyon. Li konsome anviwon 5 fwa plis kredi pase Lite.',
     onbAria: 'Konplete pwofil ou',
     onbKicker: 'Pwofil aprantisaj',
     onbTitle: 'Ede Mr. F konnen ou pi byen',

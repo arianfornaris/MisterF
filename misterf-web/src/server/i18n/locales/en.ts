@@ -511,16 +511,17 @@ export const en: LocaleCatalog = {
       ht: 'The interface and explanations in Haitian Creole. The English you practice is still English.',
     },
     modelLegend: 'Default model',
-    modelHelp: 'This model will be used in this profile’s new conversations.',
+    modelHelp:
+      'Used in this profile’s new conversations and in the activities you generate with AI. The more powerful the model, the more credits each use consumes.',
     modelLite: 'Lite',
     modelLiteDesc:
-      'The fastest and cheapest. May struggle more with interactive exercises. Approx. cost: 1x.',
+      'The fastest and cheapest. May struggle more with interactive exercises. It uses the fewest credits.',
     modelRegular: 'Regular',
     modelRegularDesc:
-      'Fast and reliable. Ideal for frequent practice. Approx. cost: 3x.',
+      'Fast and reliable. Ideal for frequent practice. Uses about 3 times more credits than Lite.',
     modelAdvanced: 'Advanced',
     modelAdvancedDesc:
-      'The Pro option for tasks that need the highest precision. Approx. cost: 5x.',
+      'The Pro option for tasks that need the highest precision. Uses about 5 times more credits than Lite.',
     onbAria: 'Complete your profile',
     onbKicker: 'Learning profile',
     onbTitle: 'Help Mr. F get to know you better',
