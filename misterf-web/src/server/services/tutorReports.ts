@@ -13,6 +13,7 @@ import type {
 import {
   logLlmInvalidRawResponse,
   logLlmRequest,
+  logLlmCost,
   logLlmResponse,
   shouldLogFullLlmTrace,
 } from './llmTutor/logging.js';
@@ -234,6 +235,16 @@ export async function generateTutorConversationReport(input: {
           operation: 'tutor_report',
         },
       );
+      logLlmCost({
+        context: {
+          actorLabel: 'Tutor report',
+          llm: { modelTier: tier, openRouterApiKey: input.openRouterApiKey },
+          operation: 'tutor_report',
+        },
+        finishReason: result.finishReason,
+        providerMetadata: result.providerMetadata,
+        usage: result.usage,
+      });
 
       let parsedSource: unknown;
       try {

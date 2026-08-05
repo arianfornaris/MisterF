@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
+import { logLlmCost } from './llmTutor/logging.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logger } from './logger.js';
@@ -197,6 +198,19 @@ async function generateSceneMediaPackage(input, schema, system, userPrompt, extr
             })
                 ? 0.35
                 : undefined,
+        });
+        logLlmCost({
+            context: {
+                actorLabel: 'Scene media script',
+                llm: {
+                    modelTier: input.modelTier ?? defaultProfileModelTier,
+                    openRouterApiKey: input.openRouterApiKey,
+                },
+                operation: 'scene_media_script',
+            },
+            finishReason: result.finishReason,
+            providerMetadata: result.providerMetadata,
+            usage: result.usage,
         });
         if (isContentPolicyFinish(result.finishReason, result.providerMetadata)) {
             throw new SceneMediaScriptContentPolicyError();

@@ -4,6 +4,7 @@ import {
   type ProfileModelTier,
 } from '../profiles/modelTier.js';
 import { z } from 'zod';
+import { logLlmCost } from './llmTutor/logging.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import {
   getLanguageModel,
@@ -108,6 +109,20 @@ export async function resolveSceneMedia(
     })
       ? 0.1
       : undefined,
+  });
+
+  logLlmCost({
+    context: {
+      actorLabel: 'Scene media resolver',
+      llm: {
+        modelTier: request.modelTier ?? defaultProfileModelTier,
+        openRouterApiKey: request.openRouterApiKey,
+      },
+      operation: 'scene_media_resolver',
+    },
+    finishReason: result.finishReason,
+    providerMetadata: result.providerMetadata,
+    usage: result.usage,
   });
 
   let parsedJson: unknown;

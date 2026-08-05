@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
+import { logLlmCost } from './llmTutor/logging.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { listSceneMediaItems, normalizeSceneMediaLevel, } from '../sceneMedia/library.js';
@@ -44,6 +45,19 @@ export async function resolveSceneMedia(request) {
         })
             ? 0.1
             : undefined,
+    });
+    logLlmCost({
+        context: {
+            actorLabel: 'Scene media resolver',
+            llm: {
+                modelTier: request.modelTier ?? defaultProfileModelTier,
+                openRouterApiKey: request.openRouterApiKey,
+            },
+            operation: 'scene_media_resolver',
+        },
+        finishReason: result.finishReason,
+        providerMetadata: result.providerMetadata,
+        usage: result.usage,
     });
     let parsedJson;
     try {

@@ -1,7 +1,7 @@
 import { generateText } from 'ai';
 import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
-import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, shouldLogFullLlmTrace, } from './llmTutor/logging.js';
+import { logLlmInvalidRawResponse, logLlmRequest, logLlmCost, logLlmResponse, shouldLogFullLlmTrace, } from './llmTutor/logging.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { isCreditExhaustedError } from './creditGate.js';
@@ -152,6 +152,16 @@ export async function generateTutorConversationReport(input) {
             logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, {
                 actorLabel: 'Tutor report',
                 operation: 'tutor_report',
+            });
+            logLlmCost({
+                context: {
+                    actorLabel: 'Tutor report',
+                    llm: { modelTier: tier, openRouterApiKey: input.openRouterApiKey },
+                    operation: 'tutor_report',
+                },
+                finishReason: result.finishReason,
+                providerMetadata: result.providerMetadata,
+                usage: result.usage,
             });
             let parsedSource;
             try {

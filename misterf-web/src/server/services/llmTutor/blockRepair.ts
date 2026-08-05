@@ -10,6 +10,7 @@ import {
 import { languages, type LeakagePatterns } from '../../i18n/index.js';
 import { TutorResponseValidationError } from './errors.js';
 import { parseJsonFromModelText } from './modelJson.js';
+import { logLlmCost } from './logging.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './providers.js';
 import { validateTutorResponseBlocks } from './validation.js';
 import type { LlmRequestOptions, TutorAgentResponseBlock } from './types.js';
@@ -141,6 +142,13 @@ export async function repairTutorResponseBlocks(input: {
         ORIGINAL_BLOCKS_JSON: JSON.stringify({ blocks: currentBlocks }, null, 2),
       }),
       temperature: shouldUseTemperature(input.llm) ? 0.1 : undefined,
+    });
+
+    logLlmCost({
+      context: { actorLabel: 'Block repair', llm: input.llm, operation: 'tutor_block_repair' },
+      finishReason: result.finishReason,
+      providerMetadata: result.providerMetadata,
+      usage: result.usage,
     });
 
     lastGeneratedText = result.text;

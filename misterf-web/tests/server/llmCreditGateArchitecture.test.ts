@@ -103,6 +103,43 @@ describe('LLM credit gate architecture', () => {
     }
   });
 
+  it('records the cost of every model call', () => {
+    // Cost used to live only inside `llm_response`, which is `logger.debug` and
+    // gated behind LLM_TRACE_MODE. Production runs at LOG_LEVEL=info, so no
+    // cost was written there at all — every figure the project had came from a
+    // developer's machine. `logLlmCost` is `info` and ungated; a `generateText`
+    // call without it spends money invisibly, which is how the block-repair and
+    // translator paths went unpriced.
+    for (const [file, generateTextCalls] of Object.entries(
+      expectedGenerateTextCallCounts,
+    )) {
+      const source = readProjectFile(file);
+      const costCalls = source.match(/\blogLlmCost\s*\(/g)?.length ?? 0;
+
+      expect(
+        costCalls,
+        `${file} makes ${generateTextCalls} generateText call(s) but logs cost ${costCalls} time(s)`,
+      ).toBe(generateTextCalls);
+    }
+  });
+
+  it('keeps the cost event out of the debug trace', () => {
+    const source = readProjectFile('src/server/services/llmTutor/logging.ts');
+    const costFunction = source.slice(source.indexOf('export function logLlmCost'));
+    // Stop at the next top-level declaration, not the first `\n}` — the input
+    // type literal closes before the body even starts.
+    const nextDeclaration = costFunction.slice(1).search(/\n(?:\/\*\*|export |function )/);
+    const body = costFunction.slice(0, nextDeclaration + 1);
+
+    expect(body, 'logLlmCost must log at info, not debug').toContain(
+      "logger.info('llm_cost'",
+    );
+    expect(
+      body,
+      'logLlmCost must not be gated behind the trace mode; production needs it',
+    ).not.toContain('shouldLogLlmTrace');
+  });
+
   it('lets models use their native output budget', () => {
     for (const file of listFiles('src/server', new Set(['.ts']))) {
       expect(

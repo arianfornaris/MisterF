@@ -1,7 +1,7 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
-import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
+import { logLlmInvalidRawResponse, logLlmRequest, logLlmCost, logLlmResponse, } from './llmTutor/logging.js';
 import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
@@ -292,6 +292,12 @@ async function generateStructuredRoleplayOutput(input) {
         logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
             actorLabel: input.actorLabel,
             operation: 'roleplay',
+        });
+        logLlmCost({
+            context: { actorLabel: input.actorLabel, llm: input.llm, operation: 'roleplay' },
+            finishReason: result.finishReason,
+            providerMetadata: result.providerMetadata,
+            usage: result.usage,
         });
         let parsedJson;
         try {

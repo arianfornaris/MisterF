@@ -13,6 +13,7 @@ import {
 } from './errors.js';
 import {
   buildLlmRequestTokenUsage,
+  logLlmCost,
   logLlmInvalidRawResponse,
   logLlmRequest,
   logLlmResponse,
@@ -305,6 +306,19 @@ export async function runTutorAgentLoop(
         temperature: shouldUseTemperature(options.llm) ? 0.45 : undefined,
         tools,
       });
+      logLlmCost({
+        context: {
+          actorLabel: 'Mr. F',
+          conversationId: options.conversationId ?? null,
+          llm: options.llm,
+          operation: 'tutor',
+          profileId: options.profileId ?? null,
+          userId: options.userId ?? null,
+        },
+        finishReason: result.finishReason,
+        providerMetadata: result.providerMetadata,
+        usage: result.usage,
+      });
       logLlmToolCalls({
         actorLabel: 'Mr. F',
         conversationId: options.conversationId ?? null,
@@ -558,6 +572,13 @@ export async function translateTextWithLlm(input: {
     throw new Error('El traductor no devolvió una respuesta válida.');
   }
 
+  logLlmCost({
+    context: { actorLabel: 'Translator', llm: input.llm, operation: 'translator' },
+    finishReason: result.finishReason,
+    providerMetadata: result.providerMetadata,
+    usage: result.usage,
+  });
+
   logger.debug('llm_translator_response', {
     detectedLanguage: parsed.data.detectedLanguage,
     direction: input.direction,
@@ -634,6 +655,16 @@ export async function evaluateQuizResultItemsWithLlm(input: {
     // Quiz evaluation is the most-run inference in the teacher cycle and was
     // the only one absent from the cost telemetry, so pricing a learner's
     // cycle had a hole exactly where the volume is.
+    logLlmCost({
+      context: {
+        actorLabel: 'Quiz evaluation',
+        llm: input.llm,
+        operation: 'quiz_evaluation',
+      },
+      finishReason: result.finishReason,
+      providerMetadata: result.providerMetadata,
+      usage: result.usage,
+    });
     logLlmResponse(
       result.text,
       result.finishReason,

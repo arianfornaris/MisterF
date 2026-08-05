@@ -4,6 +4,7 @@ import {
   type ProfileModelTier,
 } from '../profiles/modelTier.js';
 import { z } from 'zod';
+import { logLlmCost } from './llmTutor/logging.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import {
   getLanguageModel,
@@ -286,6 +287,20 @@ async function generateSceneMediaPackage<T>(
       })
         ? 0.35
         : undefined,
+    });
+
+    logLlmCost({
+      context: {
+        actorLabel: 'Scene media script',
+        llm: {
+          modelTier: input.modelTier ?? defaultProfileModelTier,
+          openRouterApiKey: input.openRouterApiKey,
+        },
+        operation: 'scene_media_script',
+      },
+      finishReason: result.finishReason,
+      providerMetadata: result.providerMetadata,
+      usage: result.usage,
     });
 
     if (isContentPolicyFinish(result.finishReason, result.providerMetadata)) {

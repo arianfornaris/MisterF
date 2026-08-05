@@ -6,7 +6,7 @@ import { quizItemSchema } from './llmTutor/schemas.js';
 import { normalizeRoleplayRevisionConversationHistory, roleplayAuthoringDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
-import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
+import { logLlmCost, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { instructionLanguageEnglishName, quizAuthoringPlaceholders, } from './llmTutor/languagePack.js';
@@ -165,6 +165,16 @@ async function generateStructuredDraft(input) {
         logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
             actorLabel: input.actorLabel,
             operation: 'resource_draft',
+        });
+        logLlmCost({
+            context: {
+                actorLabel: input.actorLabel,
+                llm: { modelTier: tier, openRouterApiKey: input.openRouterApiKey },
+                operation: 'resource_draft',
+            },
+            finishReason: result.finishReason,
+            providerMetadata: result.providerMetadata,
+            usage: result.usage,
         });
         if (result.finishReason === 'length') {
             logger.warn('resource_draft_output_truncated', {

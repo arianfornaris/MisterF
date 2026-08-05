@@ -117,6 +117,75 @@ export function logLlmResponse(
   });
 }
 
+/**
+ * What an inference cost, as a first-class `info` event.
+ *
+ * This is deliberately **not** part of the trace above. `llm_request` and
+ * `llm_response` are debugging output: they carry prompts and completions, so
+ * they are `debug` and gated behind `LLM_TRACE_MODE`. Production runs at
+ * `LOG_LEVEL=info` with tracing on `metadata`, so the cost figures inside
+ * `llm_response` were written **nowhere in production** — the only cost data the
+ * project ever had came from a developer's local box, which is why pricing a
+ * learner's cycle kept coming back to guesswork.
+ *
+ * Emitted for every model call regardless of trace mode, with no prompt or
+ * completion text, so it is safe to keep on permanently.
+ *
+ * `costUsd` is what the provider reported for this call. Note it is **not** the
+ * same as the account's billed usage: reconcile against the key's `usage`
+ * before quoting a price to anyone.
+ */
+export function logLlmCost(input: {
+  context: LlmLogContext;
+  finishReason?: FinishReason;
+  providerMetadata?: ProviderMetadata;
+  usage?: LanguageModelUsage;
+}): void {
+  const raw = readProviderCostDetails(input.providerMetadata, input.usage);
+
+  logger.info('llm_cost', {
+    ...buildLlmLogBase(input.context),
+    costUsd: raw.costUsd,
+    finishReason: input.finishReason,
+    inputTokens: input.usage?.inputTokens,
+    outputTokens: input.usage?.outputTokens,
+    reasoningTokens: input.usage?.reasoningTokens,
+    totalTokens: input.usage?.totalTokens,
+    upstreamCostUsd: raw.upstreamCostUsd,
+  });
+}
+
+/**
+ * Pulls the provider's own cost numbers out of the usage payload.
+ *
+ * OpenRouter reports `cost` plus a `cost_details.upstream_inference_cost`. They
+ * are equal on ordinary traffic, but they have diverged before — when the
+ * account routed through its own provider key, `cost` read 0 and only the
+ * upstream figure was real, which silently emptied the credit system of any
+ * enforcement. Both are recorded so a future divergence is visible instead of
+ * being averaged away.
+ */
+function readProviderCostDetails(
+  providerMetadata: ProviderMetadata | undefined,
+  usage: LanguageModelUsage | undefined,
+): { costUsd: number | null; upstreamCostUsd: number | null } {
+  const raw = (usage as { raw?: Record<string, unknown> } | undefined)?.raw
+    ?? (providerMetadata?.openrouter as { usage?: Record<string, unknown> } | undefined)?.usage;
+
+  if (!raw || typeof raw !== 'object') {
+    return { costUsd: null, upstreamCostUsd: null };
+  }
+
+  const details = (raw as { cost_details?: Record<string, unknown> }).cost_details;
+  const cost = (raw as { cost?: unknown }).cost;
+  const upstream = details?.upstream_inference_cost;
+
+  return {
+    costUsd: typeof cost === 'number' ? cost : null,
+    upstreamCostUsd: typeof upstream === 'number' ? upstream : null,
+  };
+}
+
 export function logLlmToolCalls(input: {
   actorLabel?: string;
   conversationId?: string | null;

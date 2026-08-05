@@ -944,19 +944,24 @@ now costs, per the key's own billed `usage`, **$0.0233**:
 | Tutor turn | $0.00590 |
 | Tutor report | $0.00105 |
 | **Log total** | **$0.01648** |
-| **OpenRouter billed `usage`** | **$0.02328** |
+| **OpenRouter billed `usage`** | **$0.02328** (contaminated — see the correction below) |
 
-**Use the billed `usage`, not the log.** The two disagree by ~41%: the log records
-`cost_details.upstream_inference_cost`, which excludes OpenRouter's own margin,
-and it is the billed figure that depletes the balance a buyer is paying for. Now
-that BYOK is gone, `usage` is trustworthy and updates within minutes, so the
-estimate should be built from it — the per-call log stays useful for attributing
-cost to operations, not for totals.
+**Correction, 2026-08-03: the log and the billed usage agree exactly.** The ~41%
+gap first recorded here was an artifact of the account used, not a provider
+margin — that key had spent under the old provider-key routing, and the
+settlement of that older spend landed inside the measurement window. Re-measured
+on an account created after the change, with a single isolated inference and
+nothing else: the logged `costUsd` read **$0.0023631** and the key's `usage`
+moved from `0` to **$0.0023631**. Ratio 1.000.
 
-On this basis a USD 5 package is on the order of **200 student cycles**, and the
-tutor turn remains the dominant term at roughly $0.006–0.007 each. That is still
-not the sentence to publish: it is one cycle, on one profile, with a two-turn
-session.
+So the per-call log can be summed for totals. The rule that survives is narrower:
+**measure on an account with no history under a previous billing arrangement**,
+and read `usage` before and after rather than trusting a cumulative figure.
+
+On this basis a USD 5 package is on the order of **300 student cycles** (using the
+trustworthy $0.01648 figure), and the tutor turn remains the dominant term at
+roughly $0.006–0.007 each. That is still not the sentence to publish: it is one
+cycle, on one profile, with a two-turn session.
 
 ### Why This Is Not Yet An Answer
 
@@ -964,14 +969,24 @@ session.
   `generateText` directly without the wrapper that emits `llm_response`, so the
   single most-run inference in the teacher cycle had no cost record. Fixed in
   `3.7.0`: it now logs as `Quiz evaluation` / `quiz_evaluation`.
-- [x] **Reconcile against OpenRouter's own usage figures.** Done 2026-08-03, and
-  they do **not** agree — the log undercounts billed usage by ~41%, and the `0`
-  readings that made the endpoint look laggy were BYOK spend being excluded from
-  the limit, not lag. Billed `usage` is the figure to price from.
+- [x] **Reconcile against OpenRouter's own usage figures.** Done 2026-08-03: on a
+  clean account they agree to the cent. The `0` readings that made the endpoint
+  look laggy were the previous provider-key routing excluding spend from the
+  limit, not lag.
 - [ ] **Define "regular practice" before estimating its duration.** A month for
   a learner doing two 10-turn sessions a week is a very different number from a
   daily user. The estimate has to name the usage it assumes, or it will be wrong
   for everyone.
+- [x] **Cost telemetry must exist in production.** Found 2026-08-03 and fixed the
+  same day: cost lived only inside `llm_response`, which is `logger.debug` and
+  gated behind `LLM_TRACE_MODE`. Production runs at `LOG_LEVEL=info`, so **no
+  cost was recorded in production at all** — every figure in this document came
+  from a developer's machine. A dedicated `llm_cost` event now logs at `info`,
+  ungated, carrying model, operation, tokens and cost but no prompt text, at all
+  nine `generateText` call sites. Two of those (block repair and the translator)
+  had never recorded cost in any environment. An architecture guard keeps the
+  counts matched. Verified live with `LOG_LEVEL=info LLM_TRACE_MODE=off`: the
+  cost event is written, the debug trace is not.
 - [ ] **Run the sessions.** These are live-product runs, not unit tests, and they
   are mine to execute — see `.agents/skills/live-product-qa`. Concretely: a
   learner-only week (tutor chat plus follow-up practice), a full teacher cycle

@@ -15,6 +15,7 @@ import {
 import {
   logLlmInvalidRawResponse,
   logLlmRequest,
+  logLlmCost,
   logLlmResponse,
 } from './llmTutor/logging.js';
 import type { LlmRequestOptions } from './llmTutor/types.js';
@@ -424,6 +425,12 @@ async function generateStructuredRoleplayOutput<T>(input: {
         operation: 'roleplay',
       },
     );
+    logLlmCost({
+      context: { actorLabel: input.actorLabel, llm: input.llm, operation: 'roleplay' },
+      finishReason: result.finishReason,
+      providerMetadata: result.providerMetadata,
+      usage: result.usage,
+    });
 
     let parsedJson: unknown;
     try {
