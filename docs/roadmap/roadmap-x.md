@@ -1,6 +1,6 @@
 # Roadmap X — Deferred, Not Yet Scheduled
 
-Date: 2026-07-31
+Date: 2026-07-31 (last updated: 2026-08-06)
 
 Status: **Open holding area.** This document has no release attached to it and
 no completion date. Items sit here until they are pulled into a numbered
@@ -346,3 +346,177 @@ teacher evaluating an unknown tool.
 - `src/server/i18n/locales/ht.ts` — the catalog header states the machine
   translation caveat.
 - [Contexto del fundador](../business/contexto-del-fundador.md).
+
+---
+
+# X.5 Gemini Thought Signatures In The Tutor Tool Loop
+
+Observed 2026-08-06 during the §1.10 live QA of the conversation-origin line,
+and deferred the same day at the founder's direction. A practice-guide session's
+opening turn failed and the learner got the generic "se me enredó la respuesta"
+message. The cause was a provider rejection, not a bug in our parsing:
+
+> `AI_APICallError: [Google AI Studio] Corrupted thought signature.`
+
+## The Problem
+
+Gemini 3 does not return its reasoning in the clear. It attaches an **encrypted
+thought signature** to model turns — above all to function calls — and when the
+client replays that history the signature must come back verbatim, attached to
+the same part. A signature that arrives altered, truncated, or incomplete is
+rejected with this error. Note what it says: not *missing*, **corrupted** — we
+sent something back and it did not validate.
+
+The only place this application replays a Gemini assistant turn is the
+**multi-step tool loop inside one `generateText` call**
+(`services/llmTutor/index.ts`, `stopWhen: stepCountIs(6)`): the model calls a
+tool, the AI SDK appends the assistant message plus the tool result and calls
+again. The two other candidates are ruled out — our own correction retry appends
+only a *user* message (`appendStructuredCorrectionRequest`), and conversation
+history from the database is plain text carrying no signatures.
+
+What makes that loop suspect is `services/llmTutor/providers.ts`:
+
+```ts
+openrouter: { reasoning: { effort: …, exclude: true } }
+```
+
+`exclude: true` asks OpenRouter not to return reasoning blocks at all, while the
+provider still reconstructs `reasoning_details` when sending the assistant turn
+back, **dropping any `google-gemini-v1` entry that has no `signature`**
+(`@openrouter/ai-sdk-provider@2.8.0`, `dist/index.js:3068`, which warns and
+points at its own issues
+[#418](https://github.com/OpenRouterTeam/ai-sdk-provider/issues/418) and
+[#423](https://github.com/OpenRouterTeam/ai-sdk-provider/issues/423)). Excluding
+the reasoning and then replaying its remains is a plausible way to send an
+incomplete signature set.
+
+That last step is a **hypothesis, not a reproduction.** What is established: the
+error came from Google through OpenRouter, on `google/gemini-3.6-flash`, and it
+is intermittent — two and a half minutes later the same model on the same code
+path completed a turn that *did* call `update_conversation_title`. First
+occurrence in the local logs; never seen in production traces so far.
+
+## Why It Is Deferred
+
+It is intermittent, it has been seen once, and the failure is already contained:
+the credit gate and error handling turned it into a polite message rather than a
+broken page. Chasing an unreproduced provider bug ahead of the pilot buys less
+than the pilot does.
+
+The cost of waiting is that the learner-visible symptom is indistinguishable
+from the model genuinely failing, so if it becomes frequent nobody will
+recognise it as this.
+
+## What Would Pull It In
+
+- **A second occurrence**, especially in production or during a teacher's
+  session. One is noise; two is a defect with a user in front of it.
+- **Any change to the tutor's tool set.** More tools means more steps that
+  replay an assistant turn, which is exactly the exposure.
+- **A `@openrouter/ai-sdk-provider` release that closes #418/#423** — then the
+  fix is an upgrade rather than an investigation.
+
+## When It Is Picked Up
+
+Cheapest first:
+
+1. Make the provider's own warning visible (`globalThis.AI_SDK_LOG_WARNINGS`),
+   so the next occurrence says whether reasoning entries were dropped.
+2. Stop sending `exclude: true` for Gemini 3.x ids. Reasoning tokens are billed
+   either way — `exclude` only hides them from the response — so the cost is
+   noise in the response, not money.
+3. Retry once on `AI_APICallError`. The loop currently treats it as
+   non-correctable and throws, so a transient provider failure always reaches
+   the learner. This is worth doing on its own merits, independently of the
+   diagnosis.
+
+## Related
+
+- `src/server/services/llmTutor/providers.ts` (`getProviderOptions`),
+  `src/server/services/llmTutor/index.ts` (the agent loop).
+- [Roadmap V3](roadmap-v3.md) §2.5 — the three-tier Google portfolio that put
+  Gemini 3.x on every text path.
+
+---
+
+# X.6 An Owner Cannot Reopen Their Own Result
+
+Found 2026-08-06 when the founder asked how to get back to a quiz's summary
+after finishing it, and noted rather than fixed the same day. The answer turned
+out to be that **there is no way** — not a hidden one, none.
+
+## The Problem
+
+Every resource page renders the "your attempts" list behind the same condition:
+
+| Resource | Template | Gate |
+| --- | --- | --- |
+| Quiz | `views/quizzes-show.ejs:212` | `!canManageQuiz` |
+| Roleplay | `views/roleplays-show.ejs:190` | `!canManageRoleplay` |
+| Practice guide | `views/partials/practice-guides-view.ejs:189` | `!canManagePracticeGuide` |
+
+So the list is shown to a **recipient** and hidden from the **owner**. That was
+made deliberate and uniform in `6bf38dc9`, whose reasoning is recorded in the
+templates: the owner's own runs are just test runs, they have the Participants
+card for other people's, and "owners still reach their own chats from the
+conversation list."
+
+Two of those three reasons do not survive contact with the other surfaces:
+
+- **The Participants card excludes the owner's own attempts by design**
+  ([Roadmap V3](roadmap-v3.md) §1.6 — a `Probar` run is not participation), so
+  it is not the fallback the comment assumes.
+- **"The conversation list" only exists for practice guides.** A guide session
+  *is* a conversation, so it appears in Recientes and, since 2026-08-06, names
+  its guide at the top of the chat ([Roadmap V3.5](roadmap-v3-5.md) §1.10). A
+  quiz or roleplay attempt is not a conversation and appears in no list
+  anywhere.
+
+`/progress` does not close the gap either: the events tab renders the evaluated
+attempt's title, date, and summary, but the card is not a link
+(`views/progress.ejs:227`). The result exists, is evaluated, is owned by the
+person looking for it, and is reachable only by typing
+`/quiz-attempts/<id>/result` with an id nothing on screen shows.
+
+One indirect path does exist now, by accident of the origin work: if the owner
+pressed **Practicar** on the result, that follow-up conversation is in Recientes
+and its origin line links back to the result.
+
+## Why It Is Deferred
+
+The founder chose to note it rather than fix it mid-session, and it is not on
+the pilot's critical path: the teacher-facing loop is about *participants'*
+results, which works. The people it hits are authors reviewing their own test
+run — today, mostly the founder.
+
+The cost of waiting is small but real: it looks like data loss. The evaluation
+is right there in the database and the app acts as if it never happened, which
+is the same shape as the archived-resource gap that
+[Roadmap V3](roadmap-v3.md) §2.4 closed.
+
+## What Would Pull It In
+
+- **A pilot teacher asks the same question the founder did.** It is the obvious
+  question after taking your own quiz, and the answer is currently "you can't",
+  which is a bad answer to give a teacher evaluating the tool.
+- **Any work on `/progress`.** Making those cards link to their source is the
+  same fix from the other end, and arguably the better one, since it covers
+  every past attempt rather than one resource at a time.
+
+## When It Is Picked Up
+
+The data is already there: both handlers query the attempt list **with the
+owner's own profile** (`quizzes/handlers.ts:1816`, `roleplays/handlers.ts:855`)
+and hand it to the view, which then declines to render it. So the change is a
+template condition and a label that distinguishes the author's own test runs
+from participants' attempts — not a query, not a route, not a migration.
+
+Scene media has no attempts and is unaffected.
+
+## Related
+
+- [Roadmap V3](roadmap-v3.md) §1.6 (participation excludes the owner), §2.4
+  (the archived-resource precedent for a data-loss-shaped gap).
+- [Roadmap V3.5](roadmap-v3-5.md) §1.10 (the origin line, and the one indirect
+  path back).
