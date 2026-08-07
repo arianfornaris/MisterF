@@ -32,6 +32,56 @@
             id="chatPane"
             tabindex="0"
           >
+            <%
+              /*
+               * Where this conversation came from. A follow-up practice and a
+               * practice-guide session look like any other chat once they are
+               * under way, so the resource that produced them is named here,
+               * with a link back to it while the learner can still open it.
+               */
+              const conversationOrigin =
+                typeof selectedTutorConversationOrigin === 'undefined'
+                  ? null
+                  : selectedTutorConversationOrigin;
+              const conversationOriginMeta = {
+                practice_guide: { icon: 'bi-journal-text', label: t('practiceGuides.guideKicker') },
+                quiz: { icon: 'bi-ui-checks-grid', label: t('quizzes.quizKicker') },
+                roleplay: { icon: 'bi-person-video3', label: t('roleplays.roleplayKicker') },
+                summary: { icon: 'bi-card-text', label: t('chat.summaryKicker') },
+              };
+            %>
+            <% if (conversationOrigin) { %>
+              <aside class="conversation-origin" aria-label="<%= t('chat.originAriaLabel') %>">
+                <i class="bi bi-signpost-split conversation-origin-icon" aria-hidden="true"></i>
+                <span class="conversation-origin-label"><%= t('chat.originLabel') %></span>
+                <% [conversationOrigin, conversationOrigin.via].forEach((originResource, originIndex) => { %>
+                  <% if (originResource) { %>
+                    <% if (originIndex > 0) { %>
+                      <span class="conversation-origin-via"><%= t('chat.originVia') %></span>
+                    <% } %>
+                    <% const originMeta = conversationOriginMeta[originResource.kind]; %>
+                    <% if (originResource.path) { %>
+                      <a class="conversation-origin-chip" href="<%= originResource.path %>">
+                        <i class="bi <%= originMeta.icon %>" aria-hidden="true"></i>
+                        <span class="conversation-origin-type"><%= originMeta.label %></span>
+                        <span class="conversation-origin-title"><%= originResource.title %></span>
+                      </a>
+                    <% } else { %>
+                      <span class="conversation-origin-chip is-unavailable">
+                        <i class="bi <%= originMeta.icon %>" aria-hidden="true"></i>
+                        <span class="conversation-origin-type"><%= originMeta.label %></span>
+                        <span class="conversation-origin-title"><%= originResource.title %></span>
+                      </span>
+                    <% } %>
+                  <% } %>
+                <% }) %>
+                <% if (conversationOrigin.resultPath) { %>
+                  <a class="conversation-origin-result" href="<%= conversationOrigin.resultPath %>">
+                    <%= t('chat.originResult') %>
+                  </a>
+                <% } %>
+              </aside>
+            <% } %>
             <% if (isTutorConversationClosed && activeTutorConversationTab === 'summary') { %>
               <div id="messages" class="d-none" aria-live="polite"></div>
               <article class="conversation-summary-view mx-auto py-4 px-3 px-md-4">

@@ -1153,6 +1153,10 @@ export const en: LocaleCatalog = {
     tabConversation: 'Conversation',
     tabSummary: 'Summary',
     summaryKicker: 'Conversation summary',
+    originAriaLabel: 'Where this conversation came from',
+    originLabel: 'Comes from',
+    originVia: 'which came from',
+    originResult: 'View the result',
     preparingPractice: 'Preparing practice...',
     practiceThese: 'Practice these points',
     createResource: 'Create resource',
@@ -1387,6 +1391,10 @@ export const en: LocaleCatalog = {
     quizCompletedFallback: 'Quiz completed',
     resourceCreatedMessage:
       'I created {{articledLabel}} **{{title}}** from this conversation.\n\n[Open {{label}}]({{path}})',
+    resourceSourceNoticeQuiz:
+      'This conversation comes from the quiz [{{title}}]({{resourcePath}}) and its [result]({{resultPath}}).\n\nLet’s practice from the difficulties it found.',
+    resourceSourceNoticeRoleplay:
+      'This conversation comes from the roleplay [{{title}}]({{resourcePath}}) and its [result]({{resultPath}}).\n\nLet’s practice from the difficulties it found.',
     resourceQuizLabel: 'quiz',
     resourceQuizArticled: 'a quiz',
     resourcePracticeGuideLabel: 'practice guide',

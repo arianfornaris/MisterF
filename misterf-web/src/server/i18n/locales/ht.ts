@@ -979,6 +979,10 @@ export const ht: LocaleCatalog = {
     tabConversation: 'Konvèsasyon',
     tabSummary: 'Rezime',
     summaryKicker: 'Rezime konvèsasyon',
+    originAriaLabel: 'Kote konvèsasyon sa a soti',
+    originLabel: 'Li soti nan',
+    originVia: 'ki soti nan',
+    originResult: 'Gade rezilta a',
     preparingPractice: 'Ap prepare pratik...',
     practiceThese: 'Pratike pwen sa yo',
     createResource: 'Kreye resous',
@@ -1403,6 +1407,10 @@ export const ht: LocaleCatalog = {
     quizCompletedFallback: 'Quiz fini',
     resourceCreatedMessage:
       'Mwen kreye {{articledLabel}} **{{title}}** apati konvèsasyon sa a.\n\n[Louvri {{label}}]({{path}})',
+    resourceSourceNoticeQuiz:
+      'Konvèsasyon sa a soti nan quiz [{{title}}]({{resourcePath}}) ak [rezilta li]({{resultPath}}).\n\nAnn pratike apati difikilte yo te jwenn yo.',
+    resourceSourceNoticeRoleplay:
+      'Konvèsasyon sa a soti nan roleplay [{{title}}]({{resourcePath}}) ak [rezilta li]({{resultPath}}).\n\nAnn pratike apati difikilte yo te jwenn yo.',
     resourceQuizLabel: 'quiz',
     resourceQuizArticled: 'yon quiz',
     resourcePracticeGuideLabel: 'gid pratik',

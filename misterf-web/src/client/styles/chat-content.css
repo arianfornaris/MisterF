@@ -15,6 +15,70 @@
   background: #fff;
 }
 
+/*
+ * Provenance line at the top of a derived conversation: which resource, or
+ * which summary, this chat came out of.
+ */
+.conversation-origin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  color: var(--bs-secondary-color);
+  font-size: 0.86rem;
+}
+
+.conversation-origin-icon {
+  opacity: 0.75;
+}
+
+.conversation-origin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+  text-decoration: none;
+}
+
+a.conversation-origin-chip:hover,
+a.conversation-origin-chip:focus-visible {
+  border-color: var(--bs-primary);
+  color: var(--bs-primary);
+}
+
+/* The source is gone, archived, or no longer shared: name it, do not link it. */
+.conversation-origin-chip.is-unavailable {
+  opacity: 0.7;
+}
+
+.conversation-origin-type {
+  flex: 0 0 auto;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.conversation-origin-type::after {
+  content: "·";
+  margin-left: 0.35rem;
+  opacity: 0.5;
+}
+
+.conversation-origin-title {
+  overflow: hidden;
+  max-width: 24ch;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .message-row {
   display: block;
   margin-bottom: 22px;

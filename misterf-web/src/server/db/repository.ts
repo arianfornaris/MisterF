@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import type { Locale } from '../i18n/index.js';
+import { translate, type Locale } from '../i18n/index.js';
 import {
   defaultProfileModelTier,
   normalizeProfileModelTier,
@@ -4396,6 +4396,7 @@ export function createConversationFromQuizAttempt(input: {
   createConversationQuizAttemptSnapshot(conversation.id, input.attempt);
   addResourceSourceNoticeMessage(conversation.id, {
     attemptId: input.attempt.id,
+    locale: conversation.instructionLanguage,
     resourceId: input.attempt.quizId,
     resourcePath: `/quizzes/${encodeURIComponent(input.attempt.quizId)}`,
     resultPath: `/quiz-attempts/${encodeURIComponent(input.attempt.id)}/result`,
@@ -4996,6 +4997,7 @@ export function createConversationFromRoleplayAttempt(input: {
   createConversationRoleplayAttemptSnapshot(conversation.id, input.attempt);
   addResourceSourceNoticeMessage(conversation.id, {
     attemptId: input.attempt.id,
+    locale: conversation.instructionLanguage,
     resourceId: input.attempt.roleplayId,
     resourcePath: `/roleplays/${encodeURIComponent(input.attempt.roleplayId)}`,
     resultPath: `/roleplay-attempts/${encodeURIComponent(input.attempt.id)}/result`,
@@ -5077,6 +5079,7 @@ function addResourceSourceNoticeMessage(
   conversationId: string,
   input: {
     attemptId: string;
+    locale: Locale;
     resourceId: string;
     resourcePath: string;
     resultPath: string;
@@ -5084,16 +5087,25 @@ function addResourceSourceNoticeMessage(
     type: 'quiz' | 'roleplay';
   },
 ): void {
-  const resourceLabel = input.type === 'quiz' ? 'el quiz' : 'el Roleplay';
-  const fallbackTitle = input.type === 'quiz' ? 'este quiz' : 'este Roleplay';
+  const fallbackTitle = translate(
+    input.locale,
+    input.type === 'quiz' ? 'msg.resourceQuizLabel' : 'msg.resourceRoleplayLabel',
+  );
   const title = escapeMarkdownLinkText(input.title || fallbackTitle);
   addMessage(
     conversationId,
     'model',
-    [
-      `Esta conversación se deriva de ${resourceLabel} [${title}](${input.resourcePath}) y de su [resultado](${input.resultPath}).`,
-      'Vamos a practicar a partir de las dificultades encontradas.',
-    ].join('\n\n'),
+    translate(
+      input.locale,
+      input.type === 'quiz'
+        ? 'msg.resourceSourceNoticeQuiz'
+        : 'msg.resourceSourceNoticeRoleplay',
+      {
+        resourcePath: input.resourcePath,
+        resultPath: input.resultPath,
+        title,
+      },
+    ),
     {
       resourceSourceNotice: {
         attemptId: input.attemptId,

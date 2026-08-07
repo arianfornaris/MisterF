@@ -1,6 +1,6 @@
 # Roadmap V3.5 — Public Landing Page
 
-Date: 2026-07-30 (last updated: 2026-08-01)
+Date: 2026-07-30 (last updated: 2026-08-06)
 
 Status: **Shipped; every exit criterion met as of 2026-08-01.** The landing went
 to production on 2026-07-31 as `3.3.0`, in three language editions at real URLs,
@@ -15,9 +15,11 @@ Nothing in this document blocks anything. Every initiative is closed as of
 said the flexibility in the FAQ instead, the "how long does a package last"
 sentence (§1.1) was dropped outright rather than deferred, and the Recientes
 timeline (§1.10) was dropped as too complex for what it adds — the timeline
-already exists at `/progress`. One small, unrelated fix is carved out of that
-last decision and still open: labelling the practice-guide conversations that
-already appear in Recientes.
+already exists at `/progress`. The one fix carved out of that last decision
+closed on 2026-08-06, in a different place than proposed: a derived conversation
+now names its source **inside the chat** rather than in the Recientes row, and
+that covers guides, quiz and roleplay follow-ups, and practice started from a
+summary (§1.10).
 The share image moved to [Roadmap V4 §1.10](roadmap-v4.md), the conversion
 counts to [Roadmap X §X.1](roadmap-x.md), and the two native-speaker copy
 reviews to [Roadmap X §X.4](roadmap-x.md).
@@ -730,7 +732,7 @@ evaluation has to answer:
   surfaces for one record is a maintenance cost and a confusion, and the answer
   might be that Recientes stays a chat list precisely *because* `/progress`
   exists.~~ **That is exactly the answer.**
-- [ ] **Survives the drop, deliberately.** The cheapest partial move, worth
+- [x] **Survives the drop, deliberately.** The cheapest partial move, worth
   considering on its own: **mark the guide conversations that are already
   there** as belonging to a guide. It is not part of the merge and carries none
   of its cost — practice-guide conversations *already* appear in Recientes, with
@@ -740,7 +742,38 @@ evaluation has to answer:
   which guide it came from. `practiceGuideId` already travels on the object the
   view receives (`db/repository.ts:3057`), and the template already varies the
   icon by state, so this is a third branch and a label — no new query, no
-  commitment to the larger question. Left open pending a separate call.
+  commitment to the larger question.
+  **Done 2026-08-06, and deliberately not where this item proposed it.** The
+  founder's call: leave Recientes alone and name the source **inside the
+  conversation** instead, because that is where the learner asks the question
+  ("what is this chat about?") and because a sidebar row has no room for a
+  resource title next to the one it already shows. The line is now the first
+  thing in the chat pane: *Se deriva de · Guía de práctica · «title»*, linked
+  back to the resource.
+  Scope grew with the same reasoning: a practice guide is not the only chat that
+  derives from something. `resolveConversationOrigin`
+  (`services/conversationOrigin.ts`) resolves all four cases from the
+  conversation's own frozen snapshots — practice guide, quiz follow-up, roleplay
+  follow-up, and a practice started from a finalized summary — and the summary
+  case **also names the resource that summary came from** (guide → session →
+  summary → practice), which is the transitive case the founder asked for. The
+  chip is a link only while the viewer can still open the resource
+  (`findResourceAccessForProfile`, so a grant counts and an archived resource
+  does not); otherwise it names it without linking, since the title still lives
+  in the snapshot.
+  Found and fixed in passing: the quiz/roleplay follow-up notice message was
+  **hardcoded Spanish** in `db/repository.ts`, shown to English and Creole
+  learners as-is. It now goes through `msg.resourceSourceNotice{Quiz,Roleplay}`
+  in all three catalogs.
+  Verified: 354 tests (5 new resolver tests in `tests/db/conversationOrigin.test.ts`
+  covering the guide, quiz, transitive-summary, archived, and plain-chat cases,
+  plus a route test asserting the banner renders and stays absent on an
+  underived chat), typecheck, test:typecheck, build. Live QA on the local server
+  as `qa.fable`: a guide session started from its own resource page showed the
+  guide chip and link; a quiz follow-up showed the quiz chip plus *Ver el
+  resultado*; a summary follow-up showed both chips joined by *que sale de*; and
+  archiving the quiz dropped the link while keeping the title. Checked at 375px
+  and desktop. Fixtures were deleted afterwards.
 
 ### How It Was Closed
 

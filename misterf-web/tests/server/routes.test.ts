@@ -2308,6 +2308,64 @@ describe('main route smoke tests', () => {
       `/signup?returnTo=${encodeURIComponent(guideStart)}`,
     );
   });
+
+  it('names the resource a derived conversation came from', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createConversation,
+      createConversationFromPracticeGuide,
+      createPracticeGuide,
+      createProfile,
+    } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'derived-conversation@example.com',
+      emailVerified: true,
+      fullName: 'Conversation Origin',
+      provider: 'google',
+      providerSubject: 'derived-conversation',
+    });
+    const profile = createProfile({
+      instructionLanguage: 'en',
+      name: 'Origin profile',
+      userId: user.id,
+    });
+    const cookie = await createAuthenticatedCookie(user.id, profile.id);
+
+    const practiceGuide = createPracticeGuide({
+      description: 'Practice ordering at a clinic.',
+      profileId: profile.id,
+      title: 'At The Clinic',
+      tutorInstructions: 'Guide the learner through a clinic visit.',
+      userId: user.id,
+    });
+    const guideConversation = createConversationFromPracticeGuide(
+      user.id,
+      practiceGuide,
+      profile.id,
+    );
+
+    const derivedResponse = await fetch(`${baseUrl}/c/${guideConversation.id}`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const derivedHtml = await derivedResponse.text();
+    expect(derivedResponse.status).toBe(200);
+    expect(derivedHtml).toContain('class="conversation-origin"');
+    expect(derivedHtml).toContain('Comes from');
+    expect(derivedHtml).toContain(`href="/practice-guides/${practiceGuide.id}"`);
+    expect(derivedHtml).toContain('At The Clinic');
+
+    // A chat that was not derived from anything says nothing.
+    const plainConversation = createConversation(user.id, profile.id);
+    const plainResponse = await fetch(`${baseUrl}/c/${plainConversation.id}`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const plainHtml = await plainResponse.text();
+    expect(plainResponse.status).toBe(200);
+    expect(plainHtml).not.toContain('class="conversation-origin"');
+  });
 });
 
 function restoreEnvValue(name: string, value: string | undefined): void {

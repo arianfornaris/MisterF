@@ -24,6 +24,10 @@ import {
   getHomeAuthMessage,
   resolveGuestInitialGreeting,
 } from '../pages/shell.js';
+import {
+  resolveConversationOrigin,
+  type ConversationOrigin,
+} from '../services/conversationOrigin.js';
 import { generateTutorConversationReport } from '../services/tutorReports.js';
 import {
   articledContextResourceTypeLabel,
@@ -46,6 +50,7 @@ export function renderChatPage(request: Request, response: Response): void {
   let activeProfile = request.activeProfile;
   let initialConversationId = '';
   let selectedTutorConversation = null;
+  let selectedTutorConversationOrigin: ConversationOrigin | null = null;
   let selectedTutorConversationReport = null;
   let selectedTutorConversationTab: 'conversation' | 'summary' = 'conversation';
 
@@ -76,6 +81,7 @@ export function renderChatPage(request: Request, response: Response): void {
 
     initialConversationId = conversation.id;
     selectedTutorConversation = conversation;
+    selectedTutorConversationOrigin = resolveConversationOrigin(conversation);
     selectedTutorConversationReport = findTutorConversationReport(conversation.id, user.id);
     selectedTutorConversationTab =
       request.query.tab === 'conversation'
@@ -99,6 +105,7 @@ export function renderChatPage(request: Request, response: Response): void {
       user,
     }),
     selectedTutorConversation,
+    selectedTutorConversationOrigin,
     selectedTutorConversationReport,
     selectedTutorConversationTab,
   });

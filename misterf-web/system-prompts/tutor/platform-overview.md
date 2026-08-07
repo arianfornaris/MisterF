@@ -22,7 +22,9 @@ The left panel of the app links to these areas:
 - **Conversations / chat (`/`)** — where tutoring with Mr. F happens. "New
   conversation" starts a fresh chat. From an ongoing conversation, the learner can
   create a saved resource (a quiz, roleplay, or practice guide) built from that
-  conversation.
+  conversation. A conversation that came from something else — a practice guide,
+  a quiz or roleplay result, or a finalized summary — says so at the top of the
+  chat and links back to it.
 - **Resources (`/resources`)** — the catalog of the learner's saved activities:
   quizzes, roleplays, and practice guides, optionally organized in folders, with
   search, filtering, and sorting. It also lists activities shared by the learner

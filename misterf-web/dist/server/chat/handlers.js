@@ -2,6 +2,7 @@ import { addMessage, closeConversationForUser, createConversationFromTutorReport
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
+import { resolveConversationOrigin, } from '../services/conversationOrigin.js';
 import { generateTutorConversationReport } from '../services/tutorReports.js';
 import { articledContextResourceTypeLabel, buildResourceFromContextPrompt, contextResourceTypeLabel, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
@@ -13,6 +14,7 @@ export function renderChatPage(request, response) {
     let activeProfile = request.activeProfile;
     let initialConversationId = '';
     let selectedTutorConversation = null;
+    let selectedTutorConversationOrigin = null;
     let selectedTutorConversationReport = null;
     let selectedTutorConversationTab = 'conversation';
     const requestedConversationIdRaw = request.params.conversationId;
@@ -37,6 +39,7 @@ export function renderChatPage(request, response) {
         }
         initialConversationId = conversation.id;
         selectedTutorConversation = conversation;
+        selectedTutorConversationOrigin = resolveConversationOrigin(conversation);
         selectedTutorConversationReport = findTutorConversationReport(conversation.id, user.id);
         selectedTutorConversationTab =
             request.query.tab === 'conversation'
@@ -59,6 +62,7 @@ export function renderChatPage(request, response) {
             user,
         }),
         selectedTutorConversation,
+        selectedTutorConversationOrigin,
         selectedTutorConversationReport,
         selectedTutorConversationTab,
     });
