@@ -382,6 +382,7 @@ export const en = {
             invalidCredentials: 'The email or password is incorrect.',
             invalidOrExpiredCode: 'The code is invalid or has expired.',
             wrongCurrentPassword: 'The current password is incorrect.',
+            signupRejected: 'We could not process this signup. Please try again.',
         },
         field: {
             emailRequired: 'Enter your email.',

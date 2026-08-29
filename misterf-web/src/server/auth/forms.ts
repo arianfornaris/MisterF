@@ -34,6 +34,12 @@ import {
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { clearActiveProfileCookie } from './profiles.js';
 import {
+  createSignupFormStamp,
+  evaluateSignupSubmission,
+  signupHoneypotField,
+} from './signupBotTrap.js';
+import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
+import {
   buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage as getShellHomeAuthMessage,
@@ -80,6 +86,22 @@ type ChangePasswordView = {
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const maxAttempts = 12;
 const attemptWindowMs = 10 * 60 * 1000;
+
+/**
+ * Flood brake on account creation, and only that. It is sized above a whole
+ * class registering together from one school's NAT address — the pilot's
+ * normal case — which necessarily puts it far above the measured scripted
+ * attack, whose registrations arrive a median of an hour apart from hundreds
+ * of distinct addresses and would never reach any per-IP limit worth setting.
+ *
+ * Its job is to bound the worst case if someone points a fast script at the
+ * form. The honeypot and timing checks in `signupBotTrap` are what actually
+ * target the automation.
+ */
+const signupFloodLimiter = createFixedWindowRateLimiter({
+  maxActions: 40,
+  windowMs: 60 * 60 * 1000,
+});
 const verificationTtlMs = 24 * 60 * 60 * 1000;
 const passwordResetTtlMs = 60 * 60 * 1000;
 
@@ -265,6 +287,51 @@ export async function handleSignup(
   const password = readField(request.body.password);
   const confirmPassword = readField(request.body.confirmPassword);
   const t = tr(response);
+
+  const floodKey = request.ip ?? 'unknown';
+  const floodLimit = signupFloodLimiter.allow(floodKey);
+  if (!floodLimit.allowed) {
+    if (floodLimit.shouldLogLimit) {
+      logger.warn('signup_rate_limited', { key: floodKey.slice(0, 80) });
+    }
+
+    renderAuthForm(response.status(429), {
+      error: t('auth.error.tooManyAttempts'),
+      fieldErrors: {},
+      mode: 'signup',
+      returnTo,
+      values: { code: '', email, fullName },
+    });
+    return;
+  }
+
+  // Runs before validation so a script never learns which of its fields were
+  // acceptable, and before account creation and the verification email so a
+  // rejected submission costs neither a `users` row nor sender reputation at
+  // our mail provider.
+  const submission = evaluateSignupSubmission({
+    honeypotValue: readField(request.body[signupHoneypotField]),
+    stamp: readField(request.body.signupFormStamp),
+  });
+  if (!submission.accepted) {
+    // One generic message for every signal: a script should not be able to
+    // tell the checks apart by their responses, and a person who trips one can
+    // simply submit the re-rendered form again.
+    logger.warn('signup_bot_trap_tripped', {
+      email,
+      key: floodKey.slice(0, 80),
+      signal: submission.signal,
+    });
+    renderAuthForm(response.status(422), {
+      error: t('auth.error.signupRejected'),
+      fieldErrors: {},
+      mode: 'signup',
+      returnTo,
+      values: { code: '', email, fullName },
+    });
+    return;
+  }
+
   const fieldErrors = validateSignup(
     {
       confirmPassword,
@@ -741,6 +808,11 @@ function renderAuthForm(response: Response, view: AuthFormView): void {
   response.render('auth', {
     ...view,
     csrfToken: response.locals.csrfToken,
+    // Rendered by the signup mode only. Supplied for every mode so that a
+    // re-render after a rejection always ships a fresh stamp, which is what
+    // lets a person who tripped the timing check pass by submitting again.
+    honeypotFieldName: signupHoneypotField,
+    signupFormStamp: createSignupFormStamp(),
     title: buildDocumentTitle(localeOf(response), documentTitle),
   });
 }

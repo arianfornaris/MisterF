@@ -406,6 +406,8 @@ export const es: LocaleCatalog = {
       invalidCredentials: 'El correo o el password no son correctos.',
       invalidOrExpiredCode: 'El código no es válido o ya expiró.',
       wrongCurrentPassword: 'El password actual no es correcto.',
+      signupRejected:
+        'No pudimos procesar este registro. Vuelve a intentarlo.',
     },
     field: {
       emailRequired: 'Escribe tu correo.',

@@ -18,6 +18,31 @@
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <input type="hidden" name="returnTo" value="<%= safeReturnTo %>">
 
+              <% if (mode === 'signup') { %>
+                <%# Bot trap, checked in `src/server/auth/signupBotTrap.ts`: the
+                    signed render time that lets the handler reject instant
+                    submissions, and a decoy input only a script fills.
+
+                    The decoy is moved off-screen rather than hidden, because a
+                    script that skips hidden inputs would skip the trap too. Its
+                    label is deliberately not an i18n key — it is never shown to
+                    anyone, and translating it would put a fake field in front of
+                    translators. `tabindex="-1"` is what keeps the focusable
+                    input out of the `aria-hidden` subtree in practice. %>
+                <input type="hidden" name="signupFormStamp" value="<%= signupFormStamp %>">
+                <div class="signup-trap" aria-hidden="true">
+                  <label for="<%= honeypotFieldName %>">Website</label>
+                  <input
+                    id="<%= honeypotFieldName %>"
+                    name="<%= honeypotFieldName %>"
+                    type="text"
+                    tabindex="-1"
+                    autocomplete="off"
+                    value=""
+                  >
+                </div>
+              <% } %>
+
               <div class="mb-4">
                 <p class="text-uppercase text-body-secondary small fw-semibold mb-2">
                   <%= t('auth.kicker.' + mode) %>

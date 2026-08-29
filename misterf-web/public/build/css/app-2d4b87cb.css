@@ -4306,6 +4306,18 @@ button.sentence-part:focus {
 
 /* Auth screens intentionally use Bootstrap and Bootswatch primitives. */
 
+/*
+ * The signup bot trap's decoy field. It is pushed out of the viewport instead
+ * of being given `display: none`, because a script that skips undisplayed
+ * inputs would skip the trap along with them — off-screen keeps it a real,
+ * fillable input in the DOM while no person can see or reach it.
+ */
+.signup-trap {
+  left: -9999px;
+  position: absolute;
+  top: -9999px;
+}
+
 @media (max-width: 720px) {
   .app-shell {
     padding: 0;

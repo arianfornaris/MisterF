@@ -1109,10 +1109,44 @@ address was theirs.
   378 keys removed, leaving the founder account and the `examples@misterf.us`
   landing seeder. Backup taken first at
   `data/backups/misterf-pre-bot-purge-2026-08-29T02-50-38-839Z.sqlite`.
-- [ ] **Prevent the registrations themselves.** Still open, and the attack is
-  ongoing — a new signup arrived hours after the purge. It now costs nothing (no
-  key, no inference, no chat access), so this is cleanup rather than damage
-  control, but `users` keeps filling with junk.
+- [x] **Raise the cost of driving the form as a script.** Done 2026-08-29, not
+  yet released. Two checks, chosen because neither adds a step for a real
+  person and so neither had to wait on the Turnstile decision below.
+
+  - A **honeypot and a timing check**, in `src/server/auth/signupBotTrap.ts`.
+    The signup form carries a decoy input that is positioned off-screen and
+    removed from the tab order, plus a signed "rendered at" stamp; a submission
+    that fills the decoy or arrives less than two seconds after the render is
+    rejected. Both target what the attacker demonstrably *does* — fetch the
+    form, parse the CSRF token, post the fields back — rather than who it is,
+    which is what made reputation and fingerprinting unusable. The decoy is
+    moved off-screen rather than undisplayed, because a script that skips
+    hidden inputs would skip the trap too, and its name (`website`) is one no
+    password manager autofills, which is the only realistic false positive.
+  - A **per-IP flood brake** on `/signup` (40 per hour), which did not exist at
+    all: the rate limiting in `forms.ts` was wired into `handleLogin` only. It
+    is sized above a whole class registering from one school's NAT — the
+    pilot's normal case — and so, as measured below, will not catch this
+    attacker. Its job is to bound the worst case if someone points a fast
+    script at the form, not to be the defense.
+
+  Both run before account creation *and before the verification email*, and
+  every rejection is logged with the signal that fired (`honeypot_filled`,
+  `submitted_too_fast`, `missing_stamp`, `invalid_stamp`) so the question below
+  gets decided on counts rather than on guesswork.
+
+- [ ] **Decide whether the registrations need stopping at the edge.** Still
+  open. The checks above raise the attacker's cost but an operator who inspects
+  the form can defeat both; what happens next is now a measurement, not a
+  prediction.
+
+  One correction to the note above: a bot signup does **not** cost nothing. It
+  still sends a verification email through Resend, so a run of registrations at
+  invented addresses burns quota and raises the bounce rate against our sender
+  reputation. The failure mode that matters is not a junk `users` table — it is
+  a real student's verification email stopping at the spam folder. That is why
+  the new checks reject before the mailer, and it is the reason to keep this
+  item open rather than to accept the junk.
 
   The 359 bot sessions preserved in the pre-purge backup characterize the
   attacker well enough to rule two defenses out before building them:
@@ -1131,19 +1165,29 @@ address was theirs.
     `45.84.107.0/24` with 66 sessions, looks like commercial proxy or datacenter
     space.
 
-  Candidates worth weighing against that evidence, none of them yet decided:
+  Candidates still on the table, to be decided against the rejection counts the
+  shipped checks now produce:
 
+  - **Cloudflare Turnstile** on signup is the only candidate that also covers
+    the 52 single-use subnets and the attacker's next infrastructure change. It
+    needs a Cloudflare site registration and two secrets in `.env.production`,
+    and adds some friction. `misterf.us` resolves straight to the droplet with
+    no Cloudflare proxy in front, but Turnstile works as a standalone widget,
+    so this does not require moving DNS.
   - A **Tor exit-node blocklist** from the Tor Project's published list would
     remove more than half the measured traffic with no external paid dependency
     and no added friction. For a Spanish-language English-tutoring product the
     false-positive cost is close to theoretical, though it does exclude anyone
-    using Tor for legitimate privacy.
-  - **Cloudflare Turnstile** on signup is the only candidate that also covers
-    the 52 single-use subnets and the attacker's next infrastructure change. It
-    needs a Cloudflare site registration and two secrets in `.env.production`,
-    and adds some friction.
-  - A **honeypot field** costs nothing and stacks with either, but will not stop
-    an operator who inspects the form.
+    using Tor for legitimate privacy. Weaker than it looks: it removes the half
+    of the traffic that is cheapest for the attacker to replace.
+  - **MX validation on the email domain before sending** would not stop a
+    registration, but it protects the sender reputation described above, and
+    rises in priority if Resend shows a raised bounce rate.
+
+  The deciding measurement is whether the honeypot and timing counters keep
+  rising while new accounts stop appearing. If registrations continue past the
+  new checks, the attacker has adapted to the form and Turnstile is the
+  answer; if they stop, none of the remaining options need to be paid for.
 
   Not chosen: dropping email signup in favour of Google-only. All 378 bot
   accounts came through the email form and none through Google, so it would have

@@ -402,6 +402,7 @@ export const ht: LocaleCatalog = {
       invalidCredentials: 'Imèl la oswa modpas la pa kòrèk.',
       invalidOrExpiredCode: 'Kòd la pa valab oswa li ekspire.',
       wrongCurrentPassword: 'Modpas aktyèl la pa kòrèk.',
+      signupRejected: 'Nou pa t kapab trete enskripsyon sa a. Tanpri eseye ankò.',
     },
     field: {
       emailRequired: 'Antre imèl ou.',
