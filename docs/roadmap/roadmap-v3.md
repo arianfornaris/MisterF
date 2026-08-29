@@ -1081,6 +1081,75 @@ is ambiguous to the user.
   single authenticated path. Repository and HTTP coverage verify independent
   profile values and new-conversation snapshot behavior.
 
+## 2.7 Automated Signup Abuse
+
+Added 2026-08-29 after a production log review that started as a tutor-quality
+question. Production held **380 accounts and 2 verified addresses**. The other
+378 had each been issued a real OpenRouter key against our own account, and none
+had ever opened a conversation.
+
+Inference was never at risk: `chatSocket.ts` already requires `emailVerified`
+before any tutor turn, which is exactly why those accounts have zero
+conversations. What leaked was the key itself, minted before anyone proved the
+address was theirs.
+
+- [x] Stop provisioning keys for unverified accounts. Done 2026-08-29, shipped
+  in **3.8.1**. The guard lives inside `ensureOpenRouterKeyForUser` rather than
+  at the call sites, because there are three and one is easy to miss: signup,
+  *every* sign-in via `signInUser`, and the Google OAuth callback. Removing the
+  signup call alone would have changed nothing, since `signInUser` runs moments
+  later in the same request. Provisioning moved to the point of verification,
+  where a failure is logged rather than fatal. Verified in production: a signup
+  at 05:06, after the 02:44 deploy, received **zero** keys.
+- [x] Remove the second defect on the same path. Done 2026-08-29: signup wrapped
+  provisioning in a catch that called `deleteUserById` and returned 503, so a
+  transient OpenRouter timeout permanently destroyed a legitimate new account.
+  Three such timeouts had already fired on 2026-08-28.
+- [x] Purge the bot accounts and their keys. Done 2026-08-29: 377 accounts and
+  378 keys removed, leaving the founder account and the `examples@misterf.us`
+  landing seeder. Backup taken first at
+  `data/backups/misterf-pre-bot-purge-2026-08-29T02-50-38-839Z.sqlite`.
+- [ ] **Prevent the registrations themselves.** Still open, and the attack is
+  ongoing — a new signup arrived hours after the purge. It now costs nothing (no
+  key, no inference, no chat access), so this is cleanup rather than damage
+  control, but `users` keeps filling with junk.
+
+  The 359 bot sessions preserved in the pre-purge backup characterize the
+  attacker well enough to rule two defenses out before building them:
+
+  - **231 distinct IPs across 87 `/24` subnets**, with 60% of subnets appearing
+    exactly once, and a **median of 60 minutes** between signups. Per-IP rate
+    limiting would catch only the 23 signups that arrived less than five minutes
+    apart — about 6%. It would feel like a defense without being one.
+  - **A single user-agent across all 359 sessions**, an ordinary Chrome-on-Mac
+    string. It is the best detection signal available, but blocking it would
+    also block real users on that browser.
+  - **Six of the ten busiest subnets are publicly known Tor exit ranges**
+    (`185.220.101.0/24`, `185.220.100.0/24`, `109.70.100.0/24`,
+    `171.25.193.0/24`, `23.129.64.0/24`, `204.8.96.0/24`), identified by public
+    reputation rather than verified individually. The busiest single subnet,
+    `45.84.107.0/24` with 66 sessions, looks like commercial proxy or datacenter
+    space.
+
+  Candidates worth weighing against that evidence, none of them yet decided:
+
+  - A **Tor exit-node blocklist** from the Tor Project's published list would
+    remove more than half the measured traffic with no external paid dependency
+    and no added friction. For a Spanish-language English-tutoring product the
+    false-positive cost is close to theoretical, though it does exclude anyone
+    using Tor for legitimate privacy.
+  - **Cloudflare Turnstile** on signup is the only candidate that also covers
+    the 52 single-use subnets and the attacker's next infrastructure change. It
+    needs a Cloudflare site registration and two secrets in `.env.production`,
+    and adds some friction.
+  - A **honeypot field** costs nothing and stacks with either, but will not stop
+    an operator who inspects the form.
+
+  Not chosen: dropping email signup in favour of Google-only. All 378 bot
+  accounts came through the email form and none through Google, so it would have
+  blocked this specific attack — but it raises the attacker's cost rather than
+  eliminating it, and excludes learners without a Google account.
+
 ---
 
 # V3 Exit Criteria
