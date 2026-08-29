@@ -806,7 +806,14 @@ export const orderSentencesBlockSchema = z
     sentences: z.array(z.string().trim().min(1).max(400)).min(2).max(12),
 })
     .strict();
-const tutorPlanStepIdSchema = z.string().trim().min(1).max(48).regex(/^[a-z][a-z0-9_-]*$/, 'step id must start with a lowercase letter and contain only lowercase letters, numbers, underscores, or hyphens.');
+/** Shared with `validation.ts`, which normalizes model ids into this shape. */
+export const tutorPlanStepIdMaxLength = 48;
+const tutorPlanStepIdSchema = z
+    .string()
+    .trim()
+    .min(1)
+    .max(tutorPlanStepIdMaxLength)
+    .regex(/^[a-z][a-z0-9_-]*$/, 'step id must start with a lowercase letter and contain only lowercase letters, numbers, underscores, or hyphens.');
 const tutorPlanStepSchema = z
     .object({
     id: tutorPlanStepIdSchema,

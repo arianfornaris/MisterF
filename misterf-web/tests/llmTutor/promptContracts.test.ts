@@ -210,6 +210,17 @@ describe('tutor prompt contracts', () => {
     expect(protocol).not.toContain('Acceptable English typed answers for this blank.');
   });
 
+  it('documents the slug format plan step ids must follow', () => {
+    const protocol = renderTutorBlockProtocol();
+
+    expect(protocol).toContain('interface TutorPlanBlock');
+    expect(protocol).toContain('interface TutorPlanUpdateBlock');
+    expect(protocol).toContain('Must be a lowercase slug');
+    expect(protocol).toContain('Never use spaces, accents, `ñ`, uppercase letters, or a leading digit.');
+    expect(protocol).not.toContain('/** Internal stable step id; not learner-facing. */');
+    expect(protocol).not.toContain('/** New unique internal step id. */');
+  });
+
   it('does not inject the removed generic start-session prompt', () => {
     const system = buildAgentSystemInstruction({
       currentTitle: 'Nueva conversación',

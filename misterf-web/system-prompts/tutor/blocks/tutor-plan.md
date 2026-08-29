@@ -22,7 +22,12 @@ interface TutorPlanBlock {
   summary?: string;
   /** Ordered visible plan steps. */
   steps: Array<{
-    /** Internal stable step id; not learner-facing. */
+    /**
+     * Internal stable step id; not learner-facing. Must be a lowercase slug:
+     * it starts with a letter `a`-`z` and then contains only `a`-`z`, `0`-`9`,
+     * `_`, or `-` (for example `saludo`, `practica_oral`, `repaso-final`).
+     * Never use spaces, accents, `ñ`, uppercase letters, or a leading digit.
+     */
     id: string;
     /** Short {{INSTRUCTION_LANGUAGE_NAME}} learner-facing step label. */
     label: string;

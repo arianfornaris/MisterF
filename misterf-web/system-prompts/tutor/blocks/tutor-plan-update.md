@@ -23,7 +23,11 @@ interface TutorPlanUpdateBlock {
     | {
         /** Update an existing plan step. */
         action: "update_step";
-        /** Existing step id from the current authoritative plan. */
+        /**
+         * Existing step id from the current authoritative plan, copied
+         * verbatim. Plan step ids are lowercase slugs: a letter `a`-`z`
+         * followed by only `a`-`z`, `0`-`9`, `_`, or `-`.
+         */
         id: string;
         /** New status for this existing step. */
         status?: "pending" | "active" | "done" | "skipped";
@@ -33,11 +37,19 @@ interface TutorPlanUpdateBlock {
     | {
         /** Add a new step when a newly discovered weakness should enter the plan. */
         action: "add_step";
-        /** New unique internal step id. */
+        /**
+         * New unique internal step id. Must be a lowercase slug: it starts
+         * with a letter `a`-`z` and then contains only `a`-`z`, `0`-`9`, `_`,
+         * or `-` (for example `repaso_final`). Never use spaces, accents,
+         * `ñ`, uppercase letters, or a leading digit.
+         */
         id: string;
         /** {{INSTRUCTION_LANGUAGE_NAME}} learner-facing label for the new step. */
         label: string;
-        /** Existing step id after which the new step should be inserted. */
+        /**
+         * Existing step id after which the new step should be inserted,
+         * copied verbatim from the current authoritative plan.
+         */
         afterId?: string;
         /** Initial status for the new step; defaults conceptually to `pending`. */
         status?: "pending" | "active";

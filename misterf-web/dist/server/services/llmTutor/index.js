@@ -10,7 +10,7 @@ import { buildTutorPlatformTools } from './platformTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
-import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
+import { appendStructuredCorrectionRequest, buildStructuredCorrectionReason, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { parseJsonFromModelText } from './modelJson.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
@@ -361,7 +361,7 @@ export async function runTutorAgentLoop(history, options) {
                 error,
                 instructionLanguage: options.instructionLanguage,
                 invalidOutput: extractGeneratedTextFromError(error),
-                reason: 'Your previous response was not valid JSON or could not be converted into a TutorResponse object.',
+                reason: buildStructuredCorrectionReason(error),
                 turn: turn + 1,
             });
         }

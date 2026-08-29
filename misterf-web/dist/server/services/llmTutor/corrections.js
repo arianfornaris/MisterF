@@ -29,6 +29,17 @@ export function appendStructuredCorrectionRequest(messages, input) {
         turn: input.turn,
     });
 }
+/**
+ * Reason sent back to the model on a correction turn. A schema failure must
+ * name the offending paths: told only that "something" was invalid, a small
+ * model re-emits the same output until the agent loop runs out of turns.
+ */
+export function buildStructuredCorrectionReason(error) {
+    if (error instanceof TutorResponseValidationError) {
+        return buildStructuredValidationReason(error);
+    }
+    return 'Your previous response was not valid JSON or could not be converted into a TutorResponse object.';
+}
 export function buildStructuredValidationReason(error) {
     const baseReason = 'The JSON object was parsed, but it does not satisfy the TutorResponse contract.';
     const detail = buildStructuredValidationDetail(error);

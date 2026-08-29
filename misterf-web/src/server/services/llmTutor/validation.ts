@@ -23,7 +23,10 @@ import { z } from 'zod';
 import { TutorResponseValidationError } from './errors.js';
 import { logger } from '../logger.js';
 import { shouldLogFullLlmTrace } from './logging.js';
-import { tutorAgentResponseSchema } from './schemas.js';
+import {
+  tutorAgentResponseSchema,
+  tutorPlanStepIdMaxLength,
+} from './schemas.js';
 import { translate, type Locale } from '../../i18n/index.js';
 import { defaultInstructionLanguage } from './languagePack.js';
 
@@ -182,6 +185,14 @@ function sanitizeTutorResponseBlock(block: unknown): unknown | null {
   }
 
   const record = block as { type?: unknown; parts?: unknown };
+  if (record.type === 'tutor_plan') {
+    return sanitizeTutorPlanBlock(record);
+  }
+
+  if (record.type === 'tutor_plan_update') {
+    return sanitizeTutorPlanUpdateBlock(record);
+  }
+
   if (record.type !== 'sentence_evaluation' || !Array.isArray(record.parts)) {
     return block;
   }
@@ -202,6 +213,107 @@ function sanitizeTutorResponseBlock(block: unknown): unknown | null {
   return {
     ...record,
     parts: cleanedParts,
+  };
+}
+
+/**
+ * Plan step ids are internal and never shown to the learner, so a model that
+ * writes them as prose (`"Práctica oral"`, `"Paso 1"`) should not cost the
+ * learner a whole response. Normalize them into the slug the schema accepts
+ * instead of rejecting the block. `tutor_plan` and `tutor_plan_update` share
+ * this normalization, so an id the model repeats across turns keeps matching
+ * the stored plan.
+ */
+function slugifyTutorPlanStepId(value: unknown): unknown {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const slug = value
+    .normalize('NFD')
+    .replaceAll(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9_-]+/g, '_')
+    .replace(/^[^a-z]+/, '')
+    .slice(0, tutorPlanStepIdMaxLength);
+
+  return slug || 'step';
+}
+
+/**
+ * Two prose ids can normalize to the same slug (`"Práctica"` and `"practica"`).
+ * The schema rejects duplicate ids inside a plan, so give the later step a
+ * numbered suffix rather than losing the whole response.
+ */
+function uniqueTutorPlanStepId(id: string, usedIds: Set<string>): string {
+  if (!usedIds.has(id)) {
+    usedIds.add(id);
+    return id;
+  }
+
+  for (let suffix = 2; suffix < 100; suffix += 1) {
+    const marker = `_${suffix}`;
+    const candidate =
+      id.slice(0, tutorPlanStepIdMaxLength - marker.length) + marker;
+    if (!usedIds.has(candidate)) {
+      usedIds.add(candidate);
+      return candidate;
+    }
+  }
+
+  return id;
+}
+
+function sanitizeTutorPlanBlock(record: { type?: unknown }): unknown {
+  const steps = (record as { steps?: unknown }).steps;
+  if (!Array.isArray(steps)) {
+    return record;
+  }
+
+  const usedIds = new Set<string>();
+
+  return {
+    ...record,
+    steps: steps.map((step) => {
+      if (!step || typeof step !== 'object') {
+        return step;
+      }
+
+      const id = slugifyTutorPlanStepId((step as { id?: unknown }).id);
+      if (typeof id !== 'string') {
+        return step;
+      }
+
+      return { ...step, id: uniqueTutorPlanStepId(id, usedIds) };
+    }),
+  };
+}
+
+function sanitizeTutorPlanUpdateBlock(record: { type?: unknown }): unknown {
+  const operations = (record as { operations?: unknown }).operations;
+  if (!Array.isArray(operations)) {
+    return record;
+  }
+
+  return {
+    ...record,
+    operations: operations.map((operation) => {
+      if (!operation || typeof operation !== 'object') {
+        return operation;
+      }
+
+      const source = operation as { afterId?: unknown; id?: unknown };
+      const normalized: Record<string, unknown> = {
+        ...source,
+        id: slugifyTutorPlanStepId(source.id),
+      };
+
+      if (source.afterId !== undefined) {
+        normalized.afterId = slugifyTutorPlanStepId(source.afterId);
+      }
+
+      return normalized;
+    }),
   };
 }
 

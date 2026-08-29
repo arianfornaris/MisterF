@@ -5,6 +5,7 @@ import {
 } from '../../src/server/services/llmTutor/schemas.js';
 import { TutorResponseValidationError } from '../../src/server/services/llmTutor/errors.js';
 import { validateTutorResponseBlocks } from '../../src/server/services/llmTutor/validation.js';
+import type { TutorAgentResponseBlock } from '../../src/server/services/llmTutor/types.js';
 
 describe('normal tutor response schema', () => {
   it('accepts open text prompt blocks with an optional submit label', () => {
@@ -340,6 +341,115 @@ describe('plan-only response validation', () => {
     });
 
     expect(blocks.map((block) => block.type)).toEqual(['message', 'tutor_plan']);
+  });
+});
+
+describe('tutor plan step id normalization', () => {
+  const messageBlock = { markdown: 'Aquí tienes el plan.', type: 'message' };
+
+  const planStepIds = (block: TutorAgentResponseBlock): string[] => {
+    if (block.type !== 'tutor_plan') {
+      throw new Error(`Expected a tutor_plan block, got ${block.type}.`);
+    }
+
+    return block.steps.map((step) => step.id);
+  };
+
+  const planOperations = (block: TutorAgentResponseBlock) => {
+    if (block.type !== 'tutor_plan_update') {
+      throw new Error(`Expected a tutor_plan_update block, got ${block.type}.`);
+    }
+
+    return block.operations;
+  };
+
+  it('accepts prose step ids by normalizing them into slugs', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        messageBlock,
+        {
+          steps: [
+            { id: 'Práctica oral', label: 'Practicar en voz alta', status: 'active' },
+            { id: '1. Repaso', label: 'Repasar vocabulario', status: 'pending' },
+            { id: 'REVISIÓN_FINAL', label: 'Revisión final', status: 'pending' },
+          ],
+          title: 'Plan de práctica',
+          type: 'tutor_plan',
+        },
+      ],
+    });
+
+    expect(planStepIds(blocks[1])).toEqual([
+      'practica_oral',
+      'repaso',
+      'revision_final',
+    ]);
+  });
+
+  it('normalizes plan update ids the same way so they keep matching the plan', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        messageBlock,
+        {
+          operations: [
+            { action: 'update_step', id: 'Práctica oral', status: 'done' },
+            {
+              action: 'add_step',
+              afterId: 'Práctica oral',
+              id: 'Revisión Final',
+              label: 'Revisión final',
+            },
+          ],
+          type: 'tutor_plan_update',
+        },
+      ],
+    });
+
+    expect(planOperations(blocks[1])).toEqual([
+      { action: 'update_step', id: 'practica_oral', status: 'done' },
+      {
+        action: 'add_step',
+        afterId: 'practica_oral',
+        id: 'revision_final',
+        label: 'Revisión final',
+      },
+    ]);
+  });
+
+  it('keeps ids unique when different prose ids normalize to the same slug', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        messageBlock,
+        {
+          steps: [
+            { id: 'Práctica', label: 'Practicar', status: 'active' },
+            { id: 'practica', label: 'Practicar más', status: 'pending' },
+          ],
+          title: 'Plan de práctica',
+          type: 'tutor_plan',
+        },
+      ],
+    });
+
+    expect(planStepIds(blocks[1])).toEqual(['practica', 'practica_2']);
+  });
+
+  it('falls back to a usable id when nothing survives normalization', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        messageBlock,
+        {
+          steps: [
+            { id: '123', label: 'Primer paso', status: 'active' },
+            { id: '???', label: 'Segundo paso', status: 'pending' },
+          ],
+          title: 'Plan de práctica',
+          type: 'tutor_plan',
+        },
+      ],
+    });
+
+    expect(planStepIds(blocks[1])).toEqual(['step', 'step_2']);
   });
 });
 
