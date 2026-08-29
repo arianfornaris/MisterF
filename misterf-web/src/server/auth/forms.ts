@@ -10,7 +10,6 @@ import {
   createAuthActionToken,
   createLocalUser,
   createSession,
-  deleteUserById,
   findUserByAuthActionToken,
   findUserByEmail,
   markAuthActionTokenUsed,
@@ -313,20 +312,10 @@ export async function handleSignup(
 
   const passwordHash = await hashPassword(password);
   const user = createLocalUser({ email, fullName, passwordHash });
-  try {
-    await ensureOpenRouterKeyForUser(user.id);
-  } catch (error) {
-    deleteUserById(user.id);
-    renderAuthForm(response.status(503), {
-      error: toOpenRouterProvisioningErrorMessage(error, t),
-      fieldErrors: {},
-      mode: 'signup',
-      returnTo,
-      values: { code: '', email, fullName },
-    });
-    return;
-  }
 
+  // No OpenRouter key is minted here. It is provisioned on verification, so an
+  // automated signup never reaches our paid account, and a transient OpenRouter
+  // outage can no longer cost a real person their brand-new account.
   try {
     await issueEmailVerification(user, request.locale);
   } catch (error) {
@@ -582,6 +571,19 @@ export async function handleVerifyEmail(
 
   markEmailVerified(user.id);
   markAuthActionTokenUsed(tokenHash);
+
+  // Now that the address is proven, mint the key. A failure here is not fatal:
+  // the address is verified either way, and `ensureOpenRouterKeyForUser` runs
+  // again on the next sign-in and before the first LLM call.
+  try {
+    await ensureOpenRouterKeyForUser(user.id);
+  } catch (error) {
+    logger.error('openrouter_user_key_provisioning_deferred', {
+      error: error instanceof Error ? error.message : String(error),
+      userId: user.id,
+    });
+  }
+
   logAuthReturnTo('handleVerifyEmail:success', {
     returnTo,
     userId: user.id,
@@ -710,16 +712,6 @@ async function signInUser(
   setSessionCookie(response, session);
   setKnownVisitorCookie(response);
   response.redirect(returnTo);
-}
-
-function toOpenRouterProvisioningErrorMessage(
-  error: unknown,
-  t: Translator,
-): string {
-  logger.error('openrouter_user_key_provisioning_failed', { error });
-  return error instanceof Error
-    ? t('auth.serviceError.openrouterWithReason', { reason: error.message })
-    : t('auth.serviceError.openrouter');
 }
 
 async function issueEmailVerification(user: AuthUser, locale: Locale): Promise<void> {

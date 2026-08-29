@@ -67,9 +67,24 @@ export class OpenRouterKeyProvisioningError extends Error {
   }
 }
 
+/**
+ * A key is a paid resource on our own OpenRouter account, so it is only worth
+ * minting once someone has proved the address is theirs. The guard lives here
+ * rather than at the call sites because signup, every sign-in, and the Google
+ * callback all reach this function: automated signups had provisioned 378 keys
+ * for accounts that never verified and never opened a single conversation.
+ *
+ * An unverified user simply gets no key. Nothing downstream breaks — inference
+ * is already gated on `emailVerified`, and `getOpenRouterApiKeyForUser` returns
+ * `null`, which its callers already handle.
+ */
 export async function ensureOpenRouterKeyForUser(userId: string): Promise<void> {
   const existing = findUserOpenRouterKeyRow(userId);
   if (existing?.status === 'active' && existing.encrypted_api_key) {
+    return;
+  }
+
+  if (!findUserById(userId)?.emailVerified) {
     return;
   }
 
