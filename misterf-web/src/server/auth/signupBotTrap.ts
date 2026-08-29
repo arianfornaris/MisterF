@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { requireSessionSecret } from './session.js';
 
 /**
@@ -100,6 +100,68 @@ export function evaluateSignupSubmission(input: {
   }
 
   return { accepted: true };
+}
+
+/**
+ * The second layer: proof that a real browser rendered and filled the form.
+ *
+ * The attacker parses our HTML and posts the fields back, which means it
+ * almost certainly does not execute JavaScript — the largest weakness left to
+ * use. These checks are deliberately *not* proof of work. Proof of work bites
+ * through volume, and this attacker registers roughly once an hour, so the
+ * CPU cost it would impose is a rounding error while the cost to us would be
+ * real: tuning the difficulty against budget Android hardware, a worker to
+ * keep the main thread free, and battery. The half that pays here is the proof
+ * that JavaScript ran at all, and that half is nearly free on any phone.
+ *
+ * Neither check is proof against an operator who reads the script and
+ * reimplements it — the honest limit of the whole approach. They stop generic
+ * HTTP-client bots. Turnstile is the answer to an automated *browser*.
+ */
+
+export type SignupBrowserSignal =
+  | 'browser_answer_invalid'
+  | 'browser_answer_missing'
+  | 'no_human_interaction';
+
+export type SignupBrowserVerdict =
+  | { passed: true }
+  | { passed: false; signal: SignupBrowserSignal };
+
+/**
+ * The value the page's script is expected to return: the SHA-256 of the form
+ * stamp, which the caller has already verified as ours and unexpired. Reusing
+ * the stamp rather than issuing a second nonce keeps one signed value in the
+ * form instead of two, and means this check inherits the stamp's signature
+ * verification for free.
+ */
+export function expectedBrowserAnswer(stamp: string): string {
+  return createHash('sha256').update(stamp).digest('hex');
+}
+
+/**
+ * Checks the two browser signals. Call only with a stamp that
+ * `evaluateSignupSubmission` has already accepted, since the answer is only
+ * meaningful for a stamp known to be ours.
+ */
+export function evaluateBrowserExecution(input: {
+  answer: string;
+  interacted: boolean;
+  stamp: string;
+}): SignupBrowserVerdict {
+  if (!input.answer) {
+    return { passed: false, signal: 'browser_answer_missing' };
+  }
+
+  if (!safeEquals(input.answer, expectedBrowserAnswer(input.stamp))) {
+    return { passed: false, signal: 'browser_answer_invalid' };
+  }
+
+  if (!input.interacted) {
+    return { passed: false, signal: 'no_human_interaction' };
+  }
+
+  return { passed: true };
 }
 
 function sign(value: string): string {

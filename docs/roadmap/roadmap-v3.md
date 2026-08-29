@@ -1189,65 +1189,75 @@ address was theirs.
   new checks, the attacker has adapted to the form and Turnstile is the
   answer; if they stop, none of the remaining options need to be paid for.
 
-- [ ] **Next escalation, if the shipped checks stop working: require a real
-  browser.** Not started. The attacker's demonstrated behaviour is to fetch the
-  form, parse the CSRF token out of the HTML and post the fields back, which
-  means it almost certainly **does not execute JavaScript**. That is the
-  largest weakness we have not used, and two techniques exploit it:
+- [x] **Require a real browser.** Done 2026-08-29, **shipped in report-only
+  mode**, not yet enforcing. The attacker fetches the form, parses the CSRF
+  token out of the HTML and posts the fields back, which means it almost
+  certainly does not execute JavaScript — the largest weakness left to use.
+  Two signals now travel with every signup:
 
-  - **A token minted by JavaScript.** The server issues a nonce, a script on
-    the page transforms it, and the result travels in the POST. A plain HTTP
-    client cannot produce it. One step up from the honeypot, still zero
-    friction.
-  - **Proof of work.** The browser spends a few hundred milliseconds hashing
-    before the form can be submitted. Invisible to one person; multiplied by
-    thousands of registrations it is a real cost to the operator.
+  - **A challenge answered by JavaScript.** The page's script returns the
+    SHA-256 of the `signupFormStamp` the server already signed. Reusing the
+    stamp rather than issuing a second nonce keeps one signed value in the
+    form and inherits its signature check for free. A plain HTTP client cannot
+    produce the answer.
+  - **A human-interaction flag**, set by the first `pointerdown`,
+    `touchstart`, `input` or `keydown` on the form.
 
   Requiring JavaScript is acceptable here specifically because the tutor chat
   already requires it — this excludes nobody who could use the product anyway.
 
-  **Do not build either by hand.** The proof-of-work token *is* a
-  JavaScript-minted token, so one dependency covers both, and
-  [ALTCHA](https://altcha.org) is the mature option: self-hosted, no external
-  service, no vendor account. As of 2026-08-29 `altcha-lib` (server) is 2.3.2,
-  MIT, **zero dependencies**, ~133k weekly downloads, last published
-  2026-07-27; the `altcha` widget is 3.2.2, MIT, one dependency (`hash-wasm`),
-  ~113k weekly downloads, last published 2026-08-19. Both are current and
-  actively maintained.
+  **Proof of work was considered and deliberately not built.** It works
+  through volume: you impose CPU on the operator and multiply by their rate.
+  This attacker registers a median of once an hour, so the cost imposed would
+  be a rounding error, while the cost to us would be real — difficulty tuned
+  against budget Android hardware, a worker to keep the main thread free, and
+  battery. The half that pays here is proving JavaScript ran, and that half is
+  nearly free on any phone. Both techniques fall equally to an operator who
+  reads the script and reimplements it, so between two options with the same
+  outcome the cheap one wins.
 
-  **Mobile is a hard requirement, and it constrains the design:**
+  [ALTCHA](https://altcha.org) remains the right library **if the volume ever
+  changes** — self-hosted, no vendor account, and at that point the worker,
+  difficulty tuning and accessibility work become real work worth not doing by
+  hand. As of 2026-08-29 `altcha-lib` (server) is 2.3.2, MIT, zero
+  dependencies, ~133k weekly downloads; the `altcha` widget is 3.2.2, MIT, one
+  dependency (`hash-wasm`), ~113k weekly downloads. Both current. The trigger
+  to adopt it is registrations arriving at tens per hour, not this attack
+  continuing at its present rate.
 
-  - **Tune the proof-of-work cost against a cheap Android phone, never against
-    the founder's Mac.** ALTCHA's difficulty is the `maxnumber` parameter;
-    their own figure is roughly 2.5 s at `maxnumber: 1000000` *on a powerful
-    computer*, and their guidance is to reduce difficulty when the 95th
-    percentile solve time passes about 500 ms. Our learners are adult
-    immigrants in South Florida, so budget Android hardware is the design
-    target, not the exception. Measure on a real low-end device before
-    choosing a value, and watch battery and thermal cost.
-  - **The "a human touched this form" signal must be touch-first.** Take the
-    union of `input`, `pointerdown`, `keydown` and `touchstart` — never
-    `keydown` alone. On mobile a person can autofill every field from the
-    password manager and tap submit without ever producing a key event, and
-    iOS Safari's autofill fires `input` without `keydown`. A keyboard-only
-    signal would reject real phone users, which is the one failure this whole
-    section exists to avoid.
-  - Verify the widget inside the mobile viewport with the on-screen keyboard
-    open, since it covers roughly half the screen while the form is being
-    filled.
+  **Mobile shaped the design rather than being checked afterwards.** The
+  interaction signal takes the union of four events and leads with touch,
+  because on a phone someone can fill every field from the password manager
+  and tap submit without ever producing a key event, and iOS Safari's autofill
+  fires `input` without `keydown`. A keyboard-only signal would reject real
+  phone users, which is the one failure this section exists to avoid. There is
+  no proof-of-work cost to tune precisely because proof of work was dropped,
+  so the whole low-end-device risk went with it.
+  `tests/server/signupBrowserChallenge.test.ts` asserts each of the four
+  events sets the flag on its own, so the list cannot be quietly narrowed
+  later.
 
-  **Ship it in report-only mode first**, logging what *would* have been
-  rejected, and enforce only once the false-positive count on real signups is
-  known. This is the same discipline the honeypot shipped under, and it is
-  what makes a mobile regression visible before it costs a registration rather
-  than after.
+  **Report-only until the numbers say otherwise.** Every failure is logged as
+  `signup_browser_check_failed` with its signal and an `enforcing` flag, and
+  nothing is rejected.
+  `SIGNUP_BROWSER_CHECK_MODE=enforce` switches it on — and back off — without
+  a deploy, which matters because every way this can go wrong is a way of
+  turning away a person: a script that failed to load, a device that never
+  fired the event we watched. `tests/server/signupBrowserCheckEnforced.test.ts`
+  boots a server with the flag set and proves the enforcing path actually
+  rejects, so flipping it in production cannot silently do nothing.
 
   What this still does not buy is what Turnstile does: the TLS (JA3/JA4) and
   HTTP/2 fingerprints that expose a scripted client claiming to be Chrome, and
   IP/ASN reputation aggregated across many sites. Those need to sit at the TLS
-  termination and see traffic we cannot see. If an attacker turns up that runs
-  a real automated browser, proof of work will not stop it and that is the
-  point to buy the edge.
+  termination and see traffic we cannot see. If an attacker turns up running a
+  real automated browser, none of the above stops it and that is the point to
+  buy the edge.
+
+- [ ] **Turn the browser checks on.** Open. Read the
+  `signup_browser_check_failed` counts by signal against real signups; when
+  `browser_answer_missing` is dominated by bots rather than by people on
+  devices we did not anticipate, set `SIGNUP_BROWSER_CHECK_MODE=enforce`.
 
   Not chosen: dropping email signup in favour of Google-only. All 378 bot
   accounts came through the email form and none through Google, so it would have

@@ -10,6 +10,7 @@
         <div class="col-12 col-sm-10 col-md-8 col-lg-5">
           <form
             class="card shadow-sm"
+            <%= mode === 'signup' ? 'data-signup-form' : '' %>
             method="post"
             action="<%= mode === 'login' ? '/login' : mode === 'signup' ? '/signup' : mode === 'forgot' ? '/forgot-password' : '/reset-password' %>"
             novalidate
@@ -30,6 +31,15 @@
                     translators. `tabindex="-1"` is what keeps the focusable
                     input out of the `aria-hidden` subtree in practice. %>
                 <input type="hidden" name="signupFormStamp" value="<%= signupFormStamp %>">
+
+                <%# Filled by `src/client/signup/index.js`: the hash of the
+                    stamp above, which only a browser running JavaScript can
+                    produce, and a flag set by the first real touch or key
+                    event. Both are recorded and not enforced until
+                    SIGNUP_BROWSER_CHECK_MODE=enforce. %>
+                <input type="hidden" name="signupBrowserAnswer" value="">
+                <input type="hidden" name="signupInteraction" value="">
+
                 <div class="signup-trap" aria-hidden="true">
                   <label for="<%= honeypotFieldName %>">Website</label>
                   <input
@@ -219,5 +229,8 @@
       </section>
     </main>
     <%- include('partials/legal-footer') %>
+    <% if (mode === 'signup') { %>
+      <%- include('partials/signup-client-script') %>
+    <% } %>
   </body>
 </html>

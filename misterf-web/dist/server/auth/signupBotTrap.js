@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { requireSessionSecret } from './session.js';
 /**
  * Two cheap, frictionless checks on the signup form, added after the
@@ -75,6 +75,33 @@ export function evaluateSignupSubmission(input) {
         return { accepted: false, signal: 'submitted_too_fast' };
     }
     return { accepted: true };
+}
+/**
+ * The value the page's script is expected to return: the SHA-256 of the form
+ * stamp, which the caller has already verified as ours and unexpired. Reusing
+ * the stamp rather than issuing a second nonce keeps one signed value in the
+ * form instead of two, and means this check inherits the stamp's signature
+ * verification for free.
+ */
+export function expectedBrowserAnswer(stamp) {
+    return createHash('sha256').update(stamp).digest('hex');
+}
+/**
+ * Checks the two browser signals. Call only with a stamp that
+ * `evaluateSignupSubmission` has already accepted, since the answer is only
+ * meaningful for a stamp known to be ours.
+ */
+export function evaluateBrowserExecution(input) {
+    if (!input.answer) {
+        return { passed: false, signal: 'browser_answer_missing' };
+    }
+    if (!safeEquals(input.answer, expectedBrowserAnswer(input.stamp))) {
+        return { passed: false, signal: 'browser_answer_invalid' };
+    }
+    if (!input.interacted) {
+        return { passed: false, signal: 'no_human_interaction' };
+    }
+    return { passed: true };
 }
 function sign(value) {
     return createHmac('sha256', requireSessionSecret())

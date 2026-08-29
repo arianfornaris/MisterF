@@ -35,9 +35,11 @@ import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { clearActiveProfileCookie } from './profiles.js';
 import {
   createSignupFormStamp,
+  evaluateBrowserExecution,
   evaluateSignupSubmission,
   signupHoneypotField,
 } from './signupBotTrap.js';
+import { env } from '../config/env.js';
 import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
 import {
   buildDocumentTitle,
@@ -330,6 +332,38 @@ export async function handleSignup(
       values: { code: '', email, fullName },
     });
     return;
+  }
+
+  // Second layer: did a real browser render and fill this form? Runs in
+  // report-only mode until the false-positive rate on real signups is known,
+  // because the ways this can go wrong are all ways of turning away a person —
+  // a script that failed to load, a phone that never fired the event we
+  // watched. `SIGNUP_BROWSER_CHECK_MODE=enforce` switches it on without a
+  // deploy, and back off just as fast if a device turns out to be excluded.
+  const browserCheck = evaluateBrowserExecution({
+    answer: readField(request.body.signupBrowserAnswer),
+    interacted: readField(request.body.signupInteraction) === '1',
+    stamp: readField(request.body.signupFormStamp),
+  });
+  if (!browserCheck.passed) {
+    const enforcing = env.signupBrowserCheckMode === 'enforce';
+    logger.warn('signup_browser_check_failed', {
+      email,
+      enforcing,
+      key: floodKey.slice(0, 80),
+      signal: browserCheck.signal,
+    });
+
+    if (enforcing) {
+      renderAuthForm(response.status(422), {
+        error: t('auth.error.signupRejected'),
+        fieldErrors: {},
+        mode: 'signup',
+        returnTo,
+        values: { code: '', email, fullName },
+      });
+      return;
+    }
   }
 
   const fieldErrors = validateSignup(

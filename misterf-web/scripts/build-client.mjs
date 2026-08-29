@@ -54,6 +54,12 @@ const translatorScriptPartialPath = path.join(
   'partials',
   'translator-client-script.ejs',
 );
+const signupScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'signup-client-script.ejs',
+);
 const stylesheetPartialPath = path.join(
   projectRoot,
   'views',
@@ -124,6 +130,7 @@ const mediaLibraryEntry = manifest['src/client/mediaLibrary/index.js'];
 const resourcesEntry = manifest['src/client/resources/index.js'];
 const roleplaysEntry = manifest['src/client/roleplays/index.js'];
 const translatorEntry = manifest['src/client/translator/index.js'];
+const signupEntry = manifest['src/client/signup/index.js'];
 
 if (!quizzesEntry?.file) {
   console.error('Could not find quizzes entry in Vite manifest.');
@@ -157,6 +164,10 @@ if (!translatorEntry?.file) {
   console.error('Could not find translator entry in Vite manifest.');
   process.exit(1);
 }
+if (!signupEntry?.file) {
+  console.error('Could not find signup entry in Vite manifest.');
+  process.exit(1);
+}
 
 const quizzesScriptPath = `/public/build/${quizzesEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
@@ -166,6 +177,7 @@ const mediaLibraryScriptPath = `/public/build/${mediaLibraryEntry.file}`;
 const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
 const roleplaysScriptPath = `/public/build/${roleplaysEntry.file}`;
 const translatorScriptPath = `/public/build/${translatorEntry.file}`;
+const signupScriptPath = `/public/build/${signupEntry.file}`;
 
 fs.writeFileSync(
   quizzesScriptPartialPath,
@@ -205,6 +217,11 @@ fs.writeFileSync(
 fs.writeFileSync(
   translatorScriptPartialPath,
   `    <script type="module" src="${translatorScriptPath}"></script>\n`,
+  'utf8',
+);
+fs.writeFileSync(
+  signupScriptPartialPath,
+  `    <script type="module" src="${signupScriptPath}"></script>\n`,
   'utf8',
 );
 

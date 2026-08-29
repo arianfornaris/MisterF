@@ -143,6 +143,64 @@ describe('signup bot trap', () => {
   });
 });
 
+describe('signup browser checks', () => {
+  it('ships the challenge fields and the script that answers them', async () => {
+    const form = await renderSignupForm();
+
+    expect(form.html).toContain('data-signup-form');
+    expect(form.html).toContain('name="signupBrowserAnswer"');
+    expect(form.html).toContain('name="signupInteraction"');
+    expect(form.html).toContain('entries/signup-');
+  });
+
+  it('accepts the answer a browser would compute from the stamp', async () => {
+    const { evaluateBrowserExecution, expectedBrowserAnswer } = await import(
+      '../../src/server/auth/signupBotTrap.js'
+    );
+    const stamp = await agedStamp();
+
+    expect(
+      evaluateBrowserExecution({
+        answer: expectedBrowserAnswer(stamp),
+        interacted: true,
+        stamp,
+      }),
+    ).toEqual({ passed: true });
+  });
+
+  it.each([
+    { answer: '', interacted: true, signal: 'browser_answer_missing' },
+    { answer: 'f'.repeat(64), interacted: true, signal: 'browser_answer_invalid' },
+    { answer: null, interacted: false, signal: 'no_human_interaction' },
+  ])('reports $signal', async ({ answer, interacted, signal }) => {
+    const { evaluateBrowserExecution, expectedBrowserAnswer } = await import(
+      '../../src/server/auth/signupBotTrap.js'
+    );
+    const stamp = await agedStamp();
+
+    expect(
+      evaluateBrowserExecution({
+        answer: answer ?? expectedBrowserAnswer(stamp),
+        interacted,
+        stamp,
+      }),
+    ).toEqual({ passed: false, signal });
+  });
+
+  /**
+   * The whole point of shipping in report-only mode: a submission that fails
+   * the browser checks is recorded, never turned away, until the
+   * false-positive rate on real phones is known.
+   */
+  it('does not reject a submission that fails the checks while reporting', async () => {
+    const email = 'no-js-client@example.com';
+    const response = await submitSignup({ email, stamp: await agedStamp() });
+
+    expect(response.status).not.toBe(422);
+    expect(response.status).toBe(503);
+  });
+});
+
 describe('signup flood brake', () => {
   /**
    * Runs last on purpose: it exhausts the per-address bucket the whole file

@@ -145,6 +145,13 @@ export const env = {
   landingContactEmail:
     process.env.LANDING_CONTACT_EMAIL ?? 'support@littlesoftware.info',
   sessionSecret: process.env.APP_SESSION_SECRET ?? '',
+  // Whether the signup browser checks reject a submission or only record what
+  // they would have rejected. Starts at `report` so the false-positive rate on
+  // real signups — phones above all — is known before anyone is turned away,
+  // and so a mobile regression can be switched off in production without a
+  // deploy. Set to `enforce` once the counters justify it.
+  signupBrowserCheckMode:
+    process.env.SIGNUP_BROWSER_CHECK_MODE === 'enforce' ? 'enforce' : 'report',
   smtpHost: process.env.SMTP_HOST ?? '',
   smtpPort: readInteger('SMTP_PORT', 587),
   smtpSecure: readBoolean('SMTP_SECURE', false),
