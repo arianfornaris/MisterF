@@ -1189,6 +1189,66 @@ address was theirs.
   new checks, the attacker has adapted to the form and Turnstile is the
   answer; if they stop, none of the remaining options need to be paid for.
 
+- [ ] **Next escalation, if the shipped checks stop working: require a real
+  browser.** Not started. The attacker's demonstrated behaviour is to fetch the
+  form, parse the CSRF token out of the HTML and post the fields back, which
+  means it almost certainly **does not execute JavaScript**. That is the
+  largest weakness we have not used, and two techniques exploit it:
+
+  - **A token minted by JavaScript.** The server issues a nonce, a script on
+    the page transforms it, and the result travels in the POST. A plain HTTP
+    client cannot produce it. One step up from the honeypot, still zero
+    friction.
+  - **Proof of work.** The browser spends a few hundred milliseconds hashing
+    before the form can be submitted. Invisible to one person; multiplied by
+    thousands of registrations it is a real cost to the operator.
+
+  Requiring JavaScript is acceptable here specifically because the tutor chat
+  already requires it — this excludes nobody who could use the product anyway.
+
+  **Do not build either by hand.** The proof-of-work token *is* a
+  JavaScript-minted token, so one dependency covers both, and
+  [ALTCHA](https://altcha.org) is the mature option: self-hosted, no external
+  service, no vendor account. As of 2026-08-29 `altcha-lib` (server) is 2.3.2,
+  MIT, **zero dependencies**, ~133k weekly downloads, last published
+  2026-07-27; the `altcha` widget is 3.2.2, MIT, one dependency (`hash-wasm`),
+  ~113k weekly downloads, last published 2026-08-19. Both are current and
+  actively maintained.
+
+  **Mobile is a hard requirement, and it constrains the design:**
+
+  - **Tune the proof-of-work cost against a cheap Android phone, never against
+    the founder's Mac.** ALTCHA's difficulty is the `maxnumber` parameter;
+    their own figure is roughly 2.5 s at `maxnumber: 1000000` *on a powerful
+    computer*, and their guidance is to reduce difficulty when the 95th
+    percentile solve time passes about 500 ms. Our learners are adult
+    immigrants in South Florida, so budget Android hardware is the design
+    target, not the exception. Measure on a real low-end device before
+    choosing a value, and watch battery and thermal cost.
+  - **The "a human touched this form" signal must be touch-first.** Take the
+    union of `input`, `pointerdown`, `keydown` and `touchstart` — never
+    `keydown` alone. On mobile a person can autofill every field from the
+    password manager and tap submit without ever producing a key event, and
+    iOS Safari's autofill fires `input` without `keydown`. A keyboard-only
+    signal would reject real phone users, which is the one failure this whole
+    section exists to avoid.
+  - Verify the widget inside the mobile viewport with the on-screen keyboard
+    open, since it covers roughly half the screen while the form is being
+    filled.
+
+  **Ship it in report-only mode first**, logging what *would* have been
+  rejected, and enforce only once the false-positive count on real signups is
+  known. This is the same discipline the honeypot shipped under, and it is
+  what makes a mobile regression visible before it costs a registration rather
+  than after.
+
+  What this still does not buy is what Turnstile does: the TLS (JA3/JA4) and
+  HTTP/2 fingerprints that expose a scripted client claiming to be Chrome, and
+  IP/ASN reputation aggregated across many sites. Those need to sit at the TLS
+  termination and see traffic we cannot see. If an attacker turns up that runs
+  a real automated browser, proof of work will not stop it and that is the
+  point to buy the edge.
+
   Not chosen: dropping email signup in favour of Google-only. All 378 bot
   accounts came through the email form and none through Google, so it would have
   blocked this specific attack — but it raises the attacker's cost rather than
