@@ -1274,7 +1274,7 @@ export const es: LocaleCatalog = {
     cancel: 'Cancelar',
     saveName: 'Guardar nombre',
     cannotConnect:
-      'No puedo conectar con el servidor en este momento. Revisa PM2 o vuelve a intentar en unos segundos.',
+      'No puedo conectar con el servidor en este momento. Revisa tu conexión y vuelve a intentar en unos segundos.',
     quizReadySend: 'Todo listo. Puedes enviar el quiz.',
     answerAllBeforeSend: 'Responde todas las preguntas antes de enviar.',
     writeBeforeContinue: 'Escribe tu respuesta antes de continuar.',

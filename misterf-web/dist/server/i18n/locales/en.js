@@ -1125,7 +1125,7 @@ export const en = {
         pgSharedTitle: 'Shared practice guide',
         cancel: 'Cancel',
         saveName: 'Save name',
-        cannotConnect: 'I can’t connect to the server right now. Check PM2 or try again in a few seconds.',
+        cannotConnect: 'I can’t connect to the server right now. Check your connection and try again in a few seconds.',
         quizReadySend: 'All set. You can submit the quiz.',
         answerAllBeforeSend: 'Answer all the questions before submitting.',
         writeBeforeContinue: 'Write your answer before continuing.',

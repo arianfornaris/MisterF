@@ -998,7 +998,7 @@ export const ht = {
         pgSharedTitle: 'Gid pratik pataje',
         cancel: 'Anile',
         saveName: 'Anrejistre non',
-        cannotConnect: 'Mwen pa ka konekte ak sèvè a kounye a. Tcheke PM2 oswa eseye ankò nan kèk segonn.',
+        cannotConnect: 'Mwen pa ka konekte ak sèvè a kounye a. Tcheke koneksyon ou epi eseye ankò nan kèk segonn.',
         quizReadySend: 'Tout bagay pare. Ou ka soumèt quiz la.',
         answerAllBeforeSend: 'Reponn tout kesyon yo anvan ou soumèt.',
         writeBeforeContinue: 'Ekri repons ou anvan ou kontinye.',
