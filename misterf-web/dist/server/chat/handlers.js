@@ -11,6 +11,21 @@ import { isGenericConversationTitle, normalizeConversationTitle, } from '../serv
 import { logger } from '../services/logger.js';
 export function renderChatPage(request, response) {
     const user = request.authUser;
+    // A signed-in visitor whose address is still unverified used to be handed the
+    // whole app shell here. `renderLanding` passes any authenticated request
+    // straight through to this handler, and this was the one authenticated page
+    // missing the `emailVerified` check every other one makes, so pressing Back
+    // from the verification screen was enough to land on it: the sidebar showed
+    // the account while the chat rendered its guest greeting, and nothing in it
+    // could actually work, since the tutor socket requires a verified address.
+    //
+    // `/verify-needed` rather than `/login`, which is where the other handlers
+    // send people: this visitor is signed in and needs the resend and code form,
+    // not a login form telling them to do what they already did.
+    if (user && !user.emailVerified) {
+        response.redirect('/verify-needed');
+        return;
+    }
     let activeProfile = request.activeProfile;
     let initialConversationId = '';
     let selectedTutorConversation = null;

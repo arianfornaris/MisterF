@@ -49,6 +49,15 @@
 
               <% if (linkHref && linkText) { %>
                 <a class="btn btn-secondary" href="<%= linkHref %>"><%= linkText %></a>
+              <% } else if (showSignOut) { %>
+                <%# Replaces the generic "back" link rather than joining it. On
+                    the verification screen every destination behind that link
+                    bounces an unverified visitor right back here, so offering
+                    it would be offering a loop. Signing out is the real exit. %>
+                <form method="post" action="/logout">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-secondary" type="submit"><%= t('nav.signOut') %></button>
+                </form>
               <% } else { %>
                 <a class="btn btn-secondary" href="<%= returnTo || '/' %>"><%= t('auth.message.back') %></a>
               <% } %>

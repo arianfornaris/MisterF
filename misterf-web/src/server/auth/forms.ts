@@ -774,6 +774,11 @@ export function renderVerifyNeeded(
       email: request.authUser.email,
     }),
     returnTo,
+    // Signing out is the only way off this page, so it has to be offered.
+    // Now that `/` sends an unverified visitor here, the generic "back" link
+    // would point at a route that bounces straight back — a trap with no exit
+    // but clearing cookies.
+    showSignOut: true,
     showVerificationCodeForm: true,
     showResendVerification: true,
     title: tr(response)('auth.message.verifyTitle'),
@@ -880,6 +885,7 @@ function renderAuthMessage(
     linkHref?: string;
     linkText?: string;
     returnTo?: string;
+    showSignOut?: boolean;
     showVerificationCodeForm?: boolean;
     showResendVerification?: boolean;
     title: string;
@@ -891,6 +897,7 @@ function renderAuthMessage(
     linkHref: view.linkHref ?? '',
     linkText: view.linkText ?? '',
     returnTo: view.returnTo ?? '/',
+    showSignOut: Boolean(view.showSignOut),
     showVerificationCodeForm: Boolean(view.showVerificationCodeForm),
     showResendVerification: Boolean(view.showResendVerification),
     title: buildDocumentTitle(localeOf(response), view.title),

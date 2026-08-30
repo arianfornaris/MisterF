@@ -2401,6 +2401,73 @@ async function createAuthenticatedCookie(
   ].join('; ');
 }
 
+describe('unverified accounts', () => {
+  /**
+   * Pressing Back from the verification screen landed on `/`, which handed the
+   * signed-in app shell to someone whose address was never verified: the
+   * sidebar showed their account while the chat rendered its guest greeting,
+   * and no tutor turn could work behind it.
+   */
+  it.each(['/', '/chat'])(
+    'sends an unverified signed-in visitor from %s to the verification screen',
+    async (route) => {
+      const { createLocalUser } = await import('../../src/server/auth/repository.js');
+      const user = createLocalUser({
+        email: `unverified-${route.replace(/\W/g, '') || 'root'}@example.com`,
+        fullName: 'Unverified Person',
+        passwordHash: 'irrelevant-for-this-test',
+      });
+      expect(user.emailVerified).toBeFalsy();
+
+      const cookie = await createSessionOnlyCookie(user.id);
+      const response = await fetch(`${baseUrl}${route}`, {
+        headers: { cookie },
+        redirect: 'manual',
+      });
+
+      expect(response.status).toBe(302);
+      expect(response.headers.get('location')).toBe('/verify-needed');
+    },
+  );
+
+  it('offers a way off the verification screen instead of a link back to it', async () => {
+    const { createLocalUser } = await import('../../src/server/auth/repository.js');
+    const user = createLocalUser({
+      email: 'unverified-exit@example.com',
+      fullName: 'Unverified Person',
+      passwordHash: 'irrelevant-for-this-test',
+    });
+    const cookie = await createSessionOnlyCookie(user.id);
+
+    const response = await fetch(`${baseUrl}/verify-needed`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('action="/logout"');
+    // The generic back link would point at `/`, which bounces straight back.
+    expect(html).not.toMatch(/<a class="btn btn-secondary" href="\/"/);
+  });
+});
+
+async function createSessionOnlyCookie(userId: string): Promise<string> {
+  const { createSession } = await import('../../src/server/auth/repository.js');
+  const { createSessionCookie, sessionCookieName } = await import(
+    '../../src/server/auth/session.js'
+  );
+
+  const session = createSessionCookie();
+  createSession({
+    expiresAt: session.expiresAt,
+    tokenHash: session.tokenHash,
+    userId,
+  });
+
+  return `${sessionCookieName}=${encodeURIComponent(session.token)}`;
+}
+
 function extractCsrfToken(html: string): string {
   const match = html.match(/name="_csrf" value="([^"]+)"/);
   expect(match).not.toBeNull();
