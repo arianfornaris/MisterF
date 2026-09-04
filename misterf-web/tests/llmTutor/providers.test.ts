@@ -16,14 +16,17 @@ describe('getProviderOptions', () => {
     });
   });
 
-  it('caps reasoning effort for the lite model so it does not burn output on thinking', () => {
-    // The lite model runs at a lower reasoning budget than the regular/advanced
-    // tiers, which use the global default.
+  it('keeps the lite model at its own default reasoning level', () => {
+    // `minimal` is Gemini 3.5 Flash-Lite's factory default and the floor for
+    // Gemini 3.x, where reasoning cannot be disabled. It ran at `low` — above
+    // the model's default — until a tutor turn degenerated into three junk
+    // tokens after 628 reasoning tokens. Never `none`: OpenRouter documents
+    // that mandatory-reasoning models must not be sent it.
     const liteEffort = getProviderOptions({ llm: { modelTier: 'lite' } });
     const advancedEffort = getProviderOptions({ llm: { modelTier: 'advanced' } });
 
     expect(liteEffort).toMatchObject({
-      openrouter: { reasoning: { effort: 'low', exclude: true } },
+      openrouter: { reasoning: { effort: 'minimal', exclude: true } },
     });
     expect(advancedEffort).toMatchObject({
       openrouter: { reasoning: { effort: 'medium', exclude: true } },

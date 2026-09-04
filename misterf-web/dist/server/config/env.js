@@ -86,11 +86,22 @@ export const env = {
         '',
     openrouterManagementApiKey: process.env.OPENROUTER_MANAGEMENT_API_KEY ?? '',
     openrouterReasoningEffort: process.env.OPENROUTER_REASONING_EFFORT ?? 'medium',
-    // The lite tier runs a small model (gemini flash-lite) that can spend its
-    // whole output budget on hidden reasoning and collapse the visible answer to
-    // a filler like "Listo.". Cap its reasoning below the global default so the
-    // tokens go to the actual reply. Tunable in production without a deploy.
-    openrouterLiteReasoningEffort: process.env.OPENROUTER_REASONING_EFFORT_LITE ?? 'low',
+    // `minimal` is Gemini 3.5 Flash-Lite's own factory default, and Google's
+    // guidance for retrieval/classification-shaped work. This is not a cap on the
+    // model: reasoning is mandatory on Gemini 3.x and `minimal` is its floor, so
+    // `none` must never be sent here.
+    //
+    // The value was `low` — above the model's default — until 2026-08-30, when a
+    // tutor turn returned three junk tokens ("ექis") after 628 reasoning tokens,
+    // with `finishReason: "stop"` and no output limit in play. Nothing was
+    // exhausted; the generation degenerated. Two turns either side of it, on the
+    // same model, reasoned zero tokens and answered correctly. The literature
+    // fits: reasoning competes with instruction-following, and small models lose
+    // badly when made to reason and satisfy a strict output schema at once
+    // (arXiv 2505.11423, arXiv 2606.09410). Our tutor demands exactly that.
+    //
+    // Tunable in production without a deploy.
+    openrouterLiteReasoningEffort: process.env.OPENROUTER_REASONING_EFFORT_LITE ?? 'minimal',
     openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
     openrouterUserKeyLimitReset: process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
     sceneMediaImageModel: process.env.SCENE_MEDIA_IMAGE_MODEL ?? 'google/gemini-3.1-flash-lite-image',
