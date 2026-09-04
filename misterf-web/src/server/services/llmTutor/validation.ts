@@ -1,3 +1,5 @@
+import type { ModelMessage } from 'ai';
+import { buildUserContentWithAttachments } from '../../attachments/modelParts.js';
 import type {
   TutorDialogueCharacterMessageBlock,
   TutorDialogueTranscriptBlock,
@@ -30,11 +32,27 @@ import {
 import { translate, type Locale } from '../../i18n/index.js';
 import { defaultInstructionLanguage } from './languagePack.js';
 
-export function toModelMessage(message: TutorMessage) {
+/**
+ * The single place tutor history becomes AI SDK message content. Keeping
+ * multimodal assembly here — rather than at each call site — is what stops file
+ * parts from being constructed ad hoc across the tutor services.
+ */
+export function toModelMessage(message: TutorMessage): ModelMessage {
+  const role = message.role === 'model' ? 'assistant' : 'user';
+
+  // Only a user turn can carry attachments, and an assistant turn's content is
+  // the structured block JSON, which must stay a plain string.
+  if (role === 'assistant' || !message.attachments?.length) {
+    return { content: message.content, role } as ModelMessage;
+  }
+
   return {
-    content: message.content,
-    role: message.role === 'model' ? 'assistant' : 'user',
-  } as const;
+    content: buildUserContentWithAttachments({
+      attachments: message.attachments,
+      text: message.content,
+    }),
+    role: 'user',
+  };
 }
 
 type VisibleTutorResponseBlock =

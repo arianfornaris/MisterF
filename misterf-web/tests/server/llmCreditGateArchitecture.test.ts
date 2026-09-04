@@ -3,6 +3,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const expectedGenerateTextCallCounts: Record<string, number> = {
+  'src/server/services/attachmentExtraction.ts': 1,
   'src/server/services/llmTutor/blockRepair.ts': 1,
   'src/server/services/llmTutor/index.ts': 3,
   'src/server/services/resourceDrafts.ts': 1,

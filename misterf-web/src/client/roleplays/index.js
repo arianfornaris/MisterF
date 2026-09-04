@@ -1,4 +1,5 @@
 import { initializeModificationModal } from '../shared/modificationModal.js';
+import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
 import { t } from '../shared/i18n.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
@@ -688,3 +689,4 @@ initializeRoleplayTurnComposer();
 initializeRoleplayEvaluationPopovers();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
+initializeAttachmentPicker();

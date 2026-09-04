@@ -1,0 +1,166 @@
+<%
+  // `compact` renders the trigger row for the chat composer, where there is no
+  // room for a labelled section. The wizard modal itself is identical in both.
+  //
+  // `part` splits the two halves so a caller can place them separately. The
+  // quiz `Modify with AI` modal needs the trigger row inside itself and the
+  // wizard as a sibling, because a modal nested inside another modal is a
+  // stacking problem nobody needs.
+  const isCompact = typeof compact !== 'undefined' && compact;
+  const part = typeof partOnly !== 'undefined' ? partOnly : 'both';
+  const modalId = typeof wizardId !== 'undefined'
+    ? wizardId
+    : (isCompact ? 'attachmentWizardCompact' : 'attachmentWizard');
+%>
+<% if (part !== 'wizard') { %>
+<div class="<%= isCompact ? 'composer-attachments' : 'mb-3' %>" data-attachment-picker>
+  <% if (!isCompact) { %>
+    <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
+      <span class="form-label mb-0"><%= t('attachments.sectionTitle') %></span>
+      <span class="form-text mb-0"><%= t('attachments.sectionHelp') %></span>
+    </div>
+  <% } %>
+
+  <input type="hidden" name="attachmentIds" value="" data-attachment-ids>
+
+  <ul class="list-group <%= isCompact ? 'list-group-flush mb-1' : 'mb-2' %> d-none" data-attachment-list></ul>
+
+  <div class="d-flex flex-wrap gap-2">
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      data-attachment-open="file"
+      data-bs-toggle="modal"
+      data-bs-target="#<%= modalId %>"
+      <%= isCompact ? `title="${t('attachments.attachFile')}" aria-label="${t('attachments.attachFile')}"` : '' %>
+    >
+      <i class="bi bi-paperclip <%= isCompact ? '' : 'me-1' %>" aria-hidden="true"></i><% if (!isCompact) { %><%= t('attachments.attachFile') %><% } %>
+    </button>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      data-attachment-open="url"
+      data-bs-toggle="modal"
+      data-bs-target="#<%= modalId %>"
+      <%= isCompact ? `title="${t('attachments.attachUrl')}" aria-label="${t('attachments.attachUrl')}"` : '' %>
+    >
+      <i class="bi bi-link-45deg <%= isCompact ? '' : 'me-1' %>" aria-hidden="true"></i><% if (!isCompact) { %><%= t('attachments.attachUrl') %><% } %>
+    </button>
+  </div>
+
+  <% if (!isCompact) { %>
+    <div class="form-text"><%= t('attachments.fileHint') %></div>
+  <% } %>
+</div>
+
+<% } %>
+
+<% if (part !== 'trigger') { %>
+<div
+  class="modal fade"
+  id="<%= modalId %>"
+  tabindex="-1"
+  aria-labelledby="<%= modalId %>Title"
+  aria-hidden="true"
+  data-attachment-wizard
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="<%= modalId %>Title" data-attachment-wizard-title>
+          <%= t('attachments.wizardTitle') %>
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="<%= t('common.close') %>"
+          data-attachment-wizard-close
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <%# Phase 1 — choose %>
+        <div data-attachment-phase="choose">
+          <div data-attachment-choose="file">
+            <label class="form-label" for="<%= modalId %>File"><%= t('attachments.attachFile') %></label>
+            <input
+              type="file"
+              class="form-control"
+              id="<%= modalId %>File"
+              accept="image/png,image/jpeg,image/webp,application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              data-attachment-file-input
+            >
+            <div class="form-text"><%= t('attachments.fileHint') %></div>
+          </div>
+
+          <div class="d-none" data-attachment-choose="url">
+            <label class="form-label" for="<%= modalId %>Url"><%= t('attachments.urlLabel') %></label>
+            <input
+              type="url"
+              class="form-control"
+              id="<%= modalId %>Url"
+              placeholder="<%= t('attachments.urlPlaceholder') %>"
+              data-attachment-url-input
+            >
+            <div class="form-text"><%= t('attachments.urlHint') %></div>
+          </div>
+        </div>
+
+        <%# Phase 2 — processing %>
+        <div class="d-none py-4 text-center" data-attachment-phase="processing" aria-live="polite">
+          <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
+          <p class="mb-1" data-attachment-processing-label><%= t('attachments.processing.generic') %></p>
+          <p class="form-text mb-0"><%= t('attachments.processingHint') %></p>
+        </div>
+
+        <%# Phase 3 — review %>
+        <div class="d-none" data-attachment-phase="review">
+          <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
+            <h6 class="mb-0"><%= t('attachments.reviewHeading') %></h6>
+            <span class="form-text mb-0" data-attachment-review-kind></span>
+          </div>
+          <p class="form-text mt-0" data-attachment-review-meta></p>
+
+          <div data-attachment-review-notices></div>
+
+          <label class="visually-hidden" for="<%= modalId %>Text"><%= t('attachments.reviewHeading') %></label>
+          <textarea
+            class="form-control attachment-review-text"
+            id="<%= modalId %>Text"
+            rows="14"
+            spellcheck="false"
+            data-attachment-review-text
+          ></textarea>
+          <div class="form-text"><%= t('attachments.editableHint') %></div>
+        </div>
+
+        <%# Failure %>
+        <div class="d-none" data-attachment-phase="error">
+          <div class="alert alert-danger mb-0" role="alert" data-attachment-error></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-attachment-cancel
+        ><%= t('common.cancel') %></button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-attachment-process
+        ><%= t('attachments.process') %></button>
+        <button
+          type="button"
+          class="btn btn-primary d-none"
+          data-attachment-accept
+        ><%= t('attachments.accept') %></button>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>

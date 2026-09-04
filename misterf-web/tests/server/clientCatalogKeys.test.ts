@@ -42,6 +42,30 @@ function collectReferencedKeys(shippedNamespaces: Set<string>): string[] {
   return [...keys].sort();
 }
 
+/**
+ * Namespaces the client asks for that the server never ships.
+ *
+ * Filtering references down to shipped namespaces is right for the key check —
+ * an unshipped namespace has no keys to resolve — but on its own it means a
+ * reference to a namespace nobody exposed is silently ignored, which is the
+ * same "renders the raw key" failure the key check exists to prevent. It let
+ * `t('common.cancel')` ship a button labelled `common.cancel`.
+ */
+function collectUnshippedNamespaces(shippedNamespaces: Set<string>): string[] {
+  const missing = new Set<string>();
+  for (const file of listClientScripts()) {
+    const source = fs.readFileSync(file, 'utf8');
+    for (const match of source.matchAll(
+      /t\(\s*['"]([A-Za-z0-9_]+)\.([A-Za-z0-9_.]+)['"]/g,
+    )) {
+      if (!shippedNamespaces.has(match[1] as string)) {
+        missing.add(match[1] as string);
+      }
+    }
+  }
+  return [...missing].sort();
+}
+
 function lookup(catalog: Record<string, unknown>, key: string): unknown {
   return key
     .split('.')
@@ -55,6 +79,15 @@ function lookup(catalog: Record<string, unknown>, key: string): unknown {
 }
 
 describe('client catalog keys', () => {
+  it('ships every namespace the client references', () => {
+    const shippedNamespaces = new Set(Object.keys(getClientCatalog('es')));
+
+    expect(
+      collectUnshippedNamespaces(shippedNamespaces),
+      'client code references a namespace that is not in clientNamespaces, so every key in it renders as raw text',
+    ).toEqual([]);
+  });
+
   it('resolves every client-referenced key in every locale', () => {
     const shippedNamespaces = new Set(Object.keys(getClientCatalog('es')));
     const referencedKeys = collectReferencedKeys(shippedNamespaces);

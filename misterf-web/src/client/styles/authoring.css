@@ -3,3 +3,35 @@
 .authoring-tabs {
   gap: 0.5rem;
 }
+
+/*
+ * Attachment review and viewer text.
+ *
+ * The extracted contents are shown verbatim, so whitespace and line breaks are
+ * meaningful — a worksheet's numbering and blanks only read correctly if the
+ * layout survives. Wrapping is forced so a long URL or an unbroken line cannot
+ * push the modal into horizontal scrolling.
+ */
+.attachment-review-text {
+  max-height: 22rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.875rem;
+  background-color: var(--bs-tertiary-bg);
+}
+
+.composer-attachments .list-group-item {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.message-attachments .btn {
+  max-width: 100%;
+}
+
+.message-attachments .btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -3,6 +3,7 @@
   grid-template-areas:
     "plan"
     "input"
+    "attachments"
     "footer";
   gap: 10px;
   align-items: start;
@@ -70,6 +71,15 @@
 
 .composer:focus-within .composer-input-wrap {
   border-color: rgba(var(--bs-primary-rgb), 0.6);
+}
+
+/*
+ * The attach control needs its own grid area. Without one it is auto-placed
+ * into an implicit row above the input, which reads as two stray buttons
+ * floating over the message box.
+ */
+.composer-attachments {
+  grid-area: attachments;
 }
 
 .composer-footer {

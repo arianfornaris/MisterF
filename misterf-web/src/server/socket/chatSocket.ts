@@ -40,6 +40,9 @@ import {
 } from '../profiles/modelTier.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
+import { claimStagedAttachments } from '../attachments/stagingStore.js';
+import { readAttachmentIds } from '../attachments/requestAttachments.js';
+import type { AttachmentDigest } from '../attachments/types.js';
 import { normalizeConversationTitle } from '../services/llmTutor/conversationTitles.js';
 import { normalizeExerciseSubmissionForUserMessage } from '../services/llmTutor/exerciseSubmissions.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
@@ -81,6 +84,7 @@ type JoinPayload = {
 };
 
 type SendMessagePayload = {
+  attachmentIds?: unknown;
   conversationId?: string | null;
   content?: string;
   exerciseSubmission?: unknown;
@@ -434,11 +438,29 @@ export function registerChatSocket(io: Server): void {
         payload.exerciseSubmission,
         content,
       );
+
+      // Each id was already processed and approved through the attach wizard, so
+      // there is nothing left to extract here. Claiming is ownership-checked,
+      // one-shot, and refuses anything the user never accepted, which is what
+      // keeps the approval step from being bypassable by the client.
+      const attachmentDigests: AttachmentDigest[] = claimStagedAttachments({
+        ids: readAttachmentIds(payload.attachmentIds),
+        userId,
+      });
+
+      const userMetadata = {
+        ...(attachmentDigests.length > 0
+          ? { attachments: attachmentDigests }
+          : {}),
+        ...(exerciseSubmission ? { exerciseSubmission } : {}),
+      };
       const userMessage = addMessage(
         conversation.id,
         'user',
         content,
-        exerciseSubmission ? { exerciseSubmission } : null,
+        // Stays null when there is nothing to record, so a plain message keeps
+        // storing NULL metadata rather than an empty object.
+        Object.keys(userMetadata).length > 0 ? userMetadata : null,
       );
       emitConversationUpdated(io, conversation.id, userId);
       io.to(conversation.id).emit('message:created', userMessage);

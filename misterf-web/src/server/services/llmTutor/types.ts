@@ -1,8 +1,15 @@
+import type { AttachmentInput } from '../../attachments/modelParts.js';
 import type { ProfileModelTier } from '../../profiles/modelTier.js';
 
 export type TutorMessage = {
   role: 'user' | 'model';
   content: string;
+  /**
+   * Source material attached to this turn. Live attachments (with bytes) only
+   * appear on the turn the user attached them; every later turn carries the
+   * persisted digest instead. See `attachments/digest.ts`.
+   */
+  attachments?: AttachmentInput[];
 };
 
 export type LlmRequestOptions = {

@@ -177,6 +177,8 @@
                   autofocus
                 ></textarea>
               </div>
+              <%- include('attachment-picker', { compact: true }) %>
+              <%- include('attachment-viewer-modal') %>
               <div class="composer-footer">
                 <% if (hasSession) { %>
                   <button

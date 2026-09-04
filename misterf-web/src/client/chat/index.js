@@ -1,4 +1,5 @@
 import { t } from '../shared/i18n.js';
+import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
 import { ChatState } from './app/ChatState.js';
 import { createChatRuntime } from './app/ChatRuntime.js';
 import { chatSocketEvents } from './constants/events.js';
@@ -134,6 +135,8 @@ const conversationListView = new ConversationListView({
   },
   panelEl: conversationPanelEl,
 });
+const attachmentPicker = initializeAttachmentPicker();
+
 const composerView = new ComposerView({
   composerEl: formEl,
   inputEl,
@@ -154,7 +157,9 @@ const tutorMessageRenderer = createTutorMessageRenderer({
 });
 runtime = createChatRuntime({
   chatSocketEvents,
+  clearAttachments: () => attachmentPicker?.clear(),
   focusComposer,
+  getAttachmentIds: () => attachmentPicker?.getIds() ?? [],
   getConversationId: () => conversationId,
   getDisconnectNoticeTimerId: () => disconnectNoticeTimerId,
   getHasHandledInitialConversationReady: () => hasHandledInitialConversationReady,

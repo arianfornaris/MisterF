@@ -37,7 +37,17 @@ export function createChatRuntime(deps) {
     if (options.exerciseSubmission) {
       payload.exerciseSubmission = options.exerciseSubmission;
     }
+
+    const attachmentIds = deps.getAttachmentIds?.() ?? [];
+    if (attachmentIds.length > 0) {
+      payload.attachmentIds = attachmentIds.join(',');
+    }
+
     deps.getSocket().emit(deps.chatSocketEvents.send, payload);
+    // Cleared right after the emit: the server claims each staged id once, so
+    // leaving them in the composer would attach nothing on the next message
+    // while looking like it would.
+    deps.clearAttachments?.();
     return true;
   }
 

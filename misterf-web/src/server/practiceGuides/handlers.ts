@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { claimRequestAttachments } from '../attachments/requestAttachments.js';
 import { randomUUID } from 'node:crypto';
 import { translate, type Locale } from '../i18n/index.js';
 import QRCode from 'qrcode';
@@ -697,6 +698,7 @@ export async function handleGeneratePracticeGuideDraft(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = await generatePracticeGuideDraft({
+      attachments: claimRequestAttachments(request, auth.user.id),
       instructionLanguage: auth.activeProfile?.instructionLanguage,
       modelTier: auth.activeProfile?.modelTier,
       openRouterApiKey,

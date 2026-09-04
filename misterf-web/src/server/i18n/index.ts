@@ -74,7 +74,10 @@ export function createTranslator(locale: Locale): Translator {
  * these namespaces from `window.__APP_I18N__`; server-only namespaces are not
  * shipped to the client.
  */
-const clientNamespaces = ['chat', 'nav', 'translator', 'clientChat', 'card', 'clientMisc'] as const;
+// `common` ships because browser code needs the same "Cancelar"/"Cerrar" labels
+// the server views use, and re-declaring them per feature namespace is how they
+// drift apart.
+const clientNamespaces = ['attachments', 'chat', 'common', 'nav', 'translator', 'clientChat', 'card', 'clientMisc'] as const;
 
 export function getClientCatalog(locale: Locale): Record<string, unknown> {
   const source = catalogs[locale];

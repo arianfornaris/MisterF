@@ -59,6 +59,7 @@
             placeholder="<%= t('practiceGuides.describePlaceholder') %>"
           ><%= generationPrompt || '' %></textarea>
         </div>
+        <%- include('partials/attachment-picker') %>
         <div class="d-flex flex-wrap gap-2">
           <button class="btn btn-primary" type="submit" data-resource-generate-submit data-loading-text="<%= t('practiceGuides.creatingShort') %>">
             <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('practiceGuides.create') %>

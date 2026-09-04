@@ -1,4 +1,5 @@
 import { t } from '../../shared/i18n.js';
+import { renderMessageAttachments } from '../../shared/attachmentViewer.js';
 import { createFillInTheBlankCard } from '../cards/createFillInTheBlankCard.js';
 import { createMatchingPairsCard } from '../cards/createMatchingPairsCard.js';
 import { createMultipleChoiceCard } from '../cards/multipleChoiceCard.js';
@@ -393,6 +394,7 @@ export function createTutorMessageRenderer(deps) {
     }
 
     if (role === 'user') {
+      renderMessageAttachments(bubble, options.metadata);
       appendUserMessageActions(bubble);
     }
 
