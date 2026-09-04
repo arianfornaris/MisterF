@@ -1,0 +1,49 @@
+<div
+  class="modal fade"
+  tabindex="-1"
+  aria-labelledby="attachmentViewerTitle"
+  aria-hidden="true"
+  data-attachment-viewer
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attachmentViewerTitle">
+          <%= t('attachments.viewerHeading') %>
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="<%= t('common.close') %>"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
+          <strong data-attachment-viewer-name></strong>
+          <span class="form-text mb-0" data-attachment-viewer-kind></span>
+        </div>
+        <p class="form-text mt-0 mb-2" data-attachment-viewer-meta></p>
+        <a
+          class="d-inline-block mb-2 d-none"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-attachment-viewer-source
+        ></a>
+
+        <div data-attachment-viewer-notices></div>
+
+        <pre class="border rounded p-3 mb-0 attachment-review-text" data-attachment-viewer-text></pre>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-dismiss="modal"
+        ><%= t('common.close') %></button>
+      </div>
+    </div>
+  </div>
+</div>

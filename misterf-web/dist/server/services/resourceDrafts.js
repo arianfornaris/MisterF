@@ -8,6 +8,7 @@ import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logLlmCost, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
 import { logger } from './logger.js';
+import { buildUserContentWithAttachments, } from '../attachments/modelParts.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { instructionLanguageEnglishName, quizAuthoringPlaceholders, } from './llmTutor/languagePack.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
@@ -134,10 +135,14 @@ async function generateStructuredDraft(input) {
     // set to Lite still paid Regular for every quiz, roleplay, guide, and
     // summary it generated.
     const tier = input.modelTier ?? defaultProfileModelTier;
+    const attachments = input.attachments ?? [];
     const system = renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables);
     const messages = [
         {
-            content: input.initialUserMessage,
+            content: buildUserContentWithAttachments({
+                attachments,
+                text: input.initialUserMessage,
+            }),
             role: 'user',
         },
     ];
@@ -249,6 +254,7 @@ async function generateStructuredDraft(input) {
 export async function generatePracticeGuideDraft(input) {
     return generateStructuredDraft({
         actorLabel: 'Practice guide draft',
+        attachments: input.attachments,
         correctionPromptPath: 'resources/practice-guide-draft-correction.md',
         initialUserMessage: input.prompt,
         modelTier: input.modelTier,
@@ -280,6 +286,7 @@ export function safeParsePracticeGuideDraft(value) {
 export async function generateQuizDraft(input) {
     return generateStructuredDraft({
         actorLabel: 'Quiz draft',
+        attachments: input.attachments,
         correctionPromptPath: 'resources/quiz-draft-correction.md',
         initialUserMessage: input.prompt,
         modelTier: input.modelTier,
@@ -403,6 +410,103 @@ export async function generateQuizBlocksRevision(input) {
     });
 }
 /**
+ * Revises a quiz in one call, across whichever parts the author selected.
+ *
+ * This replaces the separate metadata-only and blocks-only operations. Scoping
+ * used to be expressed by having two endpoints with two schemas; it is now a
+ * choice the author makes, and the schema is assembled from that choice — so a
+ * `general`-only request still cannot emit a block, and a `blocks`-only request
+ * still cannot rewrite the title, exactly as before. What is new is that both
+ * together are expressible at all: "take this B1 quiz down to A2" needs the
+ * level field and every question, and previously could not be asked for.
+ */
+export async function generateQuizRevision(input) {
+    const { currentDraft, currentMetadata, scope } = input;
+    const shape = {};
+    if (scope.general) {
+        shape.metadata = quizMetadataSchema;
+    }
+    if (scope.blocks) {
+        shape.blocks = z.array(quizBlockSchema).min(1);
+        shape.sections = z.array(quizSectionSchema).default([]);
+    }
+    // Whatever the model returns is assembled with the parts it was not allowed
+    // to touch and validated as a whole draft, so unique ids and section
+    // cross-references are caught inside the correction loop rather than at save.
+    const revisionSchema = z.object(shape).strict().superRefine((value, ctx) => {
+        const candidate = value;
+        const assembled = quizDraftSchema.safeParse({
+            ...(candidate.metadata ?? currentMetadata),
+            blocks: candidate.blocks ?? currentDraft.blocks,
+            sections: candidate.sections ?? currentDraft.sections,
+        });
+        if (assembled.success) {
+            return;
+        }
+        for (const issue of assembled.error.issues) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: issue.message,
+                path: issue.path,
+            });
+        }
+    });
+    const revision = await generateStructuredDraft({
+        actorLabel: 'Quiz revision',
+        attachments: input.attachments,
+        correctionPromptPath: 'resources/quiz-modification-correction.md',
+        initialUserMessage: JSON.stringify({
+            currentBlocks: scope.blocks ? currentDraft.blocks : undefined,
+            currentMetadata,
+            currentSections: scope.blocks ? currentDraft.sections : undefined,
+            requestedChange: input.prompt,
+        }, null, 2),
+        modelTier: input.modelTier,
+        openRouterApiKey: input.openRouterApiKey,
+        schema: revisionSchema,
+        systemPromptPath: 'resources/quiz-modification.md',
+        systemPromptVariables: {
+            ...quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+            REVISION_SCOPE_RULES: buildQuizRevisionScopeRules(scope),
+        },
+    });
+    return revision;
+}
+/**
+ * The scope the author chose, stated to the model as a rule rather than left
+ * implicit in the schema. The schema alone would reject an out-of-scope key,
+ * but only after a wasted generation and a correction turn.
+ */
+export function buildQuizRevisionScopeRules(scope) {
+    if (scope.general && scope.blocks) {
+        return [
+            'You may change both the general details and the questions.',
+            '',
+            'Return `metadata`, `blocks`, and `sections`. Keep the three coherent with',
+            'each other: if you change the level, the questions must match the new',
+            'level; if you change the topic, the questions must practise it.',
+        ].join('\n');
+    }
+    if (scope.general) {
+        return [
+            'You may change only the general details.',
+            '',
+            'Return `metadata` and nothing else. You must not return `blocks` or',
+            '`sections`, and you must not propose changes to the questions. The',
+            'questions are shown to you only so the general details stay coherent',
+            'with them.',
+        ].join('\n');
+    }
+    return [
+        'You may change only the questions and their sections.',
+        '',
+        'Return `blocks` and `sections` and nothing else. You must not return',
+        '`metadata`, and you must not change the title, description, topic, level,',
+        'or instructions. The general details are shown to you only so the',
+        'questions stay coherent with them.',
+    ].join('\n');
+}
+/**
  * Generates a single quiz item, scoped so it can never touch other blocks.
  * When `currentItem` is provided the model revises it (the per-block modify
  * operation); when it is omitted the model creates a new item of `targetKind`
@@ -438,6 +542,7 @@ export async function generateRoleplayDraft(input) {
     const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
     return generateStructuredDraft({
         actorLabel: 'Roleplay draft',
+        attachments: input.attachments,
         correctionPromptPath: 'resources/roleplay-draft-correction.md',
         initialUserMessage: input.prompt,
         modelTier: input.modelTier,

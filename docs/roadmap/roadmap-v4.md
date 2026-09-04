@@ -1009,6 +1009,551 @@ cycle, on one profile, with a two-turn session.
 
 ---
 
+## 1.14 Source Attachments (Files And URLs In AI Inferences)
+
+Added 2026-08-30. Research: [AI Inference File Attachments](../research/ai-inference-file-attachments.md);
+the narrower "create from source" flow it supersedes is in
+[Third-Party Resource Exercise Extraction](../research/third-party-resource-exercise-extraction.md).
+
+A teacher can attach source material — image, PDF, DOCX, or a URL — to resource
+creation and to tutor chat. Images and PDFs go to the model as bytes; DOCX and
+URLs are extracted to text server-side. **The binary is never persisted**: it
+reaches the model once, and what survives into later turns is a text digest
+stored on the message. Built on branch `v3` on 2026-08-30; the ingestion layer,
+the upload endpoint, resource-creation wiring, and the chat wiring are in place
+and verified live, so what follows is the work that came out of building it.
+
+**Governing principle (founder, 2026-08-30): an attachment is part of a prompt
+and shares that prompt's fate.** It is not a document the system holds on to, and
+it has no life of its own beyond the request it was attached to. Where the
+prompt survives, the attachment survives with it; where the prompt is consumed
+and gone, so is the attachment.
+
+That single rule settles most of the questions this feature keeps raising:
+
+- In **chat**, the prompt is a message in a conversation that persists, so the
+  attachment persists alongside it and later turns can refer back to it.
+- In **resource creation and revision**, each AI operation is single-turn —
+  request in, proposal out, no history — so the attachment lives exactly as long
+  as that one request. A revision cannot refer to a document from an earlier
+  operation for the same reason it cannot refer to an earlier prompt: neither
+  one is there any more.
+
+Consequences worth stating so nobody re-derives them as problems: there is no
+attachment library, no re-use of a previously uploaded document, and no need for
+a revision modal to show material from the creation step. Anyone who wants the
+same worksheet in a second operation attaches it again.
+
+### Shipped in the first pass
+
+- [x] Ingestion layer: sniffing by magic bytes, `sharp` image normalization
+  (EXIF stripped, capped at 1568 px), PDF page-count and scanned detection,
+  `mammoth` for DOCX, `html-to-text` for HTML, URL fetch with DNS pinned against
+  rebinding. **Done 2026-08-30.**
+- [x] Upload endpoint with CSRF accepted via `x-csrf-token` header, bounded
+  in-memory staging, one-shot ownership-checked claiming. **Done 2026-08-30.**
+- [x] Wired into quiz/roleplay/practice-guide creation and into tutor chat,
+  with the binary released after the first turn so retries and agent steps
+  cannot re-bill the document. **Done 2026-08-30.**
+
+### 1.14 Implementation Note — 2026-08-30 (second pass)
+
+§1.14.1, the architecture item in §1.14.2, and §1.14.3 shipped together, since
+they are three faces of one change. Verified live end to end on the local
+server:
+
+- Every attachment is extracted to text up front by
+  `services/attachmentExtraction.ts`. Images and PDFs get a vision pass, because
+  that is where reading order and scans live; DOCX and URLs pass through their
+  mechanical text untouched, because an inference over already-faithful text
+  could only paraphrase it.
+- The byte path to the tutor is **gone**. A verified trace shows the model
+  receiving the user's words followed by a fenced `ATTACHED DOCUMENT` block —
+  the same text the user approved — and no binary anywhere in the request.
+- The attach wizard runs process → review → accept, with two outcomes only.
+- The transcript renders a chip per attachment; clicking it reopens the exact
+  text the model received.
+
+Defects found and fixed during this pass, both in guards that should have
+caught them:
+
+- `inferenceWaitStateArchitecture.test.ts` read only the first identifier after
+  a route path, so **any credit-gated route that takes middleware never entered
+  the inventory**. `POST /attachments/process` was invisible to it. Fixed to
+  scan every argument.
+- `clientCatalogKeys.test.ts` filtered client `t()` references down to shipped
+  namespaces before checking them, so a reference to a namespace nobody ships
+  was silently ignored — it let a button render the literal text
+  `common.cancel`. Fixed with a second assertion, and `common` is now shipped.
+
+Still open in §1.14.2: observability, the memory-growth investigation, and
+re-sizing the staging cap (now much less pressing — staging holds extracted
+text, not binaries, so an entry costs kilobytes).
+
+### 1.14.1 Show The User What The System Understood
+
+The founder's requirement, 2026-08-30. **This is the item that matters most in
+this section**, because it turns the feature's core compromise into something
+honest rather than hidden.
+
+- [x] When a user attaches a file or URL in chat, render a UI element in the
+  transcript showing the attachment's name. Clicking it opens the **processed
+  content** — the text the system actually extracted or, for an image, the
+  description it generated. That text is exactly what travels through the rest
+  of the conversation history, so the user sees precisely what the model sees.
+
+Why this is worth doing properly:
+
+- The digest is already the whole truth of the conversation after turn one. The
+  user currently has no way to know whether the system read their worksheet
+  correctly, and finds out only when the tutor answers oddly three turns later.
+  Making the digest visible converts a silent failure into a checkable one.
+- It is honest about a real limitation. A scanned PDF or a bad photo produces a
+  thin digest; showing it lets the teacher re-shoot the photo instead of
+  wondering why the tutor is vague.
+- It costs nothing at inference time: the digest is already persisted in
+  `messages.metadata`, so this is a rendering and a route, not new model work.
+- It is a natural place to later allow **editing** the digest, which would let a
+  teacher correct a bad extraction rather than re-uploading. Not in scope here,
+  but the shape should not preclude it.
+
+Design notes for whoever picks this up:
+
+- The digest is plain text by contract (`AttachmentDigest.text`), including for
+  images, where `textIsDescription: true` marks it as model-written rather than
+  extracted. The UI should distinguish those two cases: "this is what the
+  document says" and "this is what Mr. F saw" are different claims.
+- Attachments are currently invisible in the transcript entirely — the message
+  renders as if nothing were attached. Even before the click-through exists,
+  showing the name would be an improvement.
+- The stored digest is truncated to `maxDigestChars` (4,000). If the UI shows it
+  as "what the system understood", the truncation has to be visible too, or the
+  UI is lying by omission.
+
+### 1.14.2 Analyze The Defects Found While Building This
+
+Recorded 2026-08-30 so they are not lost. Each was found during implementation
+and is **understood but not resolved**.
+
+- [x] **Represent an attachment as a processed user input, not a model block.**
+  Founder direction, 2026-08-30 (refined the same day). This supersedes the
+  original problem it was raised against: a ~350-token untrusted-data warning
+  appended to the system prompt on every turn for the rest of the conversation,
+  long after the material stopped being relevant.
+
+  The design:
+
+  - When the user attaches a file or URL, it is processed **up front, on its
+    own**, by a dedicated inference that turns it into clean text.
+  - The result enters the conversation as **part of the user's own turn** — an
+    attachment element carrying light metadata (file name, source type, page
+    count, source URL) plus the processed text.
+  - It is deliberately **not** heavily structured. It travels as user input, not
+    as model output, so it does not need to satisfy an output schema.
+  - Its framing travels with it: the element itself says it is a document the
+    user attached rather than something the user wrote. That replaces the
+    standing paragraph in the system prompt.
+  - The extraction inference receives **the user's own prompt from when they
+    attached the file**. "Make a quiz about the past tense from this" tells the
+    extractor what matters in a six-page document, and is context we currently
+    throw away.
+
+  Being user input rather than a model block settles, by construction, the
+  concern raised when this was first sketched as a tutor block: every one of the
+  18 existing blocks is something the tutor *emits*, validated by
+  `tutorAgentResponseSchema`, so an attachment joining that union could have
+  been **fabricated by the model** — a document the user never uploaded,
+  rendered as though they had. On the user side there is no such union and
+  nothing to guard.
+
+  **Security posture (founder decision, 2026-08-30):** an attachment is one more
+  form of user text input and gets no special threat handling beyond the
+  element's own framing. The tutor already receives untrusted user prose every
+  turn. The distinction worth remembering, without acting on it now, is
+  authorship: text the user typed is theirs, whereas a PDF they found is a third
+  party's. That changes who is trying to influence the model, not whether the
+  input is untrusted.
+
+  **The priority is fidelity.** The element must faithfully reflect what the
+  attachment actually contains. That, not sanitization, is the bar this work is
+  measured against.
+
+  Deferred, 2026-08-30: a second context parameter that the main model could
+  fill to steer the extraction. Worth revisiting only if extraction quality
+  turns out to need steering the user's own prompt cannot provide — it forces a
+  choice between exposing the attachment as a model-callable tool and running a
+  second, model-triggered extraction, and neither is worth paying for yet.
+
+  One consequence to keep in view: this makes §1.14.1 truthful. That item
+  promises the user sees what the system sees, which is only exactly true if the
+  model sees text too. Today images and PDFs reach the model as bytes on the
+  first turn and as text afterwards, so the one turn the user cannot inspect is
+  the one where the model had the most information. Extracting to text up front
+  collapses both into a single artifact. What it costs is visual fidelity on
+  layout-heavy material — recoverable in large part, since extraction for images
+  and PDFs is itself a vision inference, but it must be checked against real
+  teacher worksheets before the byte path is removed — and some added latency at
+  attach time.
+
+- [ ] **Attachment observability is thin.** Audited 2026-08-30: the only events
+  the feature emits are `attachment_ingestion_failed` (unexpected 500s only) and
+  `attachment_image_description_failed`, plus the `llm_cost` line for the digest
+  inference. Nothing is logged for a **successful** upload (type, size, pages,
+  warnings, duration), for a **rejection** (`too_many_pages`,
+  `content_mismatch`, `unsupported_type` — so we cannot see what users actually
+  hit), for **URL fetches** (target, redirects, blocked-by-SSRF, extracted
+  length), for **staging pressure** against the byte cap, or for whether a
+  staged attachment was ever actually **claimed** by an inference rather than
+  abandoned. The upload rate limiter's `shouldLogLimit` return value — which
+  exists precisely so callers log once — is discarded. Without these, the first
+  questions anyone asks about this feature in production are unanswerable.
+
+- [ ] **Investigate the process's memory growth.** Founder direction,
+  2026-08-30: 190 MB looked exaggerated, and on re-measurement it is not the
+  baseline at all.
+
+  Measured on 2026-08-30, same machine, same build:
+
+  | Moment | Resident memory |
+  | --- | ---: |
+  | Immediately after a clean `pm2` restart | **29 MB** |
+  | After one short QA session (a few image uploads, a handful of inferences) | **190 MB** |
+
+  So the process grows roughly 160 MB from light use and does not give it back.
+  The SQLite file is 1.4 MB and the largest generated module is 303 KB, so
+  neither explains it. Candidates to rule out, cheapest first:
+
+  - **`sharp` / libvips caching.** `sharp` is used by both scene media and the
+    new attachment path, and its cache defaults to holding tens of MB of
+    decoded image data. `sharp.cache(...)` and `sharp.concurrency(...)` are the
+    knobs; this is the first thing to measure.
+  - **V8 simply not collecting.** Growth is not a leak if the heap is mostly
+    garbage awaiting GC under no pressure. Compare RSS against
+    `process.memoryUsage().heapUsed` before concluding anything.
+  - **A genuine retention leak** in staging, conversation state, or a cache that
+    never evicts.
+
+  This matters beyond tidiness: `max_memory_restart: '300M'` means unexplained
+  growth is not a slow degradation but an abrupt restart, and a restart during a
+  tutor turn drops the learner's conversation.
+
+- [ ] **Re-size the staging byte cap once the above is understood.** The global
+  cap is 48 MB (`maxStagedBytesTotal`), chosen against the 300 MB ceiling on the
+  assumption of ample headroom. Whether that assumption holds depends entirely
+  on the growth question above. If the 160 MB turns out to be real retention,
+  16–24 MB is likely ample for the actual use case of one teacher attaching one
+  document.
+
+- [ ] **Trace logging dumped attachment bytes into the log.** Fixed 2026-08-30
+  in the same pass (`redactModelMessageContent` in `llmTutor/logging.ts`, with
+  `tests/attachments/traceRedaction.test.ts`), but recorded here because the
+  failure mode generalizes: `LLM_TRACE_MODE` defaults to `full` in development,
+  and a 37 KB image was being serialized byte by byte as
+  `{"35026":47,"35027":0,...}`. Worse, `summarizeModelMessages` stringified the
+  raw content merely to measure its length, so **metadata mode paid the same
+  cost in production**. Any future non-text content in a model message needs the
+  same treatment; consider a guard test that fails when a new part type reaches
+  the logger unredacted.
+
+### 1.14.3 Attaching Is A Stepped, Approved Process
+
+Founder direction, 2026-08-30. Closely tied to §1.14.1: that item makes the
+processed text inspectable after the fact, this one makes it approvable
+before anything is sent.
+
+- [x] **Attaching is a stepped wizard the user approves.** Founder direction,
+  2026-08-30. Nothing reaches the conversation until the user has seen the
+  processed text and said yes.
+
+  Steps: **process → review → approve.** Reuse the existing shared controller
+  `src/client/shared/modificationModal.js` (phases `describe` → `preview`, with
+  generate / retry / apply) rather than introducing a second modal idiom; this
+  is that pattern with a processing phase in the middle. Follow
+  `bootstrap-modal-conventions` for markup and button semantics.
+
+  **Phase 1 — Choose.** File picker or URL field, the accepted formats, and the
+  size limit. Footer: `Cancelar` (secondary) and `Procesar` (primary).
+
+  **Phase 2 — Processing.** Spinner with a label naming the actual step
+  ("Leyendo el PDF…", "Describiendo la imagen…"), not a generic "Cargando".
+  `aria-live="polite"` so it is announced. Static backdrop so a stray click
+  cannot dismiss mid-extraction, but keep an explicit `Cancelar` in the footer —
+  extraction is an inference and can be slow, and the conventions' no-close rule
+  for pending modals assumes an uninterruptible operation, which this is not.
+
+  **Phase 3 — Review.** The step that carries the whole feature. It must answer
+  one question without the user having to infer it: *what will Mr. F actually
+  receive?*
+
+  - Heading states it plainly — "Esto es lo que Mr. F va a leer" — rather than
+    labelling the panel "Vista previa", which says nothing about whose view it
+    is.
+  - The processed text in full, in a scrollable region, monospace or plain, with
+    the file name and page count beside it.
+  - **Distinguish transcription from description.** The `textIsDescription`
+    flag already exists on the digest. "Esto es lo que dice el documento" and
+    "Esto es lo que Mr. F vio en la imagen" are different claims and the user
+    must be able to tell which one they are approving.
+  - **Surface truncation.** The digest is capped at `maxDigestChars`. If the UI
+    presents this as what the system understood while silently dropping the
+    tail, it lies by omission.
+  - Existing warnings (scanned PDF, image downscaled, thin URL extraction)
+    render here, where they can still change the user's decision, instead of as
+    a chip they already dismissed.
+
+  Footer, in convention order: `Cancelar` (secondary) and `Aceptar` (primary).
+
+  **Two outcomes, and the text is editable — founder decision, 2026-08-30,
+  revised the same day after seeing the flow work.** No reprocess button: a user
+  who wants a different extraction cancels and attaches the document again. But
+  the review text **is** the input field, so a teacher who spots a misread word
+  or a column read out of order fixes it in place instead of re-shooting the
+  photo.
+
+  Editing was initially rejected as scope and then adopted, which turned out to
+  be the right order — the review step had to exist and be trusted before it was
+  obvious that reading without being able to correct is frustrating.
+
+  What this does not change: there is still no reprocess endpoint and no
+  versioning. A digest is written once, at approval, and never changes
+  afterwards, so §1.14.1's click-through remains a read-only view of something
+  immutable. A corrected digest is marked `edited` and the viewer says
+  "corrected by you", because "what the extraction read" and "what the user
+  decided it should say" are different claims about the same document.
+
+  Accepting edited text is not a new trust boundary: an attachment is already
+  treated as one more form of user input, and a user who wants the model to read
+  a particular sentence can simply type it into the message box.
+
+  **Failure state.** Rejections already return a translated message; show it in
+  the modal and return the user to the choose step so they can pick a different
+  file, and never leave a half-attached entry behind in the composer.
+
+  Notes: run the wizard per attachment rather than batching, so the review
+  stays about one document. On approval the staged id goes into the composer as
+  today. On cancel, discard the staged attachment server-side rather than
+  letting it expire.
+
+### 1.14.4 QA Matrix — What There Is To Test
+
+Added 2026-08-30 at the founder's request, to make the testing surface
+explicit. Every cell below is a real path in the shipped code, verified against
+`sniffing.ts`, `limits.ts`, and the four claim sites on 2026-08-30.
+
+**Every attachment costs one extraction inference**, charged to the tester's own
+credit, and processing happens the moment `Procesar` is pressed — before any
+resource or message is created. Budget accordingly: the full matrix below is
+roughly 60 extractions.
+
+#### The four surfaces where a document can be attached
+
+| # | Surface | Where | What the attachment feeds | Status |
+| --- | --- | --- | --- | --- |
+| S1 | New quiz | `/quizzes/new` | `generateQuizDraft` | **PDF confirmed working 2026-08-30** |
+| S2 | New roleplay | `/roleplays/new` | `generateRoleplayDraft` | untested |
+| S3 | New practice guide | `/practice-guides/new` | `generatePracticeGuideDraft` | untested |
+| S4 | Tutor chat | `/chat` composer | `runTutorAgentLoop` | **PDF confirmed working 2026-08-30** |
+| S5 | Quiz `Modify with AI` | `/quizzes/:id/edit` | `generateQuiz*Revision` | **not implemented** — see §1.15 |
+
+S1–S3 share one call site (`resourceDrafts.ts`), so a bug in one is very likely
+in all three; S4 is a genuinely separate path (socket, message metadata,
+persistence across turns) and deserves the most attention.
+
+**Founder QA, 2026-08-30:** PDF attachment confirmed working end to end on both
+S1 and S4. Since S2 and S3 run through the same call site as S1, the remaining
+risk there is in their prompts and drafts rather than in the attachment path.
+
+**S5 is a gap, not a bug.** The attach control was wired into the three `new`
+pages and the chat composer, but **not** into the quiz `Modify with AI`
+operations — so an author can create a quiz from a worksheet and then cannot
+hand that same worksheet to a revision. It is listed here so the matrix is
+honest about its own coverage; the work itself belongs with §1.15, which is
+already rebuilding those modals.
+
+There is a **fifth inference** that is not a surface but runs on every single
+attachment: extraction itself
+(`services/attachmentExtraction.ts`). It is what the review step shows, so
+every row below exercises it whether or not the resource is ever created.
+
+#### The five accepted formats
+
+| Format | Sniffed as | Size limit | Path |
+| --- | --- | ---: | --- |
+| PNG | `image/png` | 8 MB | vision extraction |
+| JPEG | `image/jpeg` | 8 MB | vision extraction |
+| WebP | `image/webp` | 8 MB | vision extraction |
+| PDF | `application/pdf` | 10 MB, 30 pages | vision extraction |
+| DOCX | `…wordprocessingml.document` | 10 MB | mechanical (mammoth) |
+| URL | fetched HTML | 1 MB response | mechanical (html-to-text) |
+
+#### Content worth testing per format
+
+The point is not to attach six files. It is to attach the *kinds* of material a
+teacher actually has, because that is where fidelity fails.
+
+- **Images** — a phone photo of a printed worksheet (the primary case); a
+  screenshot with crisp text; **handwriting**; a photo taken rotated, to confirm
+  EXIF orientation is applied and not just stripped; a deliberately blurry or
+  badly lit shot, to see what a bad digest looks like and whether the wording
+  admits it; something with no text at all, like a photograph of a scene.
+- **PDF** — a text PDF with selectable text; a **scanned** PDF (fires the
+  `pdf_probably_scanned` warning); a **multi-column** layout, which is where
+  reading order goes wrong; a page with **tables**; a worksheet with an answer
+  key, to see whether the extraction drags the answers in.
+- **DOCX** — headings and numbered lists; **tables**; a document with embedded
+  **images**, whose content is silently lost on this path and should be checked
+  against expectations; a document written in Spanish.
+- **URL** — a plain article; a page that is mostly navigation and ads, to judge
+  the boilerplate stripping; a **JavaScript-rendered** page, which is expected
+  to come back thin and should say so; a page in a non-Latin script.
+
+#### Rejection and limit paths
+
+These cost nothing — they never reach an inference — so run them freely.
+
+| Case | Expected |
+| --- | --- |
+| `.txt` renamed to `.png` | `unsupported_type`, translated message |
+| PDF bytes sent as `image/png` | `content_mismatch` |
+| Empty file | `empty_file` |
+| Image over 8 MB / PDF or DOCX over 10 MB | `too_large` with the limit named |
+| PDF over 30 pages | `too_many_pages`, naming both page count and limit |
+| Password-protected PDF | `decode_failed` |
+| A `.zip` that is not an Office file | `unsupported_type` |
+| `http://localhost…`, `http://192.168.…`, `169.254.169.254` | `url_blocked` |
+| `file:///etc/passwd`, `ftp://…` | `url_blocked` |
+| URL that 404s or times out | `url_fetch_failed` |
+| A 4th attachment in one composer | `staging_full` (limit is 3) |
+| Emptying the review text and accepting | `empty_text` |
+| Waiting >10 minutes before accepting | entry expired, must re-attach |
+
+#### Behaviour that only shows up in chat (S4)
+
+- The attachment name appears in the transcript, and clicking it opens the
+  processed text.
+- **Turn 2 and beyond**: the tutor still knows the document. This is the whole
+  digest design and the thing most likely to disappoint.
+- The same text the user approved is what the viewer shows later — no drift.
+- A **corrected** attachment shows "corregido por ti", not "leído del documento".
+- Truncation over 4,000 characters is visible in both the review step and the
+  viewer.
+- Several attachments on one message.
+- Cancelling mid-processing leaves nothing behind in the composer.
+
+#### Cross-cutting
+
+- All three instruction languages (`es`, `en`, `ht`) — every warning, rejection,
+  and label is translated, and `ht` is the least exercised.
+- Mobile width, where the wizard is a full-height modal and the review textarea
+  is the bulk of it.
+- The credit-exhausted path during processing (402 → credits modal), which is
+  the one failure mode a real teacher will actually meet.
+
+## 1.15 Rethink AI Editing On The Quiz Edit Page
+
+Founder observation, 2026-08-30, from using the page. **Implemented the same
+day.**
+
+### The two problems
+
+- [x] **The AI buttons sit in different places on each tab.** **Done 2026-08-30:** one `Modificar con IA` button now sits directly under the tab strip, in the same position on both tabs. On `General` the
+  `Modify with AI` button is at the **bottom**, in the form's action row next to
+  `Save details`. On `Bloques` it is at the **top**, in the header row beside
+  the section heading and `Add block`. Switching tabs moves the control from one
+  end of the page to the other.
+
+  The cause is structural rather than careless: `General` is a form whose
+  actions belong after its fields, while `Bloques` is a list with a header
+  toolbar. That explains it but does not excuse it — the user is looking for the
+  same control in both places.
+
+- [x] **A whole-quiz change cannot be expressed.** **Done 2026-08-30:** one operation with two scope flags, both on by default. Verified live — "baja el quiz a nivel A2" changed `level` (Intermediate → A2), the description, and all 5 blocks in a single approved proposal. The two operations are
+  deliberately scoped and mutually exclusive: `general` revises only the six
+  metadata fields through a schema that *cannot* emit block content, and
+  `blocks-modify` revises blocks and sections. So "take this B1 quiz down to
+  A2" — which means the level field *and* every question — cannot be asked for.
+  It has to be done as two separate requests, each with its own inference, its
+  own preview, and its own approval, and nothing keeps the two consistent with
+  each other. The author is left coordinating by hand what is conceptually one
+  edit.
+
+- [x] **A revision cannot take an attachment.** **Done 2026-08-30:** the attach wizard is reused inside the modal, its trigger row inside and the wizard modal as a sibling to avoid nesting modals. Founder direction, 2026-08-30:
+  build this together with the unification above rather than as its own pass.
+
+  Source attachments (§1.14) were wired into the three `new` pages and the chat
+  composer, but not into any `Modify with AI` operation. So an author can create
+  a quiz from a photographed worksheet and then, one screen later, cannot hand
+  that same worksheet to a revision — "align these questions with page 2 of the
+  book" is unaskable, which is precisely the request a teacher revising a quiz
+  has.
+
+  Doing it inside the unification is the cheaper order: the attach control and
+  the staged-id plumbing get added once, to one modal, instead of two or four
+  times to modals that are about to be replaced.
+
+  Scope is deliberately small. The attachment is **part of that revision
+  request** and shares its fate: used once, then gone. It does not carry over to
+  the next operation, and a revision cannot refer to a document attached to an
+  earlier one — exactly as it cannot refer to an earlier prompt. Nothing to
+  store, nothing to list, nothing to re-open.
+
+### Proposed direction
+
+One `Modify with AI` button, in one consistent place, with an explicit **scope**
+choice in the modal: `General`, `Bloques`, or `Global`, **and an attach control
+alongside the request field**, using the same wizard as everywhere else.
+
+This also collapses two near-identical modals into one, which is the direction
+the shared modal controller (`src/client/shared/modificationModal.js`) and the
+shared preview store (`src/server/resources/modificationPreviewStore.ts`)
+already point in.
+
+### Implementation notes, 2026-08-30
+
+- `/edit/modify` is now the single endpoint; `/edit/blocks-modify` and the
+  second modal are gone. The per-block `⋮` operations and `Add block` were left
+  untouched, as planned.
+- The schema is assembled from the selected flags, so `general`-only still
+  cannot emit a block and `blocks`-only still cannot rewrite the title — the
+  isolation the old scoping bought is preserved, now as a consequence of the
+  author's choice rather than of having two endpoints.
+- Whatever the model returns is assembled with the parts it was not allowed to
+  touch and validated as a whole draft, so cross-references are caught in the
+  correction loop rather than at save.
+- Two naming collisions worth remembering: `/edit/revise` and
+  `system-prompts/resources/quiz-revision.md` are names of the **retired
+  conversational authoring chat**, and `routeArchitecture.test.ts` guards them
+  as deleted. The new work uses `/edit/modify` and `quiz-modification.md`
+  instead of resurrecting names a guard exists to keep buried.
+
+### What still needs care
+
+- **A global scope gives up the isolation guarantee that scoping bought.** The
+  authoring conventions require, and tests assert, that a metadata operation
+  cannot touch blocks and a per-block operation leaves every other block
+  byte-identical. That property is what makes approving a proposal safe without
+  reading all of it. A `Global` scope deliberately removes it, so the preview
+  has to carry the weight instead: the diff must show every changed field and
+  every changed block together, legibly, or the author is approving something
+  they cannot actually check.
+- **Whether `Global` needs its own prompt and schema**, or is the full-draft
+  schema the blocks operation already validates against. The latter is cheaper
+  but was never asked to revise metadata.
+- **The per-block `⋮` operations and `Add block` stay as they are.** They are
+  well-scoped and this item is not about them. Whether *they* should also accept
+  an attachment is a separate question worth deferring — a per-block revision
+  taking a whole worksheet is a strange fit, and answering it now would widen
+  this item for no clear gain.
+- **The preview needs no special treatment for attachments.** The author
+  attached the material seconds earlier and approved its extracted text in the
+  wizard, so the diff shows the proposed change as it does for any other
+  request. Persisting or re-displaying the attachment afterwards would
+  contradict the governing principle in §1.14.
+- **Keep the scope explicit and visible in the modal**, not inferred from what
+  the author typed. Inferring it would put the model in charge of how much of
+  the resource it is allowed to rewrite, which is the opposite of what the
+  proposal-and-approval design is for.
+
 # Part 2: Engineering And Quality
 
 ## 2.1 LLM Inference Portfolio Audit And Governance

@@ -8,9 +8,7 @@ export function csrfProtection(request, response, next) {
         next();
         return;
     }
-    const token = typeof request.body?._csrf === 'string'
-        ? request.body._csrf
-        : '';
+    const token = readCsrfToken(request);
     const sameOrigin = isSameOrigin(request);
     const tokenValidation = validateCsrfToken(token);
     if (!sameOrigin || !tokenValidation.valid) {
@@ -27,6 +25,22 @@ export function csrfProtection(request, response, next) {
         return;
     }
     next();
+}
+/**
+ * Reads the CSRF token from the request.
+ *
+ * Form posts carry it in the urlencoded body. Requests whose body is not a form
+ * — a binary upload streamed through `express.raw`, for instance — have no
+ * parsed body to read it from, so they send the same token in a header instead.
+ * Both are same-origin checked identically; the header is not a weaker path,
+ * just a different carrier for requests where a body field cannot exist.
+ */
+function readCsrfToken(request) {
+    if (typeof request.body?._csrf === 'string') {
+        return request.body._csrf;
+    }
+    const header = request.get('x-csrf-token');
+    return typeof header === 'string' ? header : '';
 }
 function createCsrfToken() {
     const exp = Date.now() + tokenTtlMs;

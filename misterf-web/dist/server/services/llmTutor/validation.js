@@ -1,3 +1,4 @@
+import { buildUserContentWithAttachments } from '../../attachments/modelParts.js';
 import { z } from 'zod';
 import { TutorResponseValidationError } from './errors.js';
 import { logger } from '../logger.js';
@@ -5,10 +6,24 @@ import { shouldLogFullLlmTrace } from './logging.js';
 import { tutorAgentResponseSchema, tutorPlanStepIdMaxLength, } from './schemas.js';
 import { translate } from '../../i18n/index.js';
 import { defaultInstructionLanguage } from './languagePack.js';
+/**
+ * The single place tutor history becomes AI SDK message content. Keeping
+ * multimodal assembly here — rather than at each call site — is what stops file
+ * parts from being constructed ad hoc across the tutor services.
+ */
 export function toModelMessage(message) {
+    const role = message.role === 'model' ? 'assistant' : 'user';
+    // Only a user turn can carry attachments, and an assistant turn's content is
+    // the structured block JSON, which must stay a plain string.
+    if (role === 'assistant' || !message.attachments?.length) {
+        return { content: message.content, role };
+    }
     return {
-        content: message.content,
-        role: message.role === 'model' ? 'assistant' : 'user',
+        content: buildUserContentWithAttachments({
+            attachments: message.attachments,
+            text: message.content,
+        }),
+        role: 'user',
     };
 }
 /**

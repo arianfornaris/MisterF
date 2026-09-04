@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleApplyQuizAddBlock, handleApplyQuizBlockModification, handleApplyQuizBlocksModification, handleApplyQuizMetadataModification, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleEvaluateQuizAttempt, handleDeleteQuizBlock, handleDiscardQuizAddBlock, handleDiscardQuizBlockModification, handleDiscardQuizBlocksModification, handleDiscardQuizMetadataModification, handleDuplicateQuizBlock, handleGenerateQuiz, handleGenerateQuizResponsesSummary, handleMoveQuizBlock, handlePreviewQuizAddBlock, handlePreviewQuizBlockModification, handlePreviewQuizBlocksModification, handlePreviewQuizMetadataModification, handleRestoreQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizEvaluatingPage, renderQuizNewPage, renderQuizParticipationPage, renderQuizResultPage, renderQuizShowPage, } from './handlers.js';
+import { handleApplyQuizAddBlock, handleApplyQuizBlockModification, handleApplyQuizRevision, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleEvaluateQuizAttempt, handleDeleteQuizBlock, handleDiscardQuizAddBlock, handleDiscardQuizBlockModification, handleDiscardQuizRevision, handleDuplicateQuizBlock, handleGenerateQuiz, handleGenerateQuizResponsesSummary, handleMoveQuizBlock, handlePreviewQuizAddBlock, handlePreviewQuizBlockModification, handlePreviewQuizRevision, handleRestoreQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizEvaluatingPage, renderQuizNewPage, renderQuizParticipationPage, renderQuizResultPage, renderQuizShowPage, } from './handlers.js';
 export const quizzesRouter = express.Router();
 quizzesRouter.get('/quizzes', (_request, response) => {
     response.redirect('/resources');
@@ -10,12 +10,9 @@ quizzesRouter.post('/quizzes/generate-draft', handleGenerateQuiz);
 quizzesRouter.post('/quizzes/shared/:shareId/take', handleStartSharedQuizAttempt);
 quizzesRouter.get('/quizzes/:quizId/edit', renderQuizEditPage);
 quizzesRouter.post('/quizzes/:quizId/edit/save', handleUpdateQuizMetadata);
-quizzesRouter.post('/quizzes/:quizId/edit/modify', handlePreviewQuizMetadataModification);
-quizzesRouter.post('/quizzes/:quizId/edit/modify/apply', handleApplyQuizMetadataModification);
-quizzesRouter.post('/quizzes/:quizId/edit/modify/discard', handleDiscardQuizMetadataModification);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify', handlePreviewQuizBlocksModification);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify/apply', handleApplyQuizBlocksModification);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify/discard', handleDiscardQuizBlocksModification);
+quizzesRouter.post('/quizzes/:quizId/edit/modify', handlePreviewQuizRevision);
+quizzesRouter.post('/quizzes/:quizId/edit/modify/apply', handleApplyQuizRevision);
+quizzesRouter.post('/quizzes/:quizId/edit/modify/discard', handleDiscardQuizRevision);
 quizzesRouter.post('/quizzes/:quizId/edit/add-block', handlePreviewQuizAddBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/add-block/apply', handleApplyQuizAddBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/add-block/discard', handleDiscardQuizAddBlock);

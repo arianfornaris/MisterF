@@ -1,9 +1,17 @@
+import { readAttachmentDigests } from '../../attachments/persistence.js';
 import { formatExerciseSubmissionForTutorHistory } from './exerciseSubmissions.js';
 export function toTutorHistory(messages) {
-    return messages.map((message) => ({
-        content: getTutorHistoryContent(message),
-        role: message.role,
-    }));
+    return messages.map((message) => {
+        const attachments = readAttachmentDigests(message.metadata?.attachments);
+        return {
+            // Digests, never bytes: the binary was released after the turn it arrived
+            // on, and rehydrating history is exactly where re-sending it would become
+            // a per-turn charge for the rest of the conversation.
+            ...(attachments.length > 0 ? { attachments } : {}),
+            content: getTutorHistoryContent(message),
+            role: message.role,
+        };
+    });
 }
 export function getTutorHistoryContent(message) {
     if (message.role === 'user') {

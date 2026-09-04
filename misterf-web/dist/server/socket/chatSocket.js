@@ -6,6 +6,8 @@ import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { defaultProfileModelTier, normalizeProfileModelTier, } from '../profiles/modelTier.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
+import { claimStagedAttachments } from '../attachments/stagingStore.js';
+import { readAttachmentIds } from '../attachments/requestAttachments.js';
 import { normalizeConversationTitle } from '../services/llmTutor/conversationTitles.js';
 import { normalizeExerciseSubmissionForUserMessage } from '../services/llmTutor/exerciseSubmissions.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
@@ -181,7 +183,24 @@ export function registerChatSocket(io) {
                 });
             }
             const exerciseSubmission = normalizeExerciseSubmissionForUserMessage(payload.exerciseSubmission, content);
-            const userMessage = addMessage(conversation.id, 'user', content, exerciseSubmission ? { exerciseSubmission } : null);
+            // Each id was already processed and approved through the attach wizard, so
+            // there is nothing left to extract here. Claiming is ownership-checked,
+            // one-shot, and refuses anything the user never accepted, which is what
+            // keeps the approval step from being bypassable by the client.
+            const attachmentDigests = claimStagedAttachments({
+                ids: readAttachmentIds(payload.attachmentIds),
+                userId,
+            });
+            const userMetadata = {
+                ...(attachmentDigests.length > 0
+                    ? { attachments: attachmentDigests }
+                    : {}),
+                ...(exerciseSubmission ? { exerciseSubmission } : {}),
+            };
+            const userMessage = addMessage(conversation.id, 'user', content, 
+            // Stays null when there is nothing to record, so a plain message keeps
+            // storing NULL metadata rather than an empty object.
+            Object.keys(userMetadata).length > 0 ? userMetadata : null);
             emitConversationUpdated(io, conversation.id, userId);
             io.to(conversation.id).emit('message:created', userMessage);
             await streamAssistantMessage(io, conversation.id, userId, userMessage.id, [], conversation.modelTier);

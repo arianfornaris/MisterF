@@ -1,136 +1,147 @@
 {
-  "_createResourceFromContext--ktgzreM.js": {
-    "file": "chunks/createResourceFromContext--ktgzreM.js",
+  "_attachmentPicker-Ds5K_AAQ.js": {
+    "file": "chunks/attachmentPicker-Ds5K_AAQ.js",
+    "name": "attachmentPicker",
+    "imports": [
+      "_i18n-B0EnNoHg.js"
+    ]
+  },
+  "_createResourceFromContext-BFMDI3n-.js": {
+    "file": "chunks/createResourceFromContext-BFMDI3n-.js",
     "name": "createResourceFromContext",
     "imports": [
-      "_i18n-DcwWvRU7.js"
+      "_i18n-B0EnNoHg.js"
     ]
   },
-  "_i18n-DcwWvRU7.js": {
-    "file": "chunks/i18n-DcwWvRU7.js",
+  "_i18n-B0EnNoHg.js": {
+    "file": "chunks/i18n-B0EnNoHg.js",
     "name": "i18n"
   },
-  "_listGroupDropdownStacking-CjKFfpdf.js": {
-    "file": "chunks/listGroupDropdownStacking-CjKFfpdf.js",
+  "_listGroupDropdownStacking-B_4Fb5dR.js": {
+    "file": "chunks/listGroupDropdownStacking-B_4Fb5dR.js",
     "name": "listGroupDropdownStacking"
   },
-  "_markdownEditor-B__bhdrw.js": {
-    "file": "chunks/markdownEditor-B__bhdrw.js",
+  "_markdownEditor-CTSSsNBp.js": {
+    "file": "chunks/markdownEditor-CTSSsNBp.js",
     "name": "markdownEditor",
     "imports": [
-      "_staticMarkdown-Cc5pabiL.js"
+      "_staticMarkdown-D_MJ3gU_.js"
     ]
   },
-  "_modificationModal-C98a1eaw.js": {
-    "file": "chunks/modificationModal-C98a1eaw.js",
+  "_modificationModal-CYOf7I6K.js": {
+    "file": "chunks/modificationModal-CYOf7I6K.js",
     "name": "modificationModal"
   },
-  "_quizItemRenderer-BjQWIh6V.js": {
-    "file": "chunks/quizItemRenderer-BjQWIh6V.js",
+  "_quizItemRenderer-D6bPhz9p.js": {
+    "file": "chunks/quizItemRenderer-D6bPhz9p.js",
     "name": "quizItemRenderer",
     "imports": [
-      "_staticMarkdown-Cc5pabiL.js",
-      "_i18n-DcwWvRU7.js"
+      "_i18n-B0EnNoHg.js",
+      "_staticMarkdown-D_MJ3gU_.js"
     ]
   },
-  "_resourceMoveModal-C9eSZK0n.js": {
-    "file": "chunks/resourceMoveModal-C9eSZK0n.js",
+  "_resourceMoveModal-DArnkOca.js": {
+    "file": "chunks/resourceMoveModal-DArnkOca.js",
     "name": "resourceMoveModal"
   },
-  "_staticMarkdown-Cc5pabiL.js": {
-    "file": "chunks/staticMarkdown-Cc5pabiL.js",
+  "_staticMarkdown-D_MJ3gU_.js": {
+    "file": "chunks/staticMarkdown-D_MJ3gU_.js",
     "name": "staticMarkdown"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-mRhxCVlI.js",
+    "file": "entries/chat-849sLJQ5.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-BjQWIh6V.js",
-      "_staticMarkdown-Cc5pabiL.js",
-      "_i18n-DcwWvRU7.js"
+      "_i18n-B0EnNoHg.js",
+      "_attachmentPicker-Ds5K_AAQ.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_quizItemRenderer-D6bPhz9p.js"
     ]
   },
   "src/client/mediaLibrary/index.js": {
-    "file": "entries/media-library-Cxitay2t.js",
+    "file": "entries/media-library-_QmeTQAl.js",
     "name": "media-library",
     "src": "src/client/mediaLibrary/index.js",
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-TUlJhqrp.js",
+    "file": "entries/practice-guides-Dq6jInyn.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-B__bhdrw.js",
-      "_staticMarkdown-Cc5pabiL.js",
-      "_i18n-DcwWvRU7.js",
-      "_listGroupDropdownStacking-CjKFfpdf.js",
-      "_modificationModal-C98a1eaw.js",
-      "_resourceMoveModal-C9eSZK0n.js"
+      "_markdownEditor-CTSSsNBp.js",
+      "_i18n-B0EnNoHg.js",
+      "_attachmentPicker-Ds5K_AAQ.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_resourceMoveModal-DArnkOca.js",
+      "_modificationModal-CYOf7I6K.js",
+      "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-xwj6OqdT.js",
+    "file": "entries/quizzes-CeRV_W_g.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-BjQWIh6V.js",
-      "_staticMarkdown-Cc5pabiL.js",
-      "_createResourceFromContext--ktgzreM.js",
-      "_i18n-DcwWvRU7.js",
-      "_modificationModal-C98a1eaw.js",
-      "_resourceMoveModal-C9eSZK0n.js"
+      "_i18n-B0EnNoHg.js",
+      "_attachmentPicker-Ds5K_AAQ.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_quizItemRenderer-D6bPhz9p.js",
+      "_createResourceFromContext-BFMDI3n-.js",
+      "_resourceMoveModal-DArnkOca.js",
+      "_modificationModal-CYOf7I6K.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-Ch_cuHV0.js",
+    "file": "entries/resources-W1TScRWp.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
-      "_staticMarkdown-Cc5pabiL.js",
-      "_i18n-DcwWvRU7.js",
-      "_listGroupDropdownStacking-CjKFfpdf.js",
-      "_resourceMoveModal-C9eSZK0n.js"
+      "_i18n-B0EnNoHg.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_resourceMoveModal-DArnkOca.js",
+      "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-DEVoEyFj.js",
+    "file": "entries/roleplays-CFKMJOHe.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-B__bhdrw.js",
-      "_staticMarkdown-Cc5pabiL.js",
-      "_createResourceFromContext--ktgzreM.js",
-      "_i18n-DcwWvRU7.js",
-      "_modificationModal-C98a1eaw.js",
-      "_resourceMoveModal-C9eSZK0n.js"
+      "_markdownEditor-CTSSsNBp.js",
+      "_i18n-B0EnNoHg.js",
+      "_attachmentPicker-Ds5K_AAQ.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_createResourceFromContext-BFMDI3n-.js",
+      "_resourceMoveModal-DArnkOca.js",
+      "_modificationModal-CYOf7I6K.js"
     ]
   },
   "src/client/signup/index.js": {
-    "file": "entries/signup-CKhbfaTl.js",
+    "file": "entries/signup-B16hb8E6.js",
     "name": "signup",
     "src": "src/client/signup/index.js",
     "isEntry": true
   },
   "src/client/telemetry/clientErrorReporter.js": {
-    "file": "entries/client-error-telemetry-C58PROQA.js",
+    "file": "entries/client-error-telemetry-xZcTwwAA.js",
     "name": "client-error-telemetry",
     "src": "src/client/telemetry/clientErrorReporter.js",
     "isEntry": true
   },
   "src/client/translator/index.js": {
-    "file": "entries/translator-Ci8c_iAK.js",
+    "file": "entries/translator-CMF-q-wN.js",
     "name": "translator",
     "src": "src/client/translator/index.js",
     "isEntry": true,
     "imports": [
-      "_i18n-DcwWvRU7.js"
+      "_i18n-B0EnNoHg.js"
     ]
   }
 }

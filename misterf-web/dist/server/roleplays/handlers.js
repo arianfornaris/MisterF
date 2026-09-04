@@ -1,3 +1,4 @@
+import { claimRequestAttachments } from '../attachments/requestAttachments.js';
 import { randomUUID } from 'node:crypto';
 import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
@@ -339,6 +340,7 @@ export async function handleGenerateRoleplay(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
         const draft = await generateRoleplayDraft({
+            attachments: claimRequestAttachments(request, auth.user.id),
             instructionLanguage: auth.activeProfile?.instructionLanguage,
             modelTier: auth.activeProfile?.modelTier,
             openRouterApiKey,
