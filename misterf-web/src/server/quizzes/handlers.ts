@@ -73,8 +73,11 @@ import {
   type QuizDraft,
   type QuizMetadata,
 } from '../services/quizzes.js';
+import { claimRequestAttachments } from '../attachments/requestAttachments.js';
+import type { QuizRevisionScope } from '../services/resourceDrafts.js';
 import {
   generateQuizDraft,
+  generateQuizRevision,
   generateQuizBlockRevision,
   generateQuizBlocksRevision,
   generateQuizMetadataRevision,
@@ -874,6 +877,7 @@ export async function handleGenerateQuiz(
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = canonicalizeQuizDraftBlockOrder(
       await generateQuizDraft({
+        attachments: claimRequestAttachments(request, auth.user.id),
         instructionLanguage: auth.activeProfile?.instructionLanguage,
         modelTier: auth.activeProfile?.modelTier,
         openRouterApiKey,
@@ -983,170 +987,6 @@ const quizMetadataModificationFields: Array<keyof QuizMetadata & string> = [
   'instructions',
   'evaluationInstructions',
 ];
-
-function quizMetadataModificationOwner(resolved: {
-  activeProfile: NonNullable<Request['activeProfile']>;
-  quiz: StoredQuiz;
-  user: NonNullable<Request['authUser']>;
-}): ModificationPreviewOwner {
-  return {
-    operation: 'quiz-metadata',
-    profileId: resolved.activeProfile.id,
-    resourceId: resolved.quiz.id,
-    userId: resolved.user.id,
-  };
-}
-
-export async function handlePreviewQuizMetadataModification(
-  request: Request,
-  response: Response,
-): Promise<void> {
-  const resolved = resolveOwnQuiz(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  const rawCurrentMetadata = readRawField(request.body.currentMetadata);
-  const requestedChange = readMultilineField(request.body.requestedChange, 2000);
-  let currentMetadata: QuizMetadata | null = null;
-  if (rawCurrentMetadata) {
-    try {
-      currentMetadata = safeParseQuizMetadata(JSON.parse(rawCurrentMetadata));
-    } catch {
-      currentMetadata = null;
-    }
-  }
-
-  if (!currentMetadata || requestedChange.length < 3) {
-    response.status(422).json({
-      error: translate(request.locale, 'msg.quizMetadataModificationFailed'),
-    });
-    return;
-  }
-
-  try {
-    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
-    const revision = await generateQuizMetadataRevision({
-      currentMetadata,
-      instructionLanguage: resolved.activeProfile.instructionLanguage,
-      modelTier: resolved.activeProfile?.modelTier,
-      openRouterApiKey,
-      prompt: requestedChange,
-    });
-    const changes = listStringFieldChanges(
-      currentMetadata,
-      revision.metadata,
-      quizMetadataModificationFields,
-    );
-    if (changes.length === 0) {
-      response.status(422).json({
-        error: translate(request.locale, 'msg.quizMetadataModificationNoChanges'),
-      });
-      return;
-    }
-
-    const previewId = randomUUID();
-    setPendingModification(quizMetadataModificationOwner(resolved), {
-      baseSnapshot: storedQuizToDraft(resolved.quiz),
-      baseUpdatedAt: resolved.quiz.updatedAt,
-      createdAt: Date.now(),
-      previewId,
-      proposed: revision.metadata,
-    });
-    logger.info('quiz_metadata_modification_preview_generated', {
-      changedFields: changes.map((change) => change.field),
-      quizId: resolved.quiz.id,
-      resourceId: resolved.quiz.id,
-      resourceType: 'quiz',
-      userId: resolved.user.id,
-    });
-    response.json({ changes, previewId });
-  } catch (error) {
-    const isCreditError = isCreditExhaustedError(error);
-    logger.error('quiz_metadata_modification_preview_failed', {
-      error,
-      quizId: resolved.quiz.id,
-      resourceId: resolved.quiz.id,
-      resourceType: 'quiz',
-      userId: resolved.user.id,
-    });
-    response.status(422).json({
-      creditExhausted: isCreditError,
-      error: isCreditError
-        ? getCreditExhaustedMessage(request.locale)
-        : translate(request.locale, 'msg.quizMetadataModificationFailed'),
-    });
-  }
-}
-
-export function handleApplyQuizMetadataModification(
-  request: Request,
-  response: Response,
-): void {
-  const resolved = resolveOwnQuiz(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  const owner = quizMetadataModificationOwner(resolved);
-  const pending = getPendingModification<QuizMetadata, QuizDraft>(owner);
-  const previewId = readField(request.body.previewId, 100);
-  if (
-    !pending
-    || !previewId
-    || pending.previewId !== previewId
-    || pending.baseUpdatedAt !== resolved.quiz.updatedAt
-    || JSON.stringify(pending.baseSnapshot)
-      !== JSON.stringify(storedQuizToDraft(resolved.quiz))
-  ) {
-    response.status(409).json({
-      error: translate(request.locale, 'msg.quizMetadataModificationExpired'),
-    });
-    return;
-  }
-
-  const updatedDraft = applyQuizMetadataToDraft(
-    storedQuizToDraft(resolved.quiz),
-    pending.proposed,
-  );
-  const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
-  if (!updatedQuiz) {
-    response.status(422).json({
-      error: translate(request.locale, 'msg.quizMetadataModificationFailed'),
-    });
-    return;
-  }
-
-  deletePendingModification(owner);
-  logger.info('quiz_metadata_modification_applied', {
-    quizId: resolved.quiz.id,
-    resourceId: resolved.quiz.id,
-    resourceType: 'quiz',
-    userId: resolved.user.id,
-  });
-  response.json({
-    ok: true,
-    redirect: buildQuizAuthoringPath(resolved.quiz.id, 'general'),
-  });
-}
-
-export function handleDiscardQuizMetadataModification(
-  request: Request,
-  response: Response,
-): void {
-  const resolved = resolveOwnQuiz(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  const owner = quizMetadataModificationOwner(resolved);
-  const pending = getPendingModification<QuizMetadata, QuizDraft>(owner);
-  const previewId = readField(request.body.previewId, 100);
-  if (pending && previewId && pending.previewId === previewId) {
-    deletePendingModification(owner);
-  }
-  response.json({ ok: true });
-}
 
 function quizBlockModificationOwner(
   resolved: {
@@ -1517,20 +1357,35 @@ export function handleDiscardQuizAddBlock(request: Request, response: Response):
   response.json({ ok: true });
 }
 
-function quizBlocksModificationOwner(resolved: {
-  activeProfile: NonNullable<Request['activeProfile']>;
-  quiz: StoredQuiz;
-  user: NonNullable<Request['authUser']>;
-}): ModificationPreviewOwner {
+/**
+ * Unified `Modify with AI` for a quiz.
+ *
+ * Replaces the separate metadata-only and blocks-only operations with one
+ * request carrying an explicit scope. The scope is the author's choice, made in
+ * the modal and sent as two flags, never inferred from what they typed: letting
+ * the model decide how much of the resource it may rewrite is the opposite of
+ * what proposal-and-approval is for.
+ *
+ * The proposal is always stored as a complete draft so applying it is uniform,
+ * whichever parts were in scope.
+ */
+function quizRevisionOwner(resolved: NonNullable<ReturnType<typeof resolveOwnQuiz>>) {
   return {
-    operation: 'quiz-blocks',
+    operation: 'quiz-revision',
     profileId: resolved.activeProfile.id,
     resourceId: resolved.quiz.id,
     userId: resolved.user.id,
   };
 }
 
-export async function handlePreviewQuizBlocksModification(
+function readQuizRevisionScope(body: Request['body']): QuizRevisionScope {
+  return {
+    blocks: body?.scopeBlocks === 'on' || body?.scopeBlocks === 'true',
+    general: body?.scopeGeneral === 'on' || body?.scopeGeneral === 'true',
+  };
+}
+
+export async function handlePreviewQuizRevision(
   request: Request,
   response: Response,
 ): Promise<void> {
@@ -1539,57 +1394,110 @@ export async function handlePreviewQuizBlocksModification(
     return;
   }
 
-  const draft = safeParseQuizDraft(resolved.quiz.quiz);
+  const currentDraft = safeParseQuizDraft(resolved.quiz.quiz);
   const requestedChange = readMultilineField(request.body.requestedChange, 2000);
-  if (!draft || requestedChange.length < 3) {
+  const scope = readQuizRevisionScope(request.body);
+
+  // The general tab may hold unsaved edits; the author expects the proposal to
+  // build on what they can see, not on what was last written to the database.
+  const rawCurrentMetadata = readRawField(request.body.currentMetadata);
+  let currentMetadata: QuizMetadata | null = null;
+  if (rawCurrentMetadata) {
+    try {
+      currentMetadata = safeParseQuizMetadata(JSON.parse(rawCurrentMetadata));
+    } catch {
+      currentMetadata = null;
+    }
+  }
+  if (!currentMetadata && currentDraft) {
+    currentMetadata = quizDraftToMetadata(currentDraft);
+  }
+
+  if (
+    !currentDraft
+    || !currentMetadata
+    || requestedChange.length < 3
+    || (!scope.general && !scope.blocks)
+  ) {
     response.status(422).json({
-      error: translate(request.locale, 'msg.quizBlocksModificationFailed'),
+      error: translate(request.locale, 'msg.quizRevisionFailed'),
     });
     return;
   }
 
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
-    const revision = await generateQuizBlocksRevision({
-      currentDraft: draft,
-      currentMetadata: quizDraftToMetadata(draft),
+    const revision = await generateQuizRevision({
+      attachments: claimRequestAttachments(request, resolved.user.id),
+      currentDraft,
+      currentMetadata,
       instructionLanguage: resolved.activeProfile.instructionLanguage,
       modelTier: resolved.activeProfile?.modelTier,
       openRouterApiKey,
       prompt: requestedChange,
+      scope,
     });
-    const proposedDraft = applyQuizBlocksAndSectionsToDraft(
-      draft,
-      revision.blocks,
-      revision.sections,
+
+    const baseDraft = storedQuizToDraft(resolved.quiz);
+    let proposedDraft = applyQuizMetadataToDraft(
+      baseDraft,
+      revision.metadata ?? currentMetadata,
     );
-    const diff = diffQuizBlocks(draft, proposedDraft);
-    if (!quizBlocksDiffHasChanges(diff)) {
+    if (revision.blocks) {
+      proposedDraft = applyQuizBlocksAndSectionsToDraft(
+        proposedDraft,
+        revision.blocks,
+        revision.sections ?? proposedDraft.sections,
+      );
+    }
+
+    const metadataChanges = scope.general
+      ? listStringFieldChanges(
+          currentMetadata,
+          revision.metadata ?? currentMetadata,
+          quizMetadataModificationFields,
+        )
+      : [];
+    const blockDiff = scope.blocks
+      ? diffQuizBlocks(currentDraft, proposedDraft)
+      : null;
+
+    if (
+      metadataChanges.length === 0
+      && (!blockDiff || !quizBlocksDiffHasChanges(blockDiff))
+    ) {
       response.status(422).json({
-        error: translate(request.locale, 'msg.quizBlocksModificationNoChanges'),
+        error: translate(request.locale, 'msg.quizRevisionNoChanges'),
       });
       return;
     }
 
     const previewId = randomUUID();
-    setPendingModification<QuizDraft, QuizDraft>(quizBlocksModificationOwner(resolved), {
-      baseSnapshot: storedQuizToDraft(resolved.quiz),
+    setPendingModification<QuizDraft, QuizDraft>(quizRevisionOwner(resolved), {
+      baseSnapshot: baseDraft,
       baseUpdatedAt: resolved.quiz.updatedAt,
       createdAt: Date.now(),
       previewId,
       proposed: proposedDraft,
     });
-    logger.info('quiz_blocks_modification_preview_generated', {
+    logger.info('quiz_revision_preview_generated', {
+      blockSummary: blockDiff?.summary,
+      changedFields: metadataChanges.map((change) => change.field),
       quizId: resolved.quiz.id,
       resourceId: resolved.quiz.id,
       resourceType: 'quiz',
-      summary: diff.summary,
+      scope,
       userId: resolved.user.id,
     });
-    response.json({ changes: diff, previewId });
+    // The shared modal controller hands `changes` straight to renderChanges,
+    // so both halves of the proposal travel under that one key.
+    response.json({
+      changes: { blockChanges: blockDiff, metadataChanges },
+      previewId,
+    });
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
-    logger.error('quiz_blocks_modification_preview_failed', {
+    logger.error('quiz_revision_preview_failed', {
       error,
       quizId: resolved.quiz.id,
       resourceId: resolved.quiz.id,
@@ -1600,12 +1508,12 @@ export async function handlePreviewQuizBlocksModification(
       creditExhausted: isCreditError,
       error: isCreditError
         ? getCreditExhaustedMessage(request.locale)
-        : translate(request.locale, 'msg.quizBlocksModificationFailed'),
+        : translate(request.locale, 'msg.quizRevisionFailed'),
     });
   }
 }
 
-export function handleApplyQuizBlocksModification(
+export function handleApplyQuizRevision(
   request: Request,
   response: Response,
 ): void {
@@ -1614,7 +1522,7 @@ export function handleApplyQuizBlocksModification(
     return;
   }
 
-  const owner = quizBlocksModificationOwner(resolved);
+  const owner = quizRevisionOwner(resolved);
   const pending = getPendingModification<QuizDraft, QuizDraft>(owner);
   const previewId = readField(request.body.previewId, 100);
   const currentDraft = storedQuizToDraft(resolved.quiz);
@@ -1626,39 +1534,34 @@ export function handleApplyQuizBlocksModification(
     || JSON.stringify(pending.baseSnapshot) !== JSON.stringify(currentDraft)
   ) {
     response.status(409).json({
-      error: translate(request.locale, 'msg.quizBlocksModificationExpired'),
+      error: translate(request.locale, 'msg.quizRevisionExpired'),
     });
     return;
   }
 
-  const updatedDraft = applyQuizBlocksAndSectionsToDraft(
-    currentDraft,
-    pending.proposed.blocks,
-    pending.proposed.sections,
+  const updatedQuiz = updateQuizWithDraft(
+    resolved.quiz,
+    resolved.user.id,
+    pending.proposed,
   );
-  const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
   if (!updatedQuiz) {
     response.status(422).json({
-      error: translate(request.locale, 'msg.quizBlocksModificationFailed'),
+      error: translate(request.locale, 'msg.quizRevisionFailed'),
     });
     return;
   }
 
   deletePendingModification(owner);
-  logger.info('quiz_blocks_modification_applied', {
-    blockCount: updatedDraft.blocks.length,
+  logger.info('quiz_revision_applied', {
     quizId: resolved.quiz.id,
     resourceId: resolved.quiz.id,
     resourceType: 'quiz',
     userId: resolved.user.id,
   });
-  response.json({
-    ok: true,
-    redirect: buildQuizAuthoringPath(resolved.quiz.id, 'blocks'),
-  });
+  response.json({ ok: true });
 }
 
-export function handleDiscardQuizBlocksModification(
+export function handleDiscardQuizRevision(
   request: Request,
   response: Response,
 ): void {
@@ -1667,12 +1570,7 @@ export function handleDiscardQuizBlocksModification(
     return;
   }
 
-  const owner = quizBlocksModificationOwner(resolved);
-  const pending = getPendingModification<QuizDraft, QuizDraft>(owner);
-  const previewId = readField(request.body.previewId, 100);
-  if (pending && previewId && pending.previewId === previewId) {
-    deletePendingModification(owner);
-  }
+  deletePendingModification(quizRevisionOwner(resolved));
   response.json({ ok: true });
 }
 

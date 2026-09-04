@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { buildQuizRevisionScopeRules } from '../../src/server/services/resourceDrafts.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -47,6 +48,11 @@ function languageName(locale: TestLocale): string {
  * locale so language-parametrized prompts are checked in all three languages.
  */
 const promptRenderers: Record<string, (locale: TestLocale) => string> = {
+  // The extraction prompt is the whole system instruction for its own
+  // inference, and carries no placeholders: the user's own prompt is appended
+  // by the caller as clearly-delimited context rather than interpolated in.
+  'attachments/extraction.md': () =>
+    renderSystemPrompt('attachments/extraction.md', {}),
   'scene-media/generation.md': () => renderSystemPrompt('scene-media/generation.md', {}),
   'scene-media/title.md': () => renderSystemPrompt('scene-media/title.md', {}),
   'resources/practice-guide-draft-correction.md': (locale) =>
@@ -131,6 +137,23 @@ const promptRenderers: Record<string, (locale: TestLocale) => string> = {
       'resources/quiz-blocks-revision.md',
       quizAuthoringPlaceholders(locale),
     ),
+  'resources/quiz-modification-correction.md': (locale) =>
+    renderSystemPrompt('resources/quiz-modification-correction.md', {
+      CORRECTION_REASON: correctionReason,
+      REVISION_SCOPE_RULES: buildQuizRevisionScopeRules({
+        blocks: true,
+        general: true,
+      }),
+      ...quizAuthoringPlaceholders(locale),
+    }),
+  'resources/quiz-modification.md': (locale) =>
+    renderSystemPrompt('resources/quiz-modification.md', {
+      REVISION_SCOPE_RULES: buildQuizRevisionScopeRules({
+        blocks: true,
+        general: true,
+      }),
+      ...quizAuthoringPlaceholders(locale),
+    }),
   'resources/quiz-translation-authoring-kinds.md': () =>
     renderSystemPrompt('resources/quiz-translation-authoring-kinds.md', {}),
   'resources/roleplay-draft-correction.md': () =>

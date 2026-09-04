@@ -1,4 +1,5 @@
 import { t } from '../shared/i18n.js';
+import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
@@ -217,15 +218,29 @@ function buildCurrentQuizMetadata(formEl) {
   return metadata;
 }
 
-function initializeQuizMetadataModification() {
+/**
+ * The single `Modify with AI` operation.
+ *
+ * Scope is two checkboxes, both on by default, sent as explicit flags. It is
+ * never inferred from what the author typed: letting the model decide how much
+ * of the quiz it may rewrite would defeat the point of proposal-and-approval.
+ * The attach control is the same wizard used everywhere else, and its staged
+ * ids ride along as one more field.
+ */
+function initializeQuizModification() {
   const modalEl = document.querySelector('[data-quiz-modify-modal]');
   const openButtonEl = document.querySelector('[data-quiz-modify-open]');
   const formEl = document.querySelector('[data-quiz-general-form]');
-  if (!(modalEl instanceof HTMLElement)) {
+  if (!(modalEl instanceof HTMLElement) || !(openButtonEl instanceof HTMLElement)) {
     return;
   }
 
-  const labels = {
+  const generalEl = modalEl.querySelector('[data-quiz-scope-general]');
+  const blocksEl = modalEl.querySelector('[data-quiz-scope-blocks]');
+  const scopeErrorEl = modalEl.querySelector('[data-quiz-scope-error]');
+  const attachments = initializeAttachmentPicker(modalEl);
+
+  const metadataLabels = {
     current: modalEl.dataset.currentLabel || '',
     fields: {
       description: modalEl.dataset.fieldDescription,
@@ -237,18 +252,116 @@ function initializeQuizMetadataModification() {
     },
     proposed: modalEl.dataset.proposedLabel || '',
   };
+  const headings = {
+    blocks: modalEl.dataset.blocksHeading || '',
+    general: modalEl.dataset.generalHeading || '',
+  };
+  const blockLabels = {
+    kinds: collectQuizKindLabels(),
+    sectionsChanged: modalEl.dataset.sectionsChangedLabel || '',
+    status: {
+      added: modalEl.dataset.statusAdded || '',
+      changed: modalEl.dataset.statusChanged || '',
+      moved: modalEl.dataset.statusMoved || '',
+      removed: modalEl.dataset.statusRemoved || '',
+      unchanged: modalEl.dataset.statusUnchanged || '',
+    },
+  };
 
-  if (!(formEl instanceof HTMLFormElement) || !(openButtonEl instanceof HTMLElement)) {
-    return;
+  function scopeSelected() {
+    return {
+      blocks: blocksEl instanceof HTMLInputElement ? blocksEl.checked : false,
+      general: generalEl instanceof HTMLInputElement ? generalEl.checked : false,
+    };
   }
 
+  function syncScopeValidity() {
+    const { blocks, general } = scopeSelected();
+    scopeErrorEl?.classList.toggle('d-none', blocks || general);
+  }
+
+  generalEl?.addEventListener('change', syncScopeValidity);
+  blocksEl?.addEventListener('change', syncScopeValidity);
+
   initializeModificationModal({
-    buildCurrentDraft: () => buildCurrentQuizMetadata(formEl),
     modalEl,
-    renderChanges: (container, changes) =>
-      renderStringFieldChanges(container, changes, labels),
+    resolveContext: () => ({
+      applyEndpoint: modalEl.dataset.modifyApplyEndpoint || '',
+      // The general form only exists while its tab is open; on the blocks tab
+      // the server falls back to the stored metadata.
+      buildCurrentDraft: () =>
+        formEl instanceof HTMLFormElement ? buildCurrentQuizMetadata(formEl) : {},
+      currentField: 'currentMetadata',
+      discardEndpoint: modalEl.dataset.modifyDiscardEndpoint || '',
+      extraFields: () => {
+        const { blocks, general } = scopeSelected();
+        return {
+          attachmentIds: (attachments?.getIds() ?? []).join(','),
+          scopeBlocks: blocks ? 'on' : '',
+          scopeGeneral: general ? 'on' : '',
+        };
+      },
+      previewEndpoint: modalEl.dataset.modifyEndpoint || '',
+      renderChanges: (container, changes) =>
+        renderQuizModificationChanges(container, changes, {
+          blockLabels,
+          headings,
+          metadataLabels,
+        }),
+    }),
     triggers: openButtonEl,
   });
+
+  // A submitted proposal consumes its attachments, exactly as a sent message
+  // does: they belong to that request and do not carry over to the next one.
+  modalEl.addEventListener('hidden.bs.modal', () => {
+    attachments?.clear();
+    syncScopeValidity();
+  });
+}
+
+/**
+ * Renders whichever halves of the proposal are present. A scope that excluded
+ * a half means that half is absent, not empty.
+ */
+function renderQuizModificationChanges(container, changes, labels) {
+  container.replaceChildren();
+  if (!changes) {
+    return false;
+  }
+
+  let rendered = false;
+
+  if (Array.isArray(changes.metadataChanges) && changes.metadataChanges.length > 0) {
+    const section = document.createElement('section');
+    const heading = document.createElement('h3');
+    heading.className = 'h6';
+    heading.textContent = labels.headings.general;
+    section.append(heading);
+    const body = document.createElement('div');
+    if (renderStringFieldChanges(body, changes.metadataChanges, labels.metadataLabels)) {
+      section.append(body);
+      container.append(section);
+      rendered = true;
+    }
+  }
+
+  if (changes.blockChanges) {
+    const section = document.createElement('section');
+    section.className = rendered ? 'mt-4' : '';
+    const heading = document.createElement('h3');
+    heading.className = 'h6';
+    heading.textContent = labels.headings.blocks;
+    section.append(heading);
+    const body = document.createElement('div');
+    if (renderQuizBlocksDiff(body, changes.blockChanges, labels.blockLabels)) {
+      section.append(body);
+      container.append(section);
+      rendered = true;
+    }
+  }
+
+  return rendered;
 }
 
 function describeQuizItemAnswerKey(item) {
@@ -431,38 +544,6 @@ function renderQuizBlocksDiff(container, diff, labels) {
   return true;
 }
 
-function initializeQuizBlocksModification() {
-  const modalEl = document.querySelector('[data-quiz-blocks-modify-modal]');
-  const openButtonEl = document.querySelector('[data-quiz-blocks-modify-open]');
-  if (!(modalEl instanceof HTMLElement) || !(openButtonEl instanceof HTMLElement)) {
-    return;
-  }
-
-  const labels = {
-    kinds: collectQuizKindLabels(),
-    sectionsChanged: modalEl.dataset.sectionsChangedLabel || '',
-    status: {
-      added: modalEl.dataset.statusAdded || '',
-      changed: modalEl.dataset.statusChanged || '',
-      moved: modalEl.dataset.statusMoved || '',
-      removed: modalEl.dataset.statusRemoved || '',
-      unchanged: modalEl.dataset.statusUnchanged || '',
-    },
-  };
-
-  initializeModificationModal({
-    modalEl,
-    resolveContext: () => ({
-      applyEndpoint: modalEl.dataset.modifyApplyEndpoint || '',
-      buildCurrentDraft: () => ({}),
-      currentField: 'unused',
-      discardEndpoint: modalEl.dataset.modifyDiscardEndpoint || '',
-      previewEndpoint: modalEl.dataset.modifyEndpoint || '',
-      renderChanges: (container, diff) => renderQuizBlocksDiff(container, diff, labels),
-    }),
-    triggers: openButtonEl,
-  });
-}
 
 function initializeQuizBlockModification() {
   const modalEl = document.querySelector('[data-quiz-block-modify-modal]');
@@ -913,9 +994,9 @@ initializeQuizSharingUi();
 initializeQuizPendingUi();
 initializeQuizAutoSubmit();
 initializeQuizAddBlock();
-initializeQuizMetadataModification();
+initializeQuizModification();
 initializeQuizBlockModification();
-initializeQuizBlocksModification();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
 initializeStaticMarkdown();
+initializeAttachmentPicker();

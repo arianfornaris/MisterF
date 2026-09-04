@@ -99,13 +99,14 @@ describe('server route architecture', () => {
     expect(view).not.toContain('data-authoring-chat-form');
     expect(view).not.toContain("activeTab === 'chat'");
 
-    // The three scoped operations plus per-block modify are wired.
+    // One unified modify operation plus the per-block operations are wired.
+    // `/edit/blocks-modify` was folded into `/edit/modify` on 2026-08-30: scope
+    // is now a choice inside one modal rather than two separate endpoints.
     expect(routes).toContain('/edit/modify');
-    expect(routes).toContain('/edit/blocks-modify');
+    expect(routes).not.toContain('/edit/blocks-modify');
     expect(routes).toContain('/edit/add-block');
     expect(routes).toContain('/edit/blocks/:blockId/modify');
     expect(view).toContain('data-quiz-modify-modal');
-    expect(view).toContain('data-quiz-blocks-modify-modal');
     expect(view).toContain('data-quiz-block-modify-modal');
     expect(view).toContain('data-quiz-add-block-modal');
 

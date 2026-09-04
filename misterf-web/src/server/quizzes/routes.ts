@@ -2,8 +2,7 @@ import express from 'express';
 import {
   handleApplyQuizAddBlock,
   handleApplyQuizBlockModification,
-  handleApplyQuizBlocksModification,
-  handleApplyQuizMetadataModification,
+  handleApplyQuizRevision,
   handleArchiveQuiz,
   handleClaimQuizAttempt,
   handleCreateQuizFollowUpConversation,
@@ -12,16 +11,14 @@ import {
   handleDeleteQuizBlock,
   handleDiscardQuizAddBlock,
   handleDiscardQuizBlockModification,
-  handleDiscardQuizBlocksModification,
-  handleDiscardQuizMetadataModification,
+  handleDiscardQuizRevision,
   handleDuplicateQuizBlock,
   handleGenerateQuiz,
   handleGenerateQuizResponsesSummary,
   handleMoveQuizBlock,
   handlePreviewQuizAddBlock,
   handlePreviewQuizBlockModification,
-  handlePreviewQuizBlocksModification,
-  handlePreviewQuizMetadataModification,
+  handlePreviewQuizRevision,
   handleRestoreQuiz,
   handleShareQuizToProfile,
   handleStartSharedQuizAttempt,
@@ -48,12 +45,9 @@ quizzesRouter.post('/quizzes/generate-draft', handleGenerateQuiz);
 quizzesRouter.post('/quizzes/shared/:shareId/take', handleStartSharedQuizAttempt);
 quizzesRouter.get('/quizzes/:quizId/edit', renderQuizEditPage);
 quizzesRouter.post('/quizzes/:quizId/edit/save', handleUpdateQuizMetadata);
-quizzesRouter.post('/quizzes/:quizId/edit/modify', handlePreviewQuizMetadataModification);
-quizzesRouter.post('/quizzes/:quizId/edit/modify/apply', handleApplyQuizMetadataModification);
-quizzesRouter.post('/quizzes/:quizId/edit/modify/discard', handleDiscardQuizMetadataModification);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify', handlePreviewQuizBlocksModification);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify/apply', handleApplyQuizBlocksModification);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify/discard', handleDiscardQuizBlocksModification);
+quizzesRouter.post('/quizzes/:quizId/edit/modify', handlePreviewQuizRevision);
+quizzesRouter.post('/quizzes/:quizId/edit/modify/apply', handleApplyQuizRevision);
+quizzesRouter.post('/quizzes/:quizId/edit/modify/discard', handleDiscardQuizRevision);
 quizzesRouter.post('/quizzes/:quizId/edit/add-block', handlePreviewQuizAddBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/add-block/apply', handleApplyQuizAddBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/add-block/discard', handleDiscardQuizAddBlock);

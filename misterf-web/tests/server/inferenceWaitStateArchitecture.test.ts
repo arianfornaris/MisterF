@@ -96,6 +96,22 @@ const sceneMediaChangeModal = (): WaitStateCoverage => ({
 });
 
 const expectedWaitStateCoverage: Record<string, WaitStateCoverage> = {
+  // Attach wizard. Processing an attachment runs an extraction inference, and
+  // the wizard's own processing phase is the wait affordance.
+  'POST /attachments/process': {
+    kind: 'trigger',
+    mechanism: 'attach wizard, processing phase with a spinner and a per-format label',
+    marker: 'data-attachment-phase',
+    view: 'views/partials/attachment-picker.ejs',
+    client: 'src/client/shared/attachmentPicker.js',
+  },
+  'POST /attachments/process-url': {
+    kind: 'trigger',
+    mechanism: 'attach wizard, processing phase with a spinner and a per-format label',
+    marker: 'data-attachment-phase',
+    view: 'views/partials/attachment-picker.ejs',
+    client: 'src/client/shared/attachmentPicker.js',
+  },
   // Tutor chat.
   'POST /c/:conversationId/finalize': {
     kind: 'trigger',
@@ -119,9 +135,6 @@ const expectedWaitStateCoverage: Record<string, WaitStateCoverage> = {
       'or src/client/ posts to it, so there is no trigger to give a wait state.',
   },
   'POST /quizzes/:quizId/edit/modify': modificationModal('views/quizzes-authoring.ejs'),
-  'POST /quizzes/:quizId/edit/blocks-modify': modificationModal(
-    'views/quizzes-authoring.ejs',
-  ),
   'POST /quizzes/:quizId/edit/add-block': modificationModal('views/quizzes-authoring.ejs'),
   'POST /quizzes/:quizId/edit/blocks/:blockId/modify': modificationModal(
     'views/quizzes-authoring.ejs',
@@ -328,7 +341,13 @@ function collectCreditGatedFunctionNames(bodies: Map<string, string>): Set<strin
 
 function collectCreditGatedRoutes(gatedNames: Set<string>): string[] {
   const routes: string[] = [];
-  const registration = /(\w+)Router\.(get|post|put|delete)\(\s*'([^']+)',\s*(\w+)/g;
+  // Everything between the route path and the end of the registration call.
+  // Reading only the first identifier after the path used to be enough, but it
+  // silently skipped any route that takes middleware — the handler sat in the
+  // second argument and the route never entered the inventory at all, which is
+  // exactly the kind of gated route this guard exists to catch.
+  const registration =
+    /(\w+)Router\.(get|post|put|delete)\(\s*'([^']+)',([\s\S]*?)\);/g;
 
   for (const file of listFiles('src/server', new Set(['.ts']))) {
     if (!file.endsWith('routes.ts')) {
@@ -338,8 +357,9 @@ function collectCreditGatedRoutes(gatedNames: Set<string>): string[] {
     const source = readProjectFile(file);
     let match: RegExpExecArray | null;
     while ((match = registration.exec(source))) {
-      const [, , method, routePath, handler] = match as unknown as string[];
-      if (gatedNames.has(handler as string)) {
+      const [, , method, routePath, handlerArgs] = match as unknown as string[];
+      const referenced = (handlerArgs as string).match(/\w+/g) ?? [];
+      if (referenced.some((name) => gatedNames.has(name))) {
         routes.push(`${(method as string).toUpperCase()} ${routePath}`);
       }
     }
