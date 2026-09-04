@@ -35,7 +35,7 @@ export function logLlmRequest(messages, system, options, turn) {
         messageCount: messages.length,
         messages: fullTrace
             ? messages.map((message, index) => ({
-                content: message.content,
+                content: redactModelMessageContent(message.content),
                 index,
                 role: message.role,
             }))
@@ -229,12 +229,61 @@ function resolveTraceContext(context) {
 function matchesTraceSelector(selectors, value) {
     return Boolean(value && selectors.includes(value));
 }
+/**
+ * Replaces attachment payloads with a description of themselves.
+ *
+ * A file or image part holds the raw bytes, and a logger serializes those byte
+ * by byte — a 37 KB image became roughly 450 KB of `{"35026":47,...}` in the
+ * output log before this existed. Traces must describe an attachment, never
+ * reproduce it: the bytes are worthless in a log and expensive everywhere.
+ */
+function redactModelMessageContent(content) {
+    if (typeof content === 'string' || !Array.isArray(content)) {
+        return content;
+    }
+    return content.map((part) => {
+        if (!part || typeof part !== 'object' || !('type' in part)) {
+            return part;
+        }
+        if (part.type === 'file') {
+            return {
+                byteLength: byteLengthOf(part.data),
+                filename: part.filename,
+                mediaType: part.mediaType,
+                type: 'file',
+            };
+        }
+        if (part.type === 'image') {
+            return {
+                byteLength: byteLengthOf(part.image),
+                mediaType: part.mediaType,
+                type: 'image',
+            };
+        }
+        return part;
+    });
+}
+function byteLengthOf(data) {
+    if (typeof data === 'string') {
+        return data.length;
+    }
+    if (data instanceof Uint8Array || Buffer.isBuffer(data)) {
+        return data.byteLength;
+    }
+    if (data instanceof ArrayBuffer) {
+        return data.byteLength;
+    }
+    return null;
+}
 function summarizeModelMessages(messages) {
     return messages.map((message, index) => ({
         contentKind: typeof message.content,
+        // Measured on the redacted form: stringifying the raw content just to read
+        // its length would serialize the whole attachment on every logged request,
+        // in metadata mode too, and then throw the result away.
         contentLength: typeof message.content === 'string'
             ? message.content.length
-            : JSON.stringify(message.content).length,
+            : JSON.stringify(redactModelMessageContent(message.content)).length,
         index,
         role: message.role,
     }));
