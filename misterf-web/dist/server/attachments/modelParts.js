@@ -7,6 +7,7 @@
  * than as something they wrote. What the model reads here is byte-for-byte what
  * the user approved and what the transcript can show them again.
  */
+import { loadSystemPrompt } from '../services/systemPrompts.js';
 /**
  * Wraps one attachment so its boundaries are unambiguous in the prompt.
  *
@@ -49,5 +50,19 @@ export function buildUserContentWithAttachments(input) {
         return input.text;
     }
     return [input.text, ...input.attachments.map(renderAttachment)].join('\n\n');
+}
+/**
+ * Appends the rules that keep authored resources free of references to the
+ * material they were built from.
+ *
+ * Only for resource authoring. In chat the opposite is true: "in the worksheet
+ * you sent me" is exactly what a tutor should say, because the learner is the
+ * person who attached it and the conversation is where it lives.
+ */
+export function withAuthoredResourceAttachmentRules(system, attachments) {
+    if (attachments.length === 0) {
+        return system;
+    }
+    return `${system}\n\n${loadSystemPrompt('attachments/authored-resource-rules.md')}`;
 }
 //# sourceMappingURL=modelParts.js.map

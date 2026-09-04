@@ -48,6 +48,9 @@ function languageName(locale: TestLocale): string {
  * locale so language-parametrized prompts are checked in all three languages.
  */
 const promptRenderers: Record<string, (locale: TestLocale) => string> = {
+  // Appended verbatim to a resource-authoring system prompt; no placeholders.
+  'attachments/authored-resource-rules.md': () =>
+    renderSystemPrompt('attachments/authored-resource-rules.md', {}),
   // The extraction prompt is the whole system instruction for its own
   // inference, and carries no placeholders: the user's own prompt is appended
   // by the caller as clearly-delimited context rather than interpolated in.

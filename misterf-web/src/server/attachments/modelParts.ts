@@ -9,6 +9,7 @@
  */
 
 import type { AttachmentDigest } from './types.js';
+import { loadSystemPrompt } from '../services/systemPrompts.js';
 
 /** Anything that can be handed to the model as source material. */
 export type AttachmentInput = AttachmentDigest;
@@ -63,4 +64,23 @@ export function buildUserContentWithAttachments(input: {
   }
 
   return [input.text, ...input.attachments.map(renderAttachment)].join('\n\n');
+}
+
+/**
+ * Appends the rules that keep authored resources free of references to the
+ * material they were built from.
+ *
+ * Only for resource authoring. In chat the opposite is true: "in the worksheet
+ * you sent me" is exactly what a tutor should say, because the learner is the
+ * person who attached it and the conversation is where it lives.
+ */
+export function withAuthoredResourceAttachmentRules(
+  system: string,
+  attachments: AttachmentInput[],
+): string {
+  if (attachments.length === 0) {
+    return system;
+  }
+
+  return `${system}\n\n${loadSystemPrompt('attachments/authored-resource-rules.md')}`;
 }

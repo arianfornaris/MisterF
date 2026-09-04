@@ -39,6 +39,7 @@ import {
 import { logger } from './logger.js';
 import {
   buildUserContentWithAttachments,
+  withAuthoredResourceAttachmentRules,
   type AttachmentInput,
 } from '../attachments/modelParts.js';
 import { renderSystemPrompt } from './systemPrompts.js';
@@ -237,9 +238,14 @@ async function generateStructuredDraft<T>(input: {
   // summary it generated.
   const tier = input.modelTier ?? defaultProfileModelTier;
   const attachments = input.attachments ?? [];
-  const system = renderSystemPrompt(
-    input.systemPromptPath,
-    input.systemPromptVariables,
+  // A resource is a standalone artifact: the learner opens it without the
+  // material that produced it. Left to itself the model writes descriptions
+  // like "practice based on the attached document", which is a dangling
+  // reference to something the reader cannot see. Only added when there is
+  // actually source material, so a prompt-only generation is unchanged.
+  const system = withAuthoredResourceAttachmentRules(
+    renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables),
+    attachments,
   );
   const messages: ModelMessage[] = [
     {

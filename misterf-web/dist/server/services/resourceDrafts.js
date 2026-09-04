@@ -8,7 +8,7 @@ import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logLlmCost, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
 import { logger } from './logger.js';
-import { buildUserContentWithAttachments, } from '../attachments/modelParts.js';
+import { buildUserContentWithAttachments, withAuthoredResourceAttachmentRules, } from '../attachments/modelParts.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { instructionLanguageEnglishName, quizAuthoringPlaceholders, } from './llmTutor/languagePack.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
@@ -136,7 +136,12 @@ async function generateStructuredDraft(input) {
     // summary it generated.
     const tier = input.modelTier ?? defaultProfileModelTier;
     const attachments = input.attachments ?? [];
-    const system = renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables);
+    // A resource is a standalone artifact: the learner opens it without the
+    // material that produced it. Left to itself the model writes descriptions
+    // like "practice based on the attached document", which is a dangling
+    // reference to something the reader cannot see. Only added when there is
+    // actually source material, so a prompt-only generation is unchanged.
+    const system = withAuthoredResourceAttachmentRules(renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables), attachments);
     const messages = [
         {
             content: buildUserContentWithAttachments({
