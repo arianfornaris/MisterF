@@ -13,7 +13,7 @@
     : (isCompact ? 'attachmentWizardCompact' : 'attachmentWizard');
 %>
 <% if (part !== 'wizard') { %>
-<div class="<%= isCompact ? 'composer-attachments' : 'mb-3' %>" data-attachment-picker>
+<div class="<%= isCompact ? 'composer-attachments' : 'mb-3' %>" data-attachment-picker="<%= modalId %>">
   <% if (!isCompact) { %>
     <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
       <span class="form-label mb-0"><%= t('attachments.sectionTitle') %></span>

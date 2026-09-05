@@ -1,5 +1,7 @@
 import { initializeModificationModal } from '../shared/modificationModal.js';
-import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
+import { initializeAttachmentPickers } from '../shared/attachmentPicker.js';
+
+const attachmentPickers = initializeAttachmentPickers();
 import { t } from '../shared/i18n.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
@@ -356,6 +358,8 @@ function initializeRoleplayModification() {
     return;
   }
 
+  const attachments = attachmentPickers.get('roleplayModifyAttachmentWizard');
+
   // Only the roleplay-specific pieces stay here: how to read the current draft
   // off the authoring form, and how to render a diff that has to show avatars
   // rather than plain strings. Phases, credit errors, and stale-preview
@@ -378,12 +382,17 @@ function initializeRoleplayModification() {
   };
 
   initializeModificationModal({
+    extraFields: () => ({
+      attachmentIds: (attachments?.getIds() ?? []).join(','),
+    }),
     buildCurrentDraft: () => buildCurrentRoleplayDraft(formEl),
     modalEl,
     renderChanges: (container, changes) =>
       renderRoleplayModificationChanges(container, changes, labels),
     triggers: document.querySelectorAll('[data-modify-open]'),
   });
+
+  modalEl.addEventListener('hidden.bs.modal', () => attachments?.clear());
 }
 
 
@@ -689,4 +698,4 @@ initializeRoleplayTurnComposer();
 initializeRoleplayEvaluationPopovers();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
-initializeAttachmentPicker();
+

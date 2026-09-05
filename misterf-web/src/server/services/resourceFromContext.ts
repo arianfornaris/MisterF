@@ -1,3 +1,4 @@
+import type { AttachmentInput } from '../attachments/modelParts.js';
 import {
   createQuiz,
   createPracticeGuide,
@@ -93,13 +94,19 @@ export function buildResourceFromContextPrompt(input: {
  * the new resource detail path and title so callers can link or redirect to it.
  */
 export async function createResourceFromContextDraft(input: {
+  /**
+   * Material the user attached to this creation request, plus any digests the
+   * conversation itself carried. Passed through so the authoring rules that
+   * forbid a resource naming its source get appended.
+   */
+  attachments?: AttachmentInput[];
   openRouterApiKey: string | null;
   profileId: string;
   prompt: string;
   type: ContextResourceType;
   userId: string;
 }): Promise<{ detailPath: string; title: string }> {
-  const { openRouterApiKey, profileId, prompt, type, userId } = input;
+  const { attachments, openRouterApiKey, profileId, prompt, type, userId } = input;
   const meta = contextResourceTypeMeta[type];
   // One profile lookup already happens here for the instruction language; the
   // model tier comes from the same row so generation honours the learner's
@@ -110,6 +117,7 @@ export async function createResourceFromContextDraft(input: {
 
   if (type === 'practice_guide') {
     const draft = await generatePracticeGuideDraft({
+      attachments,
       instructionLanguage,
       modelTier,
       openRouterApiKey,
@@ -127,6 +135,7 @@ export async function createResourceFromContextDraft(input: {
 
   if (type === 'quiz') {
     const draft = await generateQuizDraft({
+      attachments,
       instructionLanguage,
       modelTier,
       openRouterApiKey,

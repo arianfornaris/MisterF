@@ -711,6 +711,7 @@ export async function handlePreviewQuizBlockModification(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const revision = await generateQuizBlockRevision({
+            attachments: claimRequestAttachments(request, resolved.user.id),
             currentItem: block.item,
             instructionLanguage: resolved.activeProfile.instructionLanguage,
             level: level || draft.level,
@@ -850,6 +851,7 @@ export async function handlePreviewQuizAddBlock(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const creation = await generateQuizBlockRevision({
+            attachments: claimRequestAttachments(request, resolved.user.id),
             instructionLanguage: resolved.activeProfile.instructionLanguage,
             level: level || draft.level,
             modelTier: resolved.activeProfile?.modelTier,

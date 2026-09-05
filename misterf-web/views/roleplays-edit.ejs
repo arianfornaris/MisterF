@@ -220,6 +220,7 @@
               placeholder="<%= t('roleplays.modificationPlaceholder') %>"
             ></textarea>
             <div class="form-text"><%= t('roleplays.modificationHelp') %></div>
+            <%- include('partials/attachment-picker', { partOnly: 'trigger', wizardId: 'roleplayModifyAttachmentWizard' }) %>
           </div>
 
           <div class="text-center py-4 d-none" data-modify-phase="generating">
@@ -318,3 +319,5 @@
 </div>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'roleplays-client-script' }) %>
+
+<%- include('partials/attachment-picker', { partOnly: 'wizard', wizardId: 'roleplayModifyAttachmentWizard' }) %>

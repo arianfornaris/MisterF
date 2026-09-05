@@ -1,5 +1,7 @@
 import { initializeModificationModal } from '../shared/modificationModal.js';
-import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
+import { initializeAttachmentPickers } from '../shared/attachmentPicker.js';
+
+const attachmentPickers = initializeAttachmentPickers();
 import { t } from '../shared/i18n.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
@@ -205,6 +207,8 @@ function initializePracticeGuideModification() {
     return;
   }
 
+  const attachments = attachmentPickers.get('guideModifyAttachmentWizard');
+
   // Only the guide-specific pieces stay here: reading the current draft off the
   // authoring form, and rendering a diff whose fields are Markdown rather than
   // plain strings. The shared controller owns the rest of the cycle.
@@ -219,12 +223,17 @@ function initializePracticeGuideModification() {
   };
 
   initializeModificationModal({
+    extraFields: () => ({
+      attachmentIds: (attachments?.getIds() ?? []).join(','),
+    }),
     buildCurrentDraft: () => buildCurrentPracticeGuideDraft(formEl),
     modalEl,
     renderChanges: (container, changes) =>
       renderPracticeGuideModificationChanges(container, changes, labels),
     triggers: document.querySelectorAll('[data-modify-open]'),
   });
+
+  modalEl.addEventListener('hidden.bs.modal', () => attachments?.clear());
 }
 
 
@@ -236,4 +245,4 @@ initializeResourceMoveModal();
 initializeListGroupDropdownStacking();
 initializeMarkdownEditors();
 initializeStaticMarkdown();
-initializeAttachmentPicker();
+

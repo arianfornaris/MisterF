@@ -56,7 +56,7 @@ export function buildResourceFromContextPrompt(input) {
  * the new resource detail path and title so callers can link or redirect to it.
  */
 export async function createResourceFromContextDraft(input) {
-    const { openRouterApiKey, profileId, prompt, type, userId } = input;
+    const { attachments, openRouterApiKey, profileId, prompt, type, userId } = input;
     const meta = contextResourceTypeMeta[type];
     // One profile lookup already happens here for the instruction language; the
     // model tier comes from the same row so generation honours the learner's
@@ -66,6 +66,7 @@ export async function createResourceFromContextDraft(input) {
     const modelTier = profile?.modelTier;
     if (type === 'practice_guide') {
         const draft = await generatePracticeGuideDraft({
+            attachments,
             instructionLanguage,
             modelTier,
             openRouterApiKey,
@@ -82,6 +83,7 @@ export async function createResourceFromContextDraft(input) {
     }
     if (type === 'quiz') {
         const draft = await generateQuizDraft({
+            attachments,
             instructionLanguage,
             modelTier,
             openRouterApiKey,

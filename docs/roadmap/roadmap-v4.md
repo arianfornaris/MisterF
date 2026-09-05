@@ -1382,7 +1382,14 @@ roughly 60 extractions.
 | S2 | New roleplay | `/roleplays/new` | `generateRoleplayDraft` | untested |
 | S3 | New practice guide | `/practice-guides/new` | `generatePracticeGuideDraft` | **PDF confirmed working 2026-09-05** |
 | S4 | Tutor chat | `/chat` composer | `runTutorAgentLoop` | **PDF confirmed working 2026-08-30** |
-| S5 | Quiz `Modify with AI` | `/quizzes/:id/edit` | `generateQuiz*Revision` | **not implemented** — see §1.15 |
+| S5 | Quiz `Modify with AI` | `/quizzes/:id/edit` | `generateQuizRevision` | wired 2026-08-30, untested |
+| S6 | Quiz `Add block` | `/quizzes/:id/edit` | `generateQuizBlockRevision` | wired 2026-09-05, untested |
+| S7 | Quiz per-block `⋮` modify | `/quizzes/:id/edit` | `generateQuizBlockRevision` | wired 2026-09-05, untested |
+| S8 | Roleplay `Modify with AI` | `/roleplays/:id/edit` | `generateRoleplayRevision` | wired 2026-09-05, untested |
+| S9 | Guide `Modify with AI` | `/practice-guides/:id/edit` | `generatePracticeGuideRevision` | wired 2026-09-05, untested |
+| S10 | Create resource from conversation | app shell modal | `createResourceFromContextDraft` | wired 2026-09-05, untested |
+| S11 | Create resource from context | result pages | `createResourceFromContextDraft` | wired 2026-09-05, untested |
+| S12 | Scene media prompt and variation | `/media-library/new` | `generateSceneMedia*Package` | **not wired** — see below |
 
 S1–S3 share one call site (`resourceDrafts.ts`), so a bug in one is very likely
 in all three; S4 is a genuinely separate path (socket, message metadata,
@@ -1395,7 +1402,20 @@ surface still untested, and since it runs through the same call site as S1 and
 S3, the remaining risk there is in its own prompt and draft rather than in the
 attachment path.
 
-**S5 is a gap, not a bug.** The attach control was wired into the three `new`
+**Every prompt field must offer attachment — founder rule, 2026-09-05.** An
+audit that day found eight prompt surfaces without it; S5–S11 were wired the
+same day. The rule and its wiring recipe are now a skill,
+`.agents/skills/prompt-attachments`, so a new prompt surface cannot quietly ship
+without one.
+
+**S12 (scene media) is deliberately still open**, because its prompt produces an
+*image* before any text inference runs, through `sceneMediaScripts.ts` rather
+than `generateStructuredDraft`. Attaching a document there needs a decision
+first: should the material steer the image generation, the script that is
+written about the generated image, or both? A 4,000-character document is poor
+input to an image model, so this is a design question rather than plumbing.
+
+**Superseded note.** The attach control was wired into the three `new`
 pages and the chat composer, but **not** into the quiz `Modify with AI`
 operations — so an author can create a quiz from a worksheet and then cannot
 hand that same worksheet to a revision. It is listed here so the matrix is

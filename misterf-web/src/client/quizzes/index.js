@@ -1,5 +1,8 @@
 import { t } from '../shared/i18n.js';
-import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
+import { initializeAttachmentPickers } from '../shared/attachmentPicker.js';
+
+/** All attach controls on this page, keyed by the wizard each one drives. */
+const attachmentPickers = initializeAttachmentPickers();
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
@@ -135,6 +138,8 @@ function initializeQuizAddBlock() {
     return;
   }
 
+  const attachments = attachmentPickers.get('quizAddBlockAttachmentWizard');
+
   const kindSelectEl = modalEl.querySelector('[data-quiz-add-block-kind]');
   const levelInputEl = modalEl.querySelector('[data-quiz-add-block-level]');
   const sectionSelectEl = modalEl.querySelector('[data-quiz-add-block-section]');
@@ -159,6 +164,7 @@ function initializeQuizAddBlock() {
       currentField: 'unused',
       discardEndpoint: modalEl.dataset.modifyDiscardEndpoint || '',
       extraFields: () => ({
+        attachmentIds: (attachments?.getIds() ?? []).join(','),
         kind: kindSelectEl instanceof HTMLSelectElement ? kindSelectEl.value : '',
         level: levelInputEl instanceof HTMLInputElement ? levelInputEl.value : '',
         position:
@@ -183,6 +189,8 @@ function initializeQuizAddBlock() {
     }),
     triggers: openButtonEl,
   });
+
+  modalEl.addEventListener('hidden.bs.modal', () => attachments?.clear());
 }
 
 function getQuizMetadataControl(formEl, name) {
@@ -238,7 +246,7 @@ function initializeQuizModification() {
   const generalEl = modalEl.querySelector('[data-quiz-scope-general]');
   const blocksEl = modalEl.querySelector('[data-quiz-scope-blocks]');
   const scopeErrorEl = modalEl.querySelector('[data-quiz-scope-error]');
-  const attachments = initializeAttachmentPicker(modalEl);
+  const attachments = attachmentPickers.get('quizModifyAttachmentWizard');
 
   const metadataLabels = {
     current: modalEl.dataset.currentLabel || '',
@@ -552,6 +560,8 @@ function initializeQuizBlockModification() {
     return;
   }
 
+  const blockAttachments = attachmentPickers.get('quizBlockModifyAttachmentWizard');
+
   const kindSelectEl = modalEl.querySelector('[data-quiz-block-modify-kind]');
   const levelInputEl = modalEl.querySelector('[data-quiz-block-modify-level]');
   const kindLabels = {};
@@ -590,6 +600,7 @@ function initializeQuizBlockModification() {
         currentField: 'currentItem',
         discardEndpoint: `${baseEndpoint}/discard`,
         extraFields: () => ({
+          attachmentIds: (blockAttachments?.getIds() ?? []).join(','),
           kind: kindSelectEl instanceof HTMLSelectElement ? kindSelectEl.value : currentItem.kind,
           level: levelInputEl instanceof HTMLInputElement ? levelInputEl.value : '',
         }),
@@ -608,6 +619,8 @@ function initializeQuizBlockModification() {
     },
     triggers,
   });
+
+  modalEl.addEventListener('hidden.bs.modal', () => blockAttachments?.clear());
 }
 
 function initializeQuizQuizUi() {
@@ -999,4 +1012,3 @@ initializeQuizBlockModification();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
 initializeStaticMarkdown();
-initializeAttachmentPicker();

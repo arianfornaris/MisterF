@@ -1,11 +1,4 @@
 {
-  "_attachmentPicker-Ds5K_AAQ.js": {
-    "file": "chunks/attachmentPicker-Ds5K_AAQ.js",
-    "name": "attachmentPicker",
-    "imports": [
-      "_i18n-B0EnNoHg.js"
-    ]
-  },
   "_createResourceFromContext-BFMDI3n-.js": {
     "file": "chunks/createResourceFromContext-BFMDI3n-.js",
     "name": "createResourceFromContext",
@@ -21,43 +14,45 @@
     "file": "chunks/listGroupDropdownStacking-B_4Fb5dR.js",
     "name": "listGroupDropdownStacking"
   },
-  "_markdownEditor-CTSSsNBp.js": {
-    "file": "chunks/markdownEditor-CTSSsNBp.js",
+  "_markdownEditor-DZWW8tch.js": {
+    "file": "chunks/markdownEditor-DZWW8tch.js",
     "name": "markdownEditor",
     "imports": [
-      "_staticMarkdown-D_MJ3gU_.js"
+      "_staticMarkdown-DuiaumsP.js"
     ]
   },
   "_modificationModal-CYOf7I6K.js": {
     "file": "chunks/modificationModal-CYOf7I6K.js",
     "name": "modificationModal"
   },
-  "_quizItemRenderer-D6bPhz9p.js": {
-    "file": "chunks/quizItemRenderer-D6bPhz9p.js",
+  "_quizItemRenderer-UIHUK0cB.js": {
+    "file": "chunks/quizItemRenderer-UIHUK0cB.js",
     "name": "quizItemRenderer",
     "imports": [
       "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-D_MJ3gU_.js"
+      "_staticMarkdown-DuiaumsP.js"
     ]
   },
   "_resourceMoveModal-DArnkOca.js": {
     "file": "chunks/resourceMoveModal-DArnkOca.js",
     "name": "resourceMoveModal"
   },
-  "_staticMarkdown-D_MJ3gU_.js": {
-    "file": "chunks/staticMarkdown-D_MJ3gU_.js",
-    "name": "staticMarkdown"
+  "_staticMarkdown-DuiaumsP.js": {
+    "file": "chunks/staticMarkdown-DuiaumsP.js",
+    "name": "staticMarkdown",
+    "imports": [
+      "_i18n-B0EnNoHg.js"
+    ]
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-849sLJQ5.js",
+    "file": "entries/chat-B2ClLk2m.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
       "_i18n-B0EnNoHg.js",
-      "_attachmentPicker-Ds5K_AAQ.js",
-      "_staticMarkdown-D_MJ3gU_.js",
-      "_quizItemRenderer-D6bPhz9p.js"
+      "_staticMarkdown-DuiaumsP.js",
+      "_quizItemRenderer-UIHUK0cB.js"
     ]
   },
   "src/client/mediaLibrary/index.js": {
@@ -67,57 +62,54 @@
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-Dq6jInyn.js",
+    "file": "entries/practice-guides-CmS8W_sS.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-CTSSsNBp.js",
+      "_markdownEditor-DZWW8tch.js",
       "_i18n-B0EnNoHg.js",
-      "_attachmentPicker-Ds5K_AAQ.js",
-      "_staticMarkdown-D_MJ3gU_.js",
+      "_staticMarkdown-DuiaumsP.js",
       "_resourceMoveModal-DArnkOca.js",
       "_modificationModal-CYOf7I6K.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-CeRV_W_g.js",
+    "file": "entries/quizzes-U3So6cYz.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
       "_i18n-B0EnNoHg.js",
-      "_attachmentPicker-Ds5K_AAQ.js",
-      "_staticMarkdown-D_MJ3gU_.js",
-      "_quizItemRenderer-D6bPhz9p.js",
+      "_staticMarkdown-DuiaumsP.js",
+      "_quizItemRenderer-UIHUK0cB.js",
       "_createResourceFromContext-BFMDI3n-.js",
       "_resourceMoveModal-DArnkOca.js",
       "_modificationModal-CYOf7I6K.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-W1TScRWp.js",
+    "file": "entries/resources-Dgjixs4w.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
       "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-D_MJ3gU_.js",
+      "_staticMarkdown-DuiaumsP.js",
       "_resourceMoveModal-DArnkOca.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-CFKMJOHe.js",
+    "file": "entries/roleplays-oznkcCVq.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-CTSSsNBp.js",
+      "_markdownEditor-DZWW8tch.js",
       "_i18n-B0EnNoHg.js",
-      "_attachmentPicker-Ds5K_AAQ.js",
-      "_staticMarkdown-D_MJ3gU_.js",
+      "_staticMarkdown-DuiaumsP.js",
       "_createResourceFromContext-BFMDI3n-.js",
       "_resourceMoveModal-DArnkOca.js",
       "_modificationModal-CYOf7I6K.js"

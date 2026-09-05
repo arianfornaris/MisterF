@@ -675,6 +675,7 @@ export async function handlePreviewRoleplayModification(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generateRoleplayRevision({
+      attachments: claimRequestAttachments(request, resolved.user.id),
       instructionLanguage: resolved.activeProfile.instructionLanguage,
       currentDraft,
       modelTier: resolved.activeProfile?.modelTier,

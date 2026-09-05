@@ -1,4 +1,6 @@
 import { generateText } from 'ai';
+import { readAttachmentDigests } from '../attachments/persistence.js';
+import { buildUserContentWithAttachments } from '../attachments/modelParts.js';
 import { defaultProfileModelTier, } from '../profiles/modelTier.js';
 import { z } from 'zod';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmCost, logLlmResponse, shouldLogFullLlmTrace, } from './llmTutor/logging.js';
@@ -73,11 +75,23 @@ function sanitizeTutorReportLogDetails(details) {
     delete sanitized.userName;
     return sanitized;
 }
+/**
+ * Builds the transcript the report is written from.
+ *
+ * Attachments are included: a document the learner attached is still live
+ * context for the tutor, so a report that cannot see it would summarize a
+ * conversation without knowing what it was about. The report is not obliged to
+ * mention it — the model decides what matters — but it must be able to.
+ */
 function formatTutorTranscript(messages) {
     return messages
         .map((message) => {
         const speaker = message.role === 'user' ? 'Learner' : 'Mister F';
-        return `${speaker}: ${message.content}`;
+        const content = buildUserContentWithAttachments({
+            attachments: readAttachmentDigests(message.metadata?.attachments),
+            text: message.content,
+        });
+        return `${speaker}: ${content}`;
     })
         .join('\n\n');
 }

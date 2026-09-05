@@ -152,6 +152,7 @@
             placeholder="<%= t('practiceGuides.modificationPlaceholder') %>"
           ></textarea>
           <div class="form-text"><%= t('practiceGuides.modificationHelp') %></div>
+          <%- include('partials/attachment-picker', { partOnly: 'trigger', wizardId: 'guideModifyAttachmentWizard' }) %>
         </div>
 
         <div class="text-center py-4 d-none" data-modify-phase="generating">
@@ -217,3 +218,5 @@
 </div>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'practice-guides-client-script' }) %>
+
+<%- include('partials/attachment-picker', { partOnly: 'wizard', wizardId: 'guideModifyAttachmentWizard' }) %>

@@ -1,4 +1,7 @@
 import type { Request, Response } from 'express';
+import { readAttachmentDigests } from '../attachments/persistence.js';
+import { buildUserContentWithAttachments } from '../attachments/modelParts.js';
+import { claimRequestAttachments } from '../attachments/requestAttachments.js';
 import {
   addMessage,
   closeConversationForUser,
@@ -272,6 +275,7 @@ export async function handleCreateResourceFromTutorConversationReport(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
     created = await createResourceFromContextDraft({
+      attachments: claimRequestAttachments(request, user.id),
       openRouterApiKey,
       profileId: conversation.profileId,
       prompt,
@@ -345,6 +349,7 @@ export async function handleCreateResourceFromConversation(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
     created = await createResourceFromContextDraft({
+      attachments: claimRequestAttachments(request, user.id),
       openRouterApiKey,
       profileId: conversation.profileId,
       prompt,
@@ -403,12 +408,26 @@ function appendConversationResourceLinkMessage(input: {
   });
 }
 
+/**
+ * Builds the conversation context a new resource is generated from.
+ *
+ * Attachments are included for the same reason the report includes them: a
+ * document the learner attached is part of the conversation, and a quiz built
+ * from that conversation while blind to the worksheet it was about would be
+ * worse. The resource itself must still never mention the source — that is
+ * enforced by passing the digests through as attachments so the authoring rules
+ * are appended.
+ */
 function formatConversationTranscript(messages: StoredMessage[]): string {
   const recent = messages.slice(-40);
   const transcript = recent
     .map((message) => {
       const speaker = message.role === 'user' ? 'Learner' : 'Mister F';
-      return `${speaker}: ${message.content}`;
+      const content = buildUserContentWithAttachments({
+        attachments: readAttachmentDigests(message.metadata?.attachments),
+        text: message.content,
+      });
+      return `${speaker}: ${content}`;
     })
     .join('\n\n');
 

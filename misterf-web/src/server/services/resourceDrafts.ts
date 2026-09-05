@@ -407,6 +407,7 @@ export async function generatePracticeGuideDraft(input: {
 }
 
 export async function generatePracticeGuideRevision(input: {
+  attachments?: AttachmentInput[];
   currentPracticeGuide: PracticeGuideDraft;
   instructionLanguage?: Locale;
   modelTier?: ProfileModelTier;
@@ -415,6 +416,7 @@ export async function generatePracticeGuideRevision(input: {
 }): Promise<PracticeGuideRevisionResult> {
   return generateStructuredDraft({
     actorLabel: 'Practice guide revision',
+    attachments: input.attachments,
     correctionPromptPath: 'resources/practice-guide-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
@@ -781,6 +783,7 @@ export function buildQuizRevisionScopeRules(scope: QuizRevisionScope): string {
  * `item.kind` is enforced to equal `targetKind`.
  */
 export async function generateQuizBlockRevision(input: {
+  attachments?: AttachmentInput[];
   currentItem?: TutorQuizItem;
   instructionLanguage?: Locale;
   level: string;
@@ -800,6 +803,7 @@ export async function generateQuizBlockRevision(input: {
 
   return generateStructuredDraft({
     actorLabel: input.currentItem ? 'Quiz block revision' : 'Quiz block creation',
+    attachments: input.attachments,
     correctionPromptPath: 'resources/quiz-block-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
@@ -845,6 +849,7 @@ export async function generateRoleplayDraft(input: {
 }
 
 export async function generateRoleplayRevision(input: {
+  attachments?: AttachmentInput[];
   conversationHistory?: RoleplayRevisionConversationMessage[];
   currentDraft: RoleplayDraft;
   instructionLanguage?: Locale;
@@ -855,6 +860,7 @@ export async function generateRoleplayRevision(input: {
   const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
   return generateStructuredDraft({
     actorLabel: 'Roleplay revision',
+    attachments: input.attachments,
     correctionPromptPath: 'resources/roleplay-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {

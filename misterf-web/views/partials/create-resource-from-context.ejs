@@ -57,6 +57,7 @@
             maxlength="2000"
             placeholder="<%= t('createResource.promptPlaceholderResult') %>"
           ></textarea>
+          <%- include('attachment-picker', { partOnly: 'trigger', wizardId: 'contextResourceAttachmentWizard' }) %>
         </div>
         <div class="modal-footer">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -76,3 +77,5 @@
     </div>
   </div>
 </div>
+
+<%- include('attachment-picker', { partOnly: 'wizard', wizardId: 'contextResourceAttachmentWizard' }) %>

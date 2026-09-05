@@ -308,6 +308,7 @@
                       maxlength="2000"
                       placeholder="<%= t('createResource.promptPlaceholder') %>"
                     ></textarea>
+                    <%- include('attachment-picker', { partOnly: 'trigger', wizardId: 'conversationResourceAttachmentWizard' }) %>
                   </div>
                   <div class="modal-footer">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -564,3 +565,5 @@
               </div>
             </div>
           </div>
+
+<%- include('attachment-picker', { partOnly: 'wizard', wizardId: 'conversationResourceAttachmentWizard' }) %>

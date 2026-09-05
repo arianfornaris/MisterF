@@ -790,6 +790,7 @@ export async function handlePreviewPracticeGuideModification(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generatePracticeGuideRevision({
+      attachments: claimRequestAttachments(request, resolved.user.id),
       instructionLanguage: resolved.activeProfile?.instructionLanguage,
       currentPracticeGuide: currentDraft,
       modelTier: resolved.activeProfile?.modelTier,

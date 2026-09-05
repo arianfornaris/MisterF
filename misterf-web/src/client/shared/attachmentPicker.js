@@ -45,9 +45,36 @@ function formatSize(bytes) {
     : `${(kilobytes / 1024).toFixed(1)} MB`;
 }
 
+/**
+ * Wires every attach control in `root`, pairing each with the wizard it names.
+ *
+ * A page can hold several — the quiz edit page has one per AI operation — and
+ * pairing by id is what stops a control from driving someone else's wizard, or
+ * from being skipped because another one happened to come first in the DOM.
+ *
+ * Returns a Map keyed by wizard id.
+ */
+export function initializeAttachmentPickers(root = document) {
+  const handles = new Map();
+  for (const picker of root.querySelectorAll('[data-attachment-picker]')) {
+    const wizardId = picker.getAttribute('data-attachment-picker') || '';
+    const wizard = wizardId ? document.getElementById(wizardId) : null;
+    const handle = wirePicker(picker, wizard);
+    if (handle) {
+      handles.set(wizardId, handle);
+    }
+  }
+  return handles;
+}
+
+/** Convenience for a surface that has exactly one control. */
 export function initializeAttachmentPicker(root = document) {
   const picker = root.querySelector('[data-attachment-picker]');
-  const wizard = root.querySelector('[data-attachment-wizard]');
+  const wizardId = picker?.getAttribute('data-attachment-picker') || '';
+  return wirePicker(picker, wizardId ? document.getElementById(wizardId) : null);
+}
+
+function wirePicker(picker, wizard) {
   if (!picker || !wizard) {
     return null;
   }

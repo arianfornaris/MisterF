@@ -1,4 +1,5 @@
 import { t } from '../shared/i18n.js';
+import { initializeAttachmentPickers } from '../shared/attachmentPicker.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
@@ -136,3 +137,6 @@ initializeSharedResourceStart();
 initializeResourceMoveModal();
 initializeListGroupDropdownStacking();
 initializeStaticMarkdown();
+
+// The app shell carries a create-resource control on every page.
+initializeAttachmentPickers();

@@ -272,6 +272,7 @@ export async function generatePracticeGuideDraft(input) {
 export async function generatePracticeGuideRevision(input) {
     return generateStructuredDraft({
         actorLabel: 'Practice guide revision',
+        attachments: input.attachments,
         correctionPromptPath: 'resources/practice-guide-revision-correction.md',
         initialUserMessage: JSON.stringify({
             currentPracticeGuide: input.currentPracticeGuide,
@@ -528,6 +529,7 @@ export async function generateQuizBlockRevision(input) {
         .strict();
     return generateStructuredDraft({
         actorLabel: input.currentItem ? 'Quiz block revision' : 'Quiz block creation',
+        attachments: input.attachments,
         correctionPromptPath: 'resources/quiz-block-revision-correction.md',
         initialUserMessage: JSON.stringify({
             ...(input.currentItem ? { currentItem: input.currentItem } : {}),
@@ -564,6 +566,7 @@ export async function generateRoleplayRevision(input) {
     const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
     return generateStructuredDraft({
         actorLabel: 'Roleplay revision',
+        attachments: input.attachments,
         correctionPromptPath: 'resources/roleplay-revision-correction.md',
         initialUserMessage: JSON.stringify({
             conversationHistory: normalizeRoleplayRevisionConversationHistory(input.conversationHistory ?? []),

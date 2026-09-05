@@ -1,5 +1,5 @@
 import { t } from '../shared/i18n.js';
-import { initializeAttachmentPicker } from '../shared/attachmentPicker.js';
+import { initializeAttachmentPickers } from '../shared/attachmentPicker.js';
 import { ChatState } from './app/ChatState.js';
 import { createChatRuntime } from './app/ChatRuntime.js';
 import { chatSocketEvents } from './constants/events.js';
@@ -135,7 +135,10 @@ const conversationListView = new ConversationListView({
   },
   panelEl: conversationPanelEl,
 });
-const attachmentPicker = initializeAttachmentPicker();
+// Wires every control on the page — the composer's plus the
+// create-resource-from-conversation one in the app shell.
+const attachmentPickers = initializeAttachmentPickers();
+const attachmentPicker = attachmentPickers.get('attachmentWizardCompact');
 
 const composerView = new ComposerView({
   composerEl: formEl,

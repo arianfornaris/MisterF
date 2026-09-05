@@ -222,6 +222,7 @@
             placeholder="<%= t('quizzes.addBlockPlaceholder') %>"
           ></textarea>
           <div class="form-text"><%= t('quizzes.addBlockHelp') %></div>
+          <%- include('partials/attachment-picker', { partOnly: 'trigger', wizardId: 'quizAddBlockAttachmentWizard' }) %>
         </div>
 
         <div class="text-center py-4 d-none" data-modify-phase="generating">
@@ -425,6 +426,7 @@
             placeholder="<%= t('quizzes.modifyBlockPlaceholder') %>"
           ></textarea>
           <div class="form-text"><%= t('quizzes.modifyBlockHelp') %></div>
+          <%- include('partials/attachment-picker', { partOnly: 'trigger', wizardId: 'quizBlockModifyAttachmentWizard' }) %>
         </div>
 
         <div class="text-center py-4 d-none" data-modify-phase="generating">
@@ -479,3 +481,7 @@
 <%- include('partials/app-shell-close', { pageScriptPartial: 'quizzes-client-script' }) %>
 
 <%- include('partials/attachment-picker', { partOnly: 'wizard', wizardId: 'quizModifyAttachmentWizard' }) %>
+
+<%- include('partials/attachment-picker', { partOnly: 'wizard', wizardId: 'quizAddBlockAttachmentWizard' }) %>
+
+<%- include('partials/attachment-picker', { partOnly: 'wizard', wizardId: 'quizBlockModifyAttachmentWizard' }) %>
