@@ -1044,6 +1044,35 @@ attachment library, no re-use of a previously uploaded document, and no need for
 a revision modal to show material from the creation step. Anyone who wants the
 same worksheet in a second operation attaches it again.
 
+**Attachments do not propagate into derived entities — founder decision,
+2026-09-05.** An attachment belongs to the prompt it was attached to, and stops
+there. It is not carried into whatever that prompt produced.
+
+Audited 2026-09-05, and the shipped behaviour already matches:
+
+| Inference | Sees the attachment? | |
+| --- | --- | --- |
+| Tutor agent loop | yes | the digest is rehydrated from `messages.metadata` onto its own turn |
+| Resource creation and quiz modification | on that request only | single-turn; consumed and gone |
+| Roleplay attempt turns | no | receives the stored draft, never the material that produced it |
+| Block repair | no | `buildRepairMessages()` sends a fixed instruction with no history |
+| Conversation report | no | `formatTutorTranscript` reads `message.content` |
+| Create resource from conversation | no | `formatConversationTranscript` reads `message.content` |
+
+Chat is the one place an attachment persists, because there the prompt itself
+persists: the block representing it is part of the turn. Even so, a summary is
+not obliged to cover it.
+
+One nuance to keep straight, since it is easy to misremember: in the last two
+rows the model is not *choosing* to leave the attachment out. The digest lives
+in `metadata` and those transcripts are built from `content`, so it never
+reaches the model at all. If it should ever become the model's judgement rather
+than an absence, that is a change, not the current state.
+
+A useful side effect: because those transcripts never carry the fenced
+`ATTACHED DOCUMENT` block, the provenance leak fixed on 2026-09-04 cannot
+reappear through the create-resource-from-conversation path.
+
 ### Shipped in the first pass
 
 - [x] Ingestion layer: sniffing by magic bytes, `sharp` image normalization
