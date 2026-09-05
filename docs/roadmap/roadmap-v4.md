@@ -1351,7 +1351,7 @@ roughly 60 extractions.
 | --- | --- | --- | --- | --- |
 | S1 | New quiz | `/quizzes/new` | `generateQuizDraft` | **PDF confirmed working 2026-08-30** |
 | S2 | New roleplay | `/roleplays/new` | `generateRoleplayDraft` | untested |
-| S3 | New practice guide | `/practice-guides/new` | `generatePracticeGuideDraft` | untested |
+| S3 | New practice guide | `/practice-guides/new` | `generatePracticeGuideDraft` | **PDF confirmed working 2026-09-05** |
 | S4 | Tutor chat | `/chat` composer | `runTutorAgentLoop` | **PDF confirmed working 2026-08-30** |
 | S5 | Quiz `Modify with AI` | `/quizzes/:id/edit` | `generateQuiz*Revision` | **not implemented** — see §1.15 |
 
@@ -1359,9 +1359,12 @@ S1–S3 share one call site (`resourceDrafts.ts`), so a bug in one is very likel
 in all three; S4 is a genuinely separate path (socket, message metadata,
 persistence across turns) and deserves the most attention.
 
-**Founder QA, 2026-08-30:** PDF attachment confirmed working end to end on both
-S1 and S4. Since S2 and S3 run through the same call site as S1, the remaining
-risk there is in their prompts and drafts rather than in the attachment path.
+**Founder QA, 2026-08-30:** PDF attachment confirmed working end to end on S1
+and S4. **2026-09-05:** S3 confirmed with PDF as well; its image path was also
+exercised while fixing the provenance leak below. S2 is the only creation
+surface still untested, and since it runs through the same call site as S1 and
+S3, the remaining risk there is in its own prompt and draft rather than in the
+attachment path.
 
 **S5 is a gap, not a bug.** The attach control was wired into the three `new`
 pages and the chat composer, but **not** into the quiz `Modify with AI`
