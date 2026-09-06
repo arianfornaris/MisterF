@@ -21,8 +21,8 @@
       "_staticMarkdown-DuiaumsP.js"
     ]
   },
-  "_modificationModal-CYOf7I6K.js": {
-    "file": "chunks/modificationModal-CYOf7I6K.js",
+  "_modificationModal-Dfti3vse.js": {
+    "file": "chunks/modificationModal-Dfti3vse.js",
     "name": "modificationModal"
   },
   "_quizItemRenderer-UIHUK0cB.js": {
@@ -62,7 +62,7 @@
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-CmS8W_sS.js",
+    "file": "entries/practice-guides-C_1_vquS.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
@@ -71,12 +71,12 @@
       "_i18n-B0EnNoHg.js",
       "_staticMarkdown-DuiaumsP.js",
       "_resourceMoveModal-DArnkOca.js",
-      "_modificationModal-CYOf7I6K.js",
+      "_modificationModal-Dfti3vse.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-U3So6cYz.js",
+    "file": "entries/quizzes-B_Cf5TBU.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
@@ -86,7 +86,7 @@
       "_quizItemRenderer-UIHUK0cB.js",
       "_createResourceFromContext-BFMDI3n-.js",
       "_resourceMoveModal-DArnkOca.js",
-      "_modificationModal-CYOf7I6K.js"
+      "_modificationModal-Dfti3vse.js"
     ]
   },
   "src/client/resources/index.js": {
@@ -102,7 +102,7 @@
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-oznkcCVq.js",
+    "file": "entries/roleplays-DpgwLUOX.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
@@ -112,7 +112,7 @@
       "_staticMarkdown-DuiaumsP.js",
       "_createResourceFromContext-BFMDI3n-.js",
       "_resourceMoveModal-DArnkOca.js",
-      "_modificationModal-CYOf7I6K.js"
+      "_modificationModal-Dfti3vse.js"
     ]
   },
   "src/client/signup/index.js": {

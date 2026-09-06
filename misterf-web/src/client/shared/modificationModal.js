@@ -273,14 +273,22 @@ export function initializeModificationModal(config) {
     } catch {
       showError('');
     } finally {
-      isBusy = false;
-      applyButtonEl.disabled = false;
-      applyLabelEl.textContent = modalEl.dataset.applyLabel || '';
-      applySpinnerEl.classList.add('d-none');
-      applyIconEl.classList.remove('d-none');
-      retryButtonEl.disabled = false;
-      for (const button of dismissButtons) {
-        button.disabled = false;
+      // `window.location.assign` does not block, so on success the browser is
+      // still loading the next page when this runs. Restoring the idle state
+      // here would drop the spinner and re-enable the buttons under a modal
+      // that is on its way out, which reads as an operation that silently
+      // stopped — the same confusion the wait-state rule exists to prevent.
+      // Leave the busy state up and let the navigation replace the page.
+      if (!applied) {
+        isBusy = false;
+        applyButtonEl.disabled = false;
+        applyLabelEl.textContent = modalEl.dataset.applyLabel || '';
+        applySpinnerEl.classList.add('d-none');
+        applyIconEl.classList.remove('d-none');
+        retryButtonEl.disabled = false;
+        for (const button of dismissButtons) {
+          button.disabled = false;
+        }
       }
     }
   });
