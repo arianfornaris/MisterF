@@ -270,17 +270,132 @@ describe('order_sentences schema', () => {
 });
 
 describe('multiple_choice answer-key validation', () => {
-  it('rejects a single-selection block where every option is marked correct, with menu guidance', () => {
+  const menuOptions = [
+    'Practicar conversación',
+    'Repasar vocabulario',
+    'Hacer una prueba',
+  ];
+
+  function validateMenuBlock(isCorrect: boolean) {
+    return validateTutorResponseBlocks({
+      blocks: [
+        {
+          options: menuOptions.map((text) => ({ isCorrect, text })),
+          question: '¿Cómo prefieres continuar?',
+          selectionMode: 'single',
+          type: 'multiple_choice',
+        },
+      ],
+    });
+  }
+
+  it('degrades a menu with every option correct into a message', () => {
+    const blocks = validateMenuBlock(true);
+
+    expect(blocks).toEqual([
+      {
+        markdown: [
+          '¿Cómo prefieres continuar?',
+          '',
+          '- Practicar conversación',
+          '- Repasar vocabulario',
+          '- Hacer una prueba',
+        ].join('\n'),
+        type: 'message',
+      },
+    ]);
+  });
+
+  it('degrades a menu with no option correct into a message', () => {
+    expect(validateMenuBlock(false)).toEqual([
+      {
+        markdown: [
+          '¿Cómo prefieres continuar?',
+          '',
+          '- Practicar conversación',
+          '- Repasar vocabulario',
+          '- Hacer una prueba',
+        ].join('\n'),
+        type: 'message',
+      },
+    ]);
+  });
+
+  it('keeps the prompt above the question when degrading a menu', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        {
+          options: [
+            { isCorrect: false, text: 'Café' },
+            { isCorrect: false, text: 'Té' },
+          ],
+          prompt: 'Elige lo que prefieras.',
+          question: '¿Qué quieres tomar?',
+          selectionMode: 'single',
+          type: 'multiple_choice',
+        },
+      ],
+    });
+
+    expect(blocks).toEqual([
+      {
+        markdown: 'Elige lo que prefieras.\n\n¿Qué quieres tomar?\n\n- Café\n- Té',
+        type: 'message',
+      },
+    ]);
+  });
+
+  it('widens the selection mode when only some options are correct', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        {
+          options: [
+            { isCorrect: true, text: 'goes' },
+            { isCorrect: true, text: 'walks' },
+            { isCorrect: false, text: 'go' },
+          ],
+          question: 'Which verbs are conjugated for "she"?',
+          selectionMode: 'single',
+          type: 'multiple_choice',
+        },
+      ],
+    });
+
+    expect(blocks).toEqual([
+      {
+        options: [
+          { isCorrect: true, text: 'goes' },
+          { isCorrect: true, text: 'walks' },
+          { isCorrect: false, text: 'go' },
+        ],
+        question: 'Which verbs are conjugated for "she"?',
+        selectionMode: 'multiple',
+        type: 'multiple_choice',
+      },
+    ]);
+  });
+
+  it('leaves a well-formed single-answer block untouched', () => {
+    const block = {
+      options: [
+        { isCorrect: true, text: 'goes' },
+        { isCorrect: false, text: 'go' },
+      ],
+      question: 'She ___ to school.',
+      selectionMode: 'single',
+      type: 'multiple_choice',
+    };
+
+    expect(validateTutorResponseBlocks({ blocks: [block] })).toEqual([block]);
+  });
+
+  it('still rejects a block whose options are malformed', () => {
     let caught: unknown;
     try {
       validateTutorResponseBlocks({
         blocks: [
           {
-            options: [
-              { isCorrect: true, text: 'Practicar conversación' },
-              { isCorrect: true, text: 'Repasar vocabulario' },
-              { isCorrect: true, text: 'Hacer una prueba' },
-            ],
+            options: [{ isCorrect: false, text: '' }, { isCorrect: false, text: '' }],
             question: '¿Cómo prefieres continuar?',
             selectionMode: 'single',
             type: 'multiple_choice',
@@ -292,9 +407,6 @@ describe('multiple_choice answer-key validation', () => {
     }
 
     expect(caught).toBeInstanceOf(TutorResponseValidationError);
-    const issues = (caught as TutorResponseValidationError).issues;
-    expect(issues[0].message).toMatch(/exactly one correct option/);
-    expect(issues[0].message).toMatch(/preference or menu question/);
   });
 });
 

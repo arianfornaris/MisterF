@@ -168,3 +168,53 @@ describe('multi-exercise batch detection', () => {
     expect(detectMultiExerciseBatch([messageBlock])).toEqual([]);
   });
 });
+
+describe('message task leakage exemption for rendered blocks', () => {
+  const leakingMessage: TutorAgentResponseBlock = {
+    markdown: 'Escribe una oración con "used to" sobre tu infancia.',
+    type: 'message',
+  };
+
+  it('flags the leak when the response carries no matching typed block', () => {
+    expect(
+      detectMessageTaskLeakage([leakingMessage]).map((issue) => issue.kind),
+    ).toEqual(['open_text_prompt']);
+  });
+
+  it('does not flag a message that narrates a task the response also renders', () => {
+    const openTextBlock: TutorAgentResponseBlock = {
+      prompt: 'Escribe una oración con "used to" sobre tu infancia.',
+      type: 'open_text_prompt',
+    };
+
+    expect(detectMessageTaskLeakage([leakingMessage, openTextBlock])).toEqual([]);
+  });
+
+  it('accepts a quiz block as the rendered form of the narrated task', () => {
+    const quizBlock: TutorAgentResponseBlock = {
+      items: [{ kind: 'quiz_open_text', prompt: 'Describe your childhood.' }],
+      prompt: 'Answer the question.',
+      type: 'quiz',
+    };
+
+    expect(detectMessageTaskLeakage([leakingMessage, quizBlock])).toEqual([]);
+  });
+
+  it('still flags a leak whose expected block type is absent', () => {
+    const multipleChoiceBlock: TutorAgentResponseBlock = {
+      options: [
+        { isCorrect: true, text: 'goes' },
+        { isCorrect: false, text: 'go' },
+      ],
+      question: 'She ___ to school.',
+      selectionMode: 'single',
+      type: 'multiple_choice',
+    };
+
+    expect(
+      detectMessageTaskLeakage([leakingMessage, multipleChoiceBlock]).map(
+        (issue) => issue.kind,
+      ),
+    ).toEqual(['open_text_prompt']);
+  });
+});

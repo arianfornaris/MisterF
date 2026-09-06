@@ -112,7 +112,18 @@ export function validateTutorResponseBlocks(
     userId?: string | null;
   } = {},
 ): TutorAgentResponseBlock[] {
-  const parsed = tutorAgentResponseSchema.safeParse(sanitizeTutorResponse(value));
+  const salvages: TutorBlockSalvage[] = [];
+  const sanitized = sanitizeTutorResponse(value, salvages);
+  if (salvages.length > 0) {
+    logger.warn('llm_tutor_block_salvaged', {
+      conversationId: options.conversationId ?? null,
+      operation: options.operation ?? 'tutor',
+      salvages,
+      userId: options.userId ?? options.llm?.userId ?? null,
+    });
+  }
+
+  const parsed = tutorAgentResponseSchema.safeParse(sanitized);
   if (!parsed.success) {
     const fullTrace = shouldLogFullLlmTrace({
       conversationId: options.conversationId,
@@ -179,7 +190,24 @@ function summarizeInvalidTutorResponse(value: unknown): unknown {
   };
 }
 
-function sanitizeTutorResponse(value: unknown): unknown {
+/**
+ * A block the sanitizer rewrote rather than letting the schema reject the whole
+ * response. Logged as `llm_tutor_block_salvaged` so a model that keeps needing
+ * the same rescue stays visible instead of silently passing.
+ */
+type TutorBlockSalvage = {
+  blockIndex: number;
+  correctOptionCount: number;
+  kind:
+    | 'multiple_choice_without_answer_key'
+    | 'multiple_choice_selection_mode_widened';
+  optionCount: number;
+};
+
+function sanitizeTutorResponse(
+  value: unknown,
+  salvages: TutorBlockSalvage[],
+): unknown {
   if (!value || typeof value !== 'object') {
     return value;
   }
@@ -192,12 +220,16 @@ function sanitizeTutorResponse(value: unknown): unknown {
   return {
     ...record,
     blocks: record.blocks
-      .map((block) => sanitizeTutorResponseBlock(block))
+      .map((block, blockIndex) => sanitizeTutorResponseBlock(block, blockIndex, salvages))
       .filter((block) => block !== null),
   };
 }
 
-function sanitizeTutorResponseBlock(block: unknown): unknown | null {
+function sanitizeTutorResponseBlock(
+  block: unknown,
+  blockIndex: number,
+  salvages: TutorBlockSalvage[],
+): unknown | null {
   if (!block || typeof block !== 'object') {
     return block;
   }
@@ -209,6 +241,10 @@ function sanitizeTutorResponseBlock(block: unknown): unknown | null {
 
   if (record.type === 'tutor_plan_update') {
     return sanitizeTutorPlanUpdateBlock(record);
+  }
+
+  if (record.type === 'multiple_choice') {
+    return sanitizeMultipleChoiceBlock(record, blockIndex, salvages);
   }
 
   if (record.type !== 'sentence_evaluation' || !Array.isArray(record.parts)) {
@@ -232,6 +268,110 @@ function sanitizeTutorResponseBlock(block: unknown): unknown | null {
     ...record,
     parts: cleanedParts,
   };
+}
+
+/** `messageBlockSchema` caps `markdown`; a degraded block must respect it. */
+const messageBlockMarkdownMaxLength = 5000;
+
+/**
+ * Rescue the two `multiple_choice` shapes the schema refuses.
+ *
+ * A block with no answer key — nothing marked correct, or everything marked
+ * correct — is a preference or menu question ("¿qué quieres practicar?"). It
+ * has no wrong answer, so it is not an exercise, and the protocol asks for it
+ * as plain text. In production the correction turns kept repainting `isCorrect`
+ * instead of changing the block type, burning five round-trips before the
+ * learner saw an error, so render it as the `message` it should have been.
+ *
+ * A block where only *some* options are correct under `selectionMode: "single"`
+ * is a sound multi-answer exercise with the wrong mode; widen the mode instead
+ * of throwing the question away.
+ *
+ * Anything else malformed is left for the schema to reject.
+ */
+function sanitizeMultipleChoiceBlock(
+  record: { type?: unknown },
+  blockIndex: number,
+  salvages: TutorBlockSalvage[],
+): unknown {
+  const source = record as {
+    options?: unknown;
+    prompt?: unknown;
+    question?: unknown;
+    selectionMode?: unknown;
+  };
+  if (!Array.isArray(source.options) || source.options.length === 0) {
+    return record;
+  }
+
+  const options = source.options.map((option) => (
+    option && typeof option === 'object'
+      ? (option as { isCorrect?: unknown; text?: unknown })
+      : null
+  ));
+  const optionTexts = options.map((option) => (
+    option && typeof option.text === 'string' ? option.text.trim() : ''
+  ));
+  if (optionTexts.some((text) => text.length === 0)) {
+    return record;
+  }
+
+  const correctOptionCount = options.filter(
+    (option) => option?.isCorrect === true,
+  ).length;
+
+  // A menu has no answer key: either nothing is marked correct, or everything
+  // is. Both shapes mean the block is not an exercise.
+  const isMenuQuestion =
+    correctOptionCount === 0 || correctOptionCount === optionTexts.length;
+  if (isMenuQuestion) {
+    const markdown = buildDegradedChoiceMarkdown(source, optionTexts);
+    if (!markdown) {
+      return record;
+    }
+
+    salvages.push({
+      blockIndex,
+      correctOptionCount,
+      kind: 'multiple_choice_without_answer_key',
+      optionCount: optionTexts.length,
+    });
+    return {
+      markdown,
+      type: 'message',
+    };
+  }
+
+  if (source.selectionMode === 'single' && correctOptionCount > 1) {
+    salvages.push({
+      blockIndex,
+      correctOptionCount,
+      kind: 'multiple_choice_selection_mode_widened',
+      optionCount: optionTexts.length,
+    });
+    return {
+      ...source,
+      selectionMode: 'multiple',
+    };
+  }
+
+  return record;
+}
+
+function buildDegradedChoiceMarkdown(
+  source: { prompt?: unknown; question?: unknown },
+  optionTexts: string[],
+): string {
+  const prompt = typeof source.prompt === 'string' ? source.prompt.trim() : '';
+  const question =
+    typeof source.question === 'string' ? source.question.trim() : '';
+  const list = optionTexts.map((text) => `- ${text}`).join('\n');
+
+  return [prompt, question, list]
+    .filter((part) => part.length > 0)
+    .join('\n\n')
+    .slice(0, messageBlockMarkdownMaxLength)
+    .trim();
 }
 
 /**
