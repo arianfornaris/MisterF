@@ -31,16 +31,29 @@ const interactiveExerciseBlockTypes = new Set([
 ]);
 export function detectMessageTaskLeakage(blocks, instructionLanguage = defaultInstructionLanguage) {
     const patterns = languages[instructionLanguage].leakagePatterns;
+    const presentBlockTypes = new Set(blocks.map((block) => block.type));
     return blocks.flatMap((block, blockIndex) => {
         if (block.type !== 'message') {
             return [];
         }
-        return detectMessageIssues(block.markdown, patterns).map((issue) => ({
+        return detectMessageIssues(block.markdown, patterns)
+            .filter((issue) => !isAlreadyRenderedAsTypedBlock(issue, presentBlockTypes))
+            .map((issue) => ({
             ...issue,
             blockIndex,
             excerpt: buildExcerpt(block.markdown),
         }));
     });
+}
+/**
+ * A message that words a task the same response also renders as a typed block
+ * is narrating it, not simulating it. Without this exemption the repair loop
+ * cannot converge: the repair adds the expected block but keeps the wording in
+ * the message, the detector fires again, and after `maxRepairAttempts` the
+ * learner gets an error instead of the exercise that was already there.
+ */
+function isAlreadyRenderedAsTypedBlock(issue, presentBlockTypes) {
+    return issue.expectedBlockTypes.some((type) => presentBlockTypes.has(type));
 }
 export function detectMultiExerciseBatch(blocks) {
     const exerciseIndexes = blocks.flatMap((block, blockIndex) => (interactiveExerciseBlockTypes.has(block.type) ? [blockIndex] : []));
