@@ -96,7 +96,7 @@ export function createQuizCard(block, context, deps) {
   nav.className = 'quiz-nav';
 
   const previousButton = document.createElement('button');
-  previousButton.className = 'btn btn-primary btn-sm quiz-nav-button';
+  previousButton.className = 'btn btn-outline-primary btn-sm quiz-nav-button quiz-nav-previous';
   previousButton.type = 'button';
   previousButton.textContent = t('card.quizBack');
   previousButton.addEventListener('click', () => {
@@ -106,18 +106,23 @@ export function createQuizCard(block, context, deps) {
     }
   });
 
-  const nextButton = document.createElement('button');
-  nextButton.className = 'btn btn-primary btn-sm quiz-nav-button';
-  nextButton.type = 'button';
-  nextButton.textContent = t('clientMisc.next');
-  nextButton.addEventListener('click', () => {
-    if (state.currentIndex < state.itemStates.length - 1) {
-      state.currentIndex += 1;
-      renderQuizCard(section, state, deps);
+  // The forward button is the quiz's single primary action: it advances while
+  // there are questions left and becomes the submit action on the last one, so
+  // the learner never ends the quiz facing a disabled "Next".
+  const forwardButton = document.createElement('button');
+  forwardButton.className = 'btn btn-primary btn-sm quiz-nav-button quiz-nav-forward';
+  forwardButton.type = 'button';
+  forwardButton.addEventListener('click', () => {
+    if (isOnLastQuizItem(state)) {
+      submitQuizCard(section, state, deps);
+      return;
     }
+
+    state.currentIndex += 1;
+    renderQuizCard(section, state, deps);
   });
 
-  nav.append(previousButton, nextButton);
+  nav.append(previousButton, forwardButton);
 
   const footer = document.createElement('div');
   footer.className = 'quiz-footer';
@@ -125,22 +130,7 @@ export function createQuizCard(block, context, deps) {
   const status = document.createElement('p');
   status.className = 'quiz-status';
 
-  const evaluateButton = document.createElement('button');
-  evaluateButton.className = 'btn btn-primary quiz-evaluate-button';
-  evaluateButton.type = 'button';
-  evaluateButton.textContent = t('card.evaluate');
-  evaluateButton.addEventListener('click', () => {
-    if (state.submitted || state.aborted || !isQuizReadyToSubmit(state)) {
-      return;
-    }
-
-    state.submitted = true;
-    state.submittedAt = new Date().toISOString();
-    reportQuizCompleted(state, deps);
-    renderQuizCard(section, state, deps);
-  });
-
-  footer.append(status, evaluateButton);
+  footer.append(status);
 
   section.append(header, itemCounter, itemPrompt, itemBody, nav, footer);
   renderQuizCard(section, state, deps);
@@ -151,9 +141,8 @@ function renderQuizCard(section, state, deps) {
   const itemCounter = section.querySelector('.quiz-item-counter');
   const itemPrompt = section.querySelector('.quiz-item-prompt');
   const itemBody = section.querySelector('.quiz-item-body');
-  const previousButton = section.querySelector('.quiz-nav-button:first-child');
-  const nextButton = section.querySelector('.quiz-nav-button:last-child');
-  const evaluateButton = section.querySelector('.quiz-evaluate-button');
+  const previousButton = section.querySelector('.quiz-nav-previous');
+  const forwardButton = section.querySelector('.quiz-nav-forward');
   const status = section.querySelector('.quiz-status');
   const closeButton = section.querySelector('.quiz-close-button');
 
@@ -162,8 +151,7 @@ function renderQuizCard(section, state, deps) {
     !(itemPrompt instanceof HTMLDivElement) ||
     !(itemBody instanceof HTMLDivElement) ||
     !(previousButton instanceof HTMLButtonElement) ||
-    !(nextButton instanceof HTMLButtonElement) ||
-    !(evaluateButton instanceof HTMLButtonElement) ||
+    !(forwardButton instanceof HTMLButtonElement) ||
     !(status instanceof HTMLParagraphElement) ||
     !(closeButton instanceof HTMLButtonElement)
   ) {
@@ -182,19 +170,23 @@ function renderQuizCard(section, state, deps) {
   });
 
   previousButton.disabled = state.currentIndex === 0;
-  nextButton.disabled = state.currentIndex >= state.itemStates.length - 1;
+  forwardButton.textContent = isOnLastQuizItem(state)
+    ? t('clientMisc.submitQuiz')
+    : t('clientMisc.next');
   closeButton.disabled = state.submitted || state.aborted;
   syncQuizCardStatus(section, state);
 }
 
 function syncQuizCardStatus(section, state) {
-  const evaluateButton = section?.querySelector('.quiz-evaluate-button');
+  const forwardButton = section?.querySelector('.quiz-nav-forward');
   const status = section?.querySelector('.quiz-status');
-  if (!(evaluateButton instanceof HTMLButtonElement) || !(status instanceof HTMLParagraphElement)) {
+  if (!(forwardButton instanceof HTMLButtonElement) || !(status instanceof HTMLParagraphElement)) {
     return;
   }
 
-  evaluateButton.disabled = state.submitted || state.aborted || !isQuizReadyToSubmit(state);
+  forwardButton.disabled = isOnLastQuizItem(state)
+    ? state.submitted || state.aborted || !isQuizReadyToSubmit(state)
+    : false;
   status.classList.remove('is-success', 'is-error');
 
   if (state.aborted) {
@@ -209,9 +201,9 @@ function syncQuizCardStatus(section, state) {
     });
     status.classList.add('is-success');
   } else if (isQuizReadyToSubmit(state)) {
-    setQuizStatusContent(status, t('card.quizReadyEvaluate'));
+    setQuizStatusContent(status, t('clientMisc.quizReadySend'));
   } else {
-    setQuizStatusContent(status, t('card.answerAllBeforeEvaluate'));
+    setQuizStatusContent(status, t('clientMisc.answerAllBeforeSend'));
   }
 }
 
@@ -244,6 +236,21 @@ export function markQuizCardEvaluationComplete(messageId, blockIndex) {
     status.classList.add('is-success');
     setQuizStatusContent(status, 'Quiz evaluado.');
   }
+}
+
+function submitQuizCard(section, state, deps) {
+  if (state.submitted || state.aborted || !isQuizReadyToSubmit(state)) {
+    return;
+  }
+
+  state.submitted = true;
+  state.submittedAt = new Date().toISOString();
+  reportQuizCompleted(state, deps);
+  renderQuizCard(section, state, deps);
+}
+
+function isOnLastQuizItem(state) {
+  return state.currentIndex >= state.itemStates.length - 1;
 }
 
 function isQuizReadyToSubmit(state) {

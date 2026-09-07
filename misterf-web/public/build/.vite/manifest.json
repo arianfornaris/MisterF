@@ -45,7 +45,7 @@
     ]
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-B2ClLk2m.js",
+    "file": "entries/chat-Cr66Q5RR.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
@@ -76,7 +76,7 @@
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-B_Cf5TBU.js",
+    "file": "entries/quizzes-BXflCZLM.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,

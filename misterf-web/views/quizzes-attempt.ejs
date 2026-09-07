@@ -57,7 +57,7 @@
         <%- include('partials/quiz-item-card', { quizItemMode: 'attempt', block, csrfToken, draft, index, responseIndex: index, selectedQuiz: null }) %>
       <% }) %>
     </div>
-    <div class="quiz-submit-bar">
+    <div class="quiz-submit-bar" data-quiz-submit-bar>
       <button class="btn btn-primary" type="submit" data-quiz-submit-button>
         <i class="bi bi-check2-circle me-1" aria-hidden="true"></i><%= t('quizzes.submit') %>
       </button>

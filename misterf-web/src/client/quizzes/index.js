@@ -649,6 +649,13 @@ function initializeQuizQuizUi() {
 
   hostEl.replaceChildren(card);
   hideFallback(document.querySelector('[data-quiz-quiz-fallback]'));
+
+  // The card's last question carries the submit action, so the page-level
+  // submit bar only exists for the no-JS fallback rendering.
+  const submitBarEl = formEl?.querySelector('[data-quiz-submit-bar]');
+  if (submitBarEl instanceof HTMLElement) {
+    submitBarEl.hidden = true;
+  }
 }
 
 function initializeQuizResultUi() {
@@ -726,7 +733,7 @@ function createQuizQuizCard(block, options) {
   nav.className = 'quiz-nav';
 
   const previousButton = document.createElement('button');
-  previousButton.className = 'btn btn-primary btn-sm quiz-nav-button';
+  previousButton.className = 'btn btn-outline-primary btn-sm quiz-nav-button quiz-nav-previous';
   previousButton.type = 'button';
   previousButton.textContent = t('card.quizBack');
   previousButton.addEventListener('click', () => {
@@ -736,18 +743,28 @@ function createQuizQuizCard(block, options) {
     }
   });
 
-  const nextButton = document.createElement('button');
-  nextButton.className = 'btn btn-primary btn-sm quiz-nav-button';
-  nextButton.type = 'button';
-  nextButton.textContent = t('clientMisc.next');
-  nextButton.addEventListener('click', () => {
-    if (state.currentIndex < state.itemStates.length - 1) {
+  // The forward button is the quiz's single primary action: it advances while
+  // there are questions left and submits the attempt on the last one, so the
+  // learner never ends the quiz facing a disabled "Next". The submit bar in the
+  // page stays as the no-JS fallback and is hidden once this card renders.
+  const forwardButton = document.createElement('button');
+  forwardButton.className = 'btn btn-primary btn-sm quiz-nav-button quiz-nav-forward';
+  forwardButton.type = 'button';
+  forwardButton.addEventListener('click', () => {
+    if (!isOnLastQuizQuizItem(state)) {
       state.currentIndex += 1;
       renderQuizQuizCard(section, state, options);
+      return;
     }
+
+    if (state.readOnly || state.submitted || !isQuizQuizReady(state)) {
+      return;
+    }
+
+    options.formEl?.requestSubmit();
   });
 
-  nav.append(previousButton, nextButton);
+  nav.append(previousButton, forwardButton);
 
   const footer = document.createElement('div');
   footer.className = 'quiz-footer';
@@ -782,8 +799,8 @@ function renderQuizQuizCard(section, state, options) {
   const itemSection = section.querySelector('.quiz-section-context');
   const itemPrompt = section.querySelector('.quiz-item-prompt');
   const itemBody = section.querySelector('.quiz-item-body');
-  const previousButton = section.querySelector('.quiz-nav-button:first-child');
-  const nextButton = section.querySelector('.quiz-nav-button:last-child');
+  const previousButton = section.querySelector('.quiz-nav-previous');
+  const forwardButton = section.querySelector('.quiz-nav-forward');
 
   if (
     !(itemCounter instanceof HTMLParagraphElement) ||
@@ -791,7 +808,7 @@ function renderQuizQuizCard(section, state, options) {
     !(itemPrompt instanceof HTMLDivElement) ||
     !(itemBody instanceof HTMLDivElement) ||
     !(previousButton instanceof HTMLButtonElement) ||
-    !(nextButton instanceof HTMLButtonElement)
+    !(forwardButton instanceof HTMLButtonElement)
   ) {
     return;
   }
@@ -809,8 +826,15 @@ function renderQuizQuizCard(section, state, options) {
     rerender: () => renderQuizQuizCard(section, state, options),
   });
 
+  // Only an attempt can submit, so the shared preview keeps the plain
+  // (disabled on the last question) navigation.
+  const onLastItem = isOnLastQuizQuizItem(state);
+  const forwardSubmits = onLastItem && options.mode === 'attempt';
   previousButton.disabled = state.currentIndex === 0;
-  nextButton.disabled = state.currentIndex >= state.itemStates.length - 1;
+  forwardButton.textContent = forwardSubmits
+    ? t('clientMisc.submitQuiz')
+    : t('clientMisc.next');
+  forwardButton.disabled = onLastItem && !forwardSubmits;
   syncQuizQuizStatus(section, state, options);
 }
 
@@ -846,6 +870,11 @@ function syncQuizQuizStatus(section, state, options) {
     options.submitButtonEl.disabled = state.submitted || !ready;
   }
 
+  const forwardButton = section.querySelector('.quiz-nav-forward');
+  if (forwardButton instanceof HTMLButtonElement && isOnLastQuizQuizItem(state)) {
+    forwardButton.disabled = state.submitted || !ready;
+  }
+
   const status = section.querySelector('.quiz-status');
   if (!(status instanceof HTMLParagraphElement)) {
     return;
@@ -875,6 +904,10 @@ function setStatusText(status, text, options = {}) {
   }
 
   status.append(document.createTextNode(text));
+}
+
+function isOnLastQuizQuizItem(state) {
+  return state.currentIndex >= state.itemStates.length - 1;
 }
 
 function isQuizQuizReady(state) {

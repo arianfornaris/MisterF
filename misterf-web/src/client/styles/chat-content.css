@@ -1568,7 +1568,6 @@ button.quiz-result-pair-row:focus {
     display: none;
   }
 
-  .quiz-evaluate-button,
   .quiz-nav-button,
   .quiz-pair-remove {
     width: 100%;
