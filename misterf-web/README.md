@@ -101,7 +101,7 @@ Important variables:
   `metadata`.
 - `LLM_MODEL`: optional fallback model id used when tier-specific model ids are
   not set.
-- `LLM_MODEL_REGULAR`, `LLM_MODEL_ADVANCED`, `LLM_MODEL_MAX`: OpenRouter model
+- `LLM_MODEL_LITE`, `LLM_MODEL_REGULAR`, `LLM_MODEL_ADVANCED`: OpenRouter model
   ids by profile tier.
 - `LLM_CONTEXT_WINDOW`: fallback context window for model metadata.
 - `OPENROUTER_API_KEY`: fallback app-level OpenRouter key.
