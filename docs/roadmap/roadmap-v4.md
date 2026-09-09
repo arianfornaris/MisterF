@@ -130,6 +130,14 @@ so the library is reproducible. Recovery instructions — including the last
 commit that contains each deleted piece — are in
 [Scene Media Library](../features/scene-media-library.md#recovering-the-deleted-built-in-material).
 
+**Follow-on, tracked in [V3 §1.12](roadmap-v3.md#112-scene-media-as-a-resource):**
+with the built-in catalog gone, nothing justifies scene media having its own
+table, routes, catalog and trash outside the `resources` spine, so it becomes
+`resources.type = 'scene_media'` and `/media-library` disappears into
+`/resources`. That work absorbs two open items below — media-to-resource
+derivation becomes resource-to-resource, and the "media-resource sharing model"
+that grant-aware storage protection was deferred behind gets its answer.
+
 - [x] Promote approved design assets from `design/scene-images/` and
   `design/scene-scripts/` into product runtime asset folders. Done 2026-07-09:
   the first built-in slice copied 50 approved final scene images and 150

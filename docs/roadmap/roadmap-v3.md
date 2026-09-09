@@ -60,6 +60,11 @@ decisions, and remaining work — moved to
 [Roadmap V4 §1.3](roadmap-v4.md#13-scene-media-library) on 2026-07-26 at the
 founder's direction. V3 retains no media-library checklist.
 
+**One exception, added 2026-09-09:** §1.12 tracks folding scene media into the
+resource model. It sits here rather than in V4 because it is being done against
+the current release line, not deferred behind pilot evidence. The record itself
+stays in V4 §1.3.
+
 ## 1.3 Review Resource AI Editing Chats
 
 Added 2026-07-14 to review every remaining resource editing chat and confirm
@@ -892,6 +897,219 @@ and scene media) and to **folders**.
   behavior, not duplicated participation.
 
 ---
+
+## 1.12 Scene Media As A Resource
+
+Added 2026-09-09 at the founder's direction, immediately after built-in scene
+media was removed from the product (V4 §1.3, decision of the same date). Design
+context: [Scene Media Library](../features/scene-media-library.md).
+
+**This reverses, for this one initiative, the "V3 retains no media-library
+checklist" line in §1.2.** The Media Library *record* stays in
+[V4 §1.3](roadmap-v4.md#13-scene-media-library); what lives here is the
+unification work, because it is being done now against the current release line
+rather than deferred behind pilot evidence.
+
+### The Problem
+
+`resources` is a spine, not a type: `id, user_id, profile_id, type, title,
+description, topic, level, archived_at, source_resource_id, shared_via`. Each
+type hangs off it through a detail table whose `id` is a foreign key to
+`resources.id` (`quizzes`, `roleplays`, `practice_guides`), and so do
+`resource_share_links`, `resource_access_grants`, `resource_folder_items`, and
+`resource_participation_summaries`.
+
+`user_scene_media` sits entirely outside that spine and reimplements what the
+spine already provides: ownership columns, archive/restore, its own trash page,
+its own listing and filters, its own breadcrumbs, and 19 routes under
+`/media-library` served by a 1,325-line handler module.
+
+The only thing that ever justified the separate layer was blending the built-in
+catalog with the user's own media — `listSceneMediaItems` concatenated user
+items first, built-ins after. That blend was deleted on 2026-09-09. What remains
+is a second resource infrastructure that no longer merges anything, and that
+pays for its separateness: **scene media has no sharing at all, and cannot go in
+a folder.**
+
+### The Decision
+
+Two decisions, taken 2026-09-09:
+
+- **Data: scene media becomes a resource.** `resources.type = 'scene_media'`,
+  with `user_scene_media` kept as the detail table, keyed by `resources.id`,
+  exactly like `quizzes`.
+- **UI: `/resources` only.** Media appears in the resources catalog with the
+  type filter, and **`/media-library` stops existing** — no nav entry, no
+  route, no link anywhere in the product, the tutor's platform help included.
+  Per-media pages move under `/scene-media/:mediaId`, matching how `/quizzes`
+  redirects to `/resources` while `/quizzes/:quizId` serves the resource.
+
+Timing is deliberate: **production holds zero media rows**, and the local test
+rows are disposable (founder, 2026-09-09). This is the cheapest this migration
+will ever be, and it gets more expensive the moment media has share links to
+preserve.
+
+### Decisions To Make Before Building
+
+These are genuine product questions, not implementation detail. Each one has a
+cheap default; the point is to choose deliberately rather than inherit an
+answer from the quiz flow.
+
+- [ ] **What does sharing a media mean?** Every shareable resource today is
+  something the recipient *does*: `/{quizzes,roleplays}/shared/:shareId/take`
+  starts an attempt, and `collect_results` decides whether the owner sees it.
+  Scene media has no attempt — Roadmap X says so in as many words ("Scene media
+  has no attempts and is unaffected"). So a shared media is view-and-reuse, and
+  the share UI must not offer result collection. Cheap default: allow profile
+  and link sharing, force `collect_results = 0`, and hide the participation
+  affordances for this type.
+- [ ] **What does duplicating a media mean?** `handleDuplicateResource` deep-copies
+  the detail row. For media the detail row points at Spaces objects, so a
+  duplicate either copies binaries (real storage cost, and the variation flow
+  already exists for "same image, new script") or shares them (two resources
+  pointing at one object, and deleting one must not orphan the other). Cheap
+  default: no duplicate action for `scene_media` in V1 — "Create variation"
+  already covers the intent and does it better.
+- [ ] **Do the level and format filters survive?** `/resources` filters on
+  query + type + sort; `/media-library` filters on query + level + format. A
+  straight merge loses the last two. Search already covers `resources.level`
+  once the level is copied onto the spine row, so the cheap default is to drop
+  the dedicated dropdowns and revisit if the catalog gets big.
+- [ ] **Does the catalog distinguish material from activity?** Everything in
+  `/resources` today is something the learner does; media is something they use.
+  `resource_folder` is already a non-activity in that list, so the spine is not
+  the problem — the question is whether a media card needs to read differently
+  (thumbnail, no "assign" affordance) so the list does not promise an activity
+  it cannot deliver.
+
+### Plan
+
+**Phase 1 — Schema (one migration, id 30).**
+
+- [ ] Widen the `type` CHECK on `resources` and the `resource_type` CHECK on
+  `resource_folder_items` to include `scene_media`. **Use the programmatic
+  `run(db)` migration hatch**, which exists precisely for this — its doc comment
+  cites "editing `sqlite_master` to drop a CHECK", the migrator already enables
+  better-sqlite3 unsafe mode and resets the schema afterwards, and no migration
+  has used it yet. That avoids a full table rebuild on a table three others
+  reference by foreign key.
+- [ ] Rebuild `user_scene_media` as a detail table: drop `user_id`,
+  `profile_id`, `title`, `status`, `archived_at` (all now on the spine), make
+  `id` a foreign key to `resources.id ON DELETE CASCADE`. Keep what is genuinely
+  media-specific: `generation_mode`, `generation_prompt`,
+  `script_type_preference`, `format`, `level`, `setting`, `visual_summary_json`,
+  `image_json`, `audio_json`, `script_json`, `created_from_json`,
+  `provenance_json`, `source_media_id`, `source_visual_asset_id`.
+- [ ] Decide the spine mapping and apply it in the same migration: media
+  `title` → `resources.title`, `setting` → `resources.topic`, `level` →
+  `resources.level`, `visual_summary_json` joined → `resources.description`
+  (so catalog search finds a scene by what is in it).
+- [ ] Backfill: insert one `resources` row per existing `user_scene_media` row.
+  With zero rows in production this is a no-op there; locally it is four rows
+  and they may simply be deleted instead.
+- [ ] Drop the dead `authoring_messages_json` column while the table is being
+  rebuilt anyway — it has been unused since the authoring chat was retired
+  (V4 §1.3, 2026-07-14), and the "no destructive migration" reason for keeping
+  it was production-data compatibility that no longer applies.
+
+**Phase 2 — Domain.**
+
+- [ ] Move ownership, archive/restore and listing off `sceneMedia/userMediaRepository.ts`
+  onto the resource repository; the media repository keeps only the layer
+  operations (`applyUserSceneMediaImage`, `applyUserSceneMediaScript`,
+  `applyUserSceneMediaMetadata`, `createReadyUserSceneMedia`).
+- [ ] Delete `sceneMedia/library.ts`. Listing becomes a resource query; the
+  media-specific `SceneMediaLibraryFilters` disappear with the dedicated
+  filters.
+- [ ] Point `services/sceneMediaResolver.ts` at the resource-backed listing.
+- [ ] Leave the generation pipeline alone: `creation.ts`, `sceneMediaPreview.ts`,
+  `imageGeneration.ts`, `audioGeneration.ts`, `generationContext.ts`,
+  `imageAssets.ts` are media-specific and do not move.
+
+**Phase 3 — Routes and URLs.**
+
+- [ ] `/media-library` → **gone**, not redirected: it was never a public URL,
+  it needs no permanent redirect, and leaving one keeps the concept alive in
+  the codebase. (If the pilot has bookmarks, add a temporary redirect and say
+  so here.)
+- [ ] Per-media routes move to `/scene-media/:mediaId` (`/edit`, `/preview/*`,
+  `/image`, `/variations/new`, `/variations`, `/generate-title`).
+- [ ] Archive, restore, folder, and share go through the existing
+  `/resources/:resourceId/*` routes — nine media routes disappear rather than
+  being ported.
+- [ ] `POST /media-library` (create) becomes `/scene-media/new` +
+  `POST /scene-media`, matching `/quizzes/new`.
+
+**Phase 4 — Views.**
+
+- [ ] `media-library.ejs` and `media-library-trash.ejs` are deleted; the
+  catalog and trash are `resources-list.ejs` and `resources-trash.ejs` with a
+  `scene_media` card and icon.
+- [ ] `media-library-show.ejs`, `-new.ejs`, `-variation-new.ejs`,
+  `-authoring.ejs` are renamed to `scene-media-*.ejs` and adopt the resource
+  page conventions (kicker, breadcrumbs, close button, action row, Options
+  dropdown with share/duplicate/move-to-folder/archive).
+- [ ] The `scene-media-*` partials (audio player, change modal, pending modal,
+  client script) keep their names and only lose their `/media-library` URLs.
+
+**Phase 5 — Reference sweep. No `/media-library` may survive anywhere.**
+
+Known references, by file, to work through: `sceneMedia/handlers.ts` (46),
+`partials/scene-media-change-modal.ejs` (39), `tests/server/routes.test.ts` (39),
+the five `media-library-*.ejs` views (~130 between them),
+`sceneMedia/routes.ts` (19), `tests/server/inferenceWaitStateArchitecture.test.ts`
+(14), `partials/scene-media-audio-player.ejs` (11),
+`tests/server/resourceBreadcrumbArchitecture.test.ts` (8),
+`partials/scene-media-pending-modal.ejs` (3), `partials/app-shell-open.ejs`
+(the nav entry), the three i18n catalogs, `partials/resource-page-kicker.ejs`,
+`partials/breadcrumb.ejs`, `partials/media-library-client-script.ejs`,
+`pages/shell.ts` (the `mediaLibrary` view id),
+`tests/server/routeArchitecture.test.ts`, `tests/llmTutor/platformTools.test.ts`,
+and `system-prompts/tutor/platform-overview.md`.
+
+- [ ] Remove the side-panel nav entry and the `mediaLibrary` `currentView` id;
+  media pages become `currentView: 'resources'`.
+- [ ] Fold the ~144 `mediaLibrary.*` i18n keys into `resources.*` where they
+  duplicate an existing string, and keep only what is media-specific.
+- [ ] Update `system-prompts/tutor/platform-overview.md` so `get_platform_help`
+  stops naming a page that no longer exists (`tutor-platform-help` skill).
+- [ ] Finish with a repo-wide grep for `media-library` and `mediaLibrary` that
+  returns only history: this roadmap, the feature doc, and V4 §1.3.
+
+**Phase 6 — Tests and guards.**
+
+- [ ] `resourceBreadcrumbArchitecture.test.ts` and
+  `inferenceWaitStateArchitecture.test.ts` inventory view filenames and must be
+  updated with the renames (`testing-conventions`).
+- [ ] Route/render coverage for a media resource in the catalog, in a folder,
+  shared by link and by profile, archived and restored.
+- [ ] A repository test for the spine/detail split: creating a media writes both
+  rows, archiving through the resource route hides it from the catalog, and
+  deleting the resource cascades to the detail row.
+
+### Verification
+
+- [ ] `npm test`, `npm run typecheck`, `npm run test:typecheck`, `npm run build`.
+- [ ] Live QA as `qa.fable` (`live-product-qa`): create a media, find it in
+  `/resources` and inside a folder, share it by link and open it as
+  `qa.student`, archive and restore it from the resources trash, and create a
+  variation. None of it costs inference except the creation itself, which does —
+  budget one media generation.
+- [ ] Confirm in SQLite that a media has exactly one `resources` row and one
+  `user_scene_media` row, and that archiving sets `resources.archived_at` only.
+
+### Related
+
+- [Roadmap V4 §1.3](roadmap-v4.md#13-scene-media-library) — the Media Library
+  record, including the two open items this unblocks: media-to-resource
+  derivation (which becomes resource-to-resource) and the "media-resource
+  sharing model" that grant-aware storage protection was deferred behind.
+- [Scene Media Library](../features/scene-media-library.md) — design doc, whose
+  built-in sections are now history.
+- [Roadmap V3.5 §1.10](roadmap-v3-5.md) — the precedent for the counterargument
+  weighed here: two lists with different jobs should not be merged just because
+  they look similar. The difference is that `resources` is not a second list of
+  the same records; it is the spine media should have been on.
 
 # Part 2: Engineering And Quality
 
