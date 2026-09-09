@@ -1,7 +1,20 @@
 # Home Start Experience Exploration
 
-Status: proposal (not implemented). Planned as V3 work; the idea is tracked
-in the idea inbox ([issues/incomming.md](../issues/incomming.md)).
+Status: proposal, partially committed. The home's **structure** — one route,
+a compact panel above the composer (Option B below) — is committed as
+[Roadmap V3 §1.14](../roadmap/roadmap-v3.md#114-signed-in-home-modes--learning-and-teaching),
+which also adds a second composition of the same panel for someone who is
+teaching rather than learning. What stays a proposal here is the
+**suggestion engine**: the built-in topic library, the personalization
+signals, and the model-assisted ranking (phases 2-6). §1.14 ships
+deterministic cards only and defers "suggest me a practice" to a later
+iteration, where it belongs inside `/progress` rather than on the home. The
+original idea is tracked in the idea inbox
+([issues/incomming.md](../issues/incomming.md)).
+
+Open question 1 below ("Should `/` remain the chat page, or become a start
+hub?") is answered by §1.14: `/` stays one route and one shell, and the panel
+above the composer changes with the active mode.
 
 ## Product Question
 

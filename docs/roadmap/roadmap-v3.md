@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-08-01)
+Date: 2026-07-06 (last updated: 2026-09-09)
 
 Status: **Released as 3.0.0 on 2026-07-26; current release 3.0.2.** V3's
 headline is the **Teacher Pilot MVP**: the
@@ -306,6 +306,12 @@ resource-scoped — the quiz owner sees the attempts of their quiz — and the
 surface is the existing quiz page. The long-term classroom/packages/
 organization shape is designed in [Classrooms](../features/classrooms.md) and
 stays out of V3.
+
+**Partially amended 2026-09-09 by [§1.14](#114-signed-in-home-modes--learning-and-teaching)**,
+after testing with a real teacher: the *presentation* half — "no role-aware
+homes" — is reversed, and the home is now composed differently for learning
+and for teaching. The *authorization* half stands: still no account-level
+roles, no classroom entity, and nothing gated by mode.
 
 - [x] Results-feedback flag on sharing (added 2026-07-20, founder decision):
   when sharing a quiz, the owner chooses whether they want to receive the
@@ -1272,6 +1278,172 @@ Not a commitment — the shape to price the evaluation against:
   up (resource types); the item kinds are the level below it.
 - [Roadmap V4 §2.2 Structured Block Post-Processing](roadmap-v4.md) — if kind
   selection becomes a hard constraint, the repair path is where it is enforced.
+
+## 1.14 Signed-In Home Modes — Learning And Teaching
+
+Added 2026-09-09 at the founder's direction, after testing the product with a
+real teacher (the founder's father, the original Mister F).
+
+**This amends the design decision recorded in §1.6** — "no teacher/student
+profiles, no role-aware homes" (2026-07-18) — and it amends **only the
+presentation half of it**. The authorization half stands unchanged and is not
+reopened:
+
+- **Unchanged.** Access is resource-scoped: the owner of a resource sees its
+  attempts. No account-level roles, no classroom entity, no capability gated
+  by mode, no second authorization axis.
+- **Changed.** The home surface is composed differently depending on how the
+  person is using the product right now. A mode is a *view*, not a permission.
+
+**Scope: the signed-in home only.** `/` serves two different products
+depending on the session — `landingRouter` renders the public marketing
+landing for a visitor (`views/landing.ejs`, with its `/en`, `/es`, `/ht`
+editions), and passes any authenticated request through to the app shell.
+This item touches only the second one. The landing page is finished work and
+is not reopened here; nothing below changes what a new or logged-out visitor
+sees.
+
+### The Problem
+
+`/` is a new tutor conversation for everyone (`chatRouter.get('/',
+renderChatPage)`, `misterf-web/src/server/chat/routes.ts:21`). For someone who
+opened the app to prepare material for their students, that is a blank canvas
+for a task they do not have — and their actual work is buried: what they
+created and shared is two clicks away in `/resources`, and the results they
+came for are one click deeper still, on each quiz's participation page.
+
+The gap is symmetric, and the pilot only made the teaching half visible first:
+for the learner, the activities shared *with them* are equally buried in the
+same catalog, behind the `with_me` filter value added on 2026-07-23.
+
+Everything both homes need already exists as data. What is missing is a
+surface that puts it first.
+
+### The Model (decided 2026-09-09)
+
+- **Mode is presentation, never permission.** Both modes reach every feature.
+  A teacher who wants to experience the product as a student switches mode;
+  they must not be forced to create a second profile to do it.
+- **The profile stores a preferred mode; the mode is switchable at any time**
+  without editing the profile. The stored value decides what the home opens
+  as; the switch decides what it shows now.
+- **Per profile, not per account.** This preserves the acid test in
+  [Classrooms](../features/classrooms.md) — a parent who studies English *and*
+  assigns practice to their child — and reuses the profile switcher already in
+  the user menu (`views/partials/switch-profile-modal.ejs`).
+- **Existing profiles default to learning**, which is today's behavior; the
+  user changes it from profile settings. No backfill guesses a mode from
+  history.
+- **Naming: a verb in the first person, never a noun for the person.**
+  `Estoy aprendiendo` / `Estoy enseñando`, with the help text carrying the
+  breadth ("your class, your child, anyone you are helping") so the short
+  label does not have to. Internal values are `learn` / `teach`.
+  Deliberately **not** "guía": the product already uses *Guías de Práctica*
+  for a resource type, so the word cannot also name a person. Also rejected:
+  "profesor/estudiante" (identity labels that exclude the parent and the
+  tutor) and "acompaño" (accurate but too vague to read as an action).
+
+### Teaching Home
+
+In priority order:
+
+1. **New since your last visit** — activity on shared resources, e.g. "3 new
+   responses in *Past simple*". This is the retention mechanic: without it, a
+   teacher has no reason to open the app between one class and the next. The
+   attempts are already collected (§1.6, `collect_results` snapshotted per
+   attempt).
+2. **What I shared**, with attempt counts and who practiced. Note this
+   deliberately restores what the 2026-07-23 simplification in §1.6 gave up:
+   folding "Compartidos" into `/resources` dropped the at-a-glance counts and
+   sent them to each resource's participation page. The home is the right
+   place for them; the separate catalog page is still not.
+3. **Create an activity** — direct shortcuts to quiz, roleplay, and practice
+   guide from a prompt.
+4. **Create an activity from these results** — the evidence-driven authoring
+   action already named as the cheapest rung in
+   [Classrooms](../features/classrooms.md); it closes share → results → next
+   activity and needs no new entity.
+5. **Ask Mr. F** — the tutor stays reachable but demoted. A teacher does use
+   it, to prepare material rather than to practice.
+
+### Learning Home
+
+1. **Waiting for you** — activities shared with me and not yet completed, plus
+   unfinished attempts.
+2. **Continue** — the open conversation or the guide in progress.
+3. **The chat composer, prominent.** For this mode the conversation stays the
+   emotional center of the product.
+4. **See my progress** — an entry point to the existing `/progress` page.
+   (Chosen 2026-09-09 over the "a couple of practice suggestions" sketch: a
+   link to a page that already exists costs nothing and does not commit the
+   home to a recommender.)
+
+This is the same skeleton as
+[Home Start Experience](../features/home-start-experience.md) Option B — a
+compact panel above the composer. The specialization is only *which panel sits
+there and how much it weighs*: one route, one shell, two compositions. Not two
+dashboards and not a second home route.
+
+### Checklist
+
+- [ ] Persist the preferred mode: migration 30 adds `profiles.primary_mode`
+  (`TEXT NOT NULL DEFAULT 'learn'`), with the field exposed in
+  `views/profiles-form.ejs` and `views/profile-onboarding.ejs`.
+- [ ] Add the runtime mode switch, independent of the stored preference, and
+  decide where it lives (see Open Questions).
+- [ ] Compose `/` per active mode inside the existing chat page handler rather
+  than adding a route; guests are unaffected.
+- [ ] Build the teaching panel from existing queries
+  (`listSharedResourcesForProfile`, the collected-attempts query behind
+  `Resultados de estudiantes`, the participation summaries).
+- [ ] Build the learning panel from existing queries (grants for
+  shared-with-me, unfinished attempts, open conversations).
+- [ ] **Deterministic only.** No inference on the home in this round: no
+  ranking call, no generated copy, no pending modal. Every card is a query.
+- [ ] i18n keys for `es`, `en`, and `ht` per the `project-language-conventions`
+  skill; no hard-coded strings in the new partials.
+- [ ] Route tests for both compositions, the default for a profile with no
+  stored mode, and the switch.
+
+### Deferred To A Later Iteration (recorded 2026-09-09 at the founder's request)
+
+- **"Suggest me a practice."** The action belongs inside `/progress`, reading
+  the progress the learner is already looking at — not as cards on the home.
+  It is the first LLM-assisted piece of this area and is explicitly out of
+  this round. Relates to
+  [Home Start Experience](../features/home-start-experience.md) phases 2 and 4.
+- **Mode-aware tutor behavior and progress events.** Today a conversation with
+  Mr. F produces learner progress regardless of intent, so a teacher
+  preparing a class pollutes their own progress record and is addressed as a
+  student under evaluation. Deciding what the tutor knows about the active
+  mode — and whether teaching-mode conversations emit progress events at all —
+  is a prompt-coherence question (`system-prompt-coherence`,
+  `learner-progress-events`), not a home-layout one. Not in this round.
+
+### Open Questions
+
+- [ ] Where does the runtime switch live: the user menu next to
+  `Cambiar perfil`, a control on the home itself, or both? A control on the
+  home is the most discoverable and the least likely to be mistaken for a
+  profile change.
+- [ ] Does the switch persist per session, or does the home always open in the
+  profile's preferred mode? (Persisting is friendlier; opening in the
+  preferred mode is more predictable and needs no new state.)
+- [ ] Does anything outside `/` react to the mode in this round? Recommended
+  answer: no — the sidebar stays identical, so the blast radius stays at one
+  page and the change is measurable.
+- [ ] Does the "new since your last visit" card need a stored last-seen
+  timestamp per profile, or is "responses newer than the resource's last
+  viewed summary" enough from data already present?
+
+### Related
+
+- §1.6 Quiz Results & Next-Class Report — the source of the amended decision
+  and of every query the teaching home reads.
+- [Classrooms](../features/classrooms.md) — the guide/practicer primitive this
+  is a presentation layer over; nothing here promotes a rung of its ladder.
+- [Home Start Experience](../features/home-start-experience.md) — the learning
+  half of this design, and where the deferred suggestion work is specified.
 
 # Part 2: Engineering And Quality
 

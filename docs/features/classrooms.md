@@ -41,6 +41,11 @@ Design consequences:
   guide. A parent who studies English themselves *and* assigns practice to
   their child is the acid test; hard roles break it. (Decided 2026-07-18;
   consistent with the MVP's no-profiles decision.)
+  **Refined 2026-09-09** ([Roadmap V3 §1.14](../roadmap/roadmap-v3.md#114-signed-in-home-modes--learning-and-teaching)):
+  the profile carries a *preferred mode* (`learn` / `teach`) that composes the
+  home and nothing else. It is switchable at any time and gates no capability,
+  so the acid test still passes — the same profile does both without creating
+  a second one. Presentation, not permission.
 - **The guide's dashboard emerges without a classroom.** An aggregated
   "Shared by me" view (my shared activities + who completed them) already
   serves the parent, the tutor, and the small teacher.
@@ -195,4 +200,6 @@ action on the report — it needs no chat surface and no new entities.
   class-level views read from the same events.
 - [Home Start Experience](home-start-experience.md): the logged-in home
   variants idea is the self-learner half of the formula (dedicated UI,
-  pre-generated practice cards).
+  pre-generated practice cards). Committed as
+  [Roadmap V3 §1.14](../roadmap/roadmap-v3.md#114-signed-in-home-modes--learning-and-teaching),
+  which adds the guiding half as a second composition of the same home.
