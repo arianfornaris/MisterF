@@ -1475,6 +1475,15 @@ titles as links, which Flatly paints green — they now use the resource
 catalog's row shape (body-text title, whole row as a stretched link) so the two
 lists read alike.
 
+Adjusted again on founder review the same day: the mode switch was crowded
+beside the page title and beside the panel heading, where it also read as an
+action on that title rather than as the choice of which home you are looking
+at. It now sits on a **row of its own above both compositions**, rendered as
+nav pills — the pattern the app already uses to switch views (the progress
+tabs, the closed-conversation tabs). The pills stay side by side on a narrow
+screen (`flex-nowrap`, with the labels shrinking under 480px) because a wrapped
+pill loses its background and reads as a stray link under the active one.
+
 ### Deferred To A Later Iteration (recorded 2026-09-09 at the founder's request)
 
 - **"Suggest me a practice."** The action belongs inside `/progress`, reading

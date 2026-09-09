@@ -12,15 +12,16 @@
 %>
 
 <section class="app-page" aria-label="<%= t('home.teachTitle') %>">
+  <%# The switch gets a row of its own above the page header. Sitting beside the
+      title it read as an action on the title rather than as the choice of which
+      home you are looking at. %>
+  <%- include('partials/home-mode-switch') %>
+
   <div class="app-page-header">
     <div>
       <p class="app-page-kicker"><%= t('home.kicker') %></p>
       <h1 class="app-page-title"><%= t('home.teachTitle') %></h1>
       <p class="app-page-copy"><%= t('home.teachCopy') %></p>
-    </div>
-
-    <div class="app-page-header-actions">
-      <%- include('partials/home-mode-switch') %>
     </div>
   </div>
 

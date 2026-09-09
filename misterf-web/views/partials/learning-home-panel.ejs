@@ -4,17 +4,17 @@
   conversation stays the center of the page. Deterministic queries only — no
   suggestion engine and no inference.
 %>
-<section class="home-learning-panel card mx-auto mb-4" data-learning-home-panel>
+<div class="home-learning-panel mx-auto mb-4" data-learning-home-panel>
+  <%- include('home-mode-switch') %>
+
+  <section class="card">
   <div class="card-body">
-    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
-      <h2 class="h6 mb-0">
-        <i class="bi bi-inbox me-2" aria-hidden="true"></i><%= t('home.learnTitle') %>
-        <% if (learningHome.pendingCount > 0) { %>
-          <span class="badge text-bg-primary ms-1"><%= learningHome.pendingCount %></span>
-        <% } %>
-      </h2>
-      <%- include('home-mode-switch') %>
-    </div>
+    <h2 class="h6 mb-3">
+      <i class="bi bi-inbox me-2" aria-hidden="true"></i><%= t('home.learnTitle') %>
+      <% if (learningHome.pendingCount > 0) { %>
+        <span class="badge text-bg-primary ms-1"><%= learningHome.pendingCount %></span>
+      <% } %>
+    </h2>
 
     <% if (learningHome.sharedWithMe.length > 0) { %>
       <div class="list-group list-group-flush mb-3">
@@ -50,3 +50,4 @@
     </div>
   </div>
 </section>
+</div>

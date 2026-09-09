@@ -1,33 +1,36 @@
 <%# One-click switch between the two home compositions (Roadmap V3 §1.14).
     It writes the active profile's stored preference, so there is a single
     source of truth and the choice survives the next visit — the same value the
-    profile form edits. It gates nothing: both modes reach every feature. %>
+    profile form edits. It gates nothing: both modes reach every feature.
+
+    Rendered as nav pills on a row of its own, the same pattern the app already
+    uses to switch between views (the progress tabs, the closed-conversation
+    tabs), because that is what this is: which view of the home you are in. %>
 <form
-  class="btn-group btn-group-sm flex-wrap"
+  class="nav nav-pills flex-nowrap gap-2 home-mode-switch"
   method="post"
   action="/home/mode"
-  role="group"
   aria-label="<%= t('home.modeAria') %>"
 >
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <input type="hidden" name="returnTo" value="/">
   <% const activeHomeMode = activeProfile ? activeProfile.homeMode : 'learn'; %>
   <button
-    class="btn <%= activeHomeMode === 'learn' ? 'btn-primary' : 'btn-outline-secondary' %>"
+    class="nav-link <%= activeHomeMode === 'learn' ? 'active' : '' %>"
     type="submit"
     name="homeMode"
     value="learn"
-    <%= activeHomeMode === 'learn' ? 'aria-current="true"' : '' %>
+    <%= activeHomeMode === 'learn' ? 'aria-current="page"' : '' %>
   >
-    <i class="bi bi-mortarboard me-1" aria-hidden="true"></i><%= t('home.modeLearn') %>
+    <i class="bi bi-mortarboard me-2" aria-hidden="true"></i><%= t('home.modeLearn') %>
   </button>
   <button
-    class="btn <%= activeHomeMode === 'teach' ? 'btn-primary' : 'btn-outline-secondary' %>"
+    class="nav-link <%= activeHomeMode === 'teach' ? 'active' : '' %>"
     type="submit"
     name="homeMode"
     value="teach"
-    <%= activeHomeMode === 'teach' ? 'aria-current="true"' : '' %>
+    <%= activeHomeMode === 'teach' ? 'aria-current="page"' : '' %>
   >
-    <i class="bi bi-easel me-1" aria-hidden="true"></i><%= t('home.modeTeach') %>
+    <i class="bi bi-easel me-2" aria-hidden="true"></i><%= t('home.modeTeach') %>
   </button>
 </form>
