@@ -38,6 +38,7 @@
     <% const selectedInstructionLanguage = profilePageMode === 'edit' && selectedProfile
       ? selectedProfile.instructionLanguage
       : (activeProfile ? activeProfile.instructionLanguage : 'es'); %>
+    <% const selectedHomeMode = profilePageMode === 'edit' && selectedProfile ? selectedProfile.homeMode : 'learn'; %>
 
     <label class="form-label" for="profileName"><%= t('profiles.name') %></label>
     <input
@@ -73,6 +74,45 @@
     <div class="form-text" id="profileLearningContextHelp">
       <%= t('profiles.contextHelp') %>
     </div>
+
+    <%# Which composition the home opens with. Presentation only: it gates no
+        feature, and the switch on the home writes this same value. %>
+    <fieldset class="mt-4">
+      <legend class="form-label mb-2"><%= t('home.modeLegend') %></legend>
+      <p class="text-body-secondary small mb-3">
+        <%= t('home.modeHelp') %>
+      </p>
+
+      <div class="list-group">
+        <label class="list-group-item d-flex gap-3">
+          <input
+            class="form-check-input flex-shrink-0 mt-1"
+            type="radio"
+            name="homeMode"
+            value="learn"
+            <%= selectedHomeMode === 'learn' ? 'checked' : '' %>
+          >
+          <span class="d-block">
+            <span class="fw-semibold d-block"><%= t('home.modeLearn') %></span>
+            <small class="text-body-secondary"><%= t('home.modeLearnHelp') %></small>
+          </span>
+        </label>
+
+        <label class="list-group-item d-flex gap-3">
+          <input
+            class="form-check-input flex-shrink-0 mt-1"
+            type="radio"
+            name="homeMode"
+            value="teach"
+            <%= selectedHomeMode === 'teach' ? 'checked' : '' %>
+          >
+          <span class="d-block">
+            <span class="fw-semibold d-block"><%= t('home.modeTeach') %></span>
+            <small class="text-body-secondary"><%= t('home.modeTeachHelp') %></small>
+          </span>
+        </label>
+      </div>
+    </fieldset>
 
     <fieldset class="mt-4">
       <legend class="form-label mb-2"><%= t('profiles.languageLegend') %></legend>

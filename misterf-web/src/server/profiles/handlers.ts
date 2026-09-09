@@ -21,6 +21,7 @@ import {
   profileNameMaxLength,
 } from './fields.js';
 import { normalizeProfileModelTier } from './modelTier.js';
+import { normalizeProfileHomeMode } from './homeMode.js';
 import {
   isInstructionLanguage,
   normalizeInstructionLanguage,
@@ -167,6 +168,7 @@ export function renderProfileOnboardingPage(
     selectedProfile: activeProfile,
     values: {
       description: activeProfile.description,
+      homeMode: activeProfile.homeMode,
       instructionLanguage: activeProfile.instructionLanguage,
       learningContext: activeProfile.learningContext,
       name: activeProfile.name,
@@ -203,6 +205,7 @@ export function handleProfileOnboarding(
     request.body.instructionLanguage,
     activeProfile.instructionLanguage,
   );
+  const homeMode = normalizeProfileHomeMode(request.body.homeMode);
 
   if (!name) {
     response.status(422).render('profile-onboarding', {
@@ -221,6 +224,7 @@ export function handleProfileOnboarding(
       selectedProfile: activeProfile,
       values: {
         description,
+        homeMode,
         instructionLanguage,
         learningContext,
         name,
@@ -231,6 +235,7 @@ export function handleProfileOnboarding(
 
   updateProfile({
     description,
+    homeMode,
     instructionLanguage,
     learningContext,
     name,
@@ -304,6 +309,7 @@ export function handleCreateProfile(request: Request, response: Response): void 
     profileLearningContextMaxLength,
   );
   const modelTier = normalizeProfileModelTier(request.body.modelTier);
+  const homeMode = normalizeProfileHomeMode(request.body.homeMode);
   const instructionLanguage = normalizeInstructionLanguage(
     request.body.instructionLanguage,
     request.activeProfile?.instructionLanguage,
@@ -316,6 +322,7 @@ export function handleCreateProfile(request: Request, response: Response): void 
 
   const profile = createProfile({
     description,
+    homeMode,
     instructionLanguage,
     learningContext,
     modelTier,
@@ -350,6 +357,7 @@ export function handleUpdateProfile(request: Request, response: Response): void 
     profileLearningContextMaxLength,
   );
   const modelTier = normalizeProfileModelTier(request.body.modelTier);
+  const homeMode = normalizeProfileHomeMode(request.body.homeMode);
   const instructionLanguage = isInstructionLanguage(
     request.body.instructionLanguage,
   )
@@ -364,6 +372,7 @@ export function handleUpdateProfile(request: Request, response: Response): void 
 
   const profile = updateProfile({
     description,
+    homeMode,
     instructionLanguage,
     learningContext,
     modelTier,

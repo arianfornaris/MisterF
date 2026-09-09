@@ -16,6 +16,7 @@ import {
   type StoredMessage,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { buildLearningHomeData, type LearningHomeData } from '../home/data.js';
 import {
   getCreditCheckedOpenRouterApiKeyForUser,
   getCreditExhaustedMessage,
@@ -113,6 +114,14 @@ export function renderChatPage(request: Request, response: Response): void {
             : 'conversation';
   }
 
+  // The learning composition of the home (Roadmap V3 §1.14): a compact panel
+  // above the composer, shown only on the empty state. Once a conversation is
+  // open the chat is the page, and starter cards would be noise.
+  const learningHome: LearningHomeData | null =
+    user?.emailVerified && activeProfile && !initialConversationId
+      ? buildLearningHomeData({ profileId: activeProfile.id, userId: user.id })
+      : null;
+
   response.render('chat', {
     ...buildAppShellContext({
       activeProfile,
@@ -124,6 +133,7 @@ export function renderChatPage(request: Request, response: Response): void {
       title: buildDocumentTitle(request.locale),
       user,
     }),
+    learningHome,
     selectedTutorConversation,
     selectedTutorConversationOrigin,
     selectedTutorConversationReport,

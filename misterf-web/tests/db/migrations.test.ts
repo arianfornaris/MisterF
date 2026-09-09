@@ -74,6 +74,10 @@ describe('database migrations', () => {
         id: 29,
         name: 'add_resource_participation_summaries',
       },
+      {
+        id: 30,
+        name: 'add_profile_home_mode',
+      },
     ]);
 
     const tableNames = (db.prepare(`
@@ -173,7 +177,7 @@ describe('database migrations', () => {
       profiles: [
         'id', 'user_id', 'name', 'description', 'model_tier', 'learning_context',
         'profile_onboarding_completed_at', 'created_at', 'updated_at',
-        'instruction_language',
+        'instruction_language', 'home_mode',
       ],
       quiz_attempts: [
         'id', 'quiz_id', 'user_id', 'profile_id', 'guest_token', 'claim_token',

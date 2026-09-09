@@ -5,6 +5,11 @@ import {
   normalizeProfileModelTier,
   type ProfileModelTier,
 } from '../profiles/modelTier.js';
+import {
+  defaultProfileHomeMode,
+  normalizeProfileHomeMode,
+  type ProfileHomeMode,
+} from '../profiles/homeMode.js';
 import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
@@ -13,6 +18,8 @@ export type StoredProfile = {
   id: string;
   userId: string;
   modelTier: ProfileModelTier;
+  /** Which composition the signed-in home opens with. Presentation, not permission. */
+  homeMode: ProfileHomeMode;
   name: string;
   description: string;
   learningContext: string;
@@ -38,6 +45,11 @@ export type StoredConversation = {
 };
 
 export type ResourceType = 'quiz' | 'practice_guide' | 'resource_folder' | 'roleplay';
+/**
+ * The resource types that carry pedagogical content, and so can be practiced,
+ * shared as an activity, and reported on. Folders organize; they are not one.
+ */
+export type PedagogicalResourceType = Exclude<ResourceType, 'resource_folder'>;
 export type ResourceShareKind = 'link' | 'profile';
 
 export type StoredResource = {
@@ -384,6 +396,7 @@ type ProfileRow = {
   id: string;
   user_id: string;
   model_tier: string;
+  home_mode: string;
   name: string;
   description: string;
   learning_context: string;
@@ -664,6 +677,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
     id: row.id,
     userId: row.user_id,
     modelTier: normalizeProfileModelTier(row.model_tier),
+    homeMode: normalizeProfileHomeMode(row.home_mode),
     name: row.name,
     description: row.description,
     learningContext: row.learning_context,
@@ -2107,6 +2121,224 @@ export function listSharedResourcesForProfile(input: {
   }));
 }
 
+/**
+ * One row per collected participation in a shared resource, unified across the
+ * three resource types so the signed-in home can aggregate them in a single
+ * query instead of one call per resource.
+ *
+ * The membership rules are the ones each per-resource collected list already
+ * applies: only participations that snapshotted `collect_results` at start, and
+ * never the author profile's own runs. Practice guides count their finalized
+ * reports rather than raw conversations, which is the artifact that returns to
+ * the guide owner.
+ */
+const collectedParticipationUnion = `
+  SELECT
+    qa.quiz_id AS resource_id,
+    COALESCE(qa.evaluated_at, qa.submitted_at, qa.created_at) AS happened_at
+  FROM quiz_attempts AS qa
+  WHERE qa.collect_results = 1
+    AND (qa.profile_id IS NULL OR qa.profile_id != :authorProfileId)
+
+  UNION ALL
+
+  SELECT
+    ra.roleplay_id AS resource_id,
+    COALESCE(ra.evaluated_at, ra.submitted_at, ra.created_at) AS happened_at
+  FROM roleplay_attempts AS ra
+  WHERE ra.collect_results = 1
+    AND (ra.profile_id IS NULL OR ra.profile_id != :authorProfileId)
+
+  UNION ALL
+
+  SELECT
+    c.practice_guide_id AS resource_id,
+    r.created_at AS happened_at
+  FROM tutor_conversation_reports AS r
+  JOIN conversations AS c ON c.id = r.conversation_id
+  WHERE c.practice_guide_id IS NOT NULL
+    AND c.collect_results = 1
+    AND r.profile_id != :authorProfileId
+`;
+
+export type StoredSharedResourceParticipation = {
+  /** Participations recorded within the recency window, for the "new" section. */
+  recentParticipantCount: number;
+  id: string;
+  lastParticipationAt: string | null;
+  participantCount: number;
+  title: string;
+  type: PedagogicalResourceType;
+  updatedAt: string;
+};
+
+/**
+ * Every resource the profile has shared, with how many people have completed it
+ * and when the last one did. Powers the teaching composition of the signed-in
+ * home (Roadmap V3 §1.14): it restores the at-a-glance counts that the
+ * 2026-07-23 catalog simplification moved to each resource's participation page.
+ *
+ * `recencyWindowStart` is an ISO timestamp; participations at or after it are
+ * counted separately so the home can lead with what happened while the owner
+ * was away, without persisting a per-profile "last seen" marker.
+ */
+export function listSharedResourceParticipationForProfile(input: {
+  profileId: string;
+  recencyWindowStart: string;
+  userId: string;
+}): StoredSharedResourceParticipation[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          resource.id,
+          resource.type,
+          resource.title,
+          resource.updated_at,
+          COUNT(participation.resource_id) AS participant_count,
+          COUNT(
+            CASE WHEN participation.happened_at >= :recencyWindowStart THEN 1 END
+          ) AS recent_participant_count,
+          MAX(participation.happened_at) AS last_participation_at
+        FROM resources AS resource
+        LEFT JOIN (${collectedParticipationUnion}) AS participation
+          ON participation.resource_id = resource.id
+        WHERE resource.user_id = :userId
+          AND resource.profile_id = :authorProfileId
+          AND resource.type != 'resource_folder'
+          AND resource.archived_at IS NULL
+          AND (
+            EXISTS (
+              SELECT 1
+              FROM resource_access_grants AS grant_row
+              WHERE grant_row.resource_id = resource.id
+                AND grant_row.revoked_at IS NULL
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM resource_share_links AS share_link
+              WHERE share_link.resource_id = resource.id
+                AND share_link.revoked_at IS NULL
+            )
+          )
+        GROUP BY resource.id
+        ORDER BY
+          last_participation_at DESC,
+          resource.updated_at DESC,
+          resource.created_at DESC
+      `,
+    )
+    .all({
+      authorProfileId: input.profileId,
+      recencyWindowStart: input.recencyWindowStart,
+      userId: input.userId,
+    }) as Array<{
+    id: string;
+    last_participation_at: string | null;
+    participant_count: number;
+    recent_participant_count: number;
+    title: string;
+    type: PedagogicalResourceType;
+    updated_at: string;
+  }>;
+
+  return rows.map((row) => ({
+    id: row.id,
+    lastParticipationAt: row.last_participation_at,
+    participantCount: row.participant_count,
+    recentParticipantCount: row.recent_participant_count,
+    title: row.title,
+    type: row.type,
+    updatedAt: row.updated_at,
+  }));
+}
+
+export type StoredResourceSharedWithProfile = {
+  id: string;
+  /** Whether this profile has already opened or attempted the activity. */
+  hasStarted: boolean;
+  lastActivityAt: string | null;
+  sharedAt: string;
+  title: string;
+  type: PedagogicalResourceType;
+};
+
+/**
+ * Activities other people have shared with this profile, with whether the
+ * profile has started them. Powers the learning composition of the signed-in
+ * home (Roadmap V3 §1.14), where the not-yet-started ones come first.
+ *
+ * "Started" is deliberately generous — any attempt row, or any conversation
+ * opened from a practice guide — because the card only decides ordering and a
+ * reminder badge, never access.
+ */
+export function listResourcesSharedWithProfile(input: {
+  profileId: string;
+  userId: string;
+}): StoredResourceSharedWithProfile[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          resource.id,
+          resource.type,
+          resource.title,
+          grant_row.created_at AS shared_at,
+          MAX(activity.happened_at) AS last_activity_at
+        FROM resource_access_grants AS grant_row
+        JOIN resources AS resource
+          ON resource.id = grant_row.resource_id
+        LEFT JOIN resource_share_links AS share_link
+          ON share_link.id = grant_row.share_link_id
+        LEFT JOIN (
+          SELECT qa.quiz_id AS resource_id, qa.created_at AS happened_at
+          FROM quiz_attempts AS qa
+          WHERE qa.profile_id = :profileId
+
+          UNION ALL
+
+          SELECT ra.roleplay_id AS resource_id, ra.created_at AS happened_at
+          FROM roleplay_attempts AS ra
+          WHERE ra.profile_id = :profileId
+
+          UNION ALL
+
+          SELECT c.practice_guide_id AS resource_id, c.created_at AS happened_at
+          FROM conversations AS c
+          WHERE c.practice_guide_id IS NOT NULL
+            AND c.profile_id = :profileId
+        ) AS activity
+          ON activity.resource_id = resource.id
+        WHERE grant_row.user_id = :userId
+          AND grant_row.profile_id = :profileId
+          AND grant_row.revoked_at IS NULL
+          AND (grant_row.share_link_id IS NULL OR share_link.revoked_at IS NULL)
+          AND resource.type != 'resource_folder'
+          AND resource.archived_at IS NULL
+        GROUP BY resource.id
+        ORDER BY
+          last_activity_at IS NOT NULL ASC,
+          grant_row.created_at DESC
+      `,
+    )
+    .all({ profileId: input.profileId, userId: input.userId }) as Array<{
+    id: string;
+    last_activity_at: string | null;
+    shared_at: string;
+    title: string;
+    type: PedagogicalResourceType;
+  }>;
+
+  return rows.map((row) => ({
+    id: row.id,
+    hasStarted: row.last_activity_at !== null,
+    lastActivityAt: row.last_activity_at,
+    sharedAt: row.shared_at,
+    title: row.title,
+    type: row.type,
+  }));
+}
+
 export function createResourceFolder(input: {
   description?: string;
   profileId: string;
@@ -2688,6 +2920,7 @@ export function createProfile(input: {
   description?: string;
   learningContext?: string;
   modelTier?: ProfileModelTier;
+  homeMode?: ProfileHomeMode;
   instructionLanguage?: Locale;
   profileOnboardingCompleted?: boolean;
 }): StoredProfile {
@@ -2702,10 +2935,11 @@ export function createProfile(input: {
           description,
           learning_context,
           model_tier,
+          home_mode,
           instruction_language,
           profile_onboarding_completed_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -2715,6 +2949,7 @@ export function createProfile(input: {
       input.description ?? '',
       input.learningContext ?? '',
       input.modelTier ?? defaultProfileModelTier,
+      input.homeMode ?? defaultProfileHomeMode,
       input.instructionLanguage ?? 'es',
       input.profileOnboardingCompleted === false ? null : new Date().toISOString(),
     );
@@ -2741,6 +2976,7 @@ export function findProfileForUser(
           description,
           learning_context,
           model_tier,
+          home_mode,
           instruction_language,
           profile_onboarding_completed_at,
           created_at,
@@ -2765,6 +3001,7 @@ export function findProfileById(id: string): StoredProfile | null {
           description,
           learning_context,
           model_tier,
+          home_mode,
           instruction_language,
           profile_onboarding_completed_at,
           created_at,
@@ -2789,6 +3026,7 @@ export function listProfilesForUser(userId: string): StoredProfile[] {
           description,
           learning_context,
           model_tier,
+          home_mode,
           instruction_language,
           profile_onboarding_completed_at,
           created_at,
@@ -2828,6 +3066,7 @@ export function updateProfile(input: {
   description: string;
   learningContext?: string;
   modelTier?: ProfileModelTier;
+  homeMode?: ProfileHomeMode;
   instructionLanguage?: Locale;
   profileOnboardingCompleted?: boolean;
 }): StoredProfile | null {
@@ -2839,6 +3078,7 @@ export function updateProfile(input: {
             description = ?,
             learning_context = COALESCE(?, learning_context),
             model_tier = COALESCE(?, model_tier),
+            home_mode = COALESCE(?, home_mode),
             instruction_language = COALESCE(?, instruction_language),
             profile_onboarding_completed_at = CASE
               WHEN ? = 1 THEN COALESCE(profile_onboarding_completed_at, CURRENT_TIMESTAMP)
@@ -2853,11 +3093,36 @@ export function updateProfile(input: {
       input.description,
       input.learningContext ?? null,
       input.modelTier ?? null,
+      input.homeMode ?? null,
       input.instructionLanguage ?? null,
       input.profileOnboardingCompleted ? 1 : 0,
       input.profileId,
       input.userId,
     );
+
+  return findProfileForUser(input.profileId, input.userId);
+}
+
+/**
+ * Sets which composition the signed-in home opens with. Separate from
+ * `updateProfile` so the one-click switch on the home does not have to resend
+ * the whole profile form, and so it can never clear another field by omission.
+ */
+export function updateProfileHomeMode(input: {
+  homeMode: ProfileHomeMode;
+  profileId: string;
+  userId: string;
+}): StoredProfile | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE profiles
+        SET home_mode = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(input.homeMode, input.profileId, input.userId);
 
   return findProfileForUser(input.profileId, input.userId);
 }

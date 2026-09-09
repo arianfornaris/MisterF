@@ -1,0 +1,33 @@
+<%# One-click switch between the two home compositions (Roadmap V3 §1.14).
+    It writes the active profile's stored preference, so there is a single
+    source of truth and the choice survives the next visit — the same value the
+    profile form edits. It gates nothing: both modes reach every feature. %>
+<form
+  class="btn-group btn-group-sm flex-wrap"
+  method="post"
+  action="/home/mode"
+  role="group"
+  aria-label="<%= t('home.modeAria') %>"
+>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <input type="hidden" name="returnTo" value="/">
+  <% const activeHomeMode = activeProfile ? activeProfile.homeMode : 'learn'; %>
+  <button
+    class="btn <%= activeHomeMode === 'learn' ? 'btn-primary' : 'btn-outline-secondary' %>"
+    type="submit"
+    name="homeMode"
+    value="learn"
+    <%= activeHomeMode === 'learn' ? 'aria-current="true"' : '' %>
+  >
+    <i class="bi bi-mortarboard me-1" aria-hidden="true"></i><%= t('home.modeLearn') %>
+  </button>
+  <button
+    class="btn <%= activeHomeMode === 'teach' ? 'btn-primary' : 'btn-outline-secondary' %>"
+    type="submit"
+    name="homeMode"
+    value="teach"
+    <%= activeHomeMode === 'teach' ? 'aria-current="true"' : '' %>
+  >
+    <i class="bi bi-easel me-1" aria-hidden="true"></i><%= t('home.modeTeach') %>
+  </button>
+</form>

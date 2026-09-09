@@ -36,6 +36,7 @@ import {
 import { translate } from '../i18n/index.js';
 import { logger } from '../services/logger.js';
 import { duplicateResourceForProfile } from './duplicate.js';
+import { buildResourceDetailPath } from './paths.js';
 
 type ResourceFilterType = StoredResource['type'] | 'all' | 'by_me' | 'with_me';
 type ResourceSortOption = 'title_asc' | 'type' | 'updated_desc';
@@ -124,22 +125,6 @@ type ResourceScope = 'folder' | 'all';
 
 function readResourceScope(value: unknown): ResourceScope {
   return readField(value, 10) === 'all' ? 'all' : 'folder';
-}
-
-function buildResourceDetailPath(resource: StoredResource): string {
-  if (resource.type === 'quiz') {
-    return `/quizzes/${encodeURIComponent(resource.id)}`;
-  }
-
-  if (resource.type === 'practice_guide') {
-    return `/practice-guides/${encodeURIComponent(resource.id)}`;
-  }
-
-  if (resource.type === 'roleplay') {
-    return `/roleplays/${encodeURIComponent(resource.id)}`;
-  }
-
-  return `/resources/folders/${encodeURIComponent(resource.id)}`;
 }
 
 function buildResourceAction(resource: StoredResource): {

@@ -845,5 +845,17 @@ export const migrations = [
       );
     `,
     },
+    {
+        id: 30,
+        name: 'add_profile_home_mode',
+        // How the profile uses the product, which composes the signed-in home
+        // (Roadmap V3 §1.14). Presentation only: no authorization path reads it,
+        // and both modes reach every feature. Existing profiles default to
+        // 'learn', which is what the home did before the setting existed.
+        up: `
+      ALTER TABLE profiles
+        ADD COLUMN home_mode TEXT NOT NULL DEFAULT 'learn';
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

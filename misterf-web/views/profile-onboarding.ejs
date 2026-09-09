@@ -68,6 +68,44 @@
                   </div>
                 </fieldset>
 
+                <%# Asked at onboarding because the answer decides what the
+                    first screen shows. It is a preference, not a role: it can be
+                    changed from the home itself with one click. %>
+                <fieldset>
+                  <legend class="form-label mb-1"><%= t('home.modeLegend') %></legend>
+                  <p class="form-text mt-0 mb-2" id="onboardingHomeModeHelp">
+                    <%= t('home.modeHelp') %>
+                  </p>
+                  <div class="list-group" aria-describedby="onboardingHomeModeHelp">
+                    <label class="list-group-item d-flex gap-3">
+                      <input
+                        class="form-check-input flex-shrink-0 mt-1"
+                        type="radio"
+                        name="homeMode"
+                        value="learn"
+                        <%= values.homeMode === 'learn' ? 'checked' : '' %>
+                      >
+                      <span class="d-block">
+                        <span class="fw-semibold d-block"><%= t('home.modeLearn') %></span>
+                        <small class="text-body-secondary"><%= t('home.modeLearnHelp') %></small>
+                      </span>
+                    </label>
+                    <label class="list-group-item d-flex gap-3">
+                      <input
+                        class="form-check-input flex-shrink-0 mt-1"
+                        type="radio"
+                        name="homeMode"
+                        value="teach"
+                        <%= values.homeMode === 'teach' ? 'checked' : '' %>
+                      >
+                      <span class="d-block">
+                        <span class="fw-semibold d-block"><%= t('home.modeTeach') %></span>
+                        <small class="text-body-secondary"><%= t('home.modeTeachHelp') %></small>
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
+
                 <div>
                   <label class="form-label" for="onboardingProfileDescription"><%= t('profiles.onbDescLabel') %></label>
                   <textarea

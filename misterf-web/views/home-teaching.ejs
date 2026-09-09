@@ -1,0 +1,134 @@
+<%- include('partials/app-shell-open') %>
+
+<%#
+  The teaching composition of the signed-in home (Roadmap V3 §1.14). Every card
+  on this page is a deterministic query: no inference runs here, so opening the
+  app costs nothing and never waits.
+
+  Order is deliberate. What happened while the owner was away comes first when
+  there is anything; creating an activity sits second so a profile that has
+  shared nothing yet still opens on a useful action; the full shared list closes
+  the page.
+%>
+
+<section class="app-page" aria-label="<%= t('home.teachTitle') %>">
+  <div class="app-page-header">
+    <div>
+      <p class="app-page-kicker"><%= t('home.kicker') %></p>
+      <h1 class="app-page-title"><%= t('home.teachTitle') %></h1>
+      <p class="app-page-copy"><%= t('home.teachCopy') %></p>
+    </div>
+
+    <div class="app-page-header-actions">
+      <%- include('partials/home-mode-switch') %>
+    </div>
+  </div>
+
+  <% if (teachingHome.recentActivities.length > 0) { %>
+    <section class="mt-4" aria-labelledby="homeNewsTitle">
+      <h2 class="h5 mb-1" id="homeNewsTitle">
+        <i class="bi bi-bell me-2" aria-hidden="true"></i><%= t('home.newsTitle') %>
+      </h2>
+      <p class="small text-body-secondary mb-3"><%= t('home.newsCopy') %></p>
+
+      <div class="list-group">
+        <% teachingHome.recentActivities.forEach((activity) => { %>
+          <a class="list-group-item list-group-item-action d-flex align-items-start justify-content-between gap-3" href="<%= activity.participationPath %>">
+            <span class="min-w-0">
+              <span class="d-block fw-semibold text-truncate">
+                <i class="bi <%= activity.iconClass %> me-2" aria-hidden="true"></i><%= activity.title %>
+              </span>
+              <span class="d-block small text-body-secondary">
+                <%= t(activity.labelKey) %>
+                <% if (activity.lastParticipationRelative) { %>
+                  <span class="mx-1" aria-hidden="true">·</span>
+                  <%= t('home.lastResponse', { time: activity.lastParticipationRelative }) %>
+                <% } %>
+              </span>
+            </span>
+            <span class="badge text-bg-primary flex-shrink-0">
+              <%= activity.recentParticipantCount === 1
+                ? t('home.newsCountOne')
+                : t('home.newsCount', { count: activity.recentParticipantCount }) %>
+            </span>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="mt-4" aria-labelledby="homeCreateTitle">
+    <h2 class="h5 mb-1" id="homeCreateTitle">
+      <i class="bi bi-plus-circle me-2" aria-hidden="true"></i><%= t('home.createTitle') %>
+    </h2>
+    <p class="small text-body-secondary mb-3"><%= t('home.createCopy') %></p>
+
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-primary" href="/quizzes/new">
+        <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i><%= t('chat.resourceTypeQuiz') %>
+      </a>
+      <a class="btn btn-outline-primary" href="/practice-guides/new">
+        <i class="bi bi-journal-text me-2" aria-hidden="true"></i><%= t('chat.resourceTypePracticeGuide') %>
+      </a>
+      <a class="btn btn-outline-primary" href="/roleplays/new">
+        <i class="bi bi-person-video3 me-2" aria-hidden="true"></i><%= t('chat.resourceTypeRoleplay') %>
+      </a>
+    </div>
+  </section>
+
+  <section class="mt-4" aria-labelledby="homeSharedTitle">
+    <h2 class="h5 mb-3" id="homeSharedTitle">
+      <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('home.sharedTitle') %>
+    </h2>
+
+    <% if (teachingHome.sharedActivities.length > 0) { %>
+      <div class="list-group">
+        <% teachingHome.sharedActivities.forEach((activity) => { %>
+          <div class="list-group-item position-relative d-flex align-items-start justify-content-between gap-3">
+            <div class="min-w-0">
+              <%# The row's title stays body text and the link is the whole row,
+                  the same shape the resource catalog uses, so the two lists read
+                  alike instead of one turning every title into a green link. %>
+              <a class="stretched-link" href="<%= activity.participationPath %>">
+                <span class="visually-hidden"><%= t('home.viewResponses') %> <%= activity.title %></span>
+              </a>
+              <span class="d-block fw-semibold text-truncate">
+                <i class="bi <%= activity.iconClass %> me-2" aria-hidden="true"></i><%= activity.title %>
+              </span>
+              <span class="d-block small text-body-secondary">
+                <%= t(activity.labelKey) %>
+                <% if (activity.lastParticipationRelative) { %>
+                  <span class="mx-1" aria-hidden="true">·</span>
+                  <%= t('home.lastResponse', { time: activity.lastParticipationRelative }) %>
+                <% } %>
+              </span>
+            </div>
+            <span class="badge <%= activity.participantCount > 0 ? 'text-bg-secondary' : 'text-bg-light border' %> flex-shrink-0">
+              <% if (activity.participantCount === 0) { %>
+                <%= t('home.noParticipants') %>
+              <% } else if (activity.participantCount === 1) { %>
+                <%= t('home.participantsOne') %>
+              <% } else { %>
+                <%= t('home.participants', { count: activity.participantCount }) %>
+              <% } %>
+            </span>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="alert alert-light border mb-0" role="status">
+        <p class="mb-2"><%= t('home.sharedEmpty') %></p>
+        <a class="btn btn-sm btn-secondary" href="/resources"><%= t('home.sharedEmptyAction') %></a>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="mt-4 pt-3 border-top" aria-labelledby="homeAskTutorTitle">
+    <h2 class="h6 mb-1" id="homeAskTutorTitle">
+      <a href="/chat"><i class="bi bi-chat-dots me-2" aria-hidden="true"></i><%= t('home.askTutor') %></a>
+    </h2>
+    <p class="small text-body-secondary mb-0"><%= t('home.askTutorCopy') %></p>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close') %>

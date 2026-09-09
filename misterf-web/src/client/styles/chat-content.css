@@ -2085,3 +2085,12 @@ button.sentence-part:focus {
     opacity: 0;
   }
 }
+
+/*
+ * Learning home panel: the starter card above the composer on the empty chat
+ * state. Constrained to the same reading width as the conversation summary so
+ * it lines up with the chat content instead of spanning the full pane.
+ */
+.home-learning-panel {
+  max-width: 780px;
+}

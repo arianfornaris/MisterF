@@ -1386,24 +1386,94 @@ dashboards and not a second home route.
 
 ### Checklist
 
-- [ ] Persist the preferred mode: migration 30 adds `profiles.primary_mode`
-  (`TEXT NOT NULL DEFAULT 'learn'`), with the field exposed in
-  `views/profiles-form.ejs` and `views/profile-onboarding.ejs`.
-- [ ] Add the runtime mode switch, independent of the stored preference, and
-  decide where it lives (see Open Questions).
-- [ ] Compose `/` per active mode inside the existing chat page handler rather
-  than adding a route; guests are unaffected.
-- [ ] Build the teaching panel from existing queries
-  (`listSharedResourcesForProfile`, the collected-attempts query behind
-  `Resultados de estudiantes`, the participation summaries).
-- [ ] Build the learning panel from existing queries (grants for
-  shared-with-me, unfinished attempts, open conversations).
-- [ ] **Deterministic only.** No inference on the home in this round: no
-  ranking call, no generated copy, no pending modal. Every card is a query.
-- [ ] i18n keys for `es`, `en`, and `ht` per the `project-language-conventions`
-  skill; no hard-coded strings in the new partials.
-- [ ] Route tests for both compositions, the default for a profile with no
-  stored mode, and the switch.
+Shipped 2026-09-09; typecheck, test typecheck, and the full suite pass, and the
+whole surface was exercised live on the QA account (evidence below).
+
+- [x] Persist the preferred mode. Migration 30 adds `profiles.home_mode`
+  (`TEXT NOT NULL DEFAULT 'learn'`), mapped through `StoredProfile.homeMode`
+  and normalized by `src/server/profiles/homeMode.ts`. The field is on the
+  profile form (`views/profiles-form.ejs`) and on profile onboarding
+  (`views/profile-onboarding.ejs`), so it is asked once and editable forever.
+- [x] Runtime switch. `POST /home/mode` writes the **stored preference**
+  rather than a session override — decision below — behind a two-button
+  control (`views/partials/home-mode-switch.ejs`) that appears on both
+  compositions.
+- [x] Compose `/` per active mode. A new `src/server/home/` module owns the
+  route: `renderHomePage` dispatches to `renderChatPage` or the teaching page,
+  and `homeRouter` is mounted between `landingRouter` and `chatRouter`. `/chat`
+  stayed on the chat router and renders the chat in either mode; guests are
+  untouched.
+- [x] Teaching panel from existing queries. One new aggregate,
+  `listSharedResourceParticipationForProfile`, unions the three collected
+  participation sources (quiz attempts, roleplay attempts, practice-guide
+  reports) so the page is a single query instead of one call per resource. It
+  reuses the exact membership rules of the per-resource lists: only
+  `collect_results` participations, never the author profile's own runs.
+- [x] Learning panel from existing queries.
+  `listResourcesSharedWithProfile` returns granted, non-archived, non-folder
+  resources with whether this profile has started them; not-yet-started first.
+- [x] **Deterministic only.** No inference on either composition: no ranking
+  call, no generated copy, no pending modal. Opening the app costs nothing and
+  never waits.
+- [x] i18n for `es`, `en`, and `ht` under a new `home` namespace; no
+  hard-coded strings in the new views. Verified by rendering the teaching home
+  in Haitian Creole with a clean missing-key log.
+- [x] Route and repository tests. `tests/db/homeRepository.test.ts` covers the
+  mode default, the single-column update, cross-account rejection, collected
+  vs. uncollected vs. owner participation, the recency window, pending
+  ordering, and an archived resource dropping out. Seven cases in
+  `tests/server/routes.test.ts` cover both compositions, their empty states,
+  the switch round trip, `/chat` in teaching mode, and a signed-out switch.
+
+### Decisions Made During Implementation
+
+- **The switch writes the stored preference; there is no session override.**
+  One value, one source of truth: the profile form and the home switch can
+  never disagree, switching survives the next visit, and no new state was
+  added. This answers both switch open questions at once. It lives on the home
+  itself rather than the user menu, where it would read as a profile change.
+- **"New since your last visit" is a fixed 7-day window, not a stored
+  marker.** A per-profile `last_seen` advances on render, so an accidental
+  refresh would erase the very badge the teacher came for, and it would add a
+  write to a read-only page. A week matches the pilot's cadence — what happened
+  between one class and the next. The constant is
+  `recentParticipationWindowDays` in `src/server/home/data.ts`.
+- **Section order is Novedades → Crear actividad → Lo que compartí**, not the
+  order sketched above. Putting creation second means a profile that has shared
+  nothing still opens on a useful action, while an active one still leads with
+  what arrived — without a second empty-state layout.
+- **"Create an activity from these results" was not built.** It needs a
+  generative flow of its own (a prompt contract over the aggregate, the credit
+  gate, the §1.8 pending modal), which is exactly what the deterministic-home
+  rule excludes. Instead every row links to the resource's participation page,
+  where the response summary already lives. The action stays a candidate there,
+  next to the data it would read.
+- **The sidebar is unchanged.** The blast radius stays at one page, which is
+  what makes the change measurable.
+- Also extracted in passing: `src/server/resources/paths.ts`, so the catalog
+  and the home build resource links from one definition, and
+  `PedagogicalResourceType`, which makes "folders are not activities" a type
+  error to forget rather than a missing lookup at render time.
+
+### Live QA (2026-09-09, local, no inference)
+
+Run on `qa.fable@misterf.local`, everything free of LLM calls. Verified: the
+learning panel renders the profile's real shared-with-me activities above the
+composer and disappears on an open conversation; the switch flips both
+compositions and persists to `profiles.home_mode`; the teaching home lists four
+real shared activities with participant counts and last-response times; a
+freshly inserted collected attempt made **Novedades** appear with "1 respuesta
+nueva" and moved the count 5 → 6; each row reaches the participation page with
+the participant listed; the profile form persists the mode without disturbing
+name, tier, or language; mobile (375px) lays both compositions out without
+overflow; the Haitian Creole render is complete. The probe attempt was deleted
+and the QA profile restored to `learn`/`es`. Server error log gained nothing
+during the session.
+
+Adjusted after looking at it: the shared-activity rows first rendered their
+titles as links, which Flatly paints green — they now use the resource
+catalog's row shape (body-text title, whole row as a stretched link) so the two
+lists read alike.
 
 ### Deferred To A Later Iteration (recorded 2026-09-09 at the founder's request)
 
@@ -1419,22 +1489,8 @@ dashboards and not a second home route.
   mode — and whether teaching-mode conversations emit progress events at all —
   is a prompt-coherence question (`system-prompt-coherence`,
   `learner-progress-events`), not a home-layout one. Not in this round.
-
-### Open Questions
-
-- [ ] Where does the runtime switch live: the user menu next to
-  `Cambiar perfil`, a control on the home itself, or both? A control on the
-  home is the most discoverable and the least likely to be mistaken for a
-  profile change.
-- [ ] Does the switch persist per session, or does the home always open in the
-  profile's preferred mode? (Persisting is friendlier; opening in the
-  preferred mode is more predictable and needs no new state.)
-- [ ] Does anything outside `/` react to the mode in this round? Recommended
-  answer: no — the sidebar stays identical, so the blast radius stays at one
-  page and the change is measurable.
-- [ ] Does the "new since your last visit" card need a stored last-seen
-  timestamp per profile, or is "responses newer than the resource's last
-  viewed summary" enough from data already present?
+- **"Create an activity from these results"** (see the decision above): the
+  generative loop from a response summary back into a new activity.
 
 ### Related
 

@@ -2519,6 +2519,192 @@ describe('main route smoke tests', () => {
   });
 });
 
+describe('signed-in home modes', () => {
+  async function createHomeAccount(seed: string, homeMode: 'learn' | 'teach') {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: `${seed}@example.com`,
+      emailVerified: true,
+      fullName: `Home ${seed}`,
+      provider: 'google',
+      providerSubject: seed,
+    });
+    const profile = createProfile({
+      homeMode,
+      instructionLanguage: 'en',
+      name: `${seed} profile`,
+      userId: user.id,
+    });
+
+    return { cookie: await createAuthenticatedCookie(user.id, profile.id), profile, user };
+  }
+
+  it('opens the chat composition with the starter panel for a learning profile', async () => {
+    const { cookie } = await createHomeAccount('home-learner', 'learn');
+
+    const response = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('id="chatForm"');
+    expect(html).toContain('data-learning-home-panel');
+    expect(html).toContain('For you');
+    expect(html).toContain('See my progress');
+    // Nothing shared with this profile yet.
+    expect(html).toContain('When someone shares an activity with you');
+  });
+
+  it('opens the teaching composition for a teaching profile', async () => {
+    const { cookie } = await createHomeAccount('home-teacher', 'teach');
+
+    const response = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('Your shared activities');
+    expect(html).toContain('Create an activity');
+    expect(html).toContain('href="/quizzes/new"');
+    expect(html).toContain('You have not shared an activity yet');
+    // The teaching home is not the chat page; the tutor is one quiet link away.
+    expect(html).not.toContain('id="chatForm"');
+    expect(html).toContain('href="/chat"');
+  });
+
+  it('shows shared activities and their participation on the teaching home', async () => {
+    const {
+      createQuiz,
+      createQuizAttempt,
+      createProfile,
+      getOrCreateResourceShareLink,
+    } = await import('../../src/server/db/repository.js');
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+
+    const { cookie, profile, user } = await createHomeAccount('home-shares', 'teach');
+    const quiz = createQuiz({
+      profileId: profile.id,
+      quiz: { blocks: [], title: 'Present Perfect Drill', type: 'quiz' },
+      title: 'Present Perfect Drill',
+      userId: user.id,
+    });
+    getOrCreateResourceShareLink(quiz.id);
+
+    const student = createExternalUser({
+      email: 'home-shares-student@example.com',
+      emailVerified: true,
+      fullName: 'Home Student',
+      provider: 'google',
+      providerSubject: 'home-shares-student',
+    });
+    const studentProfile = createProfile({ name: 'Student profile', userId: student.id });
+    createQuizAttempt({
+      collectResults: true,
+      profileId: studentProfile.id,
+      quizId: quiz.id,
+      snapshot: { blocks: [], title: 'Present Perfect Drill', type: 'quiz' },
+      userId: student.id,
+    });
+
+    const response = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('Present Perfect Drill');
+    expect(html).toContain(`href="/quizzes/${quiz.id}/participation"`);
+    expect(html).toContain('1 new answer');
+    expect(html).toContain('1 participant');
+  });
+
+  it('lists activities shared with a learning profile as pending', async () => {
+    const { createQuiz, createProfile, grantResourceAccess } = await import(
+      '../../src/server/db/repository.js'
+    );
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+
+    const { cookie, profile, user } = await createHomeAccount('home-receiver', 'learn');
+    const teacher = createExternalUser({
+      email: 'home-receiver-teacher@example.com',
+      emailVerified: true,
+      fullName: 'Home Teacher',
+      provider: 'google',
+      providerSubject: 'home-receiver-teacher',
+    });
+    const teacherProfile = createProfile({ name: 'Teacher profile', userId: teacher.id });
+    const quiz = createQuiz({
+      profileId: teacherProfile.id,
+      quiz: { blocks: [], title: 'Homework One', type: 'quiz' },
+      title: 'Homework One',
+      userId: teacher.id,
+    });
+    grantResourceAccess({
+      grantedByUserId: teacher.id,
+      grantedVia: 'link',
+      profileId: profile.id,
+      resourceId: quiz.id,
+      userId: user.id,
+    });
+
+    const response = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('Homework One');
+    expect(html).toContain(`href="/quizzes/${quiz.id}"`);
+    expect(html).toContain('Pending');
+  });
+
+  it('switches the composition and persists it on the profile', async () => {
+    const { findProfileForUser } = await import('../../src/server/db/repository.js');
+    const { cookie, profile, user } = await createHomeAccount('home-switch', 'learn');
+
+    const homeResponse = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
+    const csrfToken = extractCsrfToken(await homeResponse.text());
+
+    const switchResponse = await postForm(
+      '/home/mode',
+      { _csrf: csrfToken, homeMode: 'teach', returnTo: '/' },
+      cookie,
+    );
+    expect(switchResponse.status).toBe(302);
+    expect(switchResponse.headers.get('location')).toBe('/');
+    expect(findProfileForUser(profile.id, user.id)?.homeMode).toBe('teach');
+
+    const teachingResponse = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
+    expect(await teachingResponse.text()).toContain('Your shared activities');
+
+    // And back, from the teaching home's own switch.
+    await postForm('/home/mode', { _csrf: csrfToken, homeMode: 'learn', returnTo: '/' }, cookie);
+    expect(findProfileForUser(profile.id, user.id)?.homeMode).toBe('learn');
+  });
+
+  it('keeps /chat on the chat page in either mode', async () => {
+    const { cookie } = await createHomeAccount('home-chat-entry', 'teach');
+
+    const response = await fetch(`${baseUrl}/chat`, { headers: { cookie }, redirect: 'manual' });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('id="chatForm"');
+    expect(html).not.toContain('Your shared activities');
+  });
+
+  it('rejects a mode switch from a signed-out visitor', async () => {
+    const homeResponse = await fetch(`${baseUrl}/login`, { redirect: 'manual' });
+    const csrfToken = extractCsrfToken(await homeResponse.text());
+
+    const response = await fetch(`${baseUrl}/home/mode`, {
+      body: new URLSearchParams({ _csrf: csrfToken, homeMode: 'teach', returnTo: '/' }),
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      method: 'POST',
+      redirect: 'manual',
+    });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('/login');
+  });
+});
+
 function restoreEnvValue(name: string, value: string | undefined): void {
   if (value === undefined) {
     delete process.env[name];

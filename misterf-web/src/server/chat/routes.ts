@@ -14,8 +14,7 @@ chatRouter.post('/c/:conversationId/report/practice', handlePracticeTutorConvers
 chatRouter.post('/c/:conversationId/report/resource', handleCreateResourceFromTutorConversationReport);
 chatRouter.post('/c/:conversationId/resource', handleCreateResourceFromConversation);
 chatRouter.get('/c/:conversationId', renderChatPage);
-// Explicit entry to a new conversation. `/` still opens the app for a signed-in
-// user, but it now renders the landing page for visitors, so guest chat needs a
-// URL of its own for the landing to link to.
+// Explicit entry to a new conversation, in either home mode. `/` renders the
+// landing for visitors and is dispatched by `homeRouter` for a signed-in user,
+// so guest chat and the teaching mode's "ask Mr. F" both need this URL.
 chatRouter.get('/chat', renderChatPage);
-chatRouter.get('/', renderChatPage);

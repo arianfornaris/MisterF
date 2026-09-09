@@ -4,6 +4,7 @@ import { setActiveProfileCookie } from '../auth/profiles.js';
 import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { normalizeProfileReturnTo, normalizeProfileText, profileDescriptionMaxLength, profileLearningContextMaxLength, profileNameMaxLength, } from './fields.js';
 import { normalizeProfileModelTier } from './modelTier.js';
+import { normalizeProfileHomeMode } from './homeMode.js';
 import { isInstructionLanguage, normalizeInstructionLanguage, } from './instructionLanguage.js';
 const profileFieldLimits = {
     description: profileDescriptionMaxLength,
@@ -125,6 +126,7 @@ export function renderProfileOnboardingPage(request, response) {
         selectedProfile: activeProfile,
         values: {
             description: activeProfile.description,
+            homeMode: activeProfile.homeMode,
             instructionLanguage: activeProfile.instructionLanguage,
             learningContext: activeProfile.learningContext,
             name: activeProfile.name,
@@ -146,6 +148,7 @@ export function handleProfileOnboarding(request, response) {
     const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
     const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
     const instructionLanguage = normalizeInstructionLanguage(request.body.instructionLanguage, activeProfile.instructionLanguage);
+    const homeMode = normalizeProfileHomeMode(request.body.homeMode);
     if (!name) {
         response.status(422).render('profile-onboarding', {
             ...buildAppShellContext({
@@ -163,6 +166,7 @@ export function handleProfileOnboarding(request, response) {
             selectedProfile: activeProfile,
             values: {
                 description,
+                homeMode,
                 instructionLanguage,
                 learningContext,
                 name,
@@ -172,6 +176,7 @@ export function handleProfileOnboarding(request, response) {
     }
     updateProfile({
         description,
+        homeMode,
         instructionLanguage,
         learningContext,
         name,
@@ -225,6 +230,7 @@ export function handleCreateProfile(request, response) {
     const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
     const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
     const modelTier = normalizeProfileModelTier(request.body.modelTier);
+    const homeMode = normalizeProfileHomeMode(request.body.homeMode);
     const instructionLanguage = normalizeInstructionLanguage(request.body.instructionLanguage, request.activeProfile?.instructionLanguage);
     const returnTo = normalizeProfileReturnTo(request.body.returnTo);
     if (!name) {
@@ -233,6 +239,7 @@ export function handleCreateProfile(request, response) {
     }
     const profile = createProfile({
         description,
+        homeMode,
         instructionLanguage,
         learningContext,
         modelTier,
@@ -258,6 +265,7 @@ export function handleUpdateProfile(request, response) {
     const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
     const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
     const modelTier = normalizeProfileModelTier(request.body.modelTier);
+    const homeMode = normalizeProfileHomeMode(request.body.homeMode);
     const instructionLanguage = isInstructionLanguage(request.body.instructionLanguage)
         ? request.body.instructionLanguage
         : undefined;
@@ -267,6 +275,7 @@ export function handleUpdateProfile(request, response) {
     }
     const profile = updateProfile({
         description,
+        homeMode,
         instructionLanguage,
         learningContext,
         modelTier,

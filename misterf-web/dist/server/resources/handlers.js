@@ -4,6 +4,7 @@ import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRe
 import { translate } from '../i18n/index.js';
 import { logger } from '../services/logger.js';
 import { duplicateResourceForProfile } from './duplicate.js';
+import { buildResourceDetailPath } from './paths.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -46,18 +47,6 @@ function readResourceSort(value) {
 }
 function readResourceScope(value) {
     return readField(value, 10) === 'all' ? 'all' : 'folder';
-}
-function buildResourceDetailPath(resource) {
-    if (resource.type === 'quiz') {
-        return `/quizzes/${encodeURIComponent(resource.id)}`;
-    }
-    if (resource.type === 'practice_guide') {
-        return `/practice-guides/${encodeURIComponent(resource.id)}`;
-    }
-    if (resource.type === 'roleplay') {
-        return `/roleplays/${encodeURIComponent(resource.id)}`;
-    }
-    return `/resources/folders/${encodeURIComponent(resource.id)}`;
 }
 function buildResourceAction(resource) {
     if (resource.type === 'quiz') {

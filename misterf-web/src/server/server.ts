@@ -12,6 +12,7 @@ import { loadAuthSession } from './auth/middleware.js';
 import { authRouter } from './auth/routes.js';
 import { requireSessionSecret } from './auth/session.js';
 import { chatRouter } from './chat/routes.js';
+import { homeRouter } from './home/routes.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
 import { attachLocale } from './i18n/middleware.js';
@@ -91,6 +92,10 @@ app.use(progressRouter);
 // Before the chat router: it owns `/` for visitors without a session and
 // passes authenticated requests through, so `/` still opens the app.
 app.use(landingRouter);
+// Owns `/`, which opens a different composition depending on the active
+// profile's home mode (Roadmap V3 §1.14). Before the chat router, which keeps
+// `/chat` and `/c/:conversationId`.
+app.use(homeRouter);
 app.use(chatRouter);
 app.get('/session', (request, response) => {
   response.json({

@@ -24,6 +24,7 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
+const learningHomePanelEl = document.querySelector('[data-learning-home-panel]');
 const practiceGuideStartPanelEl = document.querySelector('[data-practice-guide-start-panel]');
 const practiceGuideStartTitleEl = document.querySelector('[data-practiceGuide-start-title]');
 const practiceGuideStartDescriptionEl = document.querySelector(
@@ -289,6 +290,9 @@ formEl.addEventListener('submit', (event) => {
     return;
   }
 
+  // The starter panel belongs to the empty state. Once the learner writes, the
+  // conversation is the page and the panel would only push it down.
+  learningHomePanelEl?.remove();
   runtime.sendMessage();
 });
 
