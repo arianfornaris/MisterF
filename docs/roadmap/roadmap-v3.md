@@ -982,17 +982,79 @@ answer from the quiz flow.
   (thumbnail, no "assign" affordance) so the list does not promise an activity
   it cannot deliver.
 
+### Make The Schema Extensible For Future Resource Types
+
+Added 2026-09-09 at the founder's direction. `scene_media` is the **first type
+added since `resources` was created**, and the cost showed up immediately: the
+allowed types are frozen in two `CHECK` constraints — `resources.type` and
+`resource_folder_items.resource_type` — and SQLite cannot alter a CHECK, so a
+new type means editing `sqlite_master` or rebuilding a table that three others
+reference by foreign key. That is a disproportionate price for adding a word to
+a list, and it will be paid again by every type after this one.
+
+Two findings make the fix smaller than it looks:
+
+- **One of the two CHECKs is already redundant.** `resource_folder_items` has
+  the composite foreign key `(resource_id, resource_type) REFERENCES resources
+  (id, type)`, so a row can only name a `(id, type)` pair that already exists in
+  `resources` — whose own CHECK constrains it. The pair is genuinely enforced,
+  not decorative: `idx_resources_id_type` is the `UNIQUE` index SQLite requires
+  on the parent columns, and `foreign_keys` is `ON`
+  (`db/database.ts:12`). The item-level CHECK re-states an invariant the FK
+  already guarantees and can simply be dropped.
+- **The type list lives in six places, and nothing keeps them in step:** the two
+  CHECKs, the `ResourceType` union (`db/repository.ts:40`), the hand-written
+  `isKnownResourceType` or-chain (`db/repository.ts:1177`), the deliberately
+  smaller `ContextResourceType` (`services/resourceFromContext.ts:15`, the types
+  creatable from a conversation), and the per-type branching in the handlers and
+  views (kicker icons and labels, duplication, trash, progress). The per-type
+  branching is irreducible — each type has its own detail table and pages — but
+  the *lists* are not, and today a forgotten one fails at runtime rather than at
+  build time.
+
+- [ ] **Decide how the allowed types are expressed.** Options, in the order I
+  would consider them:
+  - **A lookup table plus a foreign key.** `resource_types(type TEXT PRIMARY
+    KEY)`, `resources.type REFERENCES resource_types (type)`. Adding a type
+    becomes a one-line declarative `INSERT` in a normal forward-only migration —
+    no `sqlite_master` editing, no table rebuild, ever again. Keeps the
+    invariant in the database, which is this schema's house style (see the
+    cross-column CHECKs on `user_scene_media`). Costs one table and a seed.
+  - **Drop the CHECK and let the application own the invariant.** There is
+    exactly one writer (`insertResource`) and the union already gates it. Zero
+    migration cost for future types, but the database stops defending itself
+    against a bug in our own code.
+  - **Keep the CHECKs and standardise the widening.** A helper in
+    `migrations.ts` that rewrites a CHECK through the `run(db)` hatch, so each
+    new type is a one-liner. Cheapest now, but keeps a schema migration in the
+    path of every future type.
+- [ ] **Derive the type list from one source.** Export a `resourceTypes` const
+  array, derive `ResourceType` from it, replace the `isKnownResourceType`
+  or-chain with a membership check, and define `ContextResourceType` as an
+  explicit subset of it so the relationship is visible instead of coincidental.
+- [ ] **Guard the places that must be extended together** with an architecture
+  test, the way `resourceBreadcrumbArchitecture.test.ts` already guards view
+  classification: a new entry in `resourceTypes` should fail the suite until the
+  kicker label, icon, trash copy, and duplication behaviour exist for it.
+
+This is scoped deliberately: it changes how the type list is *expressed*, not
+what the spine is. It belongs to this item because `scene_media` is what
+surfaces the cost, and doing it in the same migration is nearly free — the
+`resources` table is being touched anyway.
+
 ### Plan
 
 **Phase 1 — Schema (one migration, id 30).**
 
-- [ ] Widen the `type` CHECK on `resources` and the `resource_type` CHECK on
-  `resource_folder_items` to include `scene_media`. **Use the programmatic
-  `run(db)` migration hatch**, which exists precisely for this — its doc comment
-  cites "editing `sqlite_master` to drop a CHECK", the migrator already enables
-  better-sqlite3 unsafe mode and resets the schema afterwards, and no migration
-  has used it yet. That avoids a full table rebuild on a table three others
-  reference by foreign key.
+- [ ] Allow `scene_media` as a resource type, applying whatever the extensibility
+  decision above settles on — so this is the last time a new type costs a schema
+  change. Whichever option wins, the mechanism is the programmatic `run(db)`
+  migration hatch: it exists precisely for this (its doc comment cites "editing
+  `sqlite_master` to drop a CHECK"), the migrator already enables better-sqlite3
+  unsafe mode and resets the schema afterwards, and no migration has used it
+  yet. That avoids rebuilding a table three others reference by foreign key.
+- [ ] Drop the redundant `resource_type` CHECK on `resource_folder_items`; its
+  composite foreign key into `resources (id, type)` already enforces it.
 - [ ] Rebuild `user_scene_media` as a detail table: drop `user_id`,
   `profile_id`, `title`, `status`, `archived_at` (all now on the spine), make
   `id` a foreign key to `resources.id ON DELETE CASCADE`. Keep what is genuinely
