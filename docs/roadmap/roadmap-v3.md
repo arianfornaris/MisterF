@@ -1173,6 +1173,106 @@ and `system-prompts/tutor/platform-overview.md`.
   they look similar. The difference is that `resources` is not a second list of
   the same records; it is the spine media should have been on.
 
+## 1.13 Make The Exercise Catalog Visible At Creation Time
+
+Added 2026-09-09 at the founder's direction. **Evaluation item: the decision is
+what the affordance should be, not whether to build a particular widget.**
+
+### The Problem
+
+The content creator cannot see what the platform can build. Creating a quiz is
+a single free-text box — `views/quizzes-new.ejs` posts one `prompt` field, and
+the only hint about what is possible is the placeholder text ("an 8-question
+quiz to practice present perfect vs. past simple with B1 students"). Nothing
+tells the teacher that the platform supports nine item kinds, or names any of
+them.
+
+The catalog exists and is already well-formed — it is just pointed at the wrong
+audience:
+
+- **The model sees it.** `system-prompts/resources/quiz-draft.md` lists every
+  supported item shape with its JSON schema, and
+  `quiz-translation-authoring-kinds.md` is appended for the language packs that
+  use it (`services/llmTutor/languagePack.ts:86`).
+- **The teacher sees it, but only after the quiz exists.**
+  `getQuizBlockKinds` (`quizzes/handlers.ts:129`) already returns a localized
+  `{value, label, description}` list, filtered by
+  `includesSpanishTranslationBlocks`, and the authoring editor renders it as a
+  `<select>` in both the add-block and modify-block modals
+  (`views/quizzes-authoring.ejs:184`, `:406`).
+
+So the creator learns the vocabulary by generating something first, reading
+what came out, and then correcting it — one inference round-trip to discover a
+list we could have shown for free. The predictable failure mode is a teacher
+describing what they want in their own words ("preguntas para completar"),
+getting the model's guess at which kind that maps to, and iterating against a
+menu they cannot see.
+
+### Why This Matters Beyond Convenience
+
+Three properties of the catalog make the invisible version actively wrong, not
+merely unhelpful:
+
+- **It is language-dependent.** `quiz_translate_to_english` and
+  `quiz_understand_in_spanish` only exist for language packs with
+  `includesSpanishTranslationBlocks`. Any static help text, screenshot, or
+  onboarding doc would be wrong for some locales — whatever we build must read
+  from the same source the filter reads.
+- **It is about to grow.** §1.12 makes adding a *resource* type cheap; item
+  kinds have the same "list lives in several places" shape (the prompt files,
+  the Zod schemas, `getQuizBlockKinds`, the i18n label pairs), so a creator-
+  facing surface must be derived, never hand-maintained.
+- **Precision is the whole point of the pilot.** The MVP promise is that a
+  teacher gets a usable quiz from their own material on the first try. Every
+  round-trip spent discovering vocabulary is inference the teacher pays for and
+  a step where they may conclude the tool does not do what they meant.
+
+### Questions To Answer
+
+- [ ] **Where does the catalog belong — reference, or input?** Two different
+  products: (a) a *visible list* at `/quizzes/new` that teaches the vocabulary
+  and lets the teacher name kinds in their own prose, and (b) *structured
+  input* — pick kinds, optionally counts, and constrain the draft. (a) is
+  nearly free and changes nothing downstream; (b) is a real feature with a
+  prompt contract behind it. They are not exclusive, and (a) is likely a
+  prerequisite for (b).
+- [ ] **If structured input: does the model obey, and how do we know?** A
+  selected set of kinds has to travel into `quiz-draft.md` as a constraint and
+  come back honored. Decide whether it is a hard constraint (validate the draft
+  and repair, the way `blockRepair` already does) or a strong hint, and what
+  the UI says when the model returns something else.
+- [ ] **What does "not selected" mean?** Empty selection must keep working
+  exactly as today — the model chooses — or we have made the flow heavier for
+  the teacher who just wants a quiz.
+- [ ] **Does this generalize past quizzes?** Roleplays and practice guides
+  compose the *tutor* block set (`system-prompts/tutor/blocks/`, 18 files),
+  which the creator cannot see either; a practice guide steers it only through
+  prose `tutorInstructions`. Decide whether this item covers quizzes only, or
+  whether the answer is one shared "what this platform can build" surface.
+- [ ] **Does the same list have a job outside authoring?** The tutor's platform
+  self-knowledge (§1.9) answers "what can you do" from a hand-written
+  description; a derived catalog could feed both.
+
+### Cheap First Cut, If The Evaluation Confirms It
+
+Not a commitment — the shape to price the evaluation against:
+
+- [ ] Lift `getQuizBlockKinds` out of `quizzes/handlers.ts` into a place the
+  new-quiz handler can call, and render its `label` + `description` under the
+  prompt box as a collapsible list. Zero prompt changes, zero new inference,
+  correct per locale by construction.
+- [ ] Only then decide on selection, based on whether teachers who can see the
+  list still describe kinds imprecisely.
+
+### Related
+
+- §1.9 In-Tutor Platform Awareness — the other place the product has to explain
+  itself, today from prose rather than from the code's own lists.
+- §1.12's "derive the type list from one source" — the same pattern one level
+  up (resource types); the item kinds are the level below it.
+- [Roadmap V4 §2.2 Structured Block Post-Processing](roadmap-v4.md) — if kind
+  selection becomes a hard constraint, the repair path is where it is enforced.
+
 # Part 2: Engineering And Quality
 
 ## 2.1 LLM Inference Portfolio Audit And Governance
