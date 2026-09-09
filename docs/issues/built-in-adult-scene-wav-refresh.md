@@ -2,8 +2,15 @@
 
 Date: 2026-07-12
 
-Status: **Ready for implementation.** The visual assets and English transcripts
-are approved. Live TTS generation, listening QA, and runtime promotion remain.
+Status: **Superseded 2026-09-09.** Built-in scene media was removed from the
+product, so there is no runtime to promote these clips into and no
+`build:scene-media` command any more. The `design/scene-scripts/` regeneration
+steps below still work on their own; the runtime-promotion steps do not. See
+[Scene Media Library](../features/scene-media-library.md#recovering-the-deleted-built-in-material).
+
+Original status: **Ready for implementation.** The visual assets and English
+transcripts are approved. Live TTS generation, listening QA, and runtime
+promotion remain.
 
 Roadmap: [V4, Scene Media Library](../roadmap/roadmap-v4.md#13-scene-media-library)
 

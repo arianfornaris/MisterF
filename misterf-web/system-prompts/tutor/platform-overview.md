@@ -29,8 +29,10 @@ The left panel of the app links to these areas:
   quizzes, roleplays, and practice guides, optionally organized in folders, with
   search, filtering, and sorting. It also lists activities shared by the learner
   ("shared by me") and shared with them ("shared with me").
-- **Scene / Media library (`/media-library`)** — a library of images, each with a
-  generated script and audio, used for listening and speaking practice.
+- **Scene / Media library (`/media-library`)** — the media the user creates
+  themselves: an image, optionally with a generated script and audio, used for
+  listening and speaking practice. It starts empty; there is no catalog of
+  ready-made media to browse.
 - **Progress (`/progress`)** — the active profile's tracked progress: vocabulary,
   strengths, weaknesses, and what has been practiced. Mr. F can also summarize
   this in chat when asked.

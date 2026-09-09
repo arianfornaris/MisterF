@@ -15,11 +15,7 @@ const resolverResponseSchema = z.object({
     }).strict().optional(),
     mediaId: z.string().trim().min(1).optional(),
     reason: z.string().trim().min(1).max(500),
-    strategy: z.enum([
-        'built_in_image_dynamic_script',
-        'existing_media',
-        'no_good_match',
-    ]),
+    strategy: z.enum(['existing_media', 'no_good_match']),
 }).strict();
 export async function resolveSceneMedia(request) {
     const catalog = buildCompactSceneMediaCatalog(request);
@@ -73,16 +69,11 @@ export async function resolveSceneMedia(request) {
     return validateResolverRecommendation(request, catalog, parsed.data);
 }
 export function buildCompactSceneMediaCatalog(request) {
-    const owner = request.includeUserGenerated !== false &&
-        request.ownerUserId &&
-        request.ownerProfileId
-        ? {
-            profileId: request.ownerProfileId,
-            userId: request.ownerUserId,
-        }
-        : undefined;
     const normalizedLevel = normalizeSceneMediaLevel(request.learnerLevel);
-    return listSceneMediaItems({}, owner)
+    return listSceneMediaItems({
+        profileId: request.ownerProfileId,
+        userId: request.ownerUserId,
+    })
         .filter((item) => item.status === 'ready')
         .sort((left, right) => {
         if (normalizedLevel && left.level === normalizedLevel && right.level !== normalizedLevel) {
@@ -110,11 +101,6 @@ function validateResolverRecommendation(request, catalog, recommendation) {
     if (!item) {
         return fallbackRecommendation(request, catalog, 'The resolver did not return an available media id.');
     }
-    const strategy = recommendation.strategy === 'built_in_image_dynamic_script' &&
-        item.source === 'built_in' &&
-        item.audioAvailable === false
-        ? 'built_in_image_dynamic_script'
-        : 'existing_media';
     return {
         alternates: (recommendation.alternates ?? [])
             .filter((mediaId) => mediaId !== item.id)
@@ -124,7 +110,7 @@ function validateResolverRecommendation(request, catalog, recommendation) {
         layers: layersForCatalogItem(item, request.desiredLayers),
         mediaId: item.id,
         reason: recommendation.reason,
-        strategy,
+        strategy: 'existing_media',
     };
 }
 function fallbackRecommendation(request, catalog, reason) {
@@ -190,7 +176,6 @@ function toCompactCatalogItem(item) {
             ? `${item.script.scriptType}:${scriptWordCount}w`
             : undefined,
         setting: item.setting,
-        source: item.source,
         title: item.title,
         visualAssetId: item.visualAssetId,
         visualSummary: item.visualSummary.slice(0, 5),
@@ -199,6 +184,7 @@ function toCompactCatalogItem(item) {
 function buildResolverSystemPrompt() {
     return [
         'You select an existing scene media item for Mister F, an English-learning app.',
+        'The catalog only contains media the learner or teacher created themselves.',
         'Use only ids from the provided compact catalog. Never invent, translate, slugify, or modify ids.',
         'Prefer media that matches the criteria, learner level, desired layers, and recent-media exclusions.',
         'Return JSON only. Do not include markdown or prose.',
@@ -211,7 +197,7 @@ function buildResolverUserPrompt(request, catalog) {
         `Desired layers: ${(request.desiredLayers ?? ['image']).join(', ')}`,
         `Recent media ids to avoid: ${(request.recentMediaIds ?? []).join(', ') || 'none'}`,
         'Return JSON with this shape:',
-        '{"strategy":"existing_media|built_in_image_dynamic_script|no_good_match","mediaId":"catalog id when applicable","layers":{"image":true,"audio":false,"script":false},"confidence":"high|medium|low","reason":"short reason","alternates":["optional ids"]}',
+        '{"strategy":"existing_media|no_good_match","mediaId":"catalog id when applicable","layers":{"image":true,"audio":false,"script":false},"confidence":"high|medium|low","reason":"short reason","alternates":["optional ids"]}',
         'Compact catalog:',
         JSON.stringify(catalog),
     ].join('\n');

@@ -26,12 +26,12 @@ export function renderSceneMediaLibraryPage(request, response) {
     const selectedFormat = normalizeSceneMediaFormat(request.query.format);
     const searchQuery = readField(request.query.q, 120);
     const mediaItems = listSceneMediaItems({
+        profileId: auth.activeProfile.id,
+        userId: auth.user.id,
+    }, {
         format: selectedFormat,
         level: selectedLevel,
         query: searchQuery,
-    }, {
-        profileId: auth.activeProfile.id,
-        userId: auth.user.id,
     });
     response.render('media-library', {
         ...buildAppShellContext({
@@ -50,7 +50,7 @@ export function renderSceneMediaLibraryPage(request, response) {
         selectedFormat,
         selectedLevel,
         searchQuery,
-        totalMediaCount: listSceneMediaItems({}, {
+        totalMediaCount: listSceneMediaItems({
             profileId: auth.activeProfile.id,
             userId: auth.user.id,
         }).length,
@@ -210,7 +210,7 @@ export async function serveSceneMediaImageAsset(request, response) {
         userId: auth.user.id,
     });
     const storageKey = mediaItem?.image?.storageKey;
-    if (!mediaItem || mediaItem.source !== 'user_generated' || !storageKey) {
+    if (!storageKey) {
         response.sendStatus(404);
         return;
     }
@@ -462,7 +462,7 @@ export async function createSceneMediaVariation(request, response) {
     }
 }
 export function renderEditSceneMediaPage(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -485,7 +485,7 @@ function renderSceneMediaAuthoringView(request, response, resolved, input) {
     });
 }
 export function saveSceneMediaDetails(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -507,7 +507,7 @@ export function saveSceneMediaDetails(request, response) {
     response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}/edit`);
 }
 export async function generateSceneMediaTitle(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -538,7 +538,7 @@ export async function generateSceneMediaTitle(request, response) {
 // reference image is the last pending image preview when present, so successive
 // tweaks refine each other ("modificaciones puntuales").
 export async function previewSceneMediaImage(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -621,7 +621,7 @@ export async function previewSceneMediaImage(request, response) {
 // Generates a not-yet-applied script+audio change and streams progress. Script
 // and audio are one atomic layer, so this always regenerates the audio too.
 export async function previewSceneMediaScript(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -707,7 +707,7 @@ export async function previewSceneMediaScript(request, response) {
 // guidance is optional: empty guidance is a pure resync, falling back to the
 // media's own generation prompt/title. Stored as a text-only pending preview.
 export async function previewSceneMediaMetadata(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -775,7 +775,7 @@ export async function previewSceneMediaMetadata(request, response) {
 // the streaming applySceneMediaScript instead, since approving a script
 // generates its audio.
 export async function applySceneMediaPreview(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -825,7 +825,7 @@ export async function applySceneMediaPreview(request, response) {
 // clips. The author never hears an intermediate audio preview — approving the
 // script is the commit point.
 export async function applySceneMediaScript(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -891,7 +891,7 @@ export async function applySceneMediaScript(request, response) {
 // Drops the pending preview and deletes its temporary objects. Called when the
 // author closes or cancels the change modal without applying.
 export async function discardSceneMediaPreview(request, response) {
-    const resolved = resolveOwnedUserSceneMedia(request, response);
+    const resolved = resolveSceneMedia(request, response);
     if (!resolved) {
         return;
     }
@@ -1018,17 +1018,6 @@ function resolveSceneMedia(request, response) {
         return null;
     }
     return { ...auth, mediaItem };
-}
-function resolveOwnedUserSceneMedia(request, response) {
-    const resolved = resolveSceneMedia(request, response);
-    if (!resolved) {
-        return null;
-    }
-    if (resolved.mediaItem.source !== 'user_generated') {
-        response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}`);
-        return null;
-    }
-    return resolved;
 }
 function sceneMediaCreationFailureMessage(response, error) {
     if (isCreditExhaustedError(error)) {

@@ -3,7 +3,6 @@
 <%
   const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
   const levelLabel = (level) => level || t('mediaLibrary.levelNone');
-  const sourceLabel = (source) => t(`mediaLibrary.source.${source}`);
 %>
 
 <section class="app-page" aria-label="<%= t('mediaLibrary.title') %>">
@@ -85,12 +84,7 @@
       <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 g-3">
         <% mediaItems.forEach((item) => { %>
           <div class="col">
-            <article class="card scene-media-card h-100 position-relative <%= item.source === 'user_generated' ? 'scene-media-card-user' : '' %>">
-              <div class="card-header d-flex align-items-center justify-content-between gap-2 py-2 px-3">
-                <span class="badge <%= item.source === 'user_generated' ? 'text-bg-info' : 'text-bg-light border' %>">
-                  <%= sourceLabel(item.source) %>
-                </span>
-              </div>
+            <article class="card scene-media-card h-100 position-relative">
               <% if (item.image) { %>
                 <div class="ratio ratio-4x3 bg-body-tertiary">
                   <img
@@ -141,7 +135,7 @@
       </div>
     <% } else { %>
       <div class="alert alert-info mb-0" role="status">
-        <%= t('mediaLibrary.empty') %>
+        <%= totalMediaCount > 0 ? t('mediaLibrary.empty') : t('mediaLibrary.emptyLibrary') %>
       </div>
     <% } %>
   </section>

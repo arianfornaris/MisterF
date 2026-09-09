@@ -25,12 +25,11 @@ export type SceneMediaLayerName = 'audio' | 'image' | 'script';
 export type ResolveSceneMediaRequest = {
   criteria: string;
   desiredLayers?: SceneMediaLayerName[];
-  includeUserGenerated?: boolean;
   learnerLevel?: SceneMediaLevel;
   modelTier?: ProfileModelTier;
   openRouterApiKey: string;
-  ownerProfileId?: string;
-  ownerUserId?: string;
+  ownerProfileId: string;
+  ownerUserId: string;
   recentMediaIds?: string[];
 };
 
@@ -44,10 +43,7 @@ export type ResolveSceneMediaRecommendation = {
   };
   mediaId?: string;
   reason: string;
-  strategy:
-    | 'built_in_image_dynamic_script'
-    | 'existing_media'
-    | 'no_good_match';
+  strategy: 'existing_media' | 'no_good_match';
 };
 
 type CompactSceneMediaCatalogItem = {
@@ -59,7 +55,6 @@ type CompactSceneMediaCatalogItem = {
   scriptAvailable: boolean;
   scriptType?: string;
   setting?: string;
-  source: string;
   title: string;
   visualAssetId?: string;
   visualSummary: string[];
@@ -75,11 +70,7 @@ const resolverResponseSchema = z.object({
   }).strict().optional(),
   mediaId: z.string().trim().min(1).optional(),
   reason: z.string().trim().min(1).max(500),
-  strategy: z.enum([
-    'built_in_image_dynamic_script',
-    'existing_media',
-    'no_good_match',
-  ]),
+  strategy: z.enum(['existing_media', 'no_good_match']),
 }).strict();
 
 export async function resolveSceneMedia(
@@ -147,19 +138,14 @@ export async function resolveSceneMedia(
 export function buildCompactSceneMediaCatalog(
   request: Pick<
     ResolveSceneMediaRequest,
-    'includeUserGenerated' | 'learnerLevel' | 'ownerProfileId' | 'ownerUserId'
+    'learnerLevel' | 'ownerProfileId' | 'ownerUserId'
   >,
 ): CompactSceneMediaCatalogItem[] {
-  const owner = request.includeUserGenerated !== false &&
-    request.ownerUserId &&
-    request.ownerProfileId
-    ? {
-      profileId: request.ownerProfileId,
-      userId: request.ownerUserId,
-    }
-    : undefined;
   const normalizedLevel = normalizeSceneMediaLevel(request.learnerLevel);
-  return listSceneMediaItems({}, owner)
+  return listSceneMediaItems({
+    profileId: request.ownerProfileId,
+    userId: request.ownerUserId,
+  })
     .filter((item) => item.status === 'ready')
     .sort((left, right) => {
       if (normalizedLevel && left.level === normalizedLevel && right.level !== normalizedLevel) {
@@ -205,12 +191,6 @@ function validateResolverRecommendation(
     );
   }
 
-  const strategy = recommendation.strategy === 'built_in_image_dynamic_script' &&
-    item.source === 'built_in' &&
-    item.audioAvailable === false
-    ? 'built_in_image_dynamic_script'
-    : 'existing_media';
-
   return {
     alternates: (recommendation.alternates ?? [])
       .filter((mediaId) => mediaId !== item.id)
@@ -220,7 +200,7 @@ function validateResolverRecommendation(
     layers: layersForCatalogItem(item, request.desiredLayers),
     mediaId: item.id,
     reason: recommendation.reason,
-    strategy,
+    strategy: 'existing_media',
   };
 }
 
@@ -311,7 +291,6 @@ function toCompactCatalogItem(
       ? `${item.script.scriptType}:${scriptWordCount}w`
       : undefined,
     setting: item.setting,
-    source: item.source,
     title: item.title,
     visualAssetId: item.visualAssetId,
     visualSummary: item.visualSummary.slice(0, 5),
@@ -321,6 +300,7 @@ function toCompactCatalogItem(
 function buildResolverSystemPrompt(): string {
   return [
     'You select an existing scene media item for Mister F, an English-learning app.',
+    'The catalog only contains media the learner or teacher created themselves.',
     'Use only ids from the provided compact catalog. Never invent, translate, slugify, or modify ids.',
     'Prefer media that matches the criteria, learner level, desired layers, and recent-media exclusions.',
     'Return JSON only. Do not include markdown or prose.',
@@ -337,7 +317,7 @@ function buildResolverUserPrompt(
     `Desired layers: ${(request.desiredLayers ?? ['image']).join(', ')}`,
     `Recent media ids to avoid: ${(request.recentMediaIds ?? []).join(', ') || 'none'}`,
     'Return JSON with this shape:',
-    '{"strategy":"existing_media|built_in_image_dynamic_script|no_good_match","mediaId":"catalog id when applicable","layers":{"image":true,"audio":false,"script":false},"confidence":"high|medium|low","reason":"short reason","alternates":["optional ids"]}',
+    '{"strategy":"existing_media|no_good_match","mediaId":"catalog id when applicable","layers":{"image":true,"audio":false,"script":false},"confidence":"high|medium|low","reason":"short reason","alternates":["optional ids"]}',
     'Compact catalog:',
     JSON.stringify(catalog),
   ].join('\n');

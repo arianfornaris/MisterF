@@ -224,6 +224,7 @@ export const ht: LocaleCatalog = {
     nextClip: 'Liy apre a',
     previousClip: 'Liy anvan an',
     empty: 'Pa gen medya ki matche ak filtè sa yo.',
+    emptyLibrary: 'Ou poko kreye okenn medya. Sèvi ak « Nouvo » pou kreye premye sèn ou.',
     editingKicker: 'Ap modifye medya',
     failure: {
       contentPolicy:
@@ -286,9 +287,9 @@ export const ht: LocaleCatalog = {
     identityStrategyLabel: 'Idantifikasyon pèsonaj',
     imageDetails: '{{width}} × {{height}} · {{contentType}}',
     intro:
-      'Gade medya sèn built-in ki disponib pou pwochen flò tutor, quiz, roleplay, ak konpreyansyon.',
+      'Sèn ou kreye yo, ak imaj, skrip ak odyo yo, pare pou ou reitilize nan pratik ou.',
     invalidRequest: 'Verifye fòm medya a epi eseye ankò.',
-    kicker: 'Medya built-in',
+    kicker: 'Medya ou yo',
     keepExistingImage: 'Kenbe imaj ki egziste a',
     keepExistingScriptAndAudio: 'Kenbe skrip ak odyo ki egziste yo',
     layerAudio: 'Odyo',
@@ -322,11 +323,6 @@ export const ht: LocaleCatalog = {
     searchPlaceholder: 'Chèche pa tit, tag, skill, oswa sèn',
     setting: 'Kote',
     skills: 'Skills',
-    source: {
-      built_in: 'Built-in',
-      user_generated: 'Itilizatè kreye',
-    },
-    sourceLabel: 'Sous',
     speakerRole: 'Wòl',
     nameSpokenInAudio: 'Non an pwononse nan odyo a',
     sourceMediaId: 'ID medya sous',

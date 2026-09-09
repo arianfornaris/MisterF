@@ -87,9 +87,6 @@ export async function generateReadySceneMedia(input) {
         return {
             audio: audioResult?.layer,
             createdFrom: input.sourceItem ? {
-                baseBuiltInMediaId: input.sourceItem.source === 'built_in'
-                    ? input.sourceItem.id
-                    : undefined,
                 baseVisualAssetId: input.sourceItem.visualAssetId,
                 prompt: input.prompt,
                 sourceMediaId: input.sourceItem.id,
@@ -183,7 +180,6 @@ async function generateAndStoreImage(input) {
             contentType: 'image/webp',
             height: 720,
             mediaId: input.mediaId,
-            source: 'user_generated',
             src: storage.createPublicUrl(storageKey),
             storageKey,
             width: 720,

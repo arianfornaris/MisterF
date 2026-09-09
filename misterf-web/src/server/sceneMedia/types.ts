@@ -1,5 +1,3 @@
-export type SceneMediaSource = 'built_in' | 'user_generated';
-
 export type SceneMediaLevel = 'A1-A2' | 'B1-B2' | 'C1';
 
 export type SceneMediaFormat =
@@ -13,7 +11,6 @@ export type SceneMediaImageLayer = {
   contentType?: string;
   height?: number;
   mediaId?: string;
-  source?: SceneMediaSource;
   src: string;
   storageKey?: string;
   width?: number;
@@ -56,8 +53,8 @@ export type SceneMediaScript =
       >;
       scriptType: 'dialogue';
       speakers: Array<{
-        // Present on built-in library items; the AI user-generation path does
-        // not assign gender yet, so it is optional here.
+        // Optional for backward compatibility with media generated before the
+        // script schema assigned speaker gender.
         gender?: SceneMediaSpeakerGender;
         name: string;
         nameSpokenInAudio: boolean;
@@ -85,7 +82,6 @@ export type SceneMediaLibraryItem = {
   audio?: SceneMediaAudioLayer;
   archivedAt?: string | null;
   createdFrom?: {
-    baseBuiltInMediaId?: string;
     baseVisualAssetId?: string;
     conversationId?: string;
     prompt?: string;
@@ -104,7 +100,6 @@ export type SceneMediaLibraryItem = {
   script?: SceneMediaScript;
   scriptTypePreference?: UserSceneMediaScriptTypePreference;
   setting?: string;
-  source: SceneMediaSource;
   status: SceneMediaStatus;
   title: string;
   updatedAt?: string;

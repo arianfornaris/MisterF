@@ -80,7 +80,6 @@ export async function generateSceneMediaImagePreview(input) {
                 contentType: 'image/webp',
                 height: 720,
                 mediaId: input.media.id,
-                source: 'user_generated',
                 src: storage.createPublicUrl(storageKey),
                 storageKey,
                 width: 720,

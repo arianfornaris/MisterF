@@ -193,7 +193,6 @@ function toSceneMediaLibraryItem(row) {
         audio: audio ?? undefined,
         createdAt: row.created_at,
         createdFrom: createdFrom ? {
-            baseBuiltInMediaId: asOptionalString(createdFrom.baseBuiltInMediaId),
             baseVisualAssetId: asOptionalString(createdFrom.baseVisualAssetId),
             conversationId: asOptionalString(createdFrom.conversationId),
             prompt: asOptionalString(createdFrom.prompt),
@@ -211,7 +210,6 @@ function toSceneMediaLibraryItem(row) {
         script: script ?? undefined,
         scriptTypePreference: row.script_type_preference,
         setting: row.setting ?? undefined,
-        source: 'user_generated',
         status: row.status,
         title: row.title,
         updatedAt: row.updated_at,

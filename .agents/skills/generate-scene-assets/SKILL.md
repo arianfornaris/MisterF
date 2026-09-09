@@ -65,11 +65,15 @@ registry is `design/scene-images/scene-images.json`.
    ```bash
    python3 design/scene-scripts/generate_clip_audio.py --scene-id <id> --force
    ```
-3. **Rebuild derived artifacts:**
+3. **Rebuild the review index:**
    ```bash
    python3 design/scene-scripts/build_review_index.py
-   cd misterf-web && pnpm run build:scene-media
    ```
+   There is no longer a step that promotes these assets into the app. Built-in
+   scene media was removed from the product on 2026-09-09 along with
+   `build:scene-media`; `design/` is now the only place these assets live. See
+   [Scene Media Library](../../../docs/features/scene-media-library.md#recovering-the-deleted-built-in-material)
+   if you need the promotion pipeline back.
 4. **Verify** the registry contract and files (see the handoff
    `docs/issues/built-in-adult-scene-wav-refresh.md` for the exact jq checks and
    listening-QA criteria).

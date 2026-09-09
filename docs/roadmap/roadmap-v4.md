@@ -112,6 +112,24 @@ now owns the shipped history, implementation decisions, in-progress work, and
 remaining checklist below. Completed items retain their original dates; `[~]`
 items describe the implemented foundation and the work still pending.
 
+**Decision 2026-09-09 — built-in scene media is out of the product, and its
+material was deleted.** The curated built-in library never found a convincing
+use, so the app no longer lists, opens, or resolves it: `/media-library`, the
+media detail/authoring pages, and the scene media resolver see only the active
+profile's own media, and a new user starts with an empty library. Removed with
+it: the source badges (`Built-in` / `Creada por el usuario`), the `source`
+discriminator on the runtime types, the generated dataset
+`builtInSceneMedia.generated.ts`, the `build:scene-media` build step and its
+script, and `misterf-web/public/scene-media/` (~275 MB, of which 57 MB of images
+were tracked and 218 MB of audio was gitignored build output). Every `built_in`
+item below is therefore shipped history, not current behavior.
+
+The design sources stay: `design/scene-images/` and `design/scene-scripts/` keep
+every approved image, script, registry, and WAV clip plus the Python generators,
+so the library is reproducible. Recovery instructions — including the last
+commit that contains each deleted piece — are in
+[Scene Media Library](../features/scene-media-library.md#recovering-the-deleted-built-in-material).
+
 - [x] Promote approved design assets from `design/scene-images/` and
   `design/scene-scripts/` into product runtime asset folders. Done 2026-07-09:
   the first built-in slice copied 50 approved final scene images and 150

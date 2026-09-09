@@ -208,6 +208,7 @@ export const en: LocaleCatalog = {
     nextClip: 'Next line',
     previousClip: 'Previous line',
     empty: 'No media items match these filters.',
+    emptyLibrary: 'You have not created any media yet. Use "New" to create your first scene.',
     editingKicker: 'Editing media',
     failure: {
       contentPolicy:
@@ -270,9 +271,9 @@ export const en: LocaleCatalog = {
     identityStrategyLabel: 'Character identification',
     imageDetails: '{{width}} × {{height}} · {{contentType}}',
     intro:
-      'Browse the built-in scene media available for future tutor, quiz, roleplay, and comprehension flows.',
+      'The scenes you create, with their image, script, and audio, ready to reuse in your practice.',
     invalidRequest: 'Check the media form and try again.',
-    kicker: 'Built-in media',
+    kicker: 'Your media',
     keepExistingImage: 'Keep existing image',
     keepExistingScriptAndAudio: 'Keep existing script and audio',
     layerAudio: 'Audio',
@@ -306,11 +307,6 @@ export const en: LocaleCatalog = {
     searchPlaceholder: 'Search by title, tag, skill, or scene',
     setting: 'Setting',
     skills: 'Skills',
-    source: {
-      built_in: 'Built-in',
-      user_generated: 'User generated',
-    },
-    sourceLabel: 'Source',
     speakerRole: 'Role',
     nameSpokenInAudio: 'Name spoken in audio',
     sourceMediaId: 'Source media ID',

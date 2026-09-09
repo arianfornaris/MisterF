@@ -3,7 +3,6 @@ import path from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { builtInSceneMediaItems } from '../../src/server/sceneMedia/builtInSceneMedia.generated.js';
 import { buildSceneMediaSourceContextPrompt } from '../../src/server/sceneMedia/generationContext.js';
 import { buildSceneMediaImagePrompt } from '../../src/server/sceneMedia/imageGeneration.js';
 import {
@@ -12,7 +11,6 @@ import {
 } from '../../src/server/sceneMedia/types.js';
 import {
   sceneMediaGenerationResponseSchema,
-  sceneMediaScriptGenerationSchema,
   sceneMediaTitleGenerationSchema,
 } from '../../src/server/services/sceneMediaScripts.js';
 
@@ -186,16 +184,7 @@ describe('scene media prompt contracts', () => {
     );
   });
 
-  it('keeps built-in and design scripts aligned with the generation protocol', () => {
-    for (const item of builtInSceneMediaItems) {
-      if (item.script) {
-        expect(
-          sceneMediaScriptGenerationSchema.safeParse(item.script),
-          `${item.id} must match the generated-script contract`,
-        ).toMatchObject({ success: true });
-      }
-    }
-
+  it('keeps design scripts aligned with the generation protocol', () => {
     const imageRegistry = JSON.parse(
       fs.readFileSync(path.resolve(process.cwd(), '../design/scene-images/scene-images.json'), 'utf8'),
     ) as { images: Array<{ id: string; status: string }> };

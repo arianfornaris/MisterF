@@ -1,13 +1,10 @@
-import { z } from 'zod';
 import { normalizeSearchText } from '../pages/shell.js';
-import { builtInSceneMediaItems } from './builtInSceneMedia.generated.js';
 import type {
   SceneMediaFormat,
   SceneMediaLevel,
   SceneMediaLibraryFilters,
   SceneMediaLibraryItem,
 } from './types.js';
-import { sceneMediaSpeakerGenders } from './types.js';
 import {
   findUserSceneMediaForProfile,
   listUserSceneMediaForProfile,
@@ -20,118 +17,22 @@ export const sceneMediaFormats = [
   'two_panel_contrast',
 ] as const;
 
-const sceneMediaImageLayerSchema = z
-  .object({
-    alt: z.string().trim().min(1),
-    height: z.number().int().positive().optional(),
-    mediaId: z.string().trim().min(1).optional(),
-    source: z.enum(['built_in', 'user_generated']).optional(),
-    src: z.string().trim().min(1),
-    width: z.number().int().positive().optional(),
-  })
-  .strict();
-
-const sceneMediaAudioLayerSchema = z
-  .object({
-    clips: z.array(z.object({
-      speaker: z.string().trim().min(1),
-      src: z.string().trim().min(1),
-      storageKey: z.string().trim().min(1).optional(),
-      turn: z.number().int().positive(),
-    }).strict()).min(1),
-    format: z.literal('wav'),
-    model: z.string().trim().min(1).optional(),
-    provider: z.literal('openrouter').optional(),
-    voiceStrategy: z.literal('per_turn_clips'),
-  })
-  .strict();
-
-const sceneMediaScriptSchema = z.union([
-  z
-    .object({
-      identityStrategy: z.enum(['named_in_dialogue', 'role_only']),
-      scriptType: z.literal('dialogue'),
-      speakers: z.array(z.object({
-        gender: z.enum(sceneMediaSpeakerGenders).optional(),
-        name: z.string().trim().min(1),
-        nameSpokenInAudio: z.boolean(),
-        role: z.string().trim().min(1),
-      }).strict()).min(2).max(3),
-      turns: z
-        .array(
-          z
-            .object({
-              speaker: z.string().trim().min(1),
-              text: z.string().trim().min(1),
-            })
-            .strict(),
-        )
-        .min(2)
-        .max(8),
-    })
-    .strict(),
-  z
-    .object({
-      gender: z.enum(sceneMediaSpeakerGenders).optional(),
-      identityStrategy: z.enum(['named_in_narration', 'role_only']),
-      scriptType: z.enum(['monologue', 'narration']),
-      text: z.string().trim().min(1),
-    })
-    .strict(),
-]);
-
-const sceneMediaLibraryItemSchema = z
-  .object({
-    audio: sceneMediaAudioLayerSchema.optional(),
-    createdFrom: z
-      .object({
-        baseBuiltInMediaId: z.string().trim().min(1).optional(),
-        baseVisualAssetId: z.string().trim().min(1).optional(),
-        conversationId: z.string().trim().min(1).optional(),
-        prompt: z.string().trim().min(1).optional(),
-        resourceId: z.string().trim().min(1).optional(),
-      })
-      .strict()
-      .optional(),
-    format: z.enum(sceneMediaFormats),
-    id: z.string().trim().min(1),
-    image: sceneMediaImageLayerSchema.optional(),
-    level: z.enum(sceneMediaLevels).optional(),
-    ownerUserId: z.string().trim().min(1).optional(),
-    script: sceneMediaScriptSchema.optional(),
-    setting: z.string().trim().min(1).optional(),
-    source: z.enum(['built_in', 'user_generated']),
-    status: z.literal('ready'),
-    title: z.string().trim().min(1),
-    visualAssetId: z.string().trim().min(1).optional(),
-    visualSummary: z.array(z.string().trim().min(1)),
-  })
-  .strict();
-
-const validatedBuiltInItems = z
-  .array(sceneMediaLibraryItemSchema)
-  .parse(builtInSceneMediaItems) satisfies SceneMediaLibraryItem[];
-
-const itemsById = new Map(validatedBuiltInItems.map((item) => [item.id, item]));
+// The media library only exposes media the owner created. Built-in scene media
+// is not part of the product surface.
+export type SceneMediaOwner = {
+  profileId: string;
+  userId: string;
+};
 
 export function listSceneMediaItems(
+  owner: SceneMediaOwner,
   filters: SceneMediaLibraryFilters = {},
-  owner?: {
-    profileId: string;
-    userId: string;
-  },
 ): SceneMediaLibraryItem[] {
   const normalizedQuery = normalizeSearchText(filters.query ?? '');
-  const userItems = owner
-    ? listUserSceneMediaForProfile({
-      ownerProfileId: owner.profileId,
-      ownerUserId: owner.userId,
-    })
-    : [];
-  const items = [
-    ...userItems,
-    ...validatedBuiltInItems,
-  ];
+  const items = listUserSceneMediaForProfile({
+    ownerProfileId: owner.profileId,
+    ownerUserId: owner.userId,
+  });
 
   return items.filter((item) => {
     if (filters.level && item.level !== filters.level) {
@@ -158,24 +59,13 @@ export function listSceneMediaItems(
 
 export function findSceneMediaItemById(
   mediaId: string,
-  owner?: {
-    profileId: string;
-    userId: string;
-  },
+  owner: SceneMediaOwner,
 ): SceneMediaLibraryItem | null {
-  if (owner) {
-    const userItem = findUserSceneMediaForProfile({
-      mediaId,
-      ownerProfileId: owner.profileId,
-      ownerUserId: owner.userId,
-    });
-    if (userItem) {
-      return userItem;
-    }
-  }
-
-  const item = itemsById.get(mediaId);
-  return item ?? null;
+  return findUserSceneMediaForProfile({
+    mediaId,
+    ownerProfileId: owner.profileId,
+    ownerUserId: owner.userId,
+  });
 }
 
 export function normalizeSceneMediaLevel(

@@ -92,12 +92,12 @@ export function renderSceneMediaLibraryPage(
   const selectedFormat = normalizeSceneMediaFormat(request.query.format);
   const searchQuery = readField(request.query.q, 120);
   const mediaItems = listSceneMediaItems({
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  }, {
     format: selectedFormat,
     level: selectedLevel,
     query: searchQuery,
-  }, {
-    profileId: auth.activeProfile.id,
-    userId: auth.user.id,
   });
 
   response.render('media-library', {
@@ -119,7 +119,7 @@ export function renderSceneMediaLibraryPage(
     selectedFormat,
     selectedLevel,
     searchQuery,
-    totalMediaCount: listSceneMediaItems({}, {
+    totalMediaCount: listSceneMediaItems({
       profileId: auth.activeProfile.id,
       userId: auth.user.id,
     }).length,
@@ -329,7 +329,7 @@ export async function serveSceneMediaImageAsset(
     userId: auth.user.id,
   });
   const storageKey = mediaItem?.image?.storageKey;
-  if (!mediaItem || mediaItem.source !== 'user_generated' || !storageKey) {
+  if (!storageKey) {
     response.sendStatus(404);
     return;
   }
@@ -623,7 +623,7 @@ export async function createSceneMediaVariation(
 }
 
 export function renderEditSceneMediaPage(request: Request, response: Response): void {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -653,7 +653,7 @@ function renderSceneMediaAuthoringView(
 }
 
 export function saveSceneMediaDetails(request: Request, response: Response): void {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -679,7 +679,7 @@ export async function generateSceneMediaTitle(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -714,7 +714,7 @@ export async function previewSceneMediaImage(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -799,7 +799,7 @@ export async function previewSceneMediaScript(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -890,7 +890,7 @@ export async function previewSceneMediaMetadata(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -961,7 +961,7 @@ export async function applySceneMediaPreview(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -1018,7 +1018,7 @@ export async function applySceneMediaScript(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -1087,7 +1087,7 @@ export async function discardSceneMediaPreview(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
+  const resolved = resolveSceneMedia(request, response);
   if (!resolved) {
     return;
   }
@@ -1257,21 +1257,6 @@ function resolveSceneMedia(
     return null;
   }
   return { ...auth, mediaItem };
-}
-
-function resolveOwnedUserSceneMedia(
-  request: Request,
-  response: Response,
-): (SceneMediaRequestUser & { mediaItem: SceneMediaLibraryItem }) | null {
-  const resolved = resolveSceneMedia(request, response);
-  if (!resolved) {
-    return null;
-  }
-  if (resolved.mediaItem.source !== 'user_generated') {
-    response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}`);
-    return null;
-  }
-  return resolved;
 }
 
 function sceneMediaCreationFailureMessage(response: Response, error: unknown): string {

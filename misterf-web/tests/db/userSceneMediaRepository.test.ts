@@ -177,8 +177,7 @@ describe('user scene media repository', () => {
 
     const image = {
       alt: 'Airport line',
-      source: 'built_in' as const,
-      src: '/public/scene-media/images/airport.png',
+      src: 'https://cdn.example.test/airport/image.png',
     };
     const script = {
       identityStrategy: 'named_in_dialogue' as const,
@@ -198,7 +197,7 @@ describe('user scene media repository', () => {
     const audio = {
       clips: [{
         speaker: 'Agent',
-        src: '/public/scene-media/audio/airport/turn-01.wav',
+        src: 'https://cdn.example.test/airport/turn-01.wav',
         turn: 1,
       }],
       format: 'wav' as const,
@@ -240,7 +239,6 @@ describe('user scene media repository', () => {
       ownerProfileId: ownerProfile.id,
       ownerUserId: user.id,
       script,
-      source: 'user_generated',
       status: 'ready',
       visualAssetId: 'airport-security-line-01',
     }));

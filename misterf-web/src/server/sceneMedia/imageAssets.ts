@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { env } from '../config/env.js';
 import { getUserFileStorageProvider } from '../storage/userFileStorage.js';
@@ -23,19 +22,6 @@ export async function readSceneMediaImageAsset(
       storageKey: image.storageKey,
     });
     return downloadImage(url, image.contentType);
-  }
-
-  if (image.src.startsWith('/public/')) {
-    const relativePath = image.src.slice('/public/'.length);
-    const publicRoot = path.resolve(env.projectRoot, 'public');
-    const absolutePath = path.resolve(publicRoot, relativePath);
-    if (!absolutePath.startsWith(`${publicRoot}${path.sep}`)) {
-      throw new Error('Invalid built-in scene media image path.');
-    }
-    return {
-      bytes: await fs.readFile(absolutePath),
-      contentType: image.contentType ?? contentTypeFromPath(absolutePath),
-    };
   }
 
   if (image.src.startsWith('/')) {

@@ -1,10 +1,42 @@
 # Scene Media Library
 
-Status: partially implemented - V3 has a first built-in media library slice with
-flat built-in scene media items, runtime image/audio assets, a server-side
-registry, and `/media-library` list/detail pages. The `scene_media` tutor block,
-resolver, user-generated media persistence, and resource derivation remain
-planned.
+Status: partially implemented - `/media-library` has list/detail/authoring pages,
+user-generated media persistence, and creation and variation flows. The
+`scene_media` tutor block and resource derivation remain planned.
+
+Product decision (2026-09-09): **built-in scene media was removed from the
+product.** The library only lists and resolves media the active profile created
+itself, so a new user starts with an empty library, and the built-in dataset,
+its build step, and its runtime assets were deleted from the repository. The
+rest of this document still describes the original two-source design (`built_in`
+plus `user_generated`); read every built-in section as design history, not as
+shipped behavior.
+
+### Recovering The Deleted Built-In Material
+
+Removed in the commit that carries this note. The last commit that still
+contains all of it is **`6c40c462`** (`chore(release): 3.12.0`), the parent of
+the removal commit. What went, and how to get it back:
+
+| Removed | Recover with |
+| --- | --- |
+| `misterf-web/src/server/sceneMedia/builtInSceneMedia.generated.ts` (150 flat built-in items) | `git checkout 6c40c462 -- misterf-web/src/server/sceneMedia/builtInSceneMedia.generated.ts` |
+| `misterf-web/scripts/build-scene-media.mjs` and the `build:scene-media` npm script | `git checkout 6c40c462 -- misterf-web/scripts/build-scene-media.mjs`, then re-add the script to `package.json` |
+| `misterf-web/public/scene-media/images/` (50 approved scene PNGs, ~57 MB) | `git checkout 6c40c462 -- misterf-web/public/scene-media/images` |
+| `misterf-web/public/scene-media/audio/` (~218 MB of per-turn WAVs) | never in git — it was gitignored build output; regenerate it with `build-scene-media.mjs` |
+| The `source` discriminator (`SceneMediaSource`, `SceneMediaLibraryItem.source`, `SceneMediaImageLayer.source`, `createdFrom.baseBuiltInMediaId`) and the `/public/` branch of `sceneMedia/imageAssets.ts` | `git show 6c40c462:misterf-web/src/server/sceneMedia/types.ts` (and the sibling files) for the previous shape |
+
+**The sources were not deleted.** `design/scene-images/` and
+`design/scene-scripts/` still hold every approved image, script, registry, and
+WAV clip in the working tree, along with the Python generators (see the
+`generate-scene-assets` skill). Running the recovered `build-scene-media.mjs`
+against them reproduces the generated module and both asset folders from
+scratch, so restoring the built-in library never depends on git history alone —
+history is only the shortcut.
+
+Note that `misterf-web/.gitignore` no longer ignores
+`public/scene-media/audio/`; restore that line before regenerating the audio, or
+218 MB of WAVs will show up as untracked files.
 
 ## Purpose
 

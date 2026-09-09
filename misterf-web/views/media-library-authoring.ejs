@@ -3,7 +3,6 @@
 <%
   const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
   const generationModeLabel = (mode) => t(`mediaLibrary.mode${mode === 'complete_scene' ? 'CompleteScene' : 'ImageOnly'}`);
-  const sourceLabel = (source) => t(`mediaLibrary.source.${source}`);
 %>
 
 <section class="app-page">
@@ -180,8 +179,6 @@
                 <dd><%= generationModeLabel(mediaItem.generationMode) %></dd>
                 <dt><%= t('mediaLibrary.setting') %></dt>
                 <dd><%= mediaItem.setting || t('mediaLibrary.notSpecified') %></dd>
-                <dt><%= t('mediaLibrary.sourceLabel') %></dt>
-                <dd><%= sourceLabel(mediaItem.source) %></dd>
               </dl>
             </div>
           </section>

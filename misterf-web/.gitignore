@@ -12,4 +12,3 @@ data/**/*.db
 data/**/*.db-*
 npm-debug.log*
 .DS_Store
-public/scene-media/audio/
