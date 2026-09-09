@@ -1189,6 +1189,10 @@ export const en: LocaleCatalog = {
   language: {
     label: 'Language',
   },
+  switchProfile: {
+    title: 'Switch profile',
+    copy: 'Pick the profile you want to keep practicing with.',
+  },
   nav: {
     breadcrumb: 'Breadcrumb',
     chatControls: 'Chat controls',
@@ -1210,6 +1214,7 @@ export const en: LocaleCatalog = {
       'Sign in or create an account to see practice options with Mr. F, your resources, and your saved conversations.',
     profile: 'Profile',
     switchProfile: 'Switch profile',
+    profileSettings: 'Profile settings',
     accountSettings: 'Account settings',
     credits: 'Credits',
     signOut: 'Sign out',

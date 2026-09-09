@@ -1,0 +1,73 @@
+<%# Profile switcher for the main menu.
+
+     The menu used to link to the `/profiles` page just to change the active
+     profile, so switching always cost a full page load plus a second click.
+     This modal keeps the switch one click away from anywhere in the app; the
+     `/profiles` page stays as the place to review and manage profiles. %>
+<div
+  class="modal fade"
+  id="switchProfileModal"
+  tabindex="-1"
+  aria-labelledby="switchProfileModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="switchProfileModalLabel"><%= t('switchProfile.title') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-body-secondary small"><%= t('switchProfile.copy') %></p>
+
+        <% if (profiles.length > 0) { %>
+          <%# One form for the whole list, with each row submitting its own
+              `profileId`, so every row stays a direct child of `.list-group`
+              and keeps Bootstrap's grouped borders. Switching returns home:
+              the page behind the modal usually belongs to the profile being
+              left, and its content is not visible to the new one. %>
+          <form method="post" action="/profiles/switch">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="/">
+
+            <div class="list-group">
+              <% profiles.forEach((profile) => { %>
+                <% if (activeProfile && activeProfile.id === profile.id) { %>
+                  <div
+                    class="list-group-item d-flex align-items-center justify-content-between gap-3"
+                    aria-current="true"
+                  >
+                    <span>
+                      <span class="fw-semibold d-block"><%= profile.name %></span>
+                      <small class="text-body-secondary"><%= profile.description || t('profiles.noDescription') %></small>
+                    </span>
+                    <span class="badge rounded-pill text-bg-light border text-nowrap"><%= t('profiles.active') %></span>
+                  </div>
+                <% } else { %>
+                  <button
+                    class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3 text-start"
+                    type="submit"
+                    name="profileId"
+                    value="<%= profile.id %>"
+                  >
+                    <span>
+                      <span class="fw-semibold d-block"><%= profile.name %></span>
+                      <small class="text-body-secondary"><%= profile.description || t('profiles.noDescription') %></small>
+                    </span>
+                    <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
+                  </button>
+                <% } %>
+              <% }) %>
+            </div>
+          </form>
+        <% } else { %>
+          <p class="mb-0 text-body-secondary"><%= t('profiles.listEmpty') %></p>
+        <% } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+        <a class="btn btn-primary" href="/profiles/new"><%= t('profiles.create') %></a>
+      </div>
+    </div>
+  </div>
+</div>

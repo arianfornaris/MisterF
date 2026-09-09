@@ -218,6 +218,107 @@ describe('main route smoke tests', () => {
     );
   });
 
+  it('switches and edits the active profile from the main menu', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile, findProfileForUser } = await import(
+      '../../src/server/db/repository.js'
+    );
+
+    const user = createExternalUser({
+      email: 'route-profile-menu@example.com',
+      emailVerified: true,
+      fullName: 'Route Profile Menu',
+      provider: 'google',
+      providerSubject: 'route-profile-menu',
+    });
+    const activeProfile = createProfile({
+      name: 'Menu active profile',
+      userId: user.id,
+    });
+    const otherProfile = createProfile({
+      name: 'Menu other profile',
+      userId: user.id,
+    });
+    const cookie = await createAuthenticatedCookie(user.id, activeProfile.id);
+
+    const progressResponse = await fetch(`${baseUrl}/progress`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const progressHtml = await progressResponse.text();
+    expect(progressResponse.status).toBe(200);
+
+    // The menu switches profiles in place and links straight to the active
+    // profile's edit page instead of routing through /profiles.
+    expect(progressHtml).toContain('id="switchProfileModal"');
+    expect(progressHtml).toContain('data-bs-target="#switchProfileModal"');
+    expect(progressHtml).toMatch(
+      new RegExp(`name="profileId"\\s+value="${otherProfile.id}"`),
+    );
+    expect(progressHtml).toContain(
+      `/profiles/${activeProfile.id}/edit?returnTo=${encodeURIComponent('/progress')}`,
+    );
+    expect(progressHtml).not.toContain('href="/profiles"');
+
+    const switchResponse = await postForm(
+      '/profiles/switch',
+      {
+        _csrf: extractCsrfToken(progressHtml),
+        profileId: otherProfile.id,
+        returnTo: '/',
+      },
+      cookie,
+    );
+    expect(switchResponse.status).toBe(302);
+    expect(switchResponse.headers.get('location')).toBe('/');
+
+    const editResponse = await fetch(
+      `${baseUrl}/profiles/${activeProfile.id}/edit?returnTo=%2Fprogress`,
+      {
+        headers: { cookie },
+        redirect: 'manual',
+      },
+    );
+    const editHtml = await editResponse.text();
+    expect(editResponse.status).toBe(200);
+    expect(editHtml).toContain('name="returnTo" value="/progress"');
+
+    // Saving from the menu returns to the page the edit was started from.
+    const updateResponse = await postForm(
+      `/profiles/${activeProfile.id}`,
+      {
+        _csrf: extractCsrfToken(editHtml),
+        description: '',
+        instructionLanguage: 'es',
+        learningContext: '',
+        modelTier: 'lite',
+        name: 'Menu renamed profile',
+        returnTo: '/progress',
+      },
+      cookie,
+    );
+    expect(updateResponse.status).toBe(302);
+    expect(updateResponse.headers.get('location')).toBe('/progress');
+    expect(findProfileForUser(activeProfile.id, user.id)?.name).toBe(
+      'Menu renamed profile',
+    );
+
+    // An off-site returnTo never leaves the app.
+    const hijackedUpdate = await postForm(
+      `/profiles/${activeProfile.id}`,
+      {
+        _csrf: extractCsrfToken(editHtml),
+        instructionLanguage: 'es',
+        modelTier: 'lite',
+        name: 'Menu renamed profile',
+        returnTo: '//evil.example.com',
+      },
+      cookie,
+    );
+    expect(hijackedUpdate.status).toBe(302);
+    expect(hijackedUpdate.headers.get('location')).toBe('/');
+  });
+
   it('renders and accepts generic live resource share links', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {

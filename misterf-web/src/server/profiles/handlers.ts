@@ -45,17 +45,16 @@ function ensureVerifiedProfileUser(
   return user;
 }
 
-function normalizeReturnTo(value: string | undefined): string {
-  if (!value) {
-    return '/';
-  }
-
-  const trimmed = value.trim();
-  if (!trimmed.startsWith('/')) {
-    return '/';
-  }
-
-  return trimmed;
+/**
+ * Where the profile form sends the user after saving, and where its close
+ * button points. The main menu links to the edit page with the page it was
+ * opened from, so editing the active profile returns there instead of
+ * dropping the user on the profiles list.
+ */
+function resolveProfileFormReturnTo(value: unknown): string {
+  return typeof value === 'string' && value.trim()
+    ? normalizeProfileReturnTo(value)
+    : '/profiles';
 }
 
 export function renderProfilesListPage(request: Request, response: Response): void {
@@ -96,6 +95,7 @@ export function renderNewProfilePage(request: Request, response: Response): void
     }),
     profileFieldLimits,
     profilePageMode: 'new',
+    profileReturnTo: resolveProfileFormReturnTo(request.query.returnTo),
     selectedProfile: null,
   });
 }
@@ -129,6 +129,7 @@ export function renderEditProfilePage(request: Request, response: Response): voi
     }),
     profileFieldLimits,
     profilePageMode: 'edit',
+    profileReturnTo: resolveProfileFormReturnTo(request.query.returnTo),
     selectedProfile,
   });
 }
@@ -271,7 +272,7 @@ export function handleSwitchProfile(request: Request, response: Response): void 
   }
 
   const profileId = String(request.body.profileId || '').trim();
-  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  const returnTo = normalizeProfileReturnTo(request.body.returnTo);
   if (!profileId) {
     response.redirect(returnTo);
     return;
@@ -307,7 +308,7 @@ export function handleCreateProfile(request: Request, response: Response): void 
     request.body.instructionLanguage,
     request.activeProfile?.instructionLanguage,
   );
-  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  const returnTo = normalizeProfileReturnTo(request.body.returnTo);
   if (!name) {
     response.redirect(returnTo);
     return;
@@ -333,8 +334,9 @@ export function handleUpdateProfile(request: Request, response: Response): void 
   }
 
   const profileId = String(request.params.profileId || '').trim();
+  const returnTo = resolveProfileFormReturnTo(request.body.returnTo);
   if (!profileId) {
-    response.redirect('/profiles');
+    response.redirect(returnTo);
     return;
   }
 
@@ -354,7 +356,9 @@ export function handleUpdateProfile(request: Request, response: Response): void 
     ? request.body.instructionLanguage
     : undefined;
   if (!name) {
-    response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
+    response.redirect(
+      `/profiles/${encodeURIComponent(profileId)}/edit?returnTo=${encodeURIComponent(returnTo)}`,
+    );
     return;
   }
 
@@ -369,11 +373,11 @@ export function handleUpdateProfile(request: Request, response: Response): void 
     userId: user.id,
   });
   if (!profile) {
-    response.redirect('/profiles');
+    response.redirect(returnTo);
     return;
   }
 
   updateConversationModelTierForProfile(user.id, profile.id, modelTier);
 
-  response.redirect('/profiles');
+  response.redirect(returnTo);
 }

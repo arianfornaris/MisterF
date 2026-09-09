@@ -16,7 +16,7 @@
       <div class="app-page-header-actions">
         <a
           class="app-page-close-button"
-          href="/profiles"
+          href="<%= profileReturnTo %>"
           title="<%= t('common.close') %>"
           aria-label="<%= t('common.close') %>"
         >
@@ -33,7 +33,7 @@
     autocomplete="off"
   >
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <input type="hidden" name="returnTo" value="/profiles">
+    <input type="hidden" name="returnTo" value="<%= profileReturnTo %>">
     <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'lite'; %>
     <% const selectedInstructionLanguage = profilePageMode === 'edit' && selectedProfile
       ? selectedProfile.instructionLanguage

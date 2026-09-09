@@ -200,7 +200,25 @@
                         <p class="user-menu-email"><strong><%= activeProfile.name %></strong></p>
                       <% } %>
                       <p class="user-menu-email"><%= user.email %></p>
-                      <a class="dropdown-item" href="/profiles"><%= t('nav.switchProfile') %></a>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#switchProfileModal"
+                      >
+                        <%= t('nav.switchProfile') %>
+                      </button>
+                      <% if (activeProfile) { %>
+                        <%# The edit page comes back to the page the menu was
+                            opened from, so editing the active profile no
+                            longer detours through the profiles list. %>
+                        <a
+                          class="dropdown-item"
+                          href="/profiles/<%= encodeURIComponent(activeProfile.id) %>/edit?returnTo=<%= encodeURIComponent(currentPath) %>"
+                        >
+                          <%= t('nav.profileSettings') %>
+                        </a>
+                      <% } %>
                       <a class="dropdown-item" href="/settings"><%= t('nav.accountSettings') %></a>
                       <a class="dropdown-item" href="/credits"><%= t('nav.credits') %></a>
                       <form method="post" action="/logout">
@@ -221,6 +239,10 @@
               </div>
             </div>
           </aside>
+
+          <% if (hasSession) { %>
+            <%- include('switch-profile-modal') %>
+          <% } %>
 
           <div
             class="modal fade"

@@ -927,6 +927,10 @@ export const ht = {
     language: {
         label: 'Lang',
     },
+    switchProfile: {
+        title: 'Chanje pwofil',
+        copy: 'Chwazi ki pwofil ou vle itilize pou kontinye pratike.',
+    },
     nav: {
         breadcrumb: 'Chemen navigasyon',
         chatControls: 'Kontwòl chat',
@@ -947,6 +951,7 @@ export const ht = {
         signedOutBody: 'Konekte oswa kreye yon kont pou wè opsyon pratik ak Mr. F, resous ou yo, ak konvèsasyon ou anrejistre yo.',
         profile: 'Pwofil',
         switchProfile: 'Chanje pwofil',
+        profileSettings: 'Paramèt pwofil',
         accountSettings: 'Paramèt kont',
         credits: 'Kredi',
         signOut: 'Dekonekte',
