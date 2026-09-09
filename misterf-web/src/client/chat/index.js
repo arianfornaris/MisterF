@@ -283,6 +283,19 @@ if (socket) {
   });
 }
 
+/*
+ * The composer has two send paths — the button's submit and Enter — so the
+ * starter panel is dropped here rather than in either handler, and only when a
+ * message actually left the composer: `sendMessage` returns false for an empty
+ * box, a busy assistant, or a pending guest prompt, and the panel has to
+ * survive all three.
+ */
+function sendComposerMessage() {
+  if (runtime.sendMessage()) {
+    learningHomePanelEl?.remove();
+  }
+}
+
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
   if (isAssistantBusy) {
@@ -290,10 +303,7 @@ formEl.addEventListener('submit', (event) => {
     return;
   }
 
-  // The starter panel belongs to the empty state. Once the learner writes, the
-  // conversation is the page and the panel would only push it down.
-  learningHomePanelEl?.remove();
-  runtime.sendMessage();
+  sendComposerMessage();
 });
 
 inputEl.addEventListener('keydown', (event) => {
@@ -303,7 +313,7 @@ inputEl.addEventListener('keydown', (event) => {
 
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
-    runtime.sendMessage();
+    sendComposerMessage();
   }
 });
 

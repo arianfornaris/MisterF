@@ -1484,6 +1484,16 @@ tabs, the closed-conversation tabs). The pills stay side by side on a narrow
 screen (`flex-nowrap`, with the labels shrinking under 480px) because a wrapped
 pill loses its background and reads as a stray link under the active one.
 
+Fixed on founder report after the 3.13.0 deploy: the starter panel did not
+disappear when the learner sent a message. It was dropped in the form's submit
+handler, but Enter calls `runtime.sendMessage()` directly and never fires
+submit, so the panel survived the way everyone actually sends. Both paths now
+go through one helper that drops the panel **on the result** of `sendMessage`,
+which also fixes the other half — pressing send on an empty box used to remove
+the panel without sending anything, since `sendMessage` declines an empty box,
+a busy assistant, and a pending guest prompt. Guarded by
+`tests/server/chatComposerArchitecture.test.ts`.
+
 ### Deferred To A Later Iteration (recorded 2026-09-09 at the founder's request)
 
 - **"Suggest me a practice."** The action belongs inside `/progress`, reading
