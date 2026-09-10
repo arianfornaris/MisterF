@@ -1,0 +1,198 @@
+// =============================================================================
+// Practice surfaces: exercise blocks, product mockups, the streak
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// .mf-block — an exercise block
+// -----------------------------------------------------------------------------
+//
+// The part of the current UI that already works, so it is kept almost exactly
+// as it is. The one addition is the family rail on the left, so a block always
+// says which kind of activity it belongs to even when it is quoted somewhere
+// else — a report, a progress page, a preview.
+
+.mf-block {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--mf-line);
+  border-left: 3px solid var(--mf-fam);
+  border-radius: var(--mf-radius-md);
+  background: var(--mf-paper);
+}
+
+.mf-block + .mf-block {
+  margin-top: .75rem;
+}
+
+.mf-block-current {
+  border-left-width: 6px;
+}
+
+.mf-block-locked {
+  opacity: .5;
+}
+
+.mf-block-index {
+  flex: 0 0 auto;
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mf-block-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .375rem;
+  min-width: 0;
+}
+
+.mf-block-prompt {
+  margin: 0;
+  font-size: var(--mf-text-base);
+  font-weight: 600;
+}
+
+.mf-block-sample {
+  margin: 0;
+  color: var(--mf-ink-soft);
+  font-family: var(--mf-font-display);
+  font-size: var(--mf-text-md);
+}
+
+// The gap a learner fills in. Sized so it reads as an invitation, not a typo.
+.mf-blank {
+  display: inline-block;
+  min-width: 4.625rem;
+  border-bottom: 2px solid var(--mf-fam);
+}
+
+// -----------------------------------------------------------------------------
+// .mf-choice — an answer option
+// -----------------------------------------------------------------------------
+
+.mf-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .25rem;
+}
+
+.mf-choice {
+  padding: .375rem .875rem;
+  border: 1px solid var(--mf-line-strong);
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-paper);
+  color: inherit;
+  font-size: var(--mf-text-sm);
+  text-decoration: none;
+}
+
+// What the learner picked. Not a verdict — this state says "you chose this",
+// and it appears next to the correct answer rather than instead of it.
+.mf-choice-picked {
+  border-color: var(--mf-fam);
+  background: var(--mf-fam-tint);
+  color: var(--mf-fam-ink);
+  font-weight: 600;
+}
+
+.mf-choice-ok {
+  border-color: var(--mf-ok);
+  background: var(--mf-ok-tint);
+  color: var(--mf-ok);
+  font-weight: 600;
+}
+
+// -----------------------------------------------------------------------------
+// .mf-mock — a product mockup, drawn in HTML
+// -----------------------------------------------------------------------------
+//
+// When the thing to show is the product itself, draw it. A mockup cannot go
+// stale, translates itself, weighs nothing and is visibly an example. This is
+// the pattern the landing page already uses, promoted to a component.
+//
+// Never a screenshot. Never a generated image of a UI.
+
+.mf-mock {
+  padding: 1rem;
+  border: 1px solid var(--mf-line);
+  border-radius: var(--mf-radius-md);
+  background: var(--mf-paper);
+  box-shadow: var(--mf-shadow-card);
+}
+
+.mf-mock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+
+.mf-mock-kicker {
+  margin: 0;
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-2xs);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+// Stand-in for a line of text. Width is set with a utility or inline style.
+.mf-mock-line {
+  display: block;
+  height: .5rem;
+  margin-bottom: .5rem;
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-app-bg-deep);
+}
+
+// -----------------------------------------------------------------------------
+// .mf-streak — the effort record
+// -----------------------------------------------------------------------------
+//
+// The one openly playful component, and the only one restricted to "aprendo".
+// It is a record of effort, not a score: no leaderboard, no loss state, no red,
+// and nothing is ever taken away. Any practice counts.
+
+.mf-streak {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--mf-terracotta) 22%, var(--mf-line));
+  border-radius: var(--mf-card-radius);
+  background: var(--mf-terracotta-tint);
+}
+
+.mf-streak-days {
+  display: flex;
+  gap: .375rem;
+}
+
+.mf-streak-day {
+  display: grid;
+  place-items: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--mf-terracotta) 12%, #fff);
+  color: var(--mf-terracotta-deep);
+  font-size: var(--mf-text-2xs);
+  font-weight: 700;
+}
+
+.mf-streak-day-done {
+  background: var(--mf-terracotta);
+  color: #fff;
+}
+
+.mf-streak-day-today {
+  box-shadow:
+    0 0 0 2px var(--mf-terracotta-tint),
+    0 0 0 4px var(--mf-terracotta);
+}

@@ -1,0 +1,147 @@
+/*
+ * Mister F — "Cuaderno" design tokens.
+ *
+ * One palette for the whole product. The landing already proved this language
+ * (warm paper, navy ink, Literata headlines, a single terracotta accent); this
+ * file is that language written down so the application can use it too.
+ *
+ * Two things are new here and carry the whole proposal:
+ *
+ *   1. FAMILY COLORS. Every kind of content the product makes — quiz, roleplay,
+ *      practice guide, scene, conversation — owns one color. Those colors are
+ *      not invented: they are already in `misterf-web/src/client/styles/app.css`
+ *      (`--mf-quiz`, `--mf-teal`, `--mf-practice`, `--mf-choice`,
+ *      `--mf-dialogue`), where today they only reach the inside of an exercise.
+ *      The proposal is to promote them to the library, the navigation and the
+ *      cards, so the app stops being gray without inventing a new palette.
+ *
+ *   2. MODE. `data-mode="aprendo"` and `data-mode="enseno"` on <html> swap a
+ *      small, deliberate set of variables. Everything else stays identical, so
+ *      the two modes read as one product in two states, not as two products.
+ */
+
+:root {
+  /* ---------------------------------------------------------------- paper */
+  --paper: #ffffff;
+  --sand: #fbf8f4;
+  --sand-deep: #f3ece2;
+  --cool: #f2f5f7;
+  --cool-deep: #e6edf1;
+  --line: #e6e0d7;
+  --line-strong: #d5cec2;
+
+  /* ------------------------------------------------------------------ ink */
+  --ink: #101f27;
+  --ink-soft: #4d6069;
+  --ink-faint: #7b8b93;
+
+  /* ---------------------------------------------------------------- brand */
+  --navy: #00496a;
+  --navy-deep: #00354e;
+  --navy-tint: #e7eff4;
+  --terracotta: #b8541f;
+  --terracotta-deep: #8f3f16;
+  --terracotta-tint: #f6ece4;
+
+  /* -------------------------------------------------------------- familias
+   * Identity, never decoration. A family color is allowed in exactly four
+   * places: the type chip, the card cover, the icon, and the active state.
+   * Never as the background of a large surface, never on body text.
+   */
+  --fam-quiz: #4f46e5;
+  --fam-quiz-tint: #eeedfb;
+  --fam-roleplay: #0f766e;
+  --fam-roleplay-tint: #e4f1ef;
+  --fam-guia: #1f6f8b;
+  --fam-guia-tint: #e5f0f4;
+  --fam-escena: #b8541f;
+  --fam-escena-tint: #f6ece4;
+  --fam-charla: #6c4b2c;
+  --fam-charla-tint: #f7f0e6;
+
+  /* ------------------------------------------------------------- semántica */
+  --ok: #166534;
+  --ok-tint: #e8f3ec;
+  --warn: #92400e;
+  --warn-strong: #c98a00;
+  --warn-tint: #fbf0df;
+  --bad: #991b1b;
+  --bad-tint: #f9e9e9;
+
+  /* --------------------------------------------------------------- tipogr. */
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Literata', Georgia, 'Times New Roman', serif;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 19px;
+  --text-xl: 24px;
+  --text-2xl: 30px;
+  --text-3xl: 38px;
+
+  /* ---------------------------------------------------------------- forma */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgb(16 31 39 / 5%), 0 8px 20px -14px rgb(16 31 39 / 22%);
+  --shadow-lift: 0 2px 4px rgb(16 31 39 / 6%), 0 22px 44px -22px rgb(16 31 39 / 30%);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ------------------------------------------------------- modo (defaults) */
+  --mode: var(--terracotta);
+  --mode-deep: var(--terracotta-deep);
+  --mode-tint: var(--terracotta-tint);
+  --app-bg: var(--sand);
+  --panel-bg: var(--paper);
+  --card-radius: var(--r-lg);
+  --heading-font: var(--font-display);
+  --heading-tracking: -0.015em;
+}
+
+/* -------------------------------------------------------------------------
+ * MODO APRENDO — the learner's product.
+ * Warm sand paper, terracotta accent, serif headings, illustration allowed,
+ * roomier radii. It should feel like a workbook someone wants to open.
+ * ---------------------------------------------------------------------- */
+[data-mode='aprendo'] {
+  --mode: var(--terracotta);
+  --mode-deep: var(--terracotta-deep);
+  --mode-tint: var(--terracotta-tint);
+  --app-bg: var(--sand);
+  --app-bg-deep: var(--sand-deep);
+  --card-radius: var(--r-lg);
+  --heading-font: var(--font-display);
+  --heading-tracking: -0.015em;
+}
+
+/* -------------------------------------------------------------------------
+ * MODO ENSEÑO — the teacher's product.
+ * Cooler paper, navy accent, sans headings, tighter radii, no hero
+ * illustration on working pages. It should feel like a desk, not a workbook:
+ * denser, more tabular, quicker to scan before a class.
+ * ---------------------------------------------------------------------- */
+[data-mode='enseno'] {
+  --mode: var(--navy);
+  --mode-deep: var(--navy-deep);
+  --mode-tint: var(--navy-tint);
+  --app-bg: var(--cool);
+  --app-bg-deep: var(--cool-deep);
+  --card-radius: var(--r-md);
+  --heading-font: var(--font-ui);
+  --heading-tracking: -0.02em;
+}

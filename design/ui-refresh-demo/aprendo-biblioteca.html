@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es" data-mode="aprendo">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi biblioteca · Mister F (propuesta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/demo.css">
+  </head>
+  <body data-mode="aprendo" data-view="biblioteca" data-mode-toggle="local">
+    <div class="shell">
+      <main class="main">
+        <div class="main-wide">
+          <div class="note">
+            <span class="note-tag">Nota</span>
+            <span>Esta es la misma página en los dos modos: usa el conmutador <strong>Aprendo / Enseño</strong> de la izquierda para verla cambiar. Cambian el fondo, el acento, la densidad, el orden de las columnas y las palabras — no el contenido ni el código.</span>
+          </div>
+
+          <div class="page-head">
+            <div>
+              <p class="eyebrow" data-copy-aprendo="Tu biblioteca" data-copy-enseno="Materiales de clase">Tu biblioteca</p>
+              <h1 class="page-title" data-copy-aprendo="Todo lo que has practicado" data-copy-enseno="Todo tu material">Todo lo que has practicado</h1>
+              <p class="page-lede" data-copy-aprendo="Quizzes, roleplays, guías y escenas. Puedes repetir cualquiera; Mr. F recuerda dónde fallaste la vez anterior." data-copy-enseno="Quizzes, roleplays, guías y escenas. Desde aquí los compartes con un grupo y sigues las entregas.">Quizzes, roleplays, guías y escenas. Puedes repetir cualquiera; Mr. F recuerda dónde fallaste la vez anterior.</p>
+            </div>
+            <a class="btn btn-mode" href="crear.html">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Crear
+            </a>
+          </div>
+
+          <div class="row-between" style="flex-wrap: wrap; margin-bottom: var(--space-5)">
+            <div class="choices" style="margin: 0">
+              <span class="choice is-picked" style="--fam: var(--navy); --fam-tint: var(--navy-tint)">Todo <span class="faint">12</span></span>
+              <span class="fam-quiz choice">Quizzes <span class="faint">5</span></span>
+              <span class="fam-roleplay choice">Roleplays <span class="faint">3</span></span>
+              <span class="fam-guia choice">Guías <span class="faint">3</span></span>
+              <span class="fam-escena choice">Escenas <span class="faint">1</span></span>
+            </div>
+            <p class="small faint">Ordenado por actividad reciente</p>
+          </div>
+
+          <div class="grid grid-3">
+            <a class="rcard fam-quiz" href="aprendo-recurso.html">
+              <div class="rcard-cover">
+                <svg class="rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
+              </div>
+              <div class="rcard-body">
+                <span class="chip">Quiz</span>
+                <p class="rcard-title">Past simple — Worksheet 7B</p>
+                <p class="small muted only-aprendo">Empezado · 3 de 7 bloques</p>
+                <p class="small muted only-enseno" hidden>9 de 9 entregaron · 5 evaluadas</p>
+                <p class="rcard-meta"><span>A2</span><span class="dot-sep">7 bloques</span><span class="dot-sep">hace 2 días</span></p>
+              </div>
+            </a>
+
+            <a class="rcard fam-roleplay" href="#">
+              <div class="rcard-cover">
+                <svg class="rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-4 3Z"/><path d="M11 15h6l3 3v-8a1 1 0 0 0-1-1h-3"/></svg>
+              </div>
+              <div class="rcard-body">
+                <span class="chip">Roleplay</span>
+                <p class="rcard-title">Pedir cita en la clínica</p>
+                <p class="small muted only-aprendo">Sin empezar</p>
+                <p class="small muted only-enseno" hidden>6 de 9 entregaron</p>
+                <p class="rcard-meta"><span>A2</span><span class="dot-sep">2 personajes</span><span class="dot-sep">hace 3 días</span></p>
+              </div>
+            </a>
+
+            <a class="rcard fam-guia" href="#">
+              <div class="rcard-cover">
+                <svg class="rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v18H6.5A1.5 1.5 0 0 1 5 19.5Z"/><path d="M9 8h6"/><path d="M9 12h5"/></svg>
+              </div>
+              <div class="rcard-body">
+                <span class="chip">Guía de práctica</span>
+                <p class="rcard-title">Presente simple: tercera persona</p>
+                <p class="small muted">Terminada · resumen disponible</p>
+                <p class="rcard-meta"><span>A1–A2</span><span class="dot-sep">hace 5 días</span></p>
+              </div>
+            </a>
+
+            <a class="rcard fam-escena" href="#">
+              <div class="rcard-cover">
+                <svg class="rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18"/><path d="M12 4v16"/></svg>
+              </div>
+              <div class="rcard-body">
+                <span class="chip">Escena</span>
+                <p class="rcard-title">Se le cayó la sopa en el restaurante</p>
+                <p class="small muted">4 viñetas · para contar o escribir</p>
+                <p class="rcard-meta"><span>A2–B1</span><span class="dot-sep">hace 1 semana</span></p>
+              </div>
+            </a>
+
+            <a class="rcard fam-quiz" href="#">
+              <div class="rcard-cover">
+                <svg class="rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
+              </div>
+              <div class="rcard-body">
+                <span class="chip">Quiz</span>
+                <p class="rcard-title">Verbos irregulares en pasado</p>
+                <p class="small muted">Terminado · 12 de 17 correctas</p>
+                <p class="rcard-meta"><span>A2</span><span class="dot-sep">17 bloques</span><span class="dot-sep">hace 1 semana</span></p>
+              </div>
+            </a>
+
+            <a class="rcard fam-roleplay" href="#">
+              <div class="rcard-cover">
+                <svg class="rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-4 3Z"/><path d="M11 15h6l3 3v-8a1 1 0 0 0-1-1h-3"/></svg>
+              </div>
+              <div class="rcard-body">
+                <span class="chip">Roleplay</span>
+                <p class="rcard-title">Haciendo la compra en el supermercado</p>
+                <p class="small muted">Terminado · resumen disponible</p>
+                <p class="rcard-meta"><span>A1–A2</span><span class="dot-sep">2 personajes</span><span class="dot-sep">hace 2 semanas</span></p>
+              </div>
+            </a>
+          </div>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-title">Carpeta «Trabajo»</h2>
+              <span class="section-note">vacía</span>
+            </div>
+            <div class="empty">
+              <img src="assets/img/empty-biblioteca.png" alt="">
+              <p class="empty-title" data-copy-aprendo="Aquí no hay nada todavía" data-copy-enseno="Esta carpeta está vacía">Aquí no hay nada todavía</p>
+              <p class="empty-body" data-copy-aprendo="Mueve aquí las prácticas de inglés del trabajo, o crea una nueva desde una foto de tu tarea." data-copy-enseno="Mueve aquí el material de este grupo, o crea uno nuevo a partir de tu propio documento.">Mueve aquí las prácticas de inglés del trabajo, o crea una nueva desde una foto de tu tarea.</p>
+              <a class="btn btn-mode btn-sm" href="crear.html">Crear aquí</a>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="assets/shell.js"></script>
+  </body>
+</html>

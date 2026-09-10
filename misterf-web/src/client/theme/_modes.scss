@@ -1,0 +1,81 @@
+// =============================================================================
+// Cuaderno — modes
+// =============================================================================
+//
+// `data-mode="aprendo" | "enseno"` on <html> is the whole mechanism. It swaps a
+// fixed set of custom properties; no component in this theme contains the word
+// "aprendo" or "enseno", and no component is forked per mode.
+//
+// Rules, in order of how easy they are to break:
+//
+//   1. Differentiate through this file only. If a difference cannot be
+//      expressed as a variable here, it probably should not exist.
+//   2. Keep the list short. Six entries today. More and the two modes stop
+//      reading as one product.
+//   3. Never differentiate MEANING. A green check, a family color and a warning
+//      mean the same thing in both modes. Only chrome, density and voice move.
+//   4. Copy is a differentiator, but it belongs in the i18n catalogs as
+//      parallel keys — not in CSS, and not in string swaps in the view.
+//   5. Every page must survive with no `data-mode` at all. A signed-out page
+//      has no mode; `:root` carries the default.
+
+@mixin mf-mode-properties($mode) {
+  $spec: map-get($mf-modes, $mode);
+
+  --mf-mode: #{map-get($spec, accent)};
+  --mf-mode-deep: #{map-get($spec, accent-deep)};
+  --mf-mode-tint: #{map-get($spec, accent-tint)};
+  --mf-mode-rgb: #{to-rgb(map-get($spec, accent))};
+
+  --mf-app-bg: #{map-get($spec, bg)};
+  --mf-app-bg-deep: #{map-get($spec, bg-deep)};
+  --mf-card-radius: #{map-get($spec, card-radius)};
+  --mf-heading-font: #{if(map-get($spec, heading) == display, inspect($mf-font-display), inspect($mf-font-ui))};
+  --mf-heading-tracking: #{if(map-get($spec, heading) == display, -.015em, -.02em)};
+
+  // Bootstrap variables that have to follow the mode. These are the ones
+  // Bootstrap emits on `:root` (not on the component), so redefining them here
+  // is enough — see `_bootstrap-variables.scss` for the ones that are not.
+  --bs-body-bg: #{map-get($spec, bg)};
+  --bs-body-bg-rgb: #{to-rgb(map-get($spec, bg))};
+  --bs-secondary-bg: #{map-get($spec, bg-deep)};
+  --bs-secondary-bg-rgb: #{to-rgb(map-get($spec, bg-deep))};
+  --bs-focus-ring-color: #{rgba(map-get($spec, accent), .45)};
+}
+
+// The default. A page with no `data-mode` still gets a complete theme.
+:root {
+  @include mf-mode-properties($mf-mode-default);
+}
+
+@each $mode, $spec in $mf-modes {
+  [data-mode='#{$mode}'] {
+    @include mf-mode-properties($mode);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// What the mode actually changes on screen
+// -----------------------------------------------------------------------------
+//
+// Everything above is variables. These four rules are the only places the theme
+// reads the attribute directly, and each one is a typographic or density
+// decision that cannot be expressed as a color.
+
+[data-mode='enseno'] {
+  // Teaching pages lead with numbers, so the page title stops competing with
+  // them and the serif gives way to the UI face.
+  .mf-page-title {
+    font-size: var(--mf-text-2xl);
+  }
+
+  // A hero is an invitation. A teacher arriving ten minutes before class is not
+  // being invited anywhere.
+  .mf-hero-art {
+    display: none;
+  }
+
+  .mf-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

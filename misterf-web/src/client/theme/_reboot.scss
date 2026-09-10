@@ -1,0 +1,43 @@
+// =============================================================================
+// Cuaderno — reboot additions
+// =============================================================================
+//
+// Element-level defaults that Bootstrap's own reboot does not cover. Kept
+// deliberately short: anything that needs a class belongs in `components/`.
+
+body {
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: var(--mf-heading-tracking);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+// The focus ring follows the mode and is never removed. Bootstrap only styles
+// `:focus` on its own components; this covers everything else.
+:focus-visible {
+  outline: #{$focus-ring-width} solid var(--mf-mode);
+  outline-offset: 2px;
+  border-radius: var(--mf-radius-xs);
+}
+
+// Practice content is set in the display face at a comfortable reading size,
+// in both modes. It is the one piece of type in the product that a learner is
+// asked to read slowly.
+.mf-practice-text {
+  font-family: var(--mf-font-display);
+  font-size: var(--mf-text-md);
+  line-height: 1.55;
+}

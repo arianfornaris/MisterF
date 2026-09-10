@@ -1,0 +1,162 @@
+// =============================================================================
+// Cuaderno — design tokens
+// =============================================================================
+//
+// The only file in the theme where a raw value is allowed to appear. Everything
+// downstream — Bootstrap's own variables, our CSS custom properties, and every
+// component — reads from here, so a palette change is a one-file change and a
+// Bootstrap `.btn-primary` and a Cuaderno `.mf-chip` can never drift apart.
+//
+// Values come from the landing page (`public/landing.css`), which took the navy
+// from the brand mark, and from the practice palette already living in
+// `src/client/styles/base.css` (`--mf-quiz`, `--mf-teal`, `--mf-practice`,
+// `--mf-choice`, `--mf-dialogue`). Nothing here is newly invented.
+
+// -----------------------------------------------------------------------------
+// Paper and ink
+// -----------------------------------------------------------------------------
+
+$mf-paper:        #ffffff; // cards, panels, anything raised
+$mf-sand:         #fbf8f4; // warm page ground — "aprendo"
+$mf-sand-deep:    #f3ece2; // recessed wells on warm ground
+$mf-cool:         #f2f5f7; // cool page ground — "enseño"
+$mf-cool-deep:    #e6edf1; // recessed wells on cool ground
+
+$mf-line:         #e6e0d7; // default border
+$mf-line-strong:  #d5cec2; // border that has to be seen (inputs, dashed drops)
+
+$mf-ink:          #101f27; // body text
+$mf-ink-soft:     #4d6069; // secondary text — the floor for sentences
+$mf-ink-faint:    #7b8b93; // metadata at 12–13px only, never a sentence
+
+// -----------------------------------------------------------------------------
+// Brand
+// -----------------------------------------------------------------------------
+
+$mf-navy:            #00496a; // primary action; accent of "enseño"
+$mf-navy-deep:       #00354e;
+$mf-navy-tint:       #e7eff4;
+
+$mf-terracotta:      #b8541f; // accent of "aprendo"; also the `escena` family
+$mf-terracotta-deep: #8f3f16;
+$mf-terracotta-tint: #f6ece4;
+
+// -----------------------------------------------------------------------------
+// Content families
+// -----------------------------------------------------------------------------
+//
+// One color per kind of thing the product makes. `base` is for marks, icons and
+// borders; `tint` is the only fill a family is allowed; `ink` is text on `tint`.
+//
+// THE FOUR-PLACES RULE: a family color may appear in the type chip, the card
+// cover, the icon, and the active state. Nowhere else. Never as the background
+// of a large surface (the create screen is the single exception, where choosing
+// between kinds *is* the task), and never on body text.
+
+$mf-families: (
+  quiz:     (base: #4f46e5, tint: #eeedfb, ink: #312c8f),
+  roleplay: (base: #0f766e, tint: #e4f1ef, ink: #0b544e),
+  guia:     (base: #1f6f8b, tint: #e5f0f4, ink: #164e62),
+  escena:   (base: #b8541f, tint: #f6ece4, ink: #8f3f16),
+  charla:   (base: #6c4b2c, tint: #f7f0e6, ink: #4d351e),
+);
+
+// -----------------------------------------------------------------------------
+// Semantic
+// -----------------------------------------------------------------------------
+//
+// Correct / to-improve tallies use OK and WARN — never OK and DANGER. A learner
+// who got something wrong is not in an error state. DANGER is reserved for
+// destructive actions and real failures.
+
+$mf-ok:            #166534;
+$mf-ok-tint:       #e8f3ec;
+$mf-warn:          #92400e;
+$mf-warn-strong:   #c98a00;
+$mf-warn-tint:     #fbf0df;
+$mf-danger:        #991b1b;
+$mf-danger-strong: #b02a37;
+$mf-danger-tint:   #f9e9e9;
+$mf-info:          $mf-navy;
+$mf-info-tint:     $mf-navy-tint;
+
+// -----------------------------------------------------------------------------
+// Modes
+// -----------------------------------------------------------------------------
+//
+// `data-mode` on <html> swaps exactly these. Nothing else in the theme knows
+// the modes exist — components read the resulting custom properties.
+//
+// Cap the list. Every entry added here is one more way for the two modes to
+// stop reading as one product.
+
+$mf-modes: (
+  aprendo: (
+    accent:      $mf-terracotta,
+    accent-deep: $mf-terracotta-deep,
+    accent-tint: $mf-terracotta-tint,
+    bg:          $mf-sand,
+    bg-deep:     $mf-sand-deep,
+    card-radius: 1rem,
+    heading:     display,
+  ),
+  enseno: (
+    accent:      $mf-navy,
+    accent-deep: $mf-navy-deep,
+    accent-tint: $mf-navy-tint,
+    bg:          $mf-cool,
+    bg-deep:     $mf-cool-deep,
+    card-radius: .75rem,
+    heading:     ui,
+  ),
+);
+
+// The mode the theme falls back to when nothing sets `data-mode`. Every page
+// must render correctly without the attribute — a signed-out page has no mode.
+$mf-mode-default: aprendo;
+
+// -----------------------------------------------------------------------------
+// Type
+// -----------------------------------------------------------------------------
+
+$mf-font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+  "Segoe UI Emoji";
+$mf-font-display: "Literata", Georgia, "Times New Roman", Times, serif;
+$mf-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+  "Liberation Mono", monospace;
+
+// Nine steps. Nothing between — if a size is missing, the layout is wrong, not
+// the scale.
+$mf-text-2xs: .6875rem; // 11px — eyebrows, table headers
+$mf-text-xs:  .75rem;   // 12px — chips, metadata
+$mf-text-sm:  .875rem;  // 14px — secondary copy, dense tables
+$mf-text-base: 1rem;    // 16px — body
+$mf-text-md:  1.0625rem;// 17px — card titles, practice content
+$mf-text-lg:  1.1875rem;// 19px — section titles
+$mf-text-xl:  1.5rem;   // 24px — hero titles
+$mf-text-2xl: 1.875rem; // 30px — page titles in "enseño"
+$mf-text-3xl: 2.375rem; // 38px — page titles in "aprendo"
+
+// -----------------------------------------------------------------------------
+// Shape and depth
+// -----------------------------------------------------------------------------
+
+$mf-radius-xs:   .25rem;   // 4px  — inline marks
+$mf-radius-sm:   .5rem;    // 8px  — buttons in dense contexts, small wells
+$mf-radius-md:   .75rem;   // 12px — cards in "enseño"
+$mf-radius-lg:   1rem;     // 16px — cards in "aprendo"
+$mf-radius-xl:   1.375rem; // 22px — hero bands
+$mf-radius-pill: 50rem;
+
+// Two shadows. A page that needs a third is asking the wrong question.
+$mf-shadow-card: 0 1px 2px rgba(16, 31, 39, .05), 0 8px 20px -14px rgba(16, 31, 39, .22);
+$mf-shadow-lift: 0 2px 4px rgba(16, 31, 39, .06), 0 22px 44px -22px rgba(16, 31, 39, .3);
+
+// -----------------------------------------------------------------------------
+// Motion
+// -----------------------------------------------------------------------------
+
+$mf-ease: cubic-bezier(.2, .6, .3, 1);
+$mf-duration-fast: 120ms;
+$mf-duration: 160ms;

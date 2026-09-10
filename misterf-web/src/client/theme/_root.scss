@@ -1,0 +1,110 @@
+// =============================================================================
+// Cuaderno — custom properties
+// =============================================================================
+//
+// Bootstrap's `_root.scss` has already emitted every `--bs-*`. This file adds
+// the `--mf-*` layer: the tokens that Bootstrap has no concept of (families,
+// modes, the type scale, the two shadows) plus the handful of aliases that let
+// the app's existing stylesheets keep working while they migrate.
+//
+// Rule of thumb for which layer to reach for:
+//   - styling a Bootstrap component      -> `--bs-*`
+//   - styling a Cuaderno component       -> `--mf-*`
+//   - a value that changes with the mode -> `--mf-*`, redefined in `_modes.scss`
+
+:root {
+  color-scheme: light;
+
+  // --------------------------------------------------------------- paper & ink
+  --mf-paper: #{$mf-paper};
+  --mf-sand: #{$mf-sand};
+  --mf-sand-deep: #{$mf-sand-deep};
+  --mf-cool: #{$mf-cool};
+  --mf-cool-deep: #{$mf-cool-deep};
+  --mf-line: #{$mf-line};
+  --mf-line-strong: #{$mf-line-strong};
+  --mf-ink: #{$mf-ink};
+  --mf-ink-soft: #{$mf-ink-soft};
+  --mf-ink-faint: #{$mf-ink-faint};
+
+  // -------------------------------------------------------------------- brand
+  --mf-navy: #{$mf-navy};
+  --mf-navy-deep: #{$mf-navy-deep};
+  --mf-navy-tint: #{$mf-navy-tint};
+  --mf-terracotta: #{$mf-terracotta};
+  --mf-terracotta-deep: #{$mf-terracotta-deep};
+  --mf-terracotta-tint: #{$mf-terracotta-tint};
+
+  // ----------------------------------------------------------------- semantic
+  --mf-ok: #{$mf-ok};
+  --mf-ok-tint: #{$mf-ok-tint};
+  --mf-warn: #{$mf-warn};
+  --mf-warn-strong: #{$mf-warn-strong};
+  --mf-warn-tint: #{$mf-warn-tint};
+  --mf-danger: #{$mf-danger};
+  --mf-danger-strong: #{$mf-danger-strong};
+  --mf-danger-tint: #{$mf-danger-tint};
+
+  // --------------------------------------------------------------------- type
+  --mf-font-ui: #{inspect($mf-font-ui)};
+  --mf-font-display: #{inspect($mf-font-display)};
+  --mf-font-mono: #{inspect($mf-font-mono)};
+
+  --mf-text-2xs: #{$mf-text-2xs};
+  --mf-text-xs: #{$mf-text-xs};
+  --mf-text-sm: #{$mf-text-sm};
+  --mf-text-base: #{$mf-text-base};
+  --mf-text-md: #{$mf-text-md};
+  --mf-text-lg: #{$mf-text-lg};
+  --mf-text-xl: #{$mf-text-xl};
+  --mf-text-2xl: #{$mf-text-2xl};
+  --mf-text-3xl: #{$mf-text-3xl};
+
+  // -------------------------------------------------------------------- shape
+  --mf-radius-xs: #{$mf-radius-xs};
+  --mf-radius-sm: #{$mf-radius-sm};
+  --mf-radius-md: #{$mf-radius-md};
+  --mf-radius-lg: #{$mf-radius-lg};
+  --mf-radius-xl: #{$mf-radius-xl};
+  --mf-radius-pill: #{$mf-radius-pill};
+
+  --mf-shadow-card: #{$mf-shadow-card};
+  --mf-shadow-lift: #{$mf-shadow-lift};
+
+  // ------------------------------------------------------------------- motion
+  --mf-ease: #{$mf-ease};
+  --mf-duration-fast: #{$mf-duration-fast};
+  --mf-duration: #{$mf-duration};
+}
+
+// -----------------------------------------------------------------------------
+// Compatibility aliases
+// -----------------------------------------------------------------------------
+//
+// The names the app's existing stylesheets already use, re-pointed at the
+// theme. They exist so the switch to Cuaderno is one line in `document-head`
+// rather than a sweep through thirteen CSS files. Delete an alias once nothing
+// references it — `grep -rn "--mf-quiz" src/client/styles`.
+
+:root {
+  --app-serif-font: var(--mf-font-display);
+  --page: var(--bs-body-bg);
+  --ink: var(--mf-ink);
+  --muted: var(--mf-ink-soft);
+  --line: var(--mf-line);
+  --panel: var(--mf-paper);
+  --app-main-panel-bg: var(--mf-paper);
+  --app-main-panel-shadow: var(--mf-shadow-card);
+
+  --mf-quiz: #{map-get(map-get($mf-families, quiz), base)};
+  --mf-quiz-strong: #{map-get(map-get($mf-families, quiz), ink)};
+  --mf-teal: #{map-get(map-get($mf-families, roleplay), base)};
+  --mf-teal-strong: #{map-get(map-get($mf-families, roleplay), ink)};
+  --mf-practice: #{map-get(map-get($mf-families, guia), base)};
+  --mf-practice-strong: #{map-get(map-get($mf-families, guia), ink)};
+  --mf-choice: #{map-get(map-get($mf-families, escena), base)};
+  --mf-choice-strong: #{map-get(map-get($mf-families, escena), ink)};
+  --mf-dialogue: #{map-get(map-get($mf-families, charla), base)};
+  --mf-success: var(--mf-ok);
+  --mf-warning: var(--mf-warn);
+}

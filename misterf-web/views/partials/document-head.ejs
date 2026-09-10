@@ -38,7 +38,11 @@
         `includeAppStyles: false` and bring its own stylesheet instead — the
         landing does, so it ships no Bootstrap, no icon font, and no script. %>
     <% if (locals.includeAppStyles !== false) { %>
-      <link rel="stylesheet" href="/vendor/bootswatch/flatly/bootstrap.min.css">
+      <%# Cuaderno: our own Bootstrap build, compiled from
+          `src/client/theme/`. It replaces Bootswatch Flatly outright rather
+          than layering over it — see that folder's README for why, and for the
+          one-line revert if it ever has to go back. %>
+      <%- include('theme-stylesheet') %>
       <% if (locals.includeBootstrapIcons) { %>
         <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
       <% } %>

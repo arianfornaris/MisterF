@@ -1,0 +1,196 @@
+// =============================================================================
+// Numbers: stat tiles, bars, meters, tallies, column charts
+// =============================================================================
+//
+// Everything here is CSS only. A learning app shows small, repeated,
+// low-precision quantities — "12 of 17", "6 of 9 delivered" — and a charting
+// library is the wrong tool for that: it costs a bundle, it does not inherit
+// the theme, and it renders after paint.
+//
+// Correct / to-improve uses OK and WARN, never OK and DANGER. Getting something
+// wrong is not an error state.
+
+// -----------------------------------------------------------------------------
+// .mf-stat
+// -----------------------------------------------------------------------------
+
+.mf-stat {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+  padding: 1rem;
+  border: 1px solid var(--mf-line);
+  border-radius: var(--mf-card-radius);
+  background: var(--mf-paper);
+}
+
+.mf-stat-label {
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-2xs);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.mf-stat-value {
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-2xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.mf-stat-note {
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-sm);
+}
+
+// One tile per screen may be promoted. More than one and none of them is.
+.mf-stat-accent {
+  border-color: color-mix(in srgb, var(--mf-mode) 26%, var(--mf-line));
+  background: var(--mf-mode-tint);
+
+  .mf-stat-value {
+    color: var(--mf-mode-deep);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// .mf-bar — a single proportion
+// -----------------------------------------------------------------------------
+
+.mf-bar {
+  display: block;
+  height: .5rem;
+  overflow: hidden;
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-app-bg-deep);
+}
+
+.mf-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-fam);
+}
+
+.mf-bar-fill-ok { background: var(--mf-ok); }
+.mf-bar-fill-warn { background: var(--mf-warn-strong); }
+
+// -----------------------------------------------------------------------------
+// .mf-meter — label, bar, value
+// -----------------------------------------------------------------------------
+
+.mf-meter {
+  display: grid;
+  grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr) minmax(3rem, auto);
+  align-items: center;
+  gap: .75rem;
+  padding-block: .4375rem;
+  font-size: var(--mf-text-sm);
+}
+
+.mf-meter + .mf-meter {
+  border-top: 1px solid var(--mf-line);
+}
+
+.mf-meter-value {
+  color: var(--mf-ink-soft);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+// -----------------------------------------------------------------------------
+// .mf-tally — correct vs to-improve, in one bar
+// -----------------------------------------------------------------------------
+//
+// Two proportional segments and no legend: the pair is the same green/amber the
+// product already uses inside an evaluated exercise.
+
+.mf-tally {
+  display: flex;
+  height: .625rem;
+  overflow: hidden;
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-app-bg-deep);
+}
+
+.mf-tally > span {
+  display: block;
+}
+
+.mf-tally-ok { background: var(--mf-ok); }
+.mf-tally-warn { background: var(--mf-warn-strong); }
+
+// -----------------------------------------------------------------------------
+// .mf-cols — a small column chart
+// -----------------------------------------------------------------------------
+//
+// Set each column's height inline as a percentage. Never red: this reports
+// effort over time, and a quiet week is not a failure.
+
+.mf-cols {
+  display: flex;
+  align-items: flex-end;
+  gap: .375rem;
+  height: 5.75rem;
+}
+
+.mf-col {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: color-mix(in srgb, var(--mf-mode) 26%, var(--mf-app-bg-deep));
+}
+
+.mf-col-strong {
+  background: var(--mf-mode);
+}
+
+.mf-cols-legend {
+  display: flex;
+  gap: .375rem;
+  margin-top: .375rem;
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-2xs);
+
+  > * {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// .mf-person — an avatar and a name, in a table cell
+// -----------------------------------------------------------------------------
+
+.mf-person {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+}
+
+.mf-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.875rem;
+  height: 1.875rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--mf-mode-tint);
+  color: var(--mf-mode-deep);
+  font-size: var(--mf-text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mf-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mf-num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

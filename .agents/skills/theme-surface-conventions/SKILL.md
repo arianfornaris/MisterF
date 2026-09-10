@@ -7,11 +7,44 @@ description: Use when creating, editing, or reviewing Mister F UI surfaces or CS
 
 ## Overview
 
-Keep Mister F's general UI surfaces theme-friendly. The app currently uses Bootswatch Flatly, but page chrome should remain portable if the Bootstrap theme changes later.
+Keep Mister F's general UI surfaces theme-friendly.
+
+**Since the Cuaderno theme (branch `v3-design`), the app no longer loads
+Bootswatch Flatly.** It compiles its own Bootstrap build from
+`misterf-web/src/client/theme/`. Read that folder's `README.md` before changing
+any surface: it is the authority on tokens, and it supersedes this skill on
+three points listed under "Cuaderno amendments" below. Everything else here
+still stands — the goal was always portability, and owning the theme is the
+strongest form of it.
+
+## Cuaderno Amendments
+
+Three rules below changed when the app took ownership of its theme. The
+reasoning is in `misterf-web/src/client/theme/README.md`.
+
+1. **Radii.** `--mf-card-radius` replaces `var(--bs-card-border-radius)` for
+   card-like surfaces, because the radius now varies by mode. The rule "never
+   hardcode a radius" is unchanged — the token indirection is what makes the
+   mode layer possible.
+2. **Shadows.** The theme defines exactly two shadow tokens
+   (`--mf-shadow-card`, `--mf-shadow-lift`). Cards remain flat by default;
+   elevation is opt-in through `.mf-lift`. Do not write a third shadow.
+3. **Backgrounds.** `--bs-body-bg` now resolves to `--mf-app-bg`, which the
+   mode swaps. Read `var(--bs-body-bg)` or `var(--mf-app-bg)`; never hardcode
+   the page ground.
+
+Still forbidden, with no exception: gradients on general containers. The theme
+ships none and should keep shipping none.
 
 ## Core Rules
 
-- Prefer Bootstrap and Bootswatch surface tokens over hardcoded visual treatment:
+- Prefer Bootstrap and Cuaderno surface tokens over hardcoded visual treatment:
+  - `var(--mf-app-bg)` / `var(--mf-app-bg-deep)`
+  - `var(--mf-paper)`
+  - `var(--mf-line)` / `var(--mf-line-strong)`
+  - `var(--mf-card-radius)`
+- The Bootstrap tokens below still resolve and remain correct for Bootstrap's
+  own components:
   - `var(--bs-body-bg)`
   - `var(--bs-card-bg)`
   - `var(--bs-tertiary-bg)`

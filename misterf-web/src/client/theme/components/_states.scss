@@ -1,0 +1,120 @@
+// =============================================================================
+// Empty states and the mode chrome
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// .mf-empty
+// -----------------------------------------------------------------------------
+//
+// The one place in the app where a generated illustration is unambiguously the
+// right answer: there is nothing to show, so the surface has to say something
+// on its own. It always ends in an action — an empty state that only apologises
+// is wasted space.
+
+.mf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 3rem 1.5rem;
+  border: 1px dashed var(--mf-line-strong);
+  border-radius: var(--mf-card-radius);
+  background: color-mix(in srgb, var(--mf-paper) 55%, var(--mf-app-bg));
+  text-align: center;
+}
+
+.mf-empty img {
+  width: min(16rem, 60%);
+  height: auto;
+}
+
+.mf-empty-title {
+  margin: 0;
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-lg);
+  font-weight: 600;
+}
+
+.mf-empty-body {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--mf-ink-soft);
+}
+
+// -----------------------------------------------------------------------------
+// Illustration slots
+// -----------------------------------------------------------------------------
+//
+// Sizes are fixed by class so a spot cannot quietly grow into a hero. See the
+// asset budget in the theme README.
+
+.mf-spot {
+  display: block;
+  width: 100%;
+  max-width: 8rem;
+  height: auto;
+  border-radius: var(--mf-radius-md);
+}
+
+.mf-spot-inline {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--mf-radius-sm);
+}
+
+// -----------------------------------------------------------------------------
+// .mf-mode-rail — four pixels of "which product am I in"
+// -----------------------------------------------------------------------------
+//
+// The cheapest persistent mode signal there is, and the only one that survives
+// scrolling. Meant for the left edge of the app shell.
+
+.mf-mode-rail {
+  background: var(--mf-mode);
+}
+
+// -----------------------------------------------------------------------------
+// .mf-mode-switch — the segmented control
+// -----------------------------------------------------------------------------
+//
+// Mode is not a permission and not an account type: the same person switches
+// several times a day. The control has to be cheap, visible and reversible.
+
+.mf-mode-switch {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--mf-line);
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-app-bg);
+}
+
+.mf-mode-switch > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .375rem;
+  padding: .4375rem .375rem;
+  border: 0;
+  border-radius: var(--mf-radius-pill);
+  background: transparent;
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mf-mode-switch > *:hover {
+  color: var(--mf-ink);
+  text-decoration: none;
+}
+
+.mf-mode-switch > *[aria-current='true'],
+.mf-mode-switch > *[aria-pressed='true'] {
+  background: var(--mf-mode);
+  color: #fff;
+}

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es" data-mode="enseno">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Martes 7 pm — A2 · Mister F (propuesta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/demo.css">
+    <style>
+      /* Per-question tallies: two stacked proportional bars, no legend needed
+         because the colors are the product's own correct/to-improve pair. */
+      .tally {
+        display: flex;
+        height: 10px;
+        border-radius: var(--r-pill);
+        overflow: hidden;
+        background: var(--app-bg-deep);
+      }
+
+      .tally span {
+        display: block;
+      }
+
+      .tally .ok { background: var(--ok); }
+      .tally .warn { background: var(--warn-strong, #c98a00); }
+
+      .qrow {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr) 120px 92px;
+        align-items: center;
+        gap: var(--space-4);
+        padding-block: var(--space-3);
+      }
+
+      .qrow + .qrow {
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 720px) {
+        .qrow {
+          grid-template-columns: 28px minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body data-mode="enseno" data-view="clase">
+    <div class="shell">
+      <main class="main">
+        <div class="main-wide">
+          <div class="note">
+            <span class="note-tag">Nota</span>
+            <span>Esta es la pantalla que el piloto de profesores necesita y que hoy está repartida entre «Participantes» y el resumen. Una sola página: quién entregó, qué falló pregunta a pregunta, y qué llevar a la próxima clase.</span>
+          </div>
+
+          <p class="crumbs"><a href="enseno-inicio.html">Panel de clase</a> <span>/</span> <span>Martes 7 pm — A2</span></p>
+
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Grupo · 9 estudiantes</p>
+              <h1 class="page-title">Martes 7 pm — A2</h1>
+              <p class="page-lede">Última tarea compartida: <strong>Past simple — Worksheet 7B</strong>, el jueves pasado.</p>
+            </div>
+            <div class="btn-row" style="margin: 0">
+              <a class="btn btn-mode" href="crear.html?modo=enseno">Compartir material nuevo</a>
+              <a class="btn btn-ghost" href="#">Copiar enlace del grupo</a>
+            </div>
+          </div>
+
+          <div class="grid grid-4">
+            <div class="stat"><span class="stat-label">Entregaron</span><span class="stat-value">6 / 9</span><span class="stat-note">3 sin empezar</span></div>
+            <div class="stat"><span class="stat-label">Evaluadas</span><span class="stat-value">2 / 6</span><span class="stat-note">4 en cola</span></div>
+            <div class="stat"><span class="stat-label">Aciertos</span><span class="stat-value">64 %</span><span class="stat-note">media del grupo</span></div>
+            <div class="stat"><span class="stat-label">Bloque más fallado</span><span class="stat-value">#3</span><span class="stat-note">«Yesterday I ___ to…»</span></div>
+          </div>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-title">Bloque a bloque</h2>
+              <span class="section-note"><span style="color: var(--ok)">■</span> correctas · <span style="color: #c98a00">■</span> por mejorar</span>
+            </div>
+
+            <div class="card">
+              <div class="qrow">
+                <span class="block-index">#1</span>
+                <span>Elige la forma verbal correcta — <span class="muted">«She ___ the system well.»</span></span>
+                <span class="tally"><span class="ok" style="width: 83%"></span><span class="warn" style="width: 17%"></span></span>
+                <span class="small muted num" style="text-align: right">5 / 6</span>
+              </div>
+              <div class="qrow">
+                <span class="block-index">#2</span>
+                <span>Ordena la frase — <span class="muted">«I finished the task yesterday»</span></span>
+                <span class="tally"><span class="ok" style="width: 67%"></span><span class="warn" style="width: 33%"></span></span>
+                <span class="small muted num" style="text-align: right">4 / 6</span>
+              </div>
+              <div class="qrow" style="background: var(--warn-tint); margin-inline: calc(var(--space-4) * -1); padding-inline: var(--space-4); border-radius: var(--r-sm)">
+                <span class="block-index">#3</span>
+                <span><strong>Completa la frase</strong> — <span class="muted">«Yesterday I ___ to the pharmacy.»</span></span>
+                <span class="tally"><span class="ok" style="width: 17%"></span><span class="warn" style="width: 83%"></span></span>
+                <span class="small num" style="text-align: right; color: var(--warn)">1 / 6</span>
+              </div>
+              <div class="qrow">
+                <span class="block-index">#4</span>
+                <span>Traduce al inglés — <span class="muted">«Terminé la tarea.»</span></span>
+                <span class="tally"><span class="ok" style="width: 50%"></span><span class="warn" style="width: 50%"></span></span>
+                <span class="small muted num" style="text-align: right">3 / 6</span>
+              </div>
+              <div class="qrow">
+                <span class="block-index">#5</span>
+                <span>Escribe una frase usando «although»</span>
+                <span class="tally"><span class="ok" style="width: 33%"></span><span class="warn" style="width: 67%"></span></span>
+                <span class="small muted num" style="text-align: right">2 / 6</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="cols-2">
+              <div>
+                <div class="section-head">
+                  <h2 class="section-title">Entregas</h2>
+                  <span class="section-note">9 estudiantes</span>
+                </div>
+                <div class="card" style="padding: 0; overflow: hidden">
+                  <table class="table">
+                    <thead>
+                      <tr><th>Estudiante</th><th>Estado</th><th class="num">Aciertos</th><th>Falló en</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="person"><span class="person-avatar">JR</span> Jean R.</span></td>
+                        <td><span class="chip chip-ok">Evaluado</span></td>
+                        <td class="num">86 %</td>
+                        <td class="small muted">#5</td>
+                      </tr>
+                      <tr>
+                        <td><span class="person"><span class="person-avatar">MC</span> María C.</span></td>
+                        <td><span class="chip chip-warn">A medias</span></td>
+                        <td class="num">71 %</td>
+                        <td class="small muted">#3</td>
+                      </tr>
+                      <tr>
+                        <td><span class="person"><span class="person-avatar">LS</span> Luisa S.</span></td>
+                        <td><span class="chip chip-ok">Evaluado</span></td>
+                        <td class="num">58 %</td>
+                        <td class="small muted">#3, #4, #5</td>
+                      </tr>
+                      <tr>
+                        <td><span class="person"><span class="person-avatar">PN</span> Pierre N.</span></td>
+                        <td><span class="chip chip-plain">En cola</span></td>
+                        <td class="num faint">—</td>
+                        <td class="small faint">—</td>
+                      </tr>
+                      <tr>
+                        <td><span class="person"><span class="person-avatar">AD</span> Andrés D.</span></td>
+                        <td><span class="chip chip-plain">Sin empezar</span></td>
+                        <td class="num faint">—</td>
+                        <td class="small faint">—</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="small faint" style="margin-top: var(--space-3)">Mostrando 5 de 9</p>
+              </div>
+
+              <div class="stack-4">
+                <div class="card" style="border-color: color-mix(in srgb, var(--navy) 26%, var(--line))">
+                  <p class="eyebrow">Para la próxima clase</p>
+                  <h2 class="section-title" style="margin-bottom: var(--space-3)">Tres cosas concretas</h2>
+                  <ol class="stack-3 small" style="margin: 0; padding-left: 1.1rem">
+                    <li><strong>Irregulares en pasado.</strong> 5 de 6 fallaron el bloque #3. Diez minutos de pizarra con <em>go/went</em>, <em>take/took</em>, <em>buy/bought</em>.</li>
+                    <li><strong>Preguntas en pasado.</strong> Cuatro escribieron «Did you went…». Un drill rápido en parejas.</li>
+                    <li><strong>Conectores.</strong> Nadie usó <em>although</em>. Vale la pena presentarlo antes de volver a pedirlo.</li>
+                  </ol>
+                  <div class="btn-row">
+                    <a class="btn btn-mode btn-sm" href="crear.html?modo=enseno">Crear el repaso</a>
+                    <a class="btn btn-ghost btn-sm" href="#">Descargar</a>
+                  </div>
+                  <p class="small faint" style="margin-top: var(--space-3)">Generado a partir de las 6 entregas recibidas.</p>
+                </div>
+
+                <div class="card card-quiet">
+                  <p class="eyebrow">Grupo del sábado</p>
+                  <div class="empty" style="border: 0; padding: var(--space-4) 0; background: none">
+                    <img src="assets/img/empty-clase.png" alt="" style="max-width: 190px">
+                    <p class="empty-title">Todavía no hay entregas</p>
+                    <p class="empty-body small">Comparte una actividad con el grupo B1 y aquí verás quién la hizo y qué falló.</p>
+                    <a class="btn btn-ghost btn-sm" href="aprendo-biblioteca.html?modo=enseno">Elegir material</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="assets/shell.js"></script>
+  </body>
+</html>

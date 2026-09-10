@@ -1,0 +1,221 @@
+// =============================================================================
+// .mf-rcard — resource card    /    .mf-acard — action card
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Resource card
+// -----------------------------------------------------------------------------
+//
+// The cover is drawn, never photographed and never generated. A tinted field, a
+// dot screen and one line glyph: free, infinite, instantly identifiable in a
+// grid of twenty, and nobody waits on an image model to save a quiz.
+
+.mf-rcard {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--mf-line);
+  border-radius: var(--mf-card-radius);
+  background: var(--mf-paper);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform var(--mf-duration) var(--mf-ease),
+    border-color var(--mf-duration) var(--mf-ease),
+    box-shadow var(--mf-duration) var(--mf-ease);
+}
+
+a.mf-rcard:hover,
+a.mf-rcard:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--mf-fam) 35%, var(--mf-line));
+  box-shadow: var(--mf-shadow-card);
+  text-decoration: none;
+}
+
+.mf-rcard-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 5.75rem;
+  overflow: hidden;
+  background: var(--mf-fam-tint);
+  border-bottom: 1px solid color-mix(in srgb, var(--mf-fam) 14%, var(--mf-line));
+}
+
+.mf-rcard-cover::before {
+  content: '';
+  position: absolute;
+  inset: -30% -10%;
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--mf-fam) 16%, transparent) 1.6px,
+    transparent 1.7px
+  );
+  background-size: 14px 14px;
+}
+
+// The one glyph. Stroke only, family colored, 34px — big enough to read at a
+// glance, small enough not to become an illustration.
+.mf-rcard-glyph {
+  position: relative;
+  width: 2.125rem;
+  height: 2.125rem;
+  fill: none;
+  stroke: var(--mf-fam);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mf-rcard-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .5rem;
+  padding: 1rem;
+}
+
+.mf-rcard-title {
+  margin: 0;
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-md);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: var(--mf-heading-tracking);
+}
+
+.mf-rcard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin: auto 0 0;
+  padding-top: .5rem;
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-xs);
+}
+
+.mf-rcard-meta > * + *::before {
+  content: '·';
+  margin-right: .5rem;
+}
+
+// A denser variant for teaching screens, where the cover is a stripe rather
+// than a field because the list is long and the title is what matters.
+.mf-rcard-row {
+  flex-direction: row;
+  align-items: stretch;
+
+  .mf-rcard-cover {
+    flex: 0 0 .375rem;
+    height: auto;
+    border-bottom: 0;
+    background: var(--mf-fam);
+
+    &::before,
+    .mf-rcard-glyph {
+      display: none;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Action card
+// -----------------------------------------------------------------------------
+//
+// The single exception to the four-places rule: on the create screen the user
+// is choosing between kinds of thing, so the color is doing the explaining
+// rather than decorating. Nowhere else may a family own a surface this large.
+
+.mf-acard {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--mf-fam) 22%, var(--mf-line));
+  border-radius: var(--mf-card-radius);
+  background: var(--mf-fam-tint);
+  color: var(--mf-ink);
+  text-decoration: none;
+  transition:
+    transform var(--mf-duration) var(--mf-ease),
+    box-shadow var(--mf-duration) var(--mf-ease);
+}
+
+a.mf-acard:hover,
+a.mf-acard:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--mf-shadow-card);
+  text-decoration: none;
+}
+
+.mf-acard-icon {
+  display: grid;
+  place-items: center;
+  width: 2.625rem;
+  height: 2.625rem;
+  margin-bottom: .5rem;
+  border-radius: var(--mf-radius-md);
+  background: var(--mf-fam);
+  color: #fff;
+
+  svg {
+    width: 1.375rem;
+    height: 1.375rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.mf-acard-title {
+  margin: 0;
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-md);
+  font-weight: 600;
+}
+
+.mf-acard-body {
+  margin: 0;
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-sm);
+  line-height: 1.5;
+}
+
+.mf-acard-more {
+  margin-top: .5rem;
+  color: var(--mf-fam-ink);
+  font-size: var(--mf-text-sm);
+  font-weight: 600;
+}
+
+// -----------------------------------------------------------------------------
+// Opt-in elevation
+// -----------------------------------------------------------------------------
+//
+// Cards are flat by default, which keeps the theme inside the project's surface
+// conventions. `.mf-lift` is the deliberate exception, for a surface that has to
+// float above the page — a preview, a mockup, a hero panel.
+
+.mf-lift {
+  box-shadow: var(--mf-shadow-card);
+}
+
+.mf-lift-strong {
+  box-shadow: var(--mf-shadow-lift);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-rcard,
+  .mf-acard {
+    transition: none;
+  }
+
+  a.mf-rcard:hover,
+  a.mf-acard:hover {
+    transform: none;
+  }
+}

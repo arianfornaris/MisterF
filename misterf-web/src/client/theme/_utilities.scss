@@ -1,0 +1,100 @@
+// =============================================================================
+// Cuaderno — utilities
+// =============================================================================
+//
+// Extensions to Bootstrap's `$utilities` map rather than a parallel set of
+// classes. Going through the API means these get the same responsive and
+// `!important` behaviour as everything else, and `.text-ink-soft` sits in the
+// same mental slot as `.text-body-secondary`.
+//
+// Must be imported after `bootstrap/utilities` and before
+// `bootstrap/utilities/api`.
+//
+// Deliberately NOT added: a utility that sets a family color on an arbitrary
+// property. `.mf-fam-quiz` sets the family for a subtree and the components
+// read it; a `.text-quiz` would be an invitation to break the four-places rule.
+
+@function mf-extend-utility($utils, $key, $extra-values) {
+  $entry: map-get($utils, $key);
+
+  @if $entry == null {
+    @error 'mf-extend-utility: no Bootstrap utility named "#{$key}".';
+  }
+
+  $values: map-merge(map-get($entry, values), $extra-values);
+  @return map-merge($utils, ($key: map-merge($entry, (values: $values))));
+}
+
+// Text ------------------------------------------------------------------------
+
+$utilities: mf-extend-utility($utilities, 'color', (
+  'ink': var(--mf-ink),
+  'ink-soft': var(--mf-ink-soft),
+  'ink-faint': var(--mf-ink-faint),
+  'mode': var(--mf-mode),
+  'mode-deep': var(--mf-mode-deep),
+  'fam': var(--mf-fam),
+  'fam-ink': var(--mf-fam-ink),
+  'ok': var(--mf-ok),
+  'warn': var(--mf-warn),
+));
+
+// Backgrounds -----------------------------------------------------------------
+
+$utilities: mf-extend-utility($utilities, 'background-color', (
+  'paper': var(--mf-paper),
+  'app': var(--mf-app-bg),
+  'app-deep': var(--mf-app-bg-deep),
+  'mode-tint': var(--mf-mode-tint),
+  'fam-tint': var(--mf-fam-tint),
+  'ok-tint': var(--mf-ok-tint),
+  'warn-tint': var(--mf-warn-tint),
+));
+
+// Borders ---------------------------------------------------------------------
+
+$utilities: mf-extend-utility($utilities, 'border-color', (
+  'line': var(--mf-line),
+  'line-strong': var(--mf-line-strong),
+  'mode': var(--mf-mode),
+  'fam': var(--mf-fam),
+));
+
+// Type ------------------------------------------------------------------------
+//
+// `.font-display` is the serif; `.font-heading` follows the mode, which is what
+// a page title wants. Both exist because the difference matters: a resource
+// title is always the serif, a page title is not.
+
+$utilities: mf-extend-utility($utilities, 'font-family', (
+  'display': var(--mf-font-display),
+  'heading': var(--mf-heading-font),
+  'ui': var(--mf-font-ui),
+));
+
+// The type scale gets its own utility rather than extending Bootstrap's
+// `font-size`, which runs every value through RFS. RFS expects a number and
+// these are custom properties.
+$utilities: map-merge($utilities, (
+  'mf-font-size': (
+    property: font-size,
+    class: fs,
+    values: (
+      '2xs': var(--mf-text-2xs),
+      'xs': var(--mf-text-xs),
+      'sm': var(--mf-text-sm),
+      'base': var(--mf-text-base),
+      'md': var(--mf-text-md),
+      'lg': var(--mf-text-lg),
+      'xl': var(--mf-text-xl),
+      '2xl': var(--mf-text-2xl),
+      '3xl': var(--mf-text-3xl),
+    ),
+  ),
+));
+
+// Radii -----------------------------------------------------------------------
+
+$utilities: mf-extend-utility($utilities, 'rounded', (
+  'card': var(--mf-card-radius),
+));

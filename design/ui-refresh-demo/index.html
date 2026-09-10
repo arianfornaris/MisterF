@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es" data-mode="aprendo">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Propuesta de rediseño · Mister F</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/demo.css">
+    <style>
+      body {
+        background: var(--sand);
+      }
+
+      .wrap {
+        width: 100%;
+        max-width: 1000px;
+        margin-inline: auto;
+        padding: clamp(32px, 6vw, 72px) clamp(20px, 5vw, 40px) 96px;
+      }
+
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: clamp(32px, 6vw, 56px);
+        font-family: var(--font-display);
+        font-size: var(--text-md);
+        font-weight: 600;
+      }
+
+      .lead h1 {
+        font-size: clamp(30px, 5vw, 46px);
+      }
+
+      .lead p {
+        max-width: 62ch;
+        margin-top: var(--space-4);
+        color: var(--ink-soft);
+        font-size: var(--text-md);
+      }
+
+      .thesis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: var(--space-4);
+        margin-top: var(--space-7);
+      }
+
+      .thesis div {
+        padding: var(--space-5);
+        border: 1px solid var(--line);
+        border-radius: var(--r-lg);
+        background: var(--paper);
+      }
+
+      .thesis h3 {
+        margin-bottom: 6px;
+        font-size: var(--text-md);
+      }
+
+      .thesis p {
+        color: var(--ink-soft);
+        font-size: var(--text-sm);
+        line-height: 1.55;
+      }
+
+      .thesis .n {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        margin-bottom: var(--space-3);
+        border-radius: 50%;
+        background: var(--terracotta);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .pages {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-4);
+        margin-top: var(--space-5);
+      }
+
+      .page-link {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: var(--space-5);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--fam, var(--terracotta));
+        border-radius: var(--r-md);
+        background: var(--paper);
+        color: inherit;
+        transition: transform 140ms ease, box-shadow 140ms ease;
+      }
+
+      .page-link:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+        text-decoration: none;
+      }
+
+      .page-link strong {
+        font-family: var(--font-display);
+        font-size: var(--text-md);
+      }
+
+      .page-link span {
+        color: var(--ink-soft);
+        font-size: var(--text-sm);
+        line-height: 1.5;
+      }
+
+      .page-link em {
+        color: var(--ink-faint);
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .modo-aprendo { --fam: var(--terracotta); }
+      .modo-enseno { --fam: var(--navy); }
+      .modo-sistema { --fam: var(--fam-guia); }
+    </style>
+  </head>
+  <body data-mode="aprendo">
+    <div class="wrap">
+      <p class="top"><span class="brand-mark">F</span> Mister F · propuesta de rediseño</p>
+
+      <div class="lead">
+        <p class="eyebrow">Demo estático · septiembre 2026</p>
+        <h1>«Cuaderno»: llevar el lenguaje del landing dentro de la aplicación, y separar aprender de enseñar.</h1>
+        <p>
+          El landing ya resolvió cómo se ve Mister F: papel cálido, azul marino, un acento terracota y Literata para los
+          títulos. Dentro de la app ese lenguaje desaparece y queda el gris de Bootswatch. Esta propuesta no inventa una
+          paleta nueva: extiende la que ya funciona, y le añade dos cosas que hoy faltan — <strong>color por familia de
+          contenido</strong> e <strong>identidad visible del modo</strong>.
+        </p>
+      </div>
+
+      <div class="thesis">
+        <div>
+          <span class="n">1</span>
+          <h3>El color ya existe</h3>
+          <p>Quiz, roleplay, guía, escena y conversación ya tienen color en <code>app.css</code>, pero solo dentro del ejercicio. La propuesta es subirlo a la biblioteca, las tarjetas y la navegación.</p>
+        </div>
+        <div>
+          <span class="n">2</span>
+          <h3>Dibujar antes que fotografiar</h3>
+          <p>Mockups en HTML para enseñar el producto, portadas en CSS para identificar recursos, e ilustración generada solo para tono y estados vacíos. Nueve imágenes bastan para toda la app.</p>
+        </div>
+        <div>
+          <span class="n">3</span>
+          <h3>Dos modos, un producto</h3>
+          <p>Aprendo es papel cálido, serif y una invitación. Enseño es papel frío, sans y una tabla. Un solo atributo <code>data-mode</code> cambia seis variables; ningún componente se duplica.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="margin-top: var(--space-8)">Modo Aprendo</h2>
+      <p class="small muted">Fondo cálido, acento terracota, títulos en serif, ilustración.</p>
+      <div class="pages">
+        <a class="page-link modo-aprendo" href="aprendo-inicio.html"><em>Nueva</em><strong>Mi práctica</strong><span>La puerta de entrada que hoy no existe: continuar, lo que dejó tu profesora, y practicar por tu cuenta.</span></a>
+        <a class="page-link modo-aprendo" href="aprendo-biblioteca.html"><em>Rediseño de /resources</em><strong>Mi biblioteca</strong><span>Tarjetas con portada de familia en lugar de una lista gris. Se puede ver en los dos modos.</span></a>
+        <a class="page-link modo-aprendo" href="aprendo-recurso.html"><em>Rediseño de /quizzes/:id</em><strong>Un quiz por dentro</strong><span>Banda de familia, progreso visible, y los bloques casi intactos porque ya funcionan.</span></a>
+        <a class="page-link modo-aprendo" href="aprendo-progreso.html"><em>Rediseño de /progress</em><strong>Mi progreso</strong><span>Cifras primero, focos con barras, vocabulario, bitácora, y la prosa del modelo al final.</span></a>
+        <a class="page-link modo-aprendo" href="crear.html"><em>Rediseño de /quizzes/new</em><strong>Crear</strong><span>El único sitio donde el color ocupa superficie grande, porque ahí es donde explica.</span></a>
+      </div>
+
+      <h2 class="section-title" style="margin-top: var(--space-7)">Modo Enseño</h2>
+      <p class="small muted">Fondo frío, acento azul marino, títulos en sans, tablas y datos.</p>
+      <div class="pages">
+        <a class="page-link modo-enseno" href="enseno-inicio.html"><em>Nueva</em><strong>Panel de clase</strong><span>Qué está pendiente de ti, qué conviene repasar hoy, y el estado de cada estudiante.</span></a>
+        <a class="page-link modo-enseno" href="enseno-clase.html"><em>Piloto de profesores</em><strong>Grupo y entregas</strong><span>Quién entregó, qué falló bloque a bloque, y las tres cosas que llevar a la próxima clase.</span></a>
+      </div>
+
+      <h2 class="section-title" style="margin-top: var(--space-7)">El sistema</h2>
+      <div class="pages">
+        <a class="page-link modo-sistema" href="estilo.html"><em>Referencia</em><strong>Sistema de diseño</strong><span>Paleta, tipografía, los dos modos lado a lado, componentes nuevos y el árbol de decisión de imágenes.</span></a>
+        <a class="page-link modo-sistema" href="README.md"><em>Documento</em><strong>README — el framework</strong><span>Las reglas escritas para seguir construyendo: tokens, componentes, modos, guía de imágenes y plan de adopción.</span></a>
+      </div>
+
+      <p class="small faint" style="margin-top: var(--space-7)">
+        Demo estático, sin dependencias ni build. Las cajas azules marcadas «Nota» son comentarios para esta revisión y no
+        forman parte del diseño. Los datos son inventados.
+      </p>
+    </div>
+  </body>
+</html>

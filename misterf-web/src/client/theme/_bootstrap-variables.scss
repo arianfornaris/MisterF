@@ -1,0 +1,361 @@
+// =============================================================================
+// Cuaderno — Bootstrap configuration
+// =============================================================================
+//
+// This is the "theme" in the Bootswatch sense: Bootstrap's own `$variables`,
+// re-pointed at Cuaderno tokens. It must be imported after `bootstrap/functions`
+// and before `bootstrap/variables`, so every value here wins over Bootstrap's
+// `!default`.
+//
+// Inherited from Flatly, deliberately:
+//   - flat surfaces, no gradients, no global shadows
+//   - a dark, desaturated primary rather than Bootstrap's default blue
+//   - generous nav padding and a quiet, borderless feel
+//
+// Changed from Flatly, deliberately (each one is a decision, not an accident):
+//   - the palette is ours, and `$primary` is the brand navy
+//   - Lato is dropped. Flatly's `_bootswatch.scss` pulls it from Google Fonts
+//     with a render-blocking `@import url(...)` inside the stylesheet; we use
+//     the system stack for UI and Literata (already loaded) for headings.
+//   - links are navy, not green. Flatly makes links `$success`, which reads as
+//     "success" everywhere a link appears.
+//   - `$min-contrast-ratio` goes from 2.05 to 3. Flatly's 2.05 puts white text
+//     on mid-tone amber; 3 keeps that legible.
+//   - buttons are pills, matching the landing.
+//   - alerts are tinted rather than solid (see `_flatly-layer.scss`).
+
+// -----------------------------------------------------------------------------
+// Color system
+// -----------------------------------------------------------------------------
+
+$white:    #fff;
+$gray-100: #f7f5f1;
+$gray-200: $mf-sand-deep;
+$gray-300: $mf-line;
+$gray-400: $mf-line-strong;
+$gray-500: #b3ada3;
+$gray-600: $mf-ink-faint;
+$gray-700: $mf-ink-soft;
+$gray-800: #29383f;
+$gray-900: $mf-ink;
+$black:    #000;
+
+$blue:   $mf-navy;
+$indigo: map-get(map-get($mf-families, quiz), base);
+$teal:   map-get(map-get($mf-families, roleplay), base);
+$cyan:   map-get(map-get($mf-families, guia), base);
+$orange: $mf-terracotta;
+$brown:  map-get(map-get($mf-families, charla), base);
+$green:  $mf-ok;
+$yellow: $mf-warn-strong;
+$red:    $mf-danger-strong;
+
+$primary:   $mf-navy;
+$secondary: $mf-ink-soft;
+$success:   $mf-ok;
+$info:      $cyan;
+$warning:   $mf-warn-strong;
+$danger:    $mf-danger-strong;
+$light:     $mf-sand-deep;
+$dark:      $mf-ink;
+
+// Flatly ships 2.05, which is why its amber buttons carry unreadable white
+// text. 3 is the lowest value at which `color-contrast()` still picks dark ink
+// for our amber and light ink for our navy.
+$min-contrast-ratio: 3;
+
+$body-color: $mf-ink;
+$body-bg: $mf-sand; // the "aprendo" ground; `_modes.scss` swaps the custom property
+$body-secondary-color: $mf-ink-soft;
+$body-secondary-bg: $mf-sand-deep;
+$body-tertiary-color: $mf-ink-faint;
+$body-tertiary-bg: $gray-100;
+$body-emphasis-color: $mf-ink;
+
+$border-color: $mf-line;
+$border-color-translucent: rgba($mf-ink, .1);
+
+// -----------------------------------------------------------------------------
+// Options
+// -----------------------------------------------------------------------------
+
+$enable-gradients: false;
+$enable-shadows: false;
+$enable-smooth-scroll: true;
+$enable-dark-mode: false; // Cuaderno has no dark mode yet; see README §9
+
+// -----------------------------------------------------------------------------
+// Typography
+// -----------------------------------------------------------------------------
+
+$font-family-sans-serif: $mf-font-ui;
+$font-family-monospace: $mf-font-mono;
+
+$font-size-base: 1rem;
+$font-size-sm: $mf-text-sm;
+$font-size-lg: $mf-text-md;
+
+$line-height-base: 1.6;
+$line-height-sm: 1.4;
+$line-height-lg: 1.75;
+
+// Mode-aware: `--mf-heading-font` is one of the six things a mode swaps.
+$headings-font-family: var(--mf-heading-font);
+$headings-font-weight: 600;
+$headings-line-height: 1.2;
+$headings-color: inherit;
+
+$h1-font-size: $mf-text-3xl;
+$h2-font-size: $mf-text-2xl;
+$h3-font-size: $mf-text-xl;
+$h4-font-size: $mf-text-lg;
+$h5-font-size: $mf-text-md;
+$h6-font-size: $mf-text-base;
+
+$lead-font-size: $mf-text-md;
+$lead-font-weight: 400;
+$small-font-size: $mf-text-sm;
+
+$link-color: $mf-navy;
+$link-hover-color: $mf-navy-deep;
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+$text-muted: $mf-ink-soft;
+$hr-color: $mf-line;
+$hr-opacity: 1;
+
+// -----------------------------------------------------------------------------
+// Shape
+// -----------------------------------------------------------------------------
+
+$border-radius-sm: $mf-radius-xs;
+$border-radius: $mf-radius-sm;
+$border-radius-lg: $mf-radius-md;
+$border-radius-xl: $mf-radius-lg;
+$border-radius-xxl: $mf-radius-xl;
+$border-radius-pill: $mf-radius-pill;
+
+$box-shadow-sm: $mf-shadow-card;
+$box-shadow: $mf-shadow-card;
+$box-shadow-lg: $mf-shadow-lift;
+$box-shadow-inset: inset 0 1px 2px rgba($mf-ink, .06);
+
+// -----------------------------------------------------------------------------
+// Focus
+// -----------------------------------------------------------------------------
+//
+// Colour comes from the mode, so it is set as a custom property in
+// `_modes.scss`. Everything else is fixed.
+
+$focus-ring-width: 3px;
+$focus-ring-opacity: 1;
+$focus-ring-color: rgba($mf-terracotta, .45);
+$focus-ring-blur: 0;
+
+// -----------------------------------------------------------------------------
+// Components
+// -----------------------------------------------------------------------------
+
+$component-active-color: $white;
+$component-active-bg: $mf-navy;
+
+$transition-base: all $mf-duration $mf-ease;
+
+// Buttons ---------------------------------------------------------------------
+
+$btn-font-weight: 600;
+$btn-padding-y: .5rem;
+$btn-padding-x: 1.125rem;
+$btn-padding-y-sm: .3125rem;
+$btn-padding-x-sm: .8125rem;
+$btn-padding-y-lg: .6875rem;
+$btn-padding-x-lg: 1.5rem;
+$btn-font-size-sm: $mf-text-sm;
+$btn-border-radius: $mf-radius-pill;
+$btn-border-radius-sm: $mf-radius-pill;
+$btn-border-radius-lg: $mf-radius-pill;
+$btn-focus-width: $focus-ring-width;
+$btn-transition: color $mf-duration-fast $mf-ease,
+  background-color $mf-duration-fast $mf-ease,
+  border-color $mf-duration-fast $mf-ease,
+  transform $mf-duration-fast $mf-ease;
+$btn-link-color: $link-color;
+$btn-link-hover-color: $link-hover-color;
+
+// Forms -----------------------------------------------------------------------
+
+$input-bg: $mf-paper;
+$input-border-color: $mf-line-strong;
+$input-border-radius: $mf-radius-sm;
+$input-border-radius-sm: $mf-radius-xs;
+$input-border-radius-lg: $mf-radius-md;
+$input-focus-border-color: $mf-navy;
+$input-placeholder-color: $mf-ink-faint;
+$input-padding-y: .5rem;
+$input-padding-x: .75rem;
+$form-label-font-weight: 600;
+$form-label-font-size: $mf-text-sm;
+$form-label-color: $mf-ink-soft;
+$form-text-color: $mf-ink-faint;
+$form-text-font-size: $mf-text-xs;
+$form-check-input-checked-bg-color: $mf-navy;
+$form-check-input-border: 1px solid $mf-line-strong;
+
+// Cards -----------------------------------------------------------------------
+//
+// The radius is a custom property because it is one of the six things a mode
+// changes. Bootstrap emits `--bs-card-border-radius` *on `.card`*, so an
+// override on <html> would lose to it — the indirection has to happen here.
+
+$card-bg: $mf-paper;
+$card-border-color: $mf-line;
+$card-border-radius: var(--mf-card-radius);
+$card-cap-bg: transparent;
+$card-cap-padding-y: 1rem;
+$card-spacer-y: 1.25rem;
+$card-spacer-x: 1.25rem;
+$card-box-shadow: null; // flat by default; opt in with `.mf-lift`
+
+// Dropdowns -------------------------------------------------------------------
+
+$dropdown-bg: $mf-paper;
+$dropdown-border-color: $mf-line;
+$dropdown-border-radius: $mf-radius-md;
+$dropdown-box-shadow: $mf-shadow-card;
+$dropdown-link-color: $mf-ink-soft;
+$dropdown-link-hover-color: $mf-ink;
+$dropdown-link-hover-bg: $mf-sand;
+$dropdown-link-active-color: $white;
+$dropdown-link-active-bg: $mf-navy;
+$dropdown-padding-y: .375rem;
+$dropdown-item-padding-y: .4375rem;
+
+// Navs and tabs ---------------------------------------------------------------
+
+$nav-link-padding-y: .5rem;
+$nav-link-padding-x: 1rem;
+$nav-link-font-weight: 600;
+$nav-link-color: $mf-ink-soft;
+$nav-link-hover-color: $mf-ink;
+$nav-tabs-border-color: $mf-line;
+$nav-tabs-link-active-color: $mf-navy;
+$nav-tabs-link-active-bg: transparent;
+$nav-tabs-link-active-border-color: transparent transparent $mf-navy;
+$nav-tabs-link-hover-border-color: transparent transparent $mf-line-strong;
+$nav-pills-border-radius: $mf-radius-pill;
+$nav-pills-link-active-bg: $mf-navy;
+
+// Navbar ----------------------------------------------------------------------
+
+$navbar-padding-y: .75rem;
+$navbar-light-color: $mf-ink-soft;
+$navbar-light-hover-color: $mf-ink;
+$navbar-light-active-color: $mf-navy;
+
+// Badges ----------------------------------------------------------------------
+
+$badge-font-size: $mf-text-xs;
+$badge-font-weight: 700;
+$badge-padding-y: .3125em;
+$badge-padding-x: .625em;
+$badge-border-radius: $mf-radius-pill;
+
+// Alerts ----------------------------------------------------------------------
+
+$alert-border-radius: $mf-radius-md;
+$alert-border-width: 1px;
+$alert-padding-y: .875rem;
+$alert-padding-x: 1rem;
+
+// List group ------------------------------------------------------------------
+
+$list-group-bg: $mf-paper;
+$list-group-border-color: $mf-line;
+$list-group-border-radius: var(--mf-card-radius);
+$list-group-hover-bg: $mf-sand;
+$list-group-active-bg: $mf-navy;
+$list-group-active-border-color: $mf-navy;
+$list-group-item-padding-y: .75rem;
+
+// Tables ----------------------------------------------------------------------
+
+$table-cell-padding-y: .75rem;
+$table-cell-padding-x: .75rem;
+$table-border-color: $mf-line;
+$table-hover-bg: $mf-sand;
+$table-striped-bg: rgba($mf-ink, .022);
+
+// Modals ----------------------------------------------------------------------
+
+$modal-content-bg: $mf-paper;
+$modal-content-border-color: $mf-line;
+$modal-content-border-radius: $mf-radius-lg;
+$modal-content-box-shadow-xs: $mf-shadow-lift;
+$modal-content-box-shadow-sm-up: $mf-shadow-lift;
+$modal-header-border-color: $mf-line;
+$modal-footer-border-color: $mf-line;
+$modal-backdrop-bg: $mf-ink;
+$modal-backdrop-opacity: .35;
+
+// Offcanvas -------------------------------------------------------------------
+
+$offcanvas-bg-color: $mf-paper;
+$offcanvas-border-color: $mf-line;
+$offcanvas-box-shadow: $mf-shadow-lift;
+
+// Popovers and tooltips -------------------------------------------------------
+
+$popover-bg: $mf-paper;
+$popover-border-color: $mf-line;
+$popover-border-radius: $mf-radius-md;
+$popover-box-shadow: $mf-shadow-card;
+$popover-header-bg: $mf-sand;
+$tooltip-bg: $mf-ink;
+$tooltip-border-radius: $mf-radius-xs;
+$tooltip-opacity: 1;
+
+// Progress --------------------------------------------------------------------
+
+$progress-height: .5rem;
+$progress-bg: $mf-sand-deep;
+$progress-border-radius: $mf-radius-pill;
+$progress-bar-bg: $mf-navy;
+
+// Accordion -------------------------------------------------------------------
+
+$accordion-bg: $mf-paper;
+$accordion-border-color: $mf-line;
+$accordion-border-radius: var(--mf-card-radius);
+$accordion-button-active-bg: $mf-navy-tint;
+$accordion-button-active-color: $mf-navy-deep;
+
+// Pagination ------------------------------------------------------------------
+
+$pagination-color: $mf-ink-soft;
+$pagination-bg: $mf-paper;
+$pagination-border-color: $mf-line;
+$pagination-hover-bg: $mf-sand;
+$pagination-active-bg: $mf-navy;
+$pagination-active-border-color: $mf-navy;
+$pagination-border-radius: $mf-radius-sm;
+
+// Breadcrumb ------------------------------------------------------------------
+
+$breadcrumb-font-size: $mf-text-sm;
+$breadcrumb-padding-y: 0;
+$breadcrumb-padding-x: 0;
+$breadcrumb-margin-bottom: .75rem;
+$breadcrumb-bg: transparent;
+$breadcrumb-divider-color: $mf-ink-faint;
+$breadcrumb-active-color: $mf-ink-faint;
+
+// Close button ----------------------------------------------------------------
+
+$btn-close-color: $mf-ink;
+$btn-close-opacity: .45;
+$btn-close-hover-opacity: .85;
+
+// Spinners --------------------------------------------------------------------
+
+$spinner-border-width: .18em;

@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import * as sass from 'sass';
 
 const projectRoot = path.resolve(new URL('..', import.meta.url).pathname);
 const buildDir = path.join(projectRoot, 'public', 'build');
@@ -67,7 +68,75 @@ const stylesheetPartialPath = path.join(
   'app-stylesheet.ejs',
 );
 const sourceStylesheetPath = path.join(projectRoot, 'src', 'client', 'styles', 'app.css');
+const themeEntryPath = path.join(
+  projectRoot,
+  'src',
+  'client',
+  'theme',
+  'cuaderno.scss',
+);
+const themeStylesheetPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'theme-stylesheet.ejs',
+);
 const buildCssDir = path.join(projectRoot, 'public', 'build', 'css');
+
+/**
+ * Compile the Cuaderno theme.
+ *
+ * The theme is a full Bootstrap build (see `src/client/theme/cuaderno.scss`),
+ * so `node_modules` has to be on the load path for the bare `bootstrap/scss/*`
+ * specifiers to resolve.
+ *
+ * Bootstrap 5.3 is still written with `@import`, which Dart Sass deprecated;
+ * silencing those keeps a real warning visible instead of burying it under
+ * three hundred that we cannot act on until Bootstrap 6.
+ */
+function compileTheme() {
+  const result = sass.compile(themeEntryPath, {
+    loadPaths: [path.join(projectRoot, 'node_modules')],
+    style: 'compressed',
+    sourceMap: false,
+    silenceDeprecations: ['import', 'if-function', 'global-builtin', 'color-functions'],
+  });
+
+  return result.css;
+}
+
+/**
+ * Write `contents` to `<prefix>-<hash>.css` and point `partialPath` at it.
+ *
+ * `stableCopy` additionally writes an unhashed `<prefix>.css`. Only the theme
+ * asks for one, because the kitchen sink at
+ * `public/theme/kitchen-sink.html` is a plain static file and cannot resolve a
+ * hashed name. Nothing the app renders links to the unhashed copy.
+ */
+function emitHashedStylesheet(prefix, contents, partialPath, { stableCopy = false } = {}) {
+  const hash = crypto.createHash('sha256').update(contents).digest('hex').slice(0, 8);
+  const fileName = `${prefix}-${hash}.css`;
+  const href = `/public/build/css/${fileName}`;
+
+  fs.mkdirSync(buildCssDir, { recursive: true });
+  const stalePattern = new RegExp(`^${prefix}-[a-f0-9]{8}\\.css$`);
+  for (const existingFileName of fs.readdirSync(buildCssDir)) {
+    const isStaleHashed = stalePattern.test(existingFileName) && existingFileName !== fileName;
+    const isUnwantedUnhashed = existingFileName === `${prefix}.css` && !stableCopy;
+
+    if (isStaleHashed || isUnwantedUnhashed) {
+      fs.rmSync(path.join(buildCssDir, existingFileName));
+    }
+  }
+
+  fs.writeFileSync(path.join(buildCssDir, fileName), contents);
+  if (stableCopy) {
+    fs.writeFileSync(path.join(buildCssDir, `${prefix}.css`), contents);
+  }
+  fs.writeFileSync(partialPath, `    <link rel="stylesheet" href="${href}">\n`, 'utf8');
+
+  return href;
+}
 
 function cleanGeneratedClientBuildArtifacts() {
   fs.mkdirSync(buildDir, { recursive: true });
@@ -225,30 +294,16 @@ fs.writeFileSync(
   'utf8',
 );
 
-const stylesheetContents = bundleStylesheet(sourceStylesheetPath);
-const stylesheetHash = crypto
-  .createHash('sha256')
-  .update(stylesheetContents)
-  .digest('hex')
-  .slice(0, 8);
-const hashedStylesheetFileName = `app-${stylesheetHash}.css`;
-const hashedStylesheetFilePath = path.join(buildCssDir, hashedStylesheetFileName);
-const stylesheetPath = `/public/build/css/${hashedStylesheetFileName}`;
-
-fs.mkdirSync(buildCssDir, { recursive: true });
-for (const fileName of fs.readdirSync(buildCssDir)) {
-  if (
-    (fileName === 'app.css' || /^app-[a-f0-9]{8}\.css$/.test(fileName)) &&
-    fileName !== hashedStylesheetFileName
-  ) {
-    fs.rmSync(path.join(buildCssDir, fileName));
-  }
-}
-fs.writeFileSync(hashedStylesheetFilePath, stylesheetContents);
-fs.writeFileSync(
+const themePath = emitHashedStylesheet(
+  'cuaderno',
+  compileTheme(),
+  themeStylesheetPartialPath,
+  { stableCopy: true },
+);
+const stylesheetPath = emitHashedStylesheet(
+  'app',
+  bundleStylesheet(sourceStylesheetPath),
   stylesheetPartialPath,
-  `    <link rel="stylesheet" href="${stylesheetPath}">\n`,
-  'utf8',
 );
 
 console.log(
@@ -271,6 +326,9 @@ console.log(
 );
 console.log(
   `Generated ${path.relative(projectRoot, translatorScriptPartialPath)} -> ${translatorScriptPath}`,
+);
+console.log(
+  `Generated ${path.relative(projectRoot, themeStylesheetPartialPath)} -> ${themePath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, stylesheetPartialPath)} -> ${stylesheetPath}`,

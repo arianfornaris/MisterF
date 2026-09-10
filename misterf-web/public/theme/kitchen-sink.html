@@ -1,0 +1,465 @@
+<!doctype html>
+<!--
+  Cuaderno — kitchen sink.
+
+  The living reference for the theme. It is a plain static file served by the
+  app's own `/public` mount, so it always renders the CSS the app is currently
+  running:
+
+      http://localhost:5005/public/theme/kitchen-sink.html
+
+  It links the unhashed `cuaderno.css` that `scripts/build-client.mjs` writes
+  alongside the hashed one. Rebuild (`npm run build:client`) and reload to see a
+  change. Nothing the app renders links to this page or to that copy.
+
+  Adding a component to the theme? Add it here in the same commit. A component
+  that is not on this page cannot be reviewed, and will be re-invented.
+-->
+<html lang="en" data-mode="aprendo">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cuaderno — kitchen sink</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/public/build/css/cuaderno.css">
+    <style>
+      /* Kitchen-sink chrome only. None of this is part of the theme. */
+      .ks-wrap { max-width: 1120px; margin-inline: auto; padding: 2rem 1.5rem 6rem; }
+      .ks-bar {
+        position: sticky; top: 0; z-index: 10;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
+        margin-bottom: 2.5rem; padding: .75rem 0;
+        background: var(--mf-app-bg); border-bottom: 1px solid var(--mf-line);
+      }
+      .ks-section { margin-top: 3.5rem; }
+      .ks-section > h2 {
+        padding-bottom: .5rem; margin-bottom: 1.25rem;
+        border-bottom: 2px solid var(--mf-mode);
+        font-size: var(--mf-text-xl);
+      }
+      .ks-note {
+        margin: .5rem 0 1.25rem; max-width: 70ch;
+        color: var(--mf-ink-soft); font-size: var(--mf-text-sm);
+      }
+      .ks-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+      .ks-grid-2 { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); }
+      .ks-row { display: flex; flex-wrap: wrap; align-items: center; gap: .625rem; }
+      .ks-swatch { border: 1px solid var(--mf-line); border-radius: var(--mf-radius-md); overflow: hidden; background: var(--mf-paper); }
+      .ks-swatch i { display: block; height: 3.5rem; font-style: normal; }
+      .ks-swatch span { display: block; padding: .5rem .625rem; font-size: var(--mf-text-2xs); line-height: 1.45; }
+      .ks-swatch code { font-size: 10px; color: var(--mf-ink-faint); }
+      code { color: var(--mf-fam-charla); font-size: .9em; }
+    </style>
+  </head>
+  <body>
+    <div class="ks-wrap">
+      <header class="ks-bar">
+        <strong class="font-display">Cuaderno</strong>
+        <span class="mf-chip mf-chip-plain">kitchen sink</span>
+        <nav class="mf-mode-switch" style="width: 15rem; margin-left: auto" aria-label="Mode">
+          <button type="button" data-set-mode="aprendo" aria-pressed="true">Aprendo</button>
+          <button type="button" data-set-mode="enseno" aria-pressed="false">Enseño</button>
+        </nav>
+      </header>
+
+      <p class="mf-eyebrow">Reference</p>
+      <h1 class="mf-page-title">Every component the theme ships</h1>
+      <p class="mf-page-lede">
+        Flip the mode above and watch the ground, the accent, the heading face and the card radius
+        change — without a single component being duplicated.
+      </p>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>1 · Paper and ink</h2>
+        <p class="ks-note">
+          The base palette, inherited from the landing page. Three levels of ink and no more:
+          <code>--mf-ink-faint</code> is for 12–13px metadata, never for a sentence.
+        </p>
+        <div class="ks-grid">
+          <div class="ks-swatch"><i style="background: var(--mf-sand)"></i><span><strong>Paper, warm</strong><br><code>--mf-sand</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-cool)"></i><span><strong>Paper, cool</strong><br><code>--mf-cool</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-navy)"></i><span><strong>Navy</strong><br><code>--mf-navy</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-terracotta)"></i><span><strong>Terracotta</strong><br><code>--mf-terracotta</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-ink)"></i><span><strong>Ink</strong><br><code>--mf-ink</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-ink-soft)"></i><span><strong>Ink, soft</strong><br><code>--mf-ink-soft</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-line)"></i><span><strong>Line</strong><br><code>--mf-line</code></span></div>
+          <div class="ks-swatch"><i style="background: var(--mf-paper)"></i><span><strong>Paper</strong><br><code>--mf-paper</code></span></div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>2 · Content families</h2>
+        <p class="ks-note">
+          <code>.mf-fam-*</code> sets <code>--mf-fam</code>, <code>--mf-fam-tint</code> and
+          <code>--mf-fam-ink</code> for its subtree. A family color is allowed in four places only:
+          the type chip, the card cover, the icon, and the active state.
+        </p>
+        <div class="ks-grid">
+          <div class="ks-swatch mf-fam-quiz"><i style="background: var(--mf-fam)"></i><span><strong>Quiz</strong><br><code>.mf-fam-quiz</code></span></div>
+          <div class="ks-swatch mf-fam-roleplay"><i style="background: var(--mf-fam)"></i><span><strong>Roleplay</strong><br><code>.mf-fam-roleplay</code></span></div>
+          <div class="ks-swatch mf-fam-guia"><i style="background: var(--mf-fam)"></i><span><strong>Guía de práctica</strong><br><code>.mf-fam-guia</code></span></div>
+          <div class="ks-swatch mf-fam-escena"><i style="background: var(--mf-fam)"></i><span><strong>Escena</strong><br><code>.mf-fam-escena</code></span></div>
+          <div class="ks-swatch mf-fam-charla"><i style="background: var(--mf-fam)"></i><span><strong>Conversación</strong><br><code>.mf-fam-charla</code></span></div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>3 · Type</h2>
+        <p class="ks-note">
+          Headings follow the mode through <code>--mf-heading-font</code>. Practice content is always
+          the serif: it is the one thing a learner is asked to read slowly.
+        </p>
+        <div class="card"><div class="card-body">
+          <p class="mf-page-title">Page title — .mf-page-title</p>
+          <p class="mf-section-title mt-3">Section title — .mf-section-title</p>
+          <p class="mt-3">Body copy at 16px. The measure is capped at 62ch on ledes and 46ch on empty states, because a learner reading in a second language re-reads more than a native speaker does.</p>
+          <p class="mf-practice-text mt-3">Practice content — .mf-practice-text — Yesterday I <span class="mf-fam-quiz"><span class="mf-blank"></span></span> to the pharmacy.</p>
+          <p class="fs-sm text-ink-soft mt-3">Secondary — .fs-sm .text-ink-soft</p>
+          <p class="fs-xs text-ink-faint">Metadata — .fs-xs .text-ink-faint</p>
+        </div></div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>4 · Bootstrap, restyled</h2>
+        <p class="ks-note">
+          These are Bootstrap's own components. Nothing here is a Cuaderno class — the theme reached
+          them through <code>$variables</code>, which is why an app view written last year picks the
+          new look up for free.
+        </p>
+
+        <h3 class="mf-section-title mt-4">Buttons</h3>
+        <div class="ks-row">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-mode">Mode</button>
+          <button class="btn btn-outline-primary">Outline</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-success">Success</button>
+          <button class="btn btn-warning">Warning</button>
+          <button class="btn btn-danger">Danger</button>
+          <button class="btn btn-light">Light</button>
+          <button class="btn btn-link">Link</button>
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary" disabled>Disabled</button>
+        </div>
+
+        <h3 class="mf-section-title mt-4">Forms</h3>
+        <div class="ks-grid-2 mt-3">
+          <div class="card"><div class="card-body">
+            <label class="form-label" for="ks-input">Describe the quiz</label>
+            <input class="form-control" id="ks-input" placeholder="A quiz of 8 questions…">
+            <div class="form-text">Helper text sits under the field.</div>
+            <label class="form-label mt-3" for="ks-select">Level</label>
+            <select class="form-select" id="ks-select"><option>A1</option><option>A2</option></select>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="ks-check" checked>
+              <label class="form-check-label" for="ks-check">Share with the group</label>
+            </div>
+          </div></div>
+          <div class="card"><div class="card-body">
+            <h5 class="card-title">Card</h5>
+            <p class="card-text text-ink-soft">Flat by default, following the surface conventions. Add <code>.mf-lift</code> for the one surface that has to float.</p>
+            <div class="progress mt-3"><div class="progress-bar" style="width: 43%"></div></div>
+            <div class="ks-row mt-3">
+              <span class="badge text-bg-primary">Badge</span>
+              <span class="badge text-bg-success">Success</span>
+              <span class="badge text-bg-warning">Warning</span>
+              <span class="badge text-bg-light">Light</span>
+            </div>
+          </div></div>
+        </div>
+
+        <h3 class="mf-section-title mt-4">Alerts</h3>
+        <p class="ks-note">
+          Tinted, with a colored rail — not Flatly's solid white-on-saturated. Most alerts in this
+          product say "here is what to do next", and that is the wrong volume for shouting.
+        </p>
+        <div class="alert alert-primary">Primary — <a href="#" class="alert-link">with a link</a>.</div>
+        <div class="alert alert-success">Success — the attempt was evaluated.</div>
+        <div class="alert alert-warning">Warning — three students have not started.</div>
+        <div class="alert alert-danger">Danger — this cannot be undone.</div>
+
+        <h3 class="mf-section-title mt-4">Tabs, list group, table</h3>
+        <div class="ks-grid-2 mt-3">
+          <div>
+            <ul class="nav nav-tabs">
+              <li class="nav-item"><a class="nav-link active" href="#">General</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Vocabulario</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Bitácora</a></li>
+            </ul>
+            <ul class="list-group mt-3">
+              <li class="list-group-item">Past simple — Worksheet 7B</li>
+              <li class="list-group-item">Pedir cita en la clínica</li>
+            </ul>
+          </div>
+          <table class="table">
+            <thead><tr><th>Estudiante</th><th>Estado</th><th class="mf-num">Aciertos</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mf-person"><span class="mf-avatar">JR</span> Jean R.</span></td><td><span class="mf-chip mf-chip-ok">Evaluado</span></td><td class="mf-num">86 %</td></tr>
+              <tr><td><span class="mf-person"><span class="mf-avatar">MC</span> María C.</span></td><td><span class="mf-chip mf-chip-warn">A medias</span></td><td class="mf-num">71 %</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>5 · Chips</h2>
+        <div class="ks-row">
+          <span class="mf-chip mf-fam-quiz">Quiz</span>
+          <span class="mf-chip mf-fam-roleplay">Roleplay</span>
+          <span class="mf-chip mf-fam-guia">Guía de práctica</span>
+          <span class="mf-chip mf-fam-escena">Escena</span>
+          <span class="mf-chip mf-fam-charla">Conversación</span>
+          <span class="mf-chip mf-chip-plain">Sin empezar</span>
+          <span class="mf-chip mf-chip-ok">Evaluado</span>
+          <span class="mf-chip mf-chip-warn">A medias</span>
+          <span class="mf-chip mf-chip-danger">Falló</span>
+        </div>
+        <p class="ks-note mt-3">A chip always carries its name in words. Color is never the only signal.</p>
+        <div class="ks-row">
+          <button class="mf-chip mf-fam-none" aria-pressed="true">Todo <span class="text-ink-faint">12</span></button>
+          <button class="mf-chip mf-fam-quiz" aria-pressed="false">Quizzes <span class="text-ink-faint">5</span></button>
+          <button class="mf-chip mf-fam-roleplay" aria-pressed="false">Roleplays <span class="text-ink-faint">3</span></button>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>6 · Resource cards</h2>
+        <div class="ks-grid">
+          <a class="mf-rcard mf-fam-quiz" href="#">
+            <div class="mf-rcard-cover">
+              <svg class="mf-rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
+            </div>
+            <div class="mf-rcard-body">
+              <span class="mf-chip">Quiz</span>
+              <p class="mf-rcard-title">Past simple — Worksheet 7B</p>
+              <span class="mf-bar"><span class="mf-bar-fill" style="width: 43%"></span></span>
+              <p class="mf-rcard-meta"><span>A2</span><span>7 bloques</span><span>hace 2 días</span></p>
+            </div>
+          </a>
+          <a class="mf-rcard mf-fam-roleplay" href="#">
+            <div class="mf-rcard-cover">
+              <svg class="mf-rcard-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-4 3Z"/><path d="M11 15h6l3 3v-8a1 1 0 0 0-1-1h-3"/></svg>
+            </div>
+            <div class="mf-rcard-body">
+              <span class="mf-chip">Roleplay</span>
+              <p class="mf-rcard-title">Pedir cita en la clínica</p>
+              <p class="mf-rcard-meta"><span>A2</span><span>2 personajes</span></p>
+            </div>
+          </a>
+          <a class="mf-rcard mf-rcard-row mf-fam-guia" href="#">
+            <div class="mf-rcard-cover"></div>
+            <div class="mf-rcard-body">
+              <span class="mf-chip">Guía de práctica</span>
+              <p class="mf-rcard-title">Presente simple: tercera persona</p>
+              <p class="mf-rcard-meta"><span>A1–A2</span><span>.mf-rcard-row</span></p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>7 · Action cards</h2>
+        <p class="ks-note">
+          The single exception to the four-places rule. On the create screen the user is choosing
+          between kinds of thing, so the color is explaining rather than decorating.
+        </p>
+        <div class="ks-grid-2">
+          <a class="mf-acard mf-fam-quiz" href="#">
+            <span class="mf-acard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
+            <span class="mf-acard-title">Quiz</span>
+            <span class="mf-acard-body">Bloques cortos con corrección inmediata.</span>
+            <span class="mf-acard-more">Crear →</span>
+          </a>
+          <a class="mf-acard mf-fam-escena" href="#">
+            <span class="mf-acard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18"/><path d="M12 4v16"/></svg></span>
+            <span class="mf-acard-title">Escena</span>
+            <span class="mf-acard-body">Cuatro viñetas sin texto para contar o escribir.</span>
+            <span class="mf-acard-more">Elegir →</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>8 · Numbers</h2>
+        <div class="ks-grid">
+          <div class="mf-stat mf-stat-accent"><span class="mf-stat-label">Racha</span><span class="mf-stat-value">2 días</span><span class="mf-stat-note">Récord: 9</span></div>
+          <div class="mf-stat"><span class="mf-stat-label">Entregas</span><span class="mf-stat-value">6 / 9</span><span class="mf-stat-note">3 sin empezar</span></div>
+          <div class="mf-stat"><span class="mf-stat-label">Aciertos</span><span class="mf-stat-value">64 %</span><span class="mf-stat-note">era 58 %</span></div>
+          <div class="mf-stat"><span class="mf-stat-label">Sin evaluar</span><span class="mf-stat-value">4</span><span class="mf-stat-note">esperando</span></div>
+        </div>
+
+        <div class="ks-grid-2 mt-4">
+          <div class="card"><div class="card-body">
+            <p class="mf-eyebrow">.mf-meter</p>
+            <div class="mf-meter mf-fam-quiz"><span>Past simple</span><span class="mf-bar"><span class="mf-bar-fill" style="width: 72%"></span></span><span class="mf-meter-value">12 / 17</span></div>
+            <div class="mf-meter mf-fam-roleplay"><span>Pedir ayuda</span><span class="mf-bar"><span class="mf-bar-fill" style="width: 55%"></span></span><span class="mf-meter-value">6 / 11</span></div>
+            <div class="mf-meter mf-fam-guia"><span>Conectores</span><span class="mf-bar"><span class="mf-bar-fill" style="width: 30%"></span></span><span class="mf-meter-value">3 / 10</span></div>
+          </div></div>
+
+          <div class="card"><div class="card-body">
+            <p class="mf-eyebrow">.mf-cols — effort over time, never red</p>
+            <div class="mf-cols">
+              <span class="mf-col" style="height: 28%"></span>
+              <span class="mf-col" style="height: 44%"></span>
+              <span class="mf-col" style="height: 20%"></span>
+              <span class="mf-col" style="height: 60%"></span>
+              <span class="mf-col" style="height: 52%"></span>
+              <span class="mf-col" style="height: 76%"></span>
+              <span class="mf-col mf-col-strong" style="height: 92%"></span>
+              <span class="mf-col mf-col-strong" style="height: 40%"></span>
+            </div>
+            <p class="mf-eyebrow mt-4">.mf-tally — correct vs to-improve</p>
+            <span class="mf-tally"><span class="mf-tally-ok" style="width: 17%"></span><span class="mf-tally-warn" style="width: 83%"></span></span>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>9 · Practice</h2>
+        <div class="ks-grid-2">
+          <div class="mf-fam-quiz">
+            <div class="mf-block">
+              <span class="mf-block-index">#1</span>
+              <div class="mf-block-body">
+                <p class="mf-block-prompt">Elige la forma verbal correcta</p>
+                <p class="mf-block-sample">She <span class="mf-blank"></span> the system well.</p>
+                <div class="mf-choices">
+                  <span class="mf-choice">know</span>
+                  <span class="mf-choice mf-choice-ok">knew</span>
+                  <span class="mf-choice">known</span>
+                </div>
+              </div>
+            </div>
+            <div class="mf-block mf-block-current">
+              <span class="mf-block-index">#2</span>
+              <div class="mf-block-body">
+                <p class="mf-block-prompt">Completa la frase</p>
+                <p class="mf-block-sample">Yesterday I <span class="mf-blank"></span> to the pharmacy.</p>
+                <div class="mf-choices">
+                  <span class="mf-choice mf-choice-picked">go</span>
+                  <span class="mf-choice mf-choice-ok">went</span>
+                  <span class="mf-choice">gone</span>
+                </div>
+              </div>
+            </div>
+            <div class="mf-block mf-block-locked">
+              <span class="mf-block-index">#3</span>
+              <div class="mf-block-body"><p class="mf-block-prompt">Bloqueado</p></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="mf-mock">
+              <div class="mf-mock-head">
+                <p class="mf-mock-kicker">.mf-mock — a product mockup</p>
+                <span class="mf-chip mf-chip-plain">Ejemplo</span>
+              </div>
+              <span class="mf-mock-line" style="width: 90%"></span>
+              <span class="mf-mock-line" style="width: 75%"></span>
+              <span class="mf-mock-line" style="width: 90%"></span>
+              <span class="mf-mock-line" style="width: 40%"></span>
+            </div>
+            <p class="ks-note">Never a screenshot. A mockup cannot go stale, translates itself and weighs nothing.</p>
+
+            <div class="mf-streak mt-4">
+              <div class="mf-streak-days">
+                <span class="mf-streak-day mf-streak-day-done">L</span>
+                <span class="mf-streak-day mf-streak-day-done mf-streak-day-today">M</span>
+                <span class="mf-streak-day">M</span>
+                <span class="mf-streak-day">J</span>
+                <span class="mf-streak-day">V</span>
+                <span class="mf-streak-day">S</span>
+                <span class="mf-streak-day">D</span>
+              </div>
+              <div>
+                <p class="mb-0"><strong>2 días seguidos.</strong></p>
+                <p class="fs-sm text-ink-soft mb-0">Aprendo only. A record of effort, never a score.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>10 · Page furniture and states</h2>
+
+        <div class="mf-hero">
+          <div class="mf-hero-copy">
+            <p class="mf-eyebrow">Martes 9 de septiembre</p>
+            <h3 class="mf-hero-title">Sigue donde lo dejaste, María.</h3>
+            <p class="text-ink-soft mb-0">Switch to Enseño and the art disappears: a hero is an invitation, and a teacher ten minutes before class is not being invited anywhere.</p>
+            <div class="ks-row mt-2"><a class="btn btn-mode" href="#">Continuar</a><a class="btn btn-outline-secondary" href="#">Hablar con Mr. F</a></div>
+          </div>
+          <div class="mf-hero-art" style="background-image: linear-gradient(135deg, var(--mf-sand-deep), var(--mf-terracotta-tint))" role="img" aria-label="Illustration slot"></div>
+        </div>
+
+        <div class="mf-empty mt-4">
+          <p class="mf-empty-title">Aquí no hay nada todavía</p>
+          <p class="mf-empty-body">An empty state always ends in an action. One that only apologises is wasted space.</p>
+          <a class="btn btn-mode btn-sm" href="#">Crear aquí</a>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="ks-section">
+        <h2>11 · Utilities</h2>
+        <p class="ks-note">
+          Added through Bootstrap's utilities API, so they get responsive variants and
+          <code>!important</code> behaviour like everything else.
+        </p>
+        <div class="ks-row">
+          <span class="text-ink">.text-ink</span>
+          <span class="text-ink-soft">.text-ink-soft</span>
+          <span class="text-ink-faint">.text-ink-faint</span>
+          <span class="text-mode">.text-mode</span>
+          <span class="mf-fam-quiz"><span class="text-fam">.text-fam</span></span>
+          <span class="text-ok">.text-ok</span>
+          <span class="text-warn">.text-warn</span>
+        </div>
+        <div class="ks-row mt-3">
+          <span class="bg-paper border border-line rounded-card px-3 py-2">.bg-paper</span>
+          <span class="bg-app-deep rounded-card px-3 py-2">.bg-app-deep</span>
+          <span class="bg-mode-tint rounded-card px-3 py-2">.bg-mode-tint</span>
+          <span class="mf-fam-escena"><span class="bg-fam-tint rounded-card px-3 py-2">.bg-fam-tint</span></span>
+          <span class="bg-ok-tint text-ok rounded-card px-3 py-2">.bg-ok-tint</span>
+        </div>
+        <div class="ks-row mt-3">
+          <span class="font-display">.font-display</span>
+          <span class="font-heading">.font-heading</span>
+          <span class="font-ui">.font-ui</span>
+          <span class="fs-2xs">.fs-2xs</span>
+          <span class="fs-sm">.fs-sm</span>
+          <span class="fs-lg">.fs-lg</span>
+          <span class="fs-xl">.fs-xl</span>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Kitchen-sink chrome only. In the app, `data-mode` is rendered server-side
+      // from the active profile — see the theme README.
+      document.querySelectorAll('[data-set-mode]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.setMode;
+          document.documentElement.dataset.mode = mode;
+          document.querySelectorAll('[data-set-mode]').forEach((other) => {
+            other.setAttribute('aria-pressed', String(other.dataset.setMode === mode));
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+// =============================================================================
+// .mf-chip — the family and status mark
+// =============================================================================
+//
+// The smallest component in the theme and the one that carries the color
+// system. A chip always says its own name in words: color is never the only
+// signal.
+//
+//   <span class="mf-chip mf-fam-quiz">Quiz</span>
+//   <span class="mf-chip mf-chip-ok">Evaluado</span>
+//   <span class="mf-chip mf-chip-plain">En cola</span>
+
+.mf-chip {
+  --mf-chip-color: var(--mf-fam-ink);
+  --mf-chip-bg: var(--mf-fam-tint);
+  --mf-chip-dot: var(--mf-fam);
+
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  // A chip is frequently a child of a column flex container (a card body, a
+  // hero). `align-items: stretch` would blow it out to the full width; an
+  // explicit cross-size stops that without disturbing its vertical alignment
+  // when it sits in a row instead.
+  width: fit-content;
+  padding: .1875rem .625rem .1875rem .5rem;
+  border-radius: var(--mf-radius-pill);
+  background: var(--mf-chip-bg);
+  color: var(--mf-chip-color);
+  font-size: var(--mf-text-xs);
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.mf-chip::before {
+  content: '';
+  flex: 0 0 auto;
+  width: .4375rem;
+  height: .4375rem;
+  border-radius: 50%;
+  background: var(--mf-chip-dot);
+}
+
+// Status chips. They report a state, so they use the semantic palette and drop
+// the dot — the word plus the tint is already two signals.
+.mf-chip-plain,
+.mf-chip-ok,
+.mf-chip-warn,
+.mf-chip-danger {
+  padding-inline: .625rem;
+  font-weight: 600;
+
+  &::before {
+    display: none;
+  }
+}
+
+.mf-chip-plain {
+  --mf-chip-bg: var(--mf-app-bg-deep);
+  --mf-chip-color: var(--mf-ink-soft);
+}
+
+.mf-chip-ok {
+  --mf-chip-bg: var(--mf-ok-tint);
+  --mf-chip-color: var(--mf-ok);
+}
+
+.mf-chip-warn {
+  --mf-chip-bg: var(--mf-warn-tint);
+  --mf-chip-color: var(--mf-warn);
+}
+
+.mf-chip-danger {
+  --mf-chip-bg: var(--mf-danger-tint);
+  --mf-chip-color: var(--mf-danger);
+}
+
+// A chip that is also a filter button.
+a.mf-chip,
+button.mf-chip {
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color var(--mf-duration-fast) var(--mf-ease);
+
+  &:hover {
+    border-color: var(--mf-chip-dot);
+    text-decoration: none;
+  }
+
+  &[aria-pressed='true'],
+  &.active {
+    border-color: var(--mf-chip-dot);
+  }
+}

@@ -7,6 +7,14 @@ description: Use when creating or updating UI in this Mister F project. Prefer B
 
 Use this skill when working on UI or styling in this project.
 
+**The app runs on its own Bootstrap theme, Cuaderno**
+(`misterf-web/src/client/theme/`), not on stock Bootswatch Flatly. Read that
+folder's `README.md` before adding UI. In short: everything below still applies
+to Bootstrap's own components, and the theme adds a small set of `mf-`-prefixed
+components for the patterns Bootstrap has no answer for (resource cards,
+family chips, exercise blocks, stat tiles, product mockups). Check the kitchen
+sink at `/public/theme/kitchen-sink.html` before inventing a component.
+
 Follow these rules:
 
 - Prefer Bootstrap components, utility classes, and default Bootstrap or Bootswatch styling whenever possible.

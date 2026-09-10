@@ -1,0 +1,43 @@
+// =============================================================================
+// Cuaderno — content families
+// =============================================================================
+//
+// A `.mf-fam-*` class sets three custom properties for its subtree and nothing
+// else. Every family-aware component reads `--mf-fam`, `--mf-fam-tint` and
+// `--mf-fam-ink` and knows nothing about which family it is inside, so adding a
+// sixth kind of content is one entry in `$mf-families` and zero component
+// changes.
+//
+// The families are deliberately NOT added to Bootstrap's `$theme-colors`. That
+// would generate `.btn-quiz`, `.alert-roleplay`, `.text-bg-guia` and a dozen
+// other invitations to break the four-places rule.
+
+:root {
+  @each $name, $spec in $mf-families {
+    --mf-fam-#{$name}: #{map-get($spec, base)};
+    --mf-fam-#{$name}-tint: #{map-get($spec, tint)};
+    --mf-fam-#{$name}-ink: #{map-get($spec, ink)};
+  }
+
+  // The fallback family, for a surface that is family-aware but has no family
+  // yet — a mixed list, a draft, a folder.
+  --mf-fam: var(--mf-mode);
+  --mf-fam-tint: var(--mf-mode-tint);
+  --mf-fam-ink: var(--mf-mode-deep);
+}
+
+@each $name, $spec in $mf-families {
+  .mf-fam-#{$name} {
+    --mf-fam: var(--mf-fam-#{$name});
+    --mf-fam-tint: var(--mf-fam-#{$name}-tint);
+    --mf-fam-ink: var(--mf-fam-#{$name}-ink);
+  }
+}
+
+// Re-point the subtree at the mode accent. Useful for the neutral "all" filter
+// sitting in a row of family filters.
+.mf-fam-none {
+  --mf-fam: var(--mf-mode);
+  --mf-fam-tint: var(--mf-mode-tint);
+  --mf-fam-ink: var(--mf-mode-deep);
+}

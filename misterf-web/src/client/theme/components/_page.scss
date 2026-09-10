@@ -1,0 +1,169 @@
+// =============================================================================
+// Page furniture: eyebrow, titles, sections, hero, resource band
+// =============================================================================
+
+.mf-eyebrow {
+  margin: 0 0 .375rem;
+  color: var(--mf-mode);
+  font-size: var(--mf-text-2xs);
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.mf-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.mf-page-title {
+  margin: 0;
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-3xl);
+  font-weight: 600;
+  letter-spacing: var(--mf-heading-tracking);
+  line-height: 1.15;
+}
+
+.mf-page-lede {
+  max-width: 62ch;
+  margin: .5rem 0 0;
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-md);
+}
+
+.mf-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 .75rem;
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-sm);
+
+  a {
+    color: var(--mf-ink-soft);
+  }
+}
+
+.mf-section {
+  margin-top: 3rem;
+}
+
+.mf-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mf-section-title {
+  margin: 0;
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-lg);
+  font-weight: 600;
+  letter-spacing: var(--mf-heading-tracking);
+}
+
+.mf-section-note {
+  color: var(--mf-ink-faint);
+  font-size: var(--mf-text-sm);
+}
+
+// -----------------------------------------------------------------------------
+// .mf-hero — the illustrated opening band
+// -----------------------------------------------------------------------------
+//
+// Learner pages only; `_modes.scss` removes the art in "enseño". The art is a
+// background image rather than an <img> so it can bleed to the panel edge and
+// crop responsively — which is why it needs `role="img"` and `aria-label` when
+// it carries meaning.
+
+.mf-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 46%);
+  align-items: center;
+  gap: 1.5rem;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  border: 1px solid var(--mf-line);
+  border-radius: var(--mf-radius-xl);
+  background: var(--mf-paper);
+}
+
+.mf-hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  max-width: 46ch;
+}
+
+.mf-hero-title {
+  margin: 0;
+  font-family: var(--mf-heading-font);
+  font-size: var(--mf-text-xl);
+  font-weight: 600;
+  letter-spacing: var(--mf-heading-tracking);
+}
+
+.mf-hero-art {
+  align-self: stretch;
+  min-height: 11.875rem;
+  margin: -2rem -2rem -2rem 0;
+  background-color: var(--mf-sand);
+  background-position: center right;
+  background-size: cover;
+}
+
+// -----------------------------------------------------------------------------
+// .mf-res-band — the resource header
+// -----------------------------------------------------------------------------
+//
+// The only place a family color owns a full-width surface outside the create
+// screen, and it is allowed because the whole page belongs to that one
+// resource. It has to be pulled out of the page's own padding, which the
+// consumer supplies through `--mf-band-bleed`.
+
+.mf-res-band {
+  --mf-band-bleed: 1.5rem;
+
+  margin: calc(var(--mf-band-bleed) * -1);
+  margin-bottom: 2rem;
+  padding: 2rem var(--mf-band-bleed) 1.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--mf-fam) 16%, var(--mf-line));
+  background: var(--mf-fam-tint);
+}
+
+.mf-res-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .75rem;
+  margin: .75rem 0 0;
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-sm);
+
+  b {
+    color: var(--mf-ink);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 1080px) {
+  .mf-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mf-hero-art {
+    min-height: 10rem;
+    margin: 0 -2rem -2rem;
+  }
+}

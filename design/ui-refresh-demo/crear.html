@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es" data-mode="aprendo">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crear · Mister F (propuesta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/demo.css">
+    <style>
+      .field {
+        width: 100%;
+        min-height: 108px;
+        padding: var(--space-4);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-md);
+        background: var(--paper);
+        color: var(--ink-faint);
+        font: inherit;
+        resize: vertical;
+      }
+
+      .drop {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border: 1px dashed var(--line-strong);
+        border-radius: var(--r-md);
+        color: var(--ink-soft);
+        font-size: var(--text-sm);
+      }
+    </style>
+  </head>
+  <body data-mode="aprendo" data-view="biblioteca" data-mode-toggle="local">
+    <div class="shell">
+      <main class="main">
+        <div class="main-wide">
+          <div class="note">
+            <span class="note-tag">Nota</span>
+            <span>Crear es el único sitio donde el color ocupa superficies grandes: es el momento en que hay que <em>elegir</em> entre tipos de cosa, así que el color está explicando, no decorando. Fuera de aquí, el color de familia vive en el chip, la portada y el estado activo.</span>
+          </div>
+
+          <div class="page-head">
+            <div>
+              <p class="eyebrow" data-copy-aprendo="Crear" data-copy-enseno="Crear material">Crear</p>
+              <h1 class="page-title" data-copy-aprendo="¿Qué quieres practicar?" data-copy-enseno="¿Qué vas a preparar?">¿Qué quieres practicar?</h1>
+              <p class="page-lede" data-copy-aprendo="Elige el tipo de práctica. Si no lo tienes claro, describe el tema y Mr. F elige por ti." data-copy-enseno="Elige el formato. Con tu propio material: una foto de la hoja, un PDF o un enlace.">Elige el tipo de práctica. Si no lo tienes claro, describe el tema y Mr. F elige por ti.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <a class="acard fam-quiz" href="aprendo-recurso.html">
+              <span class="acard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg></span>
+              <span class="acard-title">Quiz</span>
+              <span class="acard-body">Bloques cortos con corrección inmediata: completar, elegir, ordenar, emparejar, traducir, escribir.</span>
+              <span class="acard-more" data-copy-aprendo="Practicar gramática y vocabulario →" data-copy-enseno="Para mandar de tarea →">Practicar gramática y vocabulario →</span>
+            </a>
+
+            <a class="acard fam-roleplay" href="#">
+              <span class="acard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-4 3Z"/><path d="M11 15h6l3 3v-8a1 1 0 0 0-1-1h-3"/></svg></span>
+              <span class="acard-title">Roleplay</span>
+              <span class="acard-body">Una situación real con dos personajes. Mr. F hace el otro papel y evalúa al terminar.</span>
+              <span class="acard-more" data-copy-aprendo="Practicar hablando →" data-copy-enseno="Para practicar conversación →">Practicar hablando →</span>
+            </a>
+
+            <a class="acard fam-guia" href="#">
+              <span class="acard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v18H6.5A1.5 1.5 0 0 1 5 19.5Z"/><path d="M9 8h6"/><path d="M9 12h5"/></svg></span>
+              <span class="acard-title">Guía de práctica</span>
+              <span class="acard-body">Una sesión guiada por Mr. F sobre un tema, con instrucciones tuyas sobre cómo debe llevarla.</span>
+              <span class="acard-more">Guiar una sesión →</span>
+            </a>
+
+            <a class="acard fam-escena" href="#">
+              <span class="acard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18"/><path d="M12 4v16"/></svg></span>
+              <span class="acard-title">Escena</span>
+              <span class="acard-body">Cuatro viñetas sin texto para contar, escribir o describir. De la biblioteca o generada nueva.</span>
+              <span class="acard-more">Elegir una escena →</span>
+            </a>
+          </div>
+
+          <section class="section">
+            <div class="cols-2">
+              <div class="card">
+                <p class="eyebrow" data-copy-aprendo="O empieza por tu material" data-copy-enseno="O empieza por tu material">O empieza por tu material</p>
+                <h2 class="section-title" style="margin-bottom: var(--space-3)" data-copy-aprendo="Describe lo que quieres practicar" data-copy-enseno="Describe lo que vas a dar en clase">Describe lo que quieres practicar</h2>
+                <textarea class="field" readonly aria-label="Descripción">Un quiz de 8 preguntas para practicar present perfect vs past simple con estudiantes B1…</textarea>
+                <div class="drop" style="margin-top: var(--space-3)">
+                  <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                  <span>Sube una foto de la hoja, un PDF o un Word · máx. 10 MB</span>
+                </div>
+                <div class="btn-row">
+                  <span class="btn btn-mode">Crear</span>
+                  <span class="btn btn-ghost">Cancelar</span>
+                </div>
+                <p class="small faint" style="margin-top: var(--space-3)">Mr. F usa lo que subas como base. Solo se envía al modelo: no se guarda el fichero.</p>
+              </div>
+
+              <div class="card card-quiet">
+                <p class="eyebrow">Lo que vas a obtener</p>
+                <div class="mock" style="margin-top: var(--space-3)">
+                  <div class="mock-head">
+                    <span class="mock-kicker">Borrador</span>
+                    <span class="fam-quiz chip">Quiz · 8 bloques</span>
+                  </div>
+                  <div class="fam-quiz block" style="border-radius: var(--r-sm); padding: var(--space-3)">
+                    <span class="block-index">#1</span>
+                    <div class="block-body">
+                      <p class="block-prompt small">Completa la frase</p>
+                      <p class="block-sample" style="font-size: var(--text-base)">I <span class="blank"></span> here since 2019.</p>
+                    </div>
+                  </div>
+                  <div class="fam-quiz block" style="border-radius: var(--r-sm); padding: var(--space-3); margin-top: 8px">
+                    <span class="block-index">#2</span>
+                    <div class="block-body">
+                      <p class="block-prompt small">Elige la opción correcta</p>
+                      <span class="mock-line w-75" style="margin: 4px 0 0"></span>
+                    </div>
+                  </div>
+                  <p class="small faint" style="margin-top: var(--space-3)">Podrás revisarlo y cambiarlo antes de guardar.</p>
+                </div>
+                <p class="small muted" style="margin-top: var(--space-4)">
+                  Esto es un <strong>mockup en HTML</strong>, no una captura. Es la técnica que ya usa el landing: no se queda
+                  obsoleto, se traduce solo y no pesa nada.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="assets/shell.js"></script>
+  </body>
+</html>

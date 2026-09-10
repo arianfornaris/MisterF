@@ -1,0 +1,97 @@
+// =============================================================================
+// Cuaderno — Mister F's Bootstrap theme
+// =============================================================================
+//
+// Compiled to a single stylesheet that REPLACES `bootswatch/flatly`. It is a
+// full Bootstrap build, not an override sheet layered on top of one, which is
+// what makes it possible to change a radius or a font at the source instead of
+// out-specificity-ing someone else's CSS.
+//
+// The import stack mirrors `bootstrap/scss/bootstrap.scss` on purpose. It is
+// spelled out rather than imported wholesale because the theme has to inject at
+// three points Bootstrap does not expose:
+//
+//   1. before `variables`  -> our `$variable` configuration
+//   2. before `utilities/api` -> our additions to the `$utilities` map
+//   3. after everything    -> the Cuaderno layer (modes, families, components)
+//
+// Build: `node scripts/build-client.mjs` compiles this with `node_modules` on
+// the load path, so the bare `bootstrap/scss/...` specifiers below resolve.
+// Docs and a kitchen sink live in `src/client/theme/README.md`.
+
+// 1 — Configuration ------------------------------------------------------------
+
+@import 'bootstrap/scss/functions';
+
+@import 'tokens';
+@import 'bootstrap-variables';
+
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+// 2 — Utility map extensions ---------------------------------------------------
+
+@import 'utilities';
+
+// 3 — Bootstrap layout and components -----------------------------------------
+//
+// The full set. Trimming unused components (carousel, placeholders, spinners)
+// is a legitimate later optimisation, but it is a separate decision from the
+// theme and needs an audit of all 45 views first.
+
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/transitions';
+@import 'bootstrap/scss/dropdown';
+@import 'bootstrap/scss/button-group';
+@import 'bootstrap/scss/nav';
+@import 'bootstrap/scss/navbar';
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/accordion';
+@import 'bootstrap/scss/breadcrumb';
+@import 'bootstrap/scss/pagination';
+@import 'bootstrap/scss/badge';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/progress';
+@import 'bootstrap/scss/list-group';
+@import 'bootstrap/scss/close';
+@import 'bootstrap/scss/toasts';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/tooltip';
+@import 'bootstrap/scss/popover';
+@import 'bootstrap/scss/carousel';
+@import 'bootstrap/scss/spinners';
+@import 'bootstrap/scss/offcanvas';
+@import 'bootstrap/scss/placeholders';
+
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';
+
+// 4 — The Cuaderno layer -------------------------------------------------------
+//
+// Order matters here: `root` and `modes` must precede anything that reads a
+// custom property, and `families` must precede the components that consume
+// `--mf-fam`.
+
+@import 'root';
+@import 'modes';
+@import 'families';
+@import 'reboot';
+@import 'flatly-layer';
+
+@import 'components/chip';
+@import 'components/cards';
+@import 'components/data';
+@import 'components/page';
+@import 'components/practice';
+@import 'components/states';

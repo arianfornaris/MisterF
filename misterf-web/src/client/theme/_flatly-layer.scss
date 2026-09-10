@@ -1,0 +1,157 @@
+// =============================================================================
+// Cuaderno — the Flatly layer, rewritten
+// =============================================================================
+//
+// Bootswatch ships a small component layer alongside its variables
+// (`bootswatch/dist/flatly/_bootswatch.scss`, 65 lines). This file is its
+// Cuaderno equivalent: the same handful of components Flatly felt the need to
+// correct, corrected our way.
+//
+// Not carried over from Flatly:
+//   - the Google Fonts `@import url(...)` for Lato, which blocks first paint
+//     from inside the stylesheet
+//   - solid, saturated alerts with white text. They shout, and in a product
+//     where most alerts are "here is what to do next" that is the wrong volume.
+
+// -----------------------------------------------------------------------------
+// Alerts — tinted, not solid
+// -----------------------------------------------------------------------------
+
+.alert {
+  border-color: transparent;
+  border-left-width: 3px;
+
+  .alert-link {
+    font-weight: 700;
+    text-decoration: underline;
+  }
+}
+
+@mixin mf-alert($ink, $tint, $rail: null) {
+  color: $ink;
+  background-color: $tint;
+  border-left-color: if($rail, $rail, $ink);
+}
+
+.alert-primary   { @include mf-alert($mf-navy-deep, $mf-navy-tint, $mf-navy); }
+.alert-secondary { @include mf-alert($mf-ink-soft, $mf-sand-deep, $mf-ink-faint); }
+.alert-success   { @include mf-alert($mf-ok, $mf-ok-tint); }
+.alert-info      { @include mf-alert($mf-navy-deep, $mf-navy-tint, $mf-navy); }
+.alert-warning   { @include mf-alert($mf-warn, $mf-warn-tint, $mf-warn-strong); }
+.alert-danger    { @include mf-alert($mf-danger, $mf-danger-tint, $mf-danger-strong); }
+.alert-light     { @include mf-alert($mf-ink, $mf-paper, $mf-line-strong); }
+.alert-dark      { @include mf-alert($mf-ink, $mf-sand-deep, $mf-ink); }
+
+// -----------------------------------------------------------------------------
+// Badges
+// -----------------------------------------------------------------------------
+
+.badge {
+  letter-spacing: .01em;
+
+  &.bg-light {
+    color: $mf-ink-soft;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Buttons
+// -----------------------------------------------------------------------------
+//
+// The one-pixel lift on hover is the only motion in the theme's chrome. It is
+// what makes a pill feel pressable without a shadow.
+
+.btn {
+  --#{$prefix}btn-hover-lift: -1px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+
+  &:hover:not(:disabled):not(.disabled) {
+    transform: translateY(var(--#{$prefix}btn-hover-lift));
+  }
+}
+
+// `.btn-link` is a link, not a pill: it must not move.
+.btn-link {
+  --#{$prefix}btn-hover-lift: 0;
+}
+
+// The mode's own button. Primary stays navy everywhere — this is for the one
+// action a page is inviting, which is a different job.
+.btn-mode {
+  --#{$prefix}btn-color: #{$white};
+  --#{$prefix}btn-bg: var(--mf-mode);
+  --#{$prefix}btn-border-color: var(--mf-mode);
+  --#{$prefix}btn-hover-color: #{$white};
+  --#{$prefix}btn-hover-bg: var(--mf-mode-deep);
+  --#{$prefix}btn-hover-border-color: var(--mf-mode-deep);
+  --#{$prefix}btn-active-color: #{$white};
+  --#{$prefix}btn-active-bg: var(--mf-mode-deep);
+  --#{$prefix}btn-active-border-color: var(--mf-mode-deep);
+  --#{$prefix}btn-disabled-color: #{$white};
+  --#{$prefix}btn-disabled-bg: var(--mf-mode);
+  --#{$prefix}btn-disabled-border-color: var(--mf-mode);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover:not(:disabled):not(.disabled) {
+    transform: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tabs — an underline, not a folder tab
+// -----------------------------------------------------------------------------
+
+.nav-tabs {
+  --#{$prefix}nav-tabs-border-width: 1px;
+
+  .nav-link {
+    border-width: 0 0 2px;
+    border-radius: 0;
+  }
+
+  .nav-link.active {
+    border-bottom-color: var(--mf-mode);
+    color: var(--mf-mode-deep);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Pagination
+// -----------------------------------------------------------------------------
+
+.pagination a:hover {
+  text-decoration: none;
+}
+
+// -----------------------------------------------------------------------------
+// Forms
+// -----------------------------------------------------------------------------
+
+.form-control,
+.form-select {
+  &:focus {
+    box-shadow: 0 0 0 3px var(--bs-focus-ring-color);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tables
+// -----------------------------------------------------------------------------
+//
+// Teaching screens are mostly tables, so the header earns a real treatment:
+// small, spaced, uppercase, and quiet enough that the data reads first.
+
+.table > thead > tr > th {
+  color: $mf-ink-faint;
+  font-size: $mf-text-2xs;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom-color: $mf-line-strong;
+}

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es" data-mode="aprendo">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi progreso · Mister F (propuesta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/demo.css">
+    <style>
+      .tl {
+        position: relative;
+        margin: 0;
+        padding: 0 0 0 var(--space-5);
+        border-left: 2px solid var(--line);
+        list-style: none;
+      }
+
+      .tl li {
+        position: relative;
+        padding-bottom: var(--space-5);
+      }
+
+      .tl li::before {
+        content: '';
+        position: absolute;
+        top: 6px;
+        left: calc(var(--space-5) * -1 - 6px);
+        width: 10px;
+        height: 10px;
+        border: 2px solid var(--paper);
+        border-radius: 50%;
+        background: var(--fam, var(--mode));
+      }
+
+      .word {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 5px 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--r-pill);
+        background: var(--paper);
+        font-size: var(--text-sm);
+      }
+
+      .word i {
+        color: var(--ink-faint);
+        font-style: normal;
+        font-size: var(--text-xs);
+      }
+    </style>
+  </head>
+  <body data-mode="aprendo" data-view="progreso">
+    <div class="shell">
+      <main class="main">
+        <div class="main-wide">
+          <div class="note">
+            <span class="note-tag">Nota</span>
+            <span>La página de progreso hoy es un muro de texto gris con viñetas de errores. Aquí lo mismo se lee en 5 segundos: primero cuánto has hecho, después qué estás mejorando, y solo al final el detalle en prosa — que sigue siendo el texto que ya genera el modelo.</span>
+          </div>
+
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Aprendizaje</p>
+              <h1 class="page-title">Tu progreso</h1>
+              <p class="page-lede">Una vista de lo que has practicado con Mr. F y de lo que te está costando.</p>
+            </div>
+            <img class="spot" src="assets/img/spot-progreso.png" alt="" style="max-width: 96px">
+          </div>
+
+          <div class="grid grid-4">
+            <div class="stat stat-accent">
+              <span class="stat-label">Racha</span>
+              <span class="stat-value">2 días</span>
+              <span class="stat-note">Récord: 9 días</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Este mes</span>
+              <span class="stat-value">5</span>
+              <span class="stat-note">prácticas terminadas</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Aciertos</span>
+              <span class="stat-value">71 %</span>
+              <span class="stat-note">era 62 % hace un mes</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Palabras nuevas</span>
+              <span class="stat-value">34</span>
+              <span class="stat-note">18 ya bien usadas</span>
+            </div>
+          </div>
+
+          <section class="section">
+            <div class="cols-2">
+              <div class="card">
+                <div class="section-head" style="margin-bottom: var(--space-4)">
+                  <h2 class="section-title">Práctica de las últimas 8 semanas</h2>
+                  <span class="section-note">minutos por semana</span>
+                </div>
+                <div class="cols">
+                  <span class="col" style="height: 28%"></span>
+                  <span class="col" style="height: 44%"></span>
+                  <span class="col" style="height: 20%"></span>
+                  <span class="col" style="height: 60%"></span>
+                  <span class="col" style="height: 52%"></span>
+                  <span class="col" style="height: 76%"></span>
+                  <span class="col is-strong" style="height: 92%"></span>
+                  <span class="col is-strong" style="height: 40%"></span>
+                </div>
+                <div class="cols-legend">
+                  <span>jul</span><span></span><span></span><span>ago</span><span></span><span></span><span>sep</span><span>esta</span>
+                </div>
+                <p class="small muted" style="margin-top: var(--space-4)">
+                  La barra sin terminar es la semana en curso. Nunca se pinta en rojo: es un registro de esfuerzo, no una nota.
+                </p>
+              </div>
+
+              <div class="card">
+                <div class="section-head" style="margin-bottom: var(--space-4)">
+                  <h2 class="section-title">Focos de práctica</h2>
+                  <span class="section-note">3 activos</span>
+                </div>
+                <div class="fam-quiz meter-row">
+                  <span>Past simple</span>
+                  <span class="bar"><span class="bar-fill" style="width: 72%"></span></span>
+                  <span class="meter-value">12 / 17</span>
+                </div>
+                <div class="fam-roleplay meter-row">
+                  <span>Pedir ayuda</span>
+                  <span class="bar"><span class="bar-fill" style="width: 55%"></span></span>
+                  <span class="meter-value">6 / 11</span>
+                </div>
+                <div class="fam-guia meter-row">
+                  <span>Conectores</span>
+                  <span class="bar"><span class="bar-fill" style="width: 30%"></span></span>
+                  <span class="meter-value">3 / 10</span>
+                </div>
+                <div class="fam-quiz meter-row" style="opacity: .55">
+                  <span>Plural irregular</span>
+                  <span class="bar"><span class="bar-fill" style="width: 100%"></span></span>
+                  <span class="meter-value">superado</span>
+                </div>
+                <a class="btn btn-mode btn-sm" style="margin-top: var(--space-4)" href="aprendo-recurso.html">Practicar el foco más flojo</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-title">Tu vocabulario</h2>
+              <span class="section-note">las que ya usas sin ayuda van en verde</span>
+            </div>
+            <div class="choices">
+              <span class="word" style="border-color: var(--ok); background: var(--ok-tint)">appointment <i>cita</i></span>
+              <span class="word" style="border-color: var(--ok); background: var(--ok-tint)">receipt <i>recibo</i></span>
+              <span class="word">although <i>aunque</i></span>
+              <span class="word" style="border-color: var(--ok); background: var(--ok-tint)">refund <i>reembolso</i></span>
+              <span class="word">deadline <i>fecha límite</i></span>
+              <span class="word">to complain <i>quejarse</i></span>
+              <span class="word" style="border-color: var(--ok); background: var(--ok-tint)">on time <i>a tiempo</i></span>
+              <span class="word">however <i>sin embargo</i></span>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="cols-2">
+              <div>
+                <div class="section-head">
+                  <h2 class="section-title">Bitácora</h2>
+                  <span class="section-note">lo último primero</span>
+                </div>
+                <ul class="tl">
+                  <li class="fam-quiz">
+                    <p><strong>Past simple — Worksheet 7B</strong> <span class="chip">Quiz</span></p>
+                    <p class="small muted">Ayer · 3 de 7 bloques · 2 correctas, 1 por mejorar</p>
+                  </li>
+                  <li class="fam-charla">
+                    <p><strong>Charla sobre el trabajo</strong> <span class="chip">Conversación</span></p>
+                    <p class="small muted">Hace 3 días · Mr. F apuntó «conectores» como foco nuevo</p>
+                  </li>
+                  <li class="fam-roleplay">
+                    <p><strong>Haciendo la compra en el supermercado</strong> <span class="chip">Roleplay</span></p>
+                    <p class="small muted">Hace 1 semana · terminado · resumen disponible</p>
+                  </li>
+                  <li class="fam-guia">
+                    <p><strong>Presente simple: tercera persona</strong> <span class="chip">Guía de práctica</span></p>
+                    <p class="small muted">Hace 2 semanas · terminada</p>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card card-quiet">
+                <p class="eyebrow">Lo que dice Mr. F</p>
+                <p style="font-family: var(--font-display); font-size: var(--text-md); margin-bottom: var(--space-3)">
+                  «Has mejorado bastante en pasado simple, sobre todo con verbos regulares.»
+                </p>
+                <p class="small muted">
+                  Donde todavía dudas es en los irregulares (<em>go / went</em>, <em>take / took</em>) y en unir dos ideas
+                  en una sola frase. Te propongo dos prácticas cortas esta semana: una de verbos irregulares y un roleplay
+                  donde tengas que explicar un problema.
+                </p>
+                <p class="small faint" style="margin-top: var(--space-3)">Resumen generado tras tus últimas 5 prácticas.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="assets/shell.js"></script>
+  </body>
+</html>
