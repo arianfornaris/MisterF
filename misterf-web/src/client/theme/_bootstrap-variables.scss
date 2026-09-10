@@ -72,6 +72,9 @@ $body-tertiary-color: $mf-ink-faint;
 $body-tertiary-bg: $gray-100;
 $body-emphasis-color: $mf-ink;
 
+// The compiled default only — it becomes `--bs-border-color` on `:root`, which
+// the mode then redefines. Every component border below reads that custom
+// property rather than this value, so borders follow the mode's temperature.
 $border-color: $mf-line;
 $border-color-translucent: rgba($mf-ink, .1);
 
@@ -122,7 +125,7 @@ $link-decoration: none;
 $link-hover-decoration: underline;
 
 $text-muted: $mf-ink-soft;
-$hr-color: $mf-line;
+$hr-color: var(--mf-line);
 $hr-opacity: 1;
 
 // -----------------------------------------------------------------------------
@@ -186,7 +189,7 @@ $btn-link-hover-color: $link-hover-color;
 // Forms -----------------------------------------------------------------------
 
 $input-bg: $mf-paper;
-$input-border-color: $mf-line-strong;
+$input-border-color: var(--mf-line-strong);
 $input-border-radius: $mf-radius-sm;
 $input-border-radius-sm: $mf-radius-xs;
 $input-border-radius-lg: $mf-radius-md;
@@ -200,7 +203,7 @@ $form-label-color: $mf-ink-soft;
 $form-text-color: $mf-ink-faint;
 $form-text-font-size: $mf-text-xs;
 $form-check-input-checked-bg-color: $mf-navy;
-$form-check-input-border: 1px solid $mf-line-strong;
+$form-check-input-border: 1px solid var(--mf-line-strong);
 
 // Cards -----------------------------------------------------------------------
 //
@@ -209,7 +212,7 @@ $form-check-input-border: 1px solid $mf-line-strong;
 // override on <html> would lose to it — the indirection has to happen here.
 
 $card-bg: $mf-paper;
-$card-border-color: $mf-line;
+$card-border-color: var(--bs-border-color);
 $card-border-radius: var(--mf-card-radius);
 $card-cap-bg: transparent;
 $card-cap-padding-y: 1rem;
@@ -220,7 +223,7 @@ $card-box-shadow: null; // flat by default; opt in with `.mf-lift`
 // Dropdowns -------------------------------------------------------------------
 
 $dropdown-bg: $mf-paper;
-$dropdown-border-color: $mf-line;
+$dropdown-border-color: var(--bs-border-color);
 $dropdown-border-radius: $mf-radius-md;
 $dropdown-box-shadow: $mf-shadow-card;
 $dropdown-link-color: $mf-ink-soft;
@@ -238,11 +241,11 @@ $nav-link-padding-x: 1rem;
 $nav-link-font-weight: 600;
 $nav-link-color: $mf-ink-soft;
 $nav-link-hover-color: $mf-ink;
-$nav-tabs-border-color: $mf-line;
+$nav-tabs-border-color: var(--bs-border-color);
 $nav-tabs-link-active-color: $mf-navy;
 $nav-tabs-link-active-bg: transparent;
 $nav-tabs-link-active-border-color: transparent transparent $mf-navy;
-$nav-tabs-link-hover-border-color: transparent transparent $mf-line-strong;
+$nav-tabs-link-hover-border-color: transparent transparent var(--mf-line-strong);
 $nav-pills-border-radius: $mf-radius-pill;
 $nav-pills-link-active-bg: $mf-navy;
 
@@ -271,7 +274,7 @@ $alert-padding-x: 1rem;
 // List group ------------------------------------------------------------------
 
 $list-group-bg: $mf-paper;
-$list-group-border-color: $mf-line;
+$list-group-border-color: var(--bs-border-color);
 $list-group-border-radius: var(--mf-card-radius);
 $list-group-hover-bg: $mf-sand;
 $list-group-active-bg: $mf-navy;
@@ -282,32 +285,32 @@ $list-group-item-padding-y: .75rem;
 
 $table-cell-padding-y: .75rem;
 $table-cell-padding-x: .75rem;
-$table-border-color: $mf-line;
+$table-border-color: var(--bs-border-color);
 $table-hover-bg: $mf-sand;
 $table-striped-bg: rgba($mf-ink, .022);
 
 // Modals ----------------------------------------------------------------------
 
 $modal-content-bg: $mf-paper;
-$modal-content-border-color: $mf-line;
+$modal-content-border-color: var(--bs-border-color);
 $modal-content-border-radius: $mf-radius-lg;
 $modal-content-box-shadow-xs: $mf-shadow-lift;
 $modal-content-box-shadow-sm-up: $mf-shadow-lift;
-$modal-header-border-color: $mf-line;
-$modal-footer-border-color: $mf-line;
+$modal-header-border-color: var(--bs-border-color);
+$modal-footer-border-color: var(--bs-border-color);
 $modal-backdrop-bg: $mf-ink;
 $modal-backdrop-opacity: .35;
 
 // Offcanvas -------------------------------------------------------------------
 
 $offcanvas-bg-color: $mf-paper;
-$offcanvas-border-color: $mf-line;
+$offcanvas-border-color: var(--bs-border-color);
 $offcanvas-box-shadow: $mf-shadow-lift;
 
 // Popovers and tooltips -------------------------------------------------------
 
 $popover-bg: $mf-paper;
-$popover-border-color: $mf-line;
+$popover-border-color: var(--bs-border-color);
 $popover-border-radius: $mf-radius-md;
 $popover-box-shadow: $mf-shadow-card;
 $popover-header-bg: $mf-sand;
@@ -325,7 +328,7 @@ $progress-bar-bg: $mf-navy;
 // Accordion -------------------------------------------------------------------
 
 $accordion-bg: $mf-paper;
-$accordion-border-color: $mf-line;
+$accordion-border-color: var(--bs-border-color);
 $accordion-border-radius: var(--mf-card-radius);
 $accordion-button-active-bg: $mf-navy-tint;
 $accordion-button-active-color: $mf-navy-deep;
@@ -334,7 +337,7 @@ $accordion-button-active-color: $mf-navy-deep;
 
 $pagination-color: $mf-ink-soft;
 $pagination-bg: $mf-paper;
-$pagination-border-color: $mf-line;
+$pagination-border-color: var(--bs-border-color);
 $pagination-hover-bg: $mf-sand;
 $pagination-active-bg: $mf-navy;
 $pagination-active-border-color: $mf-navy;

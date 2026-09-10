@@ -128,3 +128,16 @@
   background: var(--mf-mode-deep);
   color: #fff;
 }
+
+// Icons only — for a toolbar where two labels do not fit. Each option must then
+// carry an `aria-label`: `title` is not an accessible name on a touch screen.
+.mf-mode-switch--icons {
+  grid-auto-columns: auto;
+}
+
+.mf-mode-switch--icons > * {
+  width: 2.25rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1rem;
+}

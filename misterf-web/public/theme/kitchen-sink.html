@@ -63,6 +63,12 @@
           <button type="button" data-set-mode="learn" aria-pressed="true">Aprendo</button>
           <button type="button" data-set-mode="teach" aria-pressed="false">Enseño</button>
         </nav>
+        <!-- `.mf-mode-switch--icons`: the mobile-toolbar variant. Icon-only options
+             must carry the full phrase as `aria-label`. -->
+        <nav class="mf-mode-switch mf-mode-switch--icons" aria-label="Mode, icons only">
+          <button type="button" data-set-mode="learn" aria-pressed="true" aria-label="Estoy aprendiendo" title="Estoy aprendiendo"><i class="bi bi-mortarboard" aria-hidden="true"></i></button>
+          <button type="button" data-set-mode="teach" aria-pressed="false" aria-label="Estoy enseñando" title="Estoy enseñando"><i class="bi bi-easel" aria-hidden="true"></i></button>
+        </nav>
       </header>
 
       <p class="mf-eyebrow">Reference</p>
@@ -70,7 +76,8 @@
       <p class="mf-page-lede">
         Flip the mode above and watch the ground, the accent, the heading face and the card
         radius change — Bootstrap's own primary included — without a single component being
-        duplicated. Seven variables do all of it: see <code>_modes.scss</code>.
+        duplicated. Nine variables do all of it — neutrals and borders follow the mode's
+        temperature, never its accent: see <code>_modes.scss</code>.
       </p>
 
       <!-- ================================================================ -->

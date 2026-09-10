@@ -58,6 +58,35 @@
   --bs-btn-active-color: var(--mf-mode-deep);
 }
 
+// Secondary buttons are neutral, so they follow `--mf-neutral` — the mode's
+// temperature — and never its accent. Same rule as above: written once, no
+// mode named.
+.btn-secondary {
+  --bs-btn-bg: var(--mf-neutral);
+  --bs-btn-border-color: var(--mf-neutral);
+  --bs-btn-hover-bg: var(--mf-neutral-deep);
+  --bs-btn-hover-border-color: var(--mf-neutral-deep);
+  --bs-btn-active-bg: var(--mf-neutral-deep);
+  --bs-btn-active-border-color: var(--mf-neutral-deep);
+  --bs-btn-disabled-bg: var(--mf-neutral);
+  --bs-btn-disabled-border-color: var(--mf-neutral);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--mf-neutral);
+  --bs-btn-border-color: var(--mf-neutral);
+  --bs-btn-hover-bg: var(--mf-neutral);
+  --bs-btn-hover-border-color: var(--mf-neutral);
+  --bs-btn-active-bg: var(--mf-neutral);
+  --bs-btn-active-border-color: var(--mf-neutral);
+  --bs-btn-disabled-color: var(--mf-neutral);
+  --bs-btn-disabled-border-color: var(--mf-neutral);
+}
+
+.nav-tabs {
+  --bs-nav-tabs-link-active-border-color: transparent transparent var(--mf-mode);
+}
+
 // -----------------------------------------------------------------------------
 // Selected states
 // -----------------------------------------------------------------------------

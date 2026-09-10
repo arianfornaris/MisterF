@@ -22,11 +22,19 @@ $mf-sand-deep:    #f3ece2; // recessed wells on the warm ground
 $mf-cool:         #f2f5f7; // cool page ground — teaching
 $mf-cool-deep:    #e6edf1; // recessed wells on the cool ground
 
-$mf-line:         #e6e0d7; // default border
+$mf-line:         #e6e0d7; // default border — warm, learning
 $mf-line-strong:  #d5cec2; // border that has to be seen (inputs, dashed drops)
+$mf-line-cool:        #d6dee4; // default border — cool, teaching (same 1.24:1 on its ground)
+$mf-line-cool-strong: #c9d3da;
 
 $mf-ink:          #101f27; // body text
 $mf-ink-soft:     #4d6069; // secondary text — the floor for sentences
+$mf-ink-soft-deep: #3e4d54; // hover of the slate neutral
+
+// The warm twin of `$mf-ink-soft`, for neutral controls while learning. Same
+// weight on purpose: 6.57:1 with white text, against 6.58:1 for the slate.
+$mf-ink-warm:      #6b5a4e;
+$mf-ink-warm-deep: #54463c;
 $mf-ink-faint:    #7b8b93; // metadata at 12–13px only, never a sentence
 
 // -----------------------------------------------------------------------------
@@ -126,6 +134,10 @@ $mf-modes: (
     bg-deep:     $mf-sand-deep,
     card-radius: $mf-radius-lg,
     heading:     display,
+    neutral:      $mf-ink-warm,
+    neutral-deep: $mf-ink-warm-deep,
+    line:         $mf-line,
+    line-strong:  $mf-line-strong,
   ),
   teach: (
     accent:      $mf-navy,
@@ -135,6 +147,10 @@ $mf-modes: (
     bg-deep:     $mf-cool-deep,
     card-radius: $mf-radius-md,
     heading:     ui,
+    neutral:      $mf-ink-soft,
+    neutral-deep: $mf-ink-soft-deep,
+    line:         $mf-line-cool,
+    line-strong:  $mf-line-cool-strong,
   ),
 );
 

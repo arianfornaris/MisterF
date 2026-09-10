@@ -34,7 +34,10 @@ cool paper with sans headings.
    `btn-outline-primary`, links, `.text-primary`, `.bg-primary`,
    `--bs-primary-bg-subtle` / `--bs-primary-text-emphasis`, and in custom CSS
    `var(--mf-mode)` / `--mf-mode-deep` / `--mf-mode-tint`. All of them change
-   with the mode on their own.
+   with the mode on their own. Neutral actions (`btn-secondary`,
+   `btn-outline-secondary`) and borders follow the mode's temperature — warm
+   grey or slate, `var(--mf-neutral)` / `var(--mf-line)` — never its accent.
+   Pick the variant for its rank in the hierarchy, not to get a color.
 3. **Semantic colors never follow the mode.** Success, warning, danger and the
    content-family colors (`quiz`, `roleplay`, `guia`, `escena`, `charla`) mean
    the same in both modes. Do not make them mode-dependent.
@@ -54,7 +57,7 @@ cool paper with sans headings.
 
 - **A value that should differ per mode.** Add it to `$mf-modes` in
   `_tokens.scss` and emit it in `mf-mode-properties` in `_modes.scss`. Keep the
-  list short — seven entries today; every new one makes the modes read less
+  list short — nine entries today; every new one makes the modes read less
   like one product.
 - **A Bootstrap component that does not follow the mode.** Find the `--bs-*-*`
   custom property it reads (Bootstrap 5.3 components expose them) and
@@ -75,7 +78,15 @@ cool paper with sans headings.
 panel by `app-shell-open.ejs`. It posts to `/home/mode`, which writes the
 profile's stored preference (no session override — one source of truth), and
 returns to the current page. Short labels `home.modeLearnShort` /
-`home.modeTeachShort` on one line; the full phrase is the tooltip. The mode is
+`home.modeTeachShort` on one line; the full phrase is the tooltip. On phones
+a second, icon-only copy (`include('home-mode-switch', { compact: true })`,
+`.mf-mode-switch--icons`) sits at the end of the top toolbar beside the
+translator — icon-only options must carry the full phrase as `aria-label`.
+
+**Never give `.conversation-panel` a position below `lg`.** It is Bootstrap's
+`.offcanvas-lg` there and must stay `position: fixed`; a `position: relative`
+from `app-shell.css` outranks it and the open panel collapses to zero height.
+It happened once (2026-09-09). Check the panel at 375px after touching it. The mode is
 **presentation, never permission**: no authorization path reads it.
 
 ## Verify Before Finishing

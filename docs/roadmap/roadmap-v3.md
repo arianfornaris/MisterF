@@ -1500,6 +1500,20 @@ whole surface was exercised live on the QA account (evidence below).
     moves **layout** (nothing reflows or disappears, so switching is a repaint)
     and never changes **meaning** (semantic colors are identical in both). A
     page with no profile gets no mode and keeps the app's navy.
+  - Follow-up, same day: secondary buttons stayed a fixed slate and read as
+    blue on the learning mode's warm paper. Neutrals now follow the mode's
+    **temperature** (warm grey / slate) but never its accent, and every
+    border follows too — component borders read `var(--bs-border-color)` at
+    runtime instead of a compiled hex. Same mechanism, no view touched.
+  - Follow-up, same day, on founder direction: on phones the switch is no
+    longer only behind the hamburger. An icon-only copy sits at the end of
+    the mobile toolbar, beside the translator; the side-panel copy stays.
+    This retires the "one tap behind the hamburger" cost accepted above.
+  - Regression found and fixed the same day: the mode rail's commit
+    (`5c413f9d`, 2026-09-09) gave `.conversation-panel` `position: relative`,
+    which outranked Bootstrap's `position: fixed` for `.offcanvas-lg`. On
+    phones the open side panel collapsed to zero height. The rule is now
+    scoped to `lg` and up.
 - Also extracted in passing: `src/server/resources/paths.ts`, so the catalog
   and the home build resource links from one definition, and
   `PedagogicalResourceType`, which makes "folders are not activities" a type

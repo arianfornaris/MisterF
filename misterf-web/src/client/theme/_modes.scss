@@ -24,7 +24,7 @@
 //
 //   1. Differentiate through this file only. If a difference cannot be
 //      expressed as a variable here, it probably should not exist.
-//   2. Keep the list short. Seven entries. More and the two modes stop reading
+//   2. Keep the list short. Nine entries. More and the two modes stop reading
 //      as one product.
 //   3. Copy is a differentiator, but it belongs in the i18n catalogs as
 //      parallel keys — not in CSS, and not in string swaps in the view.
@@ -51,6 +51,14 @@
   --mf-heading-font: #{if(map-get($spec, heading) == display, inspect($mf-font-display), inspect($mf-font-ui))};
   --mf-heading-tracking: #{if(map-get($spec, heading) == display, -.015em, -.02em)};
 
+  // Neutrals follow the mode's TEMPERATURE, never its accent: a warm grey and
+  // warm lines on the warm paper, slate and cool lines on the cool one. Without
+  // this a secondary button stayed slate on sand and read as blue.
+  --mf-neutral: #{map-get($spec, neutral)};
+  --mf-neutral-deep: #{map-get($spec, neutral-deep)};
+  --mf-line: #{map-get($spec, line)};
+  --mf-line-strong: #{map-get($spec, line-strong)};
+
   @if $bootstrap {
     // Bootstrap emits these on `:root`, so redefining them here is enough to
     // move every utility, every link and every subtle surface built from them.
@@ -73,6 +81,10 @@
     --bs-link-hover-color-rgb: #{to-rgb($accent-deep)};
 
     --bs-focus-ring-color: #{rgba($accent, .45)};
+
+    --bs-secondary: #{map-get($spec, neutral)};
+    --bs-secondary-rgb: #{to-rgb(map-get($spec, neutral))};
+    --bs-border-color: #{map-get($spec, line)};
   }
 }
 

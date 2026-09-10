@@ -18,9 +18,15 @@
     reskins the whole signed-in app, so the switch belongs with the app chrome
     and has to be reachable from any page. `returnTo` is therefore the current
     page rather than `/`, so switching repaints where you are instead of
-    sending you home. %>
+    sending you home.
+
+    `compact: true` renders icons only, for the mobile toolbar where two labels
+    do not fit beside the menu and translator buttons. The full phrase then
+    becomes the `aria-label` — `title` alone is not an accessible name on a
+    touch screen. %>
+<% const compact = Boolean(locals.compact); %>
 <form
-  class="mf-mode-switch home-mode-switch"
+  class="mf-mode-switch home-mode-switch<%= compact ? ' mf-mode-switch--icons' : '' %>"
   method="post"
   action="/home/mode"
   aria-label="<%= t('home.modeAria') %>"
@@ -33,17 +39,19 @@
     name="homeMode"
     value="learn"
     title="<%= t('home.modeLearn') %>"
+    <% if (compact) { %>aria-label="<%= t('home.modeLearn') %>"<% } %>
     <%= activeHomeMode === 'learn' ? 'aria-current="page"' : '' %>
   >
-    <i class="bi bi-mortarboard" aria-hidden="true"></i><%= t('home.modeLearnShort') %>
+    <i class="bi bi-mortarboard" aria-hidden="true"></i><% if (!compact) { %><%= t('home.modeLearnShort') %><% } %>
   </button>
   <button
     type="submit"
     name="homeMode"
     value="teach"
     title="<%= t('home.modeTeach') %>"
+    <% if (compact) { %>aria-label="<%= t('home.modeTeach') %>"<% } %>
     <%= activeHomeMode === 'teach' ? 'aria-current="page"' : '' %>
   >
-    <i class="bi bi-easel" aria-hidden="true"></i><%= t('home.modeTeachShort') %>
+    <i class="bi bi-easel" aria-hidden="true"></i><% if (!compact) { %><%= t('home.modeTeachShort') %><% } %>
   </button>
 </form>

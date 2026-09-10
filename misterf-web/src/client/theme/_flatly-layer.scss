@@ -39,7 +39,7 @@
 .alert-info      { @include mf-alert($mf-navy-deep, $mf-navy-tint, $mf-navy); }
 .alert-warning   { @include mf-alert($mf-warn, $mf-warn-tint, $mf-warn-strong); }
 .alert-danger    { @include mf-alert($mf-danger, $mf-danger-tint, $mf-danger-strong); }
-.alert-light     { @include mf-alert($mf-ink, $mf-paper, $mf-line-strong); }
+.alert-light     { @include mf-alert($mf-ink, $mf-paper, var(--mf-line-strong)); }
 .alert-dark      { @include mf-alert($mf-ink, $mf-sand-deep, $mf-ink); }
 
 // -----------------------------------------------------------------------------
@@ -153,5 +153,5 @@
   letter-spacing: .08em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-bottom-color: $mf-line-strong;
+  border-bottom-color: var(--mf-line-strong);
 }

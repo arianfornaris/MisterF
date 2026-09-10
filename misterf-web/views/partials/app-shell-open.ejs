@@ -48,6 +48,15 @@
               >
                 <i class="bi bi-translate fs-5" aria-hidden="true"></i>
               </button>
+
+              <%# Icon-only copy of the mode switch for phones, where the one in
+                  the side panel sits behind the hamburger. `d-lg-none` because
+                  from `lg` up the panel is always visible. %>
+              <% if (activeProfile) { %>
+                <div class="d-lg-none ms-auto">
+                  <%- include('home-mode-switch', { compact: true }) %>
+                </div>
+              <% } %>
             <% } %>
           </div>
 

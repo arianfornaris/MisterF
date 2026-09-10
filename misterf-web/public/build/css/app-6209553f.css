@@ -304,8 +304,16 @@ body {
   color: var(--bs-primary-text-emphasis);
 }
 
+/*
+ * No `position` here, at any width. Below `lg` the panel is Bootstrap's
+ * offcanvas and has to stay `position: fixed`; a single-class `position` in
+ * this file loads after the theme and outranks `.offcanvas-lg`. That happened
+ * once (2026-09-09): the open panel dropped into the page flow at zero height,
+ * with the logo and the close button floating over the content. The desktop
+ * value lives in the `lg` block further down, and a fixed offcanvas is already
+ * a containing block for the mode rail.
+ */
 .conversation-panel {
-  position: relative;
   border-right: 0;
 }
 
@@ -314,10 +322,10 @@ body {
  * the app chrome rather than on the home because the mode reskins the whole
  * signed-in app, so it has to be reachable — and legible — from any page.
  *
- * Below `lg` the panel is an offcanvas, which puts the switch one tap behind
- * the hamburger. That is the accepted cost of having one control in one place;
- * the alternative was a second copy on the home, and two identical controls on
- * one screen read as two different settings.
+ * Below `lg` the panel is an offcanvas, so the mobile toolbar carries a second,
+ * icon-only copy beside the translator (founder direction 2026-09-10): on a
+ * phone the mode has to be one tap away, not behind the hamburger. The two
+ * copies are never on screen together — the open offcanvas covers the toolbar.
  */
 .panel-mode {
   padding: 0 6px 14px;
@@ -490,7 +498,10 @@ body {
   }
 
   .conversation-panel {
-    position: static;
+    /* `relative`, not `static`: the same layout, but it makes the column the
+       containing block for the mode rail. With `static` the rail escaped to the
+       workspace and drew its stripe down the page edge instead of the panel's. */
+    position: relative;
     transform: none;
     visibility: visible;
     width: 100%;

@@ -138,7 +138,7 @@ and lives in the i18n catalogs, never here.
 
 The mode is a **full change of skin for the signed-in app** — founder decision
 2026-09-10, taken after comparing this against a narrower "accent only" version
-on screen. Seven variables do all of it:
+on screen. Nine rows do all of it:
 
 | | Learn | Teach |
 | --- | --- | --- |
@@ -148,6 +148,8 @@ on screen. Seven variables do all of it:
 | `--mf-card-radius` | `1rem` | `0.75rem` |
 | `--mf-heading-font` | Literata | system sans |
 | `--mf-heading-tracking` | `-.015em` | `-.02em` |
+| `--mf-neutral` / `--bs-secondary` (`btn-secondary`, `.text-secondary`) | warm grey `#6B5A4E` | slate `#4D6069` |
+| `--mf-line` (+ `-strong`) / `--bs-border-color` | `#E6E0D7` / `#D5CEC2` | `#D6DEE4` / `#C9D3DA` |
 | Bootstrap primary family | follows the accent | follows the accent |
 
 **Bootstrap follows too.** `_modes.scss` redefines the `--bs-*` properties
@@ -159,6 +161,15 @@ re-points the components Bootstrap compiles from `$primary` at build time —
 rest. **That file is not a per-mode fork:** every rule is written once and
 reads `--mf-mode`, so it contains no `[data-mode=…]` selector and a third mode
 would need no change to it.
+
+**Neutrals follow the temperature, not the accent.** `btn-secondary`,
+`btn-outline-secondary`, `.text-secondary` and every border are warm grey on
+the warm paper and slate on the cool one. Before this, a secondary button was
+a fixed slate and read as blue while learning. The warm grey was chosen for
+the same weight as the slate (6.57:1 against 6.58:1 with white text), and the
+cool line for the same 1.24:1 on its ground as the warm line on sand. Component
+borders read `var(--bs-border-color)` at runtime rather than a compiled hex,
+which is Bootstrap's own default — the theme had overridden it.
 
 **Two things the mode still never does.** It never moves **layout** — nothing
 reflows, nothing appears or disappears, so switching is a repaint and stays
@@ -176,7 +187,7 @@ the invariant. Keep it.
 
 1. **Differentiate through `_modes.scss` only.** If a difference cannot be
    expressed as a variable, it probably should not exist.
-2. **Keep the list short.** Seven entries today. More and the two modes stop
+2. **Keep the list short.** Nine entries today. More and the two modes stop
    reading as one product.
 3. **Never differentiate meaning.** A green check, a family color and a warning
    mean the same thing in both. Only chrome and voice move — and chrome never
@@ -202,6 +213,10 @@ person switches several times a day.
 
 - `views/partials/home-mode-switch.ejs` is the control (`.mf-mode-switch`).
   It posts to `/home/mode`, which writes the profile's stored preference.
+  It renders twice: with short labels under the brand in the side panel,
+  and icon-only (`compact: true`, `.mf-mode-switch--icons`) at the end of
+  the mobile toolbar beside the translator, `d-lg-none`. The open offcanvas
+  covers the toolbar, so the two are never on screen together.
 - `views/partials/app-shell-open.ejs` renders `.mf-mode-rail` inside the
   conversation panel — three pixels of accent, the one mode signal that
   survives navigating away from the home. Positioned in `app-shell.css`.
@@ -393,10 +408,6 @@ markup back and the rail element removed.
 
 ## 14. Known gaps
 
-- **The mode switch is inside the offcanvas on mobile.** Below `lg` the side
-  panel collapses, so the control is one tap behind the hamburger. Accepted:
-  the alternative was a second copy on the home, and two identical controls on
-  one screen read as two different settings.
 - **`base.css` still owns a `:root` block** that duplicates part of the theme.
 - **Few views use the `mf-` components.** The mode switch, the rail and the
   teaching home's page furniture do; everything else still uses the app's own

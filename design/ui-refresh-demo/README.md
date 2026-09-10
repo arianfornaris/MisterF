@@ -178,7 +178,7 @@ learner who got something wrong is not in an error state.
 > now does.
 
 `data-mode="learn" | "teach"` on `<html>`, written server-side from the active
-profile. Seven variables, and nothing else in the sheet knows the modes exist.
+profile. Nine variables, and nothing else in the sheet knows the modes exist.
 
 | | Learn | Teach |
 | --- | --- | --- |
@@ -186,6 +186,7 @@ profile. Seven variables, and nothing else in the sheet knows the modes exist.
 | Accent | terracotta | navy |
 | Headings | Literata (serif) | system sans, tighter |
 | Radius | 16px | 12px |
+| Neutral buttons and borders | warm grey | slate |
 | Bootstrap primary | follows the accent | follows the accent |
 | Voice | second person, about you | third person, about the group |
 
