@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-09-09)
+Date: 2026-07-06 (last updated: 2026-09-10)
 
 Status: **Released as 3.0.0 on 2026-07-26; current release 3.0.2.** V3's
 headline is the **Teacher Pilot MVP**: the
@@ -1583,6 +1583,112 @@ a busy assistant, and a pending guest prompt. Guarded by
   is a presentation layer over; nothing here promotes a rung of its ladder.
 - [Home Start Experience](../features/home-start-experience.md) — the learning
   half of this design, and where the deferred suggestion work is specified.
+
+---
+
+## 1.15 Navigating Back To The Home
+
+Added 2026-09-10 (founder direction). Leaving a view and getting back to the
+home has no clear path. What the app does today:
+
+- The shell links to `/` three times: the logo in the mobile offcanvas header,
+  the `Mr. F` brand in the desktop panel, and **Nueva conversación**
+  (`data-new-conversation`). In learning mode the home *is* a new chat, so "go
+  home" and "start a new conversation" are the same link — and nothing in the
+  navigation is labelled `Inicio`.
+- Breadcrumbs start at the section (`Recursos`, `Biblioteca de medios`), never
+  at the home, and the close `X` returns to the owning resource or list
+  (`resource-page-conventions`). Neither one leads home.
+- Since §1.14, `/` renders one of two compositions, so where "home" lands
+  depends on the active mode.
+
+- [ ] Decide what the home entry is: an explicit `Inicio` item in the panel
+  nav, the brand acting as the home link, or both — and whether
+  `Nueva conversación` keeps pointing at `/` once the home and the chat stop
+  being the same page (§1.16).
+- [ ] Decide whether breadcrumbs gain a home root or the panel entry is the one
+  way back. One convention, recorded in `resource-page-conventions`.
+- [ ] On phones, reaching the home should not require opening the offcanvas:
+  the top toolbar is now the primary chrome there (menu, translator, mode
+  switch).
+- [ ] Verify at 375px and on desktop, in both modes.
+
+Related: §1.16 — if the learner home stops being the chat, the "new
+conversation = home" overlap either disappears or becomes a real choice.
+
+---
+
+## 1.16 A Learner Home That Is Not The Chat
+
+Added 2026-09-10 (founder direction). The learning home is currently the tutor
+chat with a compact panel above the composer — §1.14's learning composition.
+The founder wants a **different experience**: a page with its own layout and
+presentation, where asking Mr. F is still there but as one entry point with its
+own placement and look, not as the page itself.
+
+This revisits two recorded decisions, and both must be updated when the design
+settles rather than left contradicting it: §1.14 chose "the chat page with a
+panel above the composer" for the learning home, and
+[Home Start Experience](../features/home-start-experience.md) holds "the
+composer stays available" and "keep start a conversation as the main
+affordance" as principles.
+
+- [ ] Design the learner home as its own page. What it answers first ("what
+  should I do now?"), what sits on it — activities shared with me, continue
+  where I left off, a progress signal, suggestions per the
+  [Home Suggestions Tracker](../issues/home-suggestions-tracker.md) — and where
+  and how **Preguntar a Mr. F** appears.
+- [ ] Give the tutor chat its own entry and URL, so the home is no longer a
+  conversation. Settle together with §1.15.
+- [ ] Build on what exists: the Cuaderno theme's `mf-` components (resource
+  cards, family chips, stat tiles) and the design demo's
+  `design/ui-refresh-demo/aprendo-inicio.html` as reference — input, not a
+  spec, since its dashboard shape was superseded by §1.14.
+- [ ] Reuse the data the current panel already reads; add a query only for a
+  stated reason.
+- [ ] Mobile first; check both modes; signed-in QA with a real account
+  (`live-product-qa`).
+
+Related: §1.15, §1.17, §1.14.
+
+---
+
+## 1.17 Illustrations Across The App
+
+Added 2026-09-10 (founder direction). The signed-in app is almost entirely
+text. Outside the roleplay avatars and the scene-media images inside their own
+features, no page carries an illustration: the homes, the library, progress,
+empty states and creation flows are type and borders.
+
+What already exists to build on:
+
+- [Illustration Style Guide](../../design/illustration-style-guide.md) — the
+  house style: 2D workbook illustration, no readable text.
+- `design/ui-refresh-demo/` — its README §6 *Imagery* sets a decision tree
+  (HTML mockup vs drawn cover vs generated illustration), asset classes, visual
+  rules, a generation recipe, an optimization pipeline and naming; plus nine
+  generated illustrations (two heroes, four resource-family spots, two empty
+  states, one progress spot) and `generate-illustrations.py` (OpenRouter +
+  Gemini image).
+- The landing's HTML mockups — the pattern the founder likes — and the theme's
+  drawn resource covers.
+- `public/roleplay-characters/` and the scene-media images.
+
+- [ ] Decide where images earn their place first (proposal: empty states, the
+  two homes, resource-family covers, creation entry points) and where a mockup
+  or a colored card does the job better than an illustration.
+- [ ] Settle the app pipeline: where approved images live under `public/`, the
+  format and size budget (run the demo PNGs through the demo README's
+  optimization pipeline before reusing any), and how a view references one.
+- [ ] Decide whether illustrations vary by mode, against §1.14's guardrails: a
+  mode never changes meaning and never moves layout.
+- [ ] Promote the illustration rules into the theme README or a skill so later
+  work follows them. Generation runs on the design-side key
+  (`generate-scene-assets`), never on a user's credit.
+- [ ] Accessibility: decorative images get `alt=""`; informative ones get alt
+  text in the es/en/ht catalogs.
+
+Related: §1.16 (the learner home is the first page that needs them).
 
 # Part 2: Engineering And Quality
 
