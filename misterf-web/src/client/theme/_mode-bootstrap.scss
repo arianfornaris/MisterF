@@ -1,0 +1,115 @@
+// =============================================================================
+// Cuaderno — Bootstrap's primary follows the mode
+// =============================================================================
+//
+// `_modes.scss` redefines the `--bs-*` properties Bootstrap emits on `:root`,
+// which covers every utility (`.bg-primary`, `.text-primary`, `.text-bg-primary`,
+// `.border-primary`), every link, and every subtle surface built from
+// `--bs-primary-bg-subtle` / `--bs-primary-text-emphasis` — including the
+// sidebar's own active state in `app-shell.css`.
+//
+// What it does not cover is the handful of components Bootstrap compiles from
+// `$primary` at build time. `button-variant()` bakes the color into
+// `.btn-primary`'s own `--bs-btn-*` block, so a runtime change to
+// `--bs-primary` cannot reach it.
+//
+// THIS FILE IS NOT A PER-MODE FORK. Every rule below is written once and reads
+// `--mf-mode`, so there is no `[data-mode=…]` selector here and adding a third
+// mode would need no change to this file. That distinction is what keeps the
+// invariant in `_modes.scss` true: no component knows the modes exist.
+//
+// Scope, deliberately: only components whose primary variant reads as "the
+// product's accent". Semantic variants (success, warning, danger) never follow
+// the mode — a green check means the same thing in both.
+
+// -----------------------------------------------------------------------------
+// Buttons
+// -----------------------------------------------------------------------------
+//
+// `--bs-btn-color` is left alone: it is white in both modes. White on navy is
+// far past AA; white on the terracotta is 4.9:1, which passes AA for body text
+// and is why the terracotta is this dark a value in `_tokens.scss`.
+
+.btn-primary {
+  --bs-btn-bg: var(--mf-mode);
+  --bs-btn-border-color: var(--mf-mode);
+  --bs-btn-hover-bg: var(--mf-mode-deep);
+  --bs-btn-hover-border-color: var(--mf-mode-deep);
+  --bs-btn-active-bg: var(--mf-mode-deep);
+  --bs-btn-active-border-color: var(--mf-mode-deep);
+  --bs-btn-disabled-bg: var(--mf-mode);
+  --bs-btn-disabled-border-color: var(--mf-mode);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--mf-mode);
+  --bs-btn-border-color: var(--mf-mode);
+  --bs-btn-hover-bg: var(--mf-mode);
+  --bs-btn-hover-border-color: var(--mf-mode);
+  --bs-btn-active-bg: var(--mf-mode);
+  --bs-btn-active-border-color: var(--mf-mode);
+  --bs-btn-disabled-color: var(--mf-mode);
+  --bs-btn-disabled-border-color: var(--mf-mode);
+}
+
+.btn-link {
+  --bs-btn-color: var(--mf-mode);
+  --bs-btn-hover-color: var(--mf-mode-deep);
+  --bs-btn-active-color: var(--mf-mode-deep);
+}
+
+// -----------------------------------------------------------------------------
+// Selected states
+// -----------------------------------------------------------------------------
+
+.nav-pills {
+  --bs-nav-pills-link-active-bg: var(--mf-mode);
+}
+
+.nav-tabs {
+  --bs-nav-tabs-link-active-color: var(--mf-mode);
+}
+
+.list-group {
+  --bs-list-group-active-bg: var(--mf-mode);
+  --bs-list-group-active-border-color: var(--mf-mode);
+  --bs-list-group-action-active-bg: var(--mf-mode-tint);
+}
+
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--mf-mode);
+}
+
+.pagination {
+  --bs-pagination-active-bg: var(--mf-mode);
+  --bs-pagination-active-border-color: var(--mf-mode);
+  --bs-pagination-hover-color: var(--mf-mode-deep);
+  --bs-pagination-focus-color: var(--mf-mode-deep);
+}
+
+.accordion {
+  --bs-accordion-active-color: var(--mf-mode-deep);
+  --bs-accordion-active-bg: var(--mf-mode-tint);
+  --bs-accordion-btn-focus-border-color: var(--mf-mode);
+}
+
+.progress {
+  --bs-progress-bar-bg: var(--mf-mode);
+}
+
+// Form controls compile their checked and focused colors, and neither is
+// expressed as a custom property. These are the only two real declarations in
+// the file, and they still read `--mf-mode` rather than naming a mode.
+.form-check-input:checked {
+  background-color: var(--mf-mode);
+  border-color: var(--mf-mode);
+}
+
+.form-check-input:focus {
+  border-color: var(--mf-mode);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--mf-mode);
+}

@@ -2096,14 +2096,3 @@ button.sentence-part:focus {
   max-width: 780px;
 }
 
-/*
- * The home mode switch sits on a row of its own, above whatever it switches.
- * The theme's `.mf-mode-switch` owns its appearance and its two-up layout; what
- * is left here is only where the control sits and how wide it is allowed to
- * get. On the teaching home the page is full width, and a segmented control
- * stretched across it stops reading as a control.
- */
-.home-mode-switch {
-  max-width: 26rem;
-  margin-bottom: 1rem;
-}

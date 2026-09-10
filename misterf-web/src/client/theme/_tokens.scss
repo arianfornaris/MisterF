@@ -17,9 +17,9 @@
 // -----------------------------------------------------------------------------
 
 $mf-paper:        #ffffff; // cards, panels, anything raised
-$mf-sand:         #fbf8f4; // the page ground
-$mf-sand-deep:    #f3ece2; // recessed wells on that ground
-$mf-cool:         #f2f5f7; // cool alternative ground; unused by default
+$mf-sand:         #fbf8f4; // warm page ground — learning
+$mf-sand-deep:    #f3ece2; // recessed wells on the warm ground
+$mf-cool:         #f2f5f7; // cool page ground — teaching
 $mf-cool-deep:    #e6edf1; // recessed wells on the cool ground
 
 $mf-line:         #e6e0d7; // default border
@@ -81,6 +81,21 @@ $mf-info:          $mf-navy;
 $mf-info-tint:     $mf-navy-tint;
 
 // -----------------------------------------------------------------------------
+// Shape and depth
+// -----------------------------------------------------------------------------
+
+$mf-radius-xs:   .25rem;   // 4px  — inline marks
+$mf-radius-sm:   .5rem;    // 8px  — buttons in dense contexts, small wells
+$mf-radius-md:   .75rem;   // 12px — cards while teaching
+$mf-radius-lg:   1rem;     // 16px — cards while learning
+$mf-radius-xl:   1.375rem; // 22px — hero bands
+$mf-radius-pill: 50rem;
+
+// Two shadows. A page that needs a third is asking the wrong question.
+$mf-shadow-card: 0 1px 2px rgba(16, 31, 39, .05), 0 8px 20px -14px rgba(16, 31, 39, .22);
+$mf-shadow-lift: 0 2px 4px rgba(16, 31, 39, .06), 0 22px 44px -22px rgba(16, 31, 39, .3);
+
+// -----------------------------------------------------------------------------
 // Modes
 // -----------------------------------------------------------------------------
 //
@@ -94,22 +109,31 @@ $mf-info-tint:     $mf-navy-tint;
 // `learn` / `teach`.
 //
 // Cap the list. Every entry added here is one more way for the two modes to
-// stop reading as one product. Two things were tried and removed: a per-mode
-// page background (too little signal for a change that touched every surface)
-// and a per-mode card radius (a home that rounds differently from the page
-// behind it reads as a bug, not as a mode).
+// stop reading as one product.
+//
+// The mode is a full change of skin, applied to the whole signed-in app rather
+// than to the home alone (founder decision 2026-09-10, after comparing both on
+// screen). That includes Bootstrap's own primary: `_mode-bootstrap.scss`
+// re-points the component variables at `--mf-mode`, so a primary button is
+// terracotta while you are learning and navy while you are teaching.
 
 $mf-modes: (
   learn: (
     accent:      $mf-terracotta,
     accent-deep: $mf-terracotta-deep,
     accent-tint: $mf-terracotta-tint,
+    bg:          $mf-sand,
+    bg-deep:     $mf-sand-deep,
+    card-radius: $mf-radius-lg,
     heading:     display,
   ),
   teach: (
     accent:      $mf-navy,
     accent-deep: $mf-navy-deep,
     accent-tint: $mf-navy-tint,
+    bg:          $mf-cool,
+    bg-deep:     $mf-cool-deep,
+    card-radius: $mf-radius-md,
     heading:     ui,
   ),
 );
@@ -142,21 +166,6 @@ $mf-text-lg:  1.1875rem;// 19px — section titles
 $mf-text-xl:  1.5rem;   // 24px — hero titles
 $mf-text-2xl: 1.875rem; // 30px — page titles on a teaching home
 $mf-text-3xl: 2.375rem; // 38px — page titles on a learning home
-
-// -----------------------------------------------------------------------------
-// Shape and depth
-// -----------------------------------------------------------------------------
-
-$mf-radius-xs:   .25rem;   // 4px  — inline marks
-$mf-radius-sm:   .5rem;    // 8px  — buttons in dense contexts, small wells
-$mf-radius-md:   .75rem;   // 12px — dense cards, list rows
-$mf-radius-lg:   1rem;     // 16px — cards, panels, the app page
-$mf-radius-xl:   1.375rem; // 22px — hero bands
-$mf-radius-pill: 50rem;
-
-// Two shadows. A page that needs a third is asking the wrong question.
-$mf-shadow-card: 0 1px 2px rgba(16, 31, 39, .05), 0 8px 20px -14px rgba(16, 31, 39, .22);
-$mf-shadow-lift: 0 2px 4px rgba(16, 31, 39, .06), 0 22px 44px -22px rgba(16, 31, 39, .3);
 
 // -----------------------------------------------------------------------------
 // Motion

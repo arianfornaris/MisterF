@@ -7,104 +7,101 @@
 // No component in this theme contains the word "learn" or "teach", and no
 // component is forked per mode.
 //
-// The theme applies a mode in two layers, and the split is the important part:
+// The mode is a full change of skin for the signed-in app: ground, accent,
+// heading face and card radius all move, and Bootstrap's primary moves with
+// them (`_mode-bootstrap.scss`). Founder decision 2026-09-10, taken after
+// seeing both this and a narrower "accent only" version on screen.
 //
-//   1. THE ACCENT, app-wide. Set on the element carrying the attribute, so any
-//      page can read `--mf-mode`. It changes color and nothing else — no
-//      layout, no type, no spacing moves when the mode changes.
-//   2. THE SKIN, scoped to `.mf-mode-skin`. Typographic decisions that only
-//      make sense where the mode actually composes the page. Today that is the
-//      two home compositions and nothing else.
+// Two things it still does not do, and they are the guardrails:
 //
-// Why the accent stops at Cuaderno's own components: Bootstrap compiles
-// `.btn-primary` to concrete values at build time, so no custom property can
-// restyle it at runtime. Repainting every Bootstrap component per mode would
-// mean a `[data-mode]` fork of each one — exactly what rule 1 below forbids.
-// The mode is therefore a persistent marker (the rail, the switch, the home
-// header), not a reskin of the whole app. That is also the smallest blast
-// radius that still answers "which mode am I in" while scrolling.
+//   - It never moves LAYOUT. Nothing reflows, nothing changes position, no
+//     element appears or disappears because of the mode. Switching is a repaint
+//     so that it stays a cheap, reversible thing to do several times a day.
+//   - It never changes MEANING. A green check, a family color and a warning
+//     mean the same thing in both modes.
 //
 // Rules, in order of how easy they are to break:
 //
 //   1. Differentiate through this file only. If a difference cannot be
 //      expressed as a variable here, it probably should not exist.
-//   2. Keep the list short. Six entries today. More and the two modes stop
-//      reading as one product.
-//   3. Never differentiate MEANING. A green check, a family color and a warning
-//      mean the same thing in both modes. Only chrome and voice move.
-//   4. Copy is a differentiator, but it belongs in the i18n catalogs as
+//   2. Keep the list short. Seven entries. More and the two modes stop reading
+//      as one product.
+//   3. Copy is a differentiator, but it belongs in the i18n catalogs as
 //      parallel keys — not in CSS, and not in string swaps in the view.
-//   5. Every page must survive with no `data-mode` at all. A signed-out page
-//      has no mode; `:root` carries the default.
+//   4. Every page must survive with no `data-mode` at all. A signed-out page
+//      has no mode; `:root` carries the theme's own colors, NOT a mode's.
 
-// Layer 1 — the accent. Cheap enough to apply everywhere.
-@mixin mf-mode-accent($mode) {
+// The variables the mode owns. `$bootstrap: true` also re-points Bootstrap's
+// primary family, which is what makes the whole app follow the mode instead of
+// only the theme's own components.
+@mixin mf-mode-properties($mode, $bootstrap: true) {
   $spec: map-get($mf-modes, $mode);
+  $accent: map-get($spec, accent);
+  $accent-deep: map-get($spec, accent-deep);
+  $accent-tint: map-get($spec, accent-tint);
 
-  --mf-mode: #{map-get($spec, accent)};
-  --mf-mode-deep: #{map-get($spec, accent-deep)};
-  --mf-mode-tint: #{map-get($spec, accent-tint)};
-  --mf-mode-rgb: #{to-rgb(map-get($spec, accent))};
+  --mf-mode: #{$accent};
+  --mf-mode-deep: #{$accent-deep};
+  --mf-mode-tint: #{$accent-tint};
+  --mf-mode-rgb: #{to-rgb($accent)};
 
-  // The focus ring follows the mode because it is pure color: it moves nothing
-  // and it keeps keyboard focus reading as part of the same surface.
-  --bs-focus-ring-color: #{rgba(map-get($spec, accent), .45)};
-}
-
-// Layer 2 — the skin. Only where the mode composes the page.
-@mixin mf-mode-skin($mode) {
-  $spec: map-get($mf-modes, $mode);
-
+  --mf-app-bg: #{map-get($spec, bg)};
+  --mf-app-bg-deep: #{map-get($spec, bg-deep)};
+  --mf-card-radius: #{map-get($spec, card-radius)};
   --mf-heading-font: #{if(map-get($spec, heading) == display, inspect($mf-font-display), inspect($mf-font-ui))};
   --mf-heading-tracking: #{if(map-get($spec, heading) == display, -.015em, -.02em)};
+
+  @if $bootstrap {
+    // Bootstrap emits these on `:root`, so redefining them here is enough to
+    // move every utility, every link and every subtle surface built from them.
+    // The ones Bootstrap compiles into a component instead live in
+    // `_mode-bootstrap.scss`.
+    --bs-body-bg: #{map-get($spec, bg)};
+    --bs-body-bg-rgb: #{to-rgb(map-get($spec, bg))};
+    --bs-secondary-bg: #{map-get($spec, bg-deep)};
+    --bs-secondary-bg-rgb: #{to-rgb(map-get($spec, bg-deep))};
+
+    --bs-primary: #{$accent};
+    --bs-primary-rgb: #{to-rgb($accent)};
+    --bs-primary-text-emphasis: #{$accent-deep};
+    --bs-primary-bg-subtle: #{$accent-tint};
+    --bs-primary-border-subtle: #{mix($accent, #fff, 28%)};
+
+    --bs-link-color: #{$accent};
+    --bs-link-color-rgb: #{to-rgb($accent)};
+    --bs-link-hover-color: #{$accent-deep};
+    --bs-link-hover-color-rgb: #{to-rgb($accent-deep)};
+
+    --bs-focus-ring-color: #{rgba($accent, .45)};
+  }
 }
 
-// The default. A page with no `data-mode` still gets a complete theme.
+// The default, for a page with no profile: the sign-in screens and anything
+// rendered before a profile is resolved. It deliberately does NOT repaint
+// Bootstrap — a page outside the product's two modes keeps the theme's own
+// navy identity, and only the `--mf-*` layer has something to fall back to.
 :root {
-  @include mf-mode-accent($mf-mode-default);
-  @include mf-mode-skin($mf-mode-default);
+  @include mf-mode-properties($mf-mode-default, $bootstrap: false);
 }
 
 @each $mode, $spec in $mf-modes {
   [data-mode='#{$mode}'] {
-    @include mf-mode-accent($mode);
-  }
-
-  [data-mode='#{$mode}'] .mf-mode-skin {
-    @include mf-mode-skin($mode);
+    @include mf-mode-properties($mode);
   }
 }
 
 // -----------------------------------------------------------------------------
-// What the mode actually changes on screen
+// What the mode changes beyond a variable
 // -----------------------------------------------------------------------------
 //
 // Everything above is variables. These are the only places the theme reads the
-// attribute directly, and each one is a decision that cannot be expressed as a
-// color.
+// attribute directly, and both are typographic rather than chromatic. Neither
+// moves anything on the page.
 
-.mf-mode-skin {
-  // A learning home is an invitation and opens with a serif title over its
-  // illustration. A teaching home leads with numbers, so the title stops
-  // competing with them and the serif gives way to the UI face.
-  .mf-page-title {
-    font-family: var(--mf-heading-font);
-    letter-spacing: var(--mf-heading-tracking);
-  }
-}
-
-[data-mode='teach'] .mf-mode-skin {
+[data-mode='teach'] {
+  // Teaching pages lead with numbers, so the page title stops competing with
+  // them and the serif gives way to the UI face at a smaller size.
   .mf-page-title {
     font-size: var(--mf-text-2xl);
-  }
-
-  // A hero is an invitation. A teacher arriving ten minutes before class is not
-  // being invited anywhere.
-  .mf-hero-art {
-    display: none;
-  }
-
-  .mf-hero {
-    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -10,20 +10,15 @@
 // Rule of thumb for which layer to reach for:
 //   - styling a Bootstrap component      -> `--bs-*`
 //   - styling a Cuaderno component       -> `--mf-*`
-//   - a value that changes with the mode -> `--mf-*`, redefined in `_modes.scss`
+//   - a value that changes with the mode -> declare it in `_modes.scss`, not
+//     here. `--mf-app-bg`, `--mf-card-radius` and `--mf-heading-font` are
+//     mode-owned and are deliberately absent from this file.
 
 :root {
   color-scheme: light;
 
   // --------------------------------------------------------------- paper & ink
   --mf-paper: #{$mf-paper};
-
-  // The app's ground, and the slightly deeper tone used for wells and tracks.
-  // One paper for the whole product: these were per-mode until the two grounds
-  // turned out to be a change on every surface for almost no signal. The mode
-  // lives in `--mf-mode`, not in the background — see `_modes.scss`.
-  --mf-app-bg: #{$mf-sand};
-  --mf-app-bg-deep: #{$mf-sand-deep};
 
   --mf-sand: #{$mf-sand};
   --mf-sand-deep: #{$mf-sand-deep};
@@ -75,11 +70,6 @@
   --mf-radius-lg: #{$mf-radius-lg};
   --mf-radius-xl: #{$mf-radius-xl};
   --mf-radius-pill: #{$mf-radius-pill};
-
-  // The radius every card-like surface reads. One value for the product:
-  // it was per-mode until a home that rounded differently from the page
-  // behind it read as a bug rather than as a mode.
-  --mf-card-radius: #{$mf-radius-lg};
 
   --mf-shadow-card: #{$mf-shadow-card};
   --mf-shadow-lift: #{$mf-shadow-lift};

@@ -171,58 +171,39 @@ learner who got something wrong is not in an error state.
 
 ## 4. The two modes
 
-> **Corrected against what shipped.** The demo pages still show the original
-> six-variable version; the paragraph below describes the theme as it actually
-> is. Where they disagree, the theme wins.
+> **Corrected against what shipped.** The values differ (`learn` / `teach`, not
+> `aprendo` / `enseno` — they match `profiles.home_mode`) and the switch sits
+> under the brand in the side panel, reachable from any page, rather than at
+> the top of the sidebar or on the home. Everything else below is what the app
+> now does.
 
 `data-mode="learn" | "teach"` on `<html>`, written server-side from the active
-profile's `home_mode`. The demo's `aprendo` / `enseno` are the wrong values —
-the shipped ones match the database column.
+profile. Seven variables, and nothing else in the sheet knows the modes exist.
 
-The theme applies it in two layers:
+| | Learn | Teach |
+| --- | --- | --- |
+| Background | warm paper `--sand` | cool paper `--cool` |
+| Accent | terracotta | navy |
+| Headings | Literata (serif) | system sans, tighter |
+| Radius | 16px | 12px |
+| Bootstrap primary | follows the accent | follows the accent |
+| Voice | second person, about you | third person, about the group |
 
-| | Learn | Teach | Scope |
-| --- | --- | --- | --- |
-| Accent (`--mf-mode` + tint/deep/rgb, focus ring) | terracotta | navy | app-wide |
-| Headings | Literata (serif) | system sans, tighter | `.mf-mode-skin` only |
-| Page title size | 38px | 30px | `.mf-mode-skin` only |
-| Hero illustration | shown | hidden | `.mf-mode-skin` only |
-| Voice | second person, about you | third person, about the group | i18n, not CSS |
+Bootstrap follows the accent too, which is what makes the whole app repaint
+rather than only the theme's own components: the `--bs-*` properties Bootstrap
+emits on `:root` are redefined per mode, and the components that compile the
+color in (`.btn-primary`, `.nav-pills`, `.list-group`, checked inputs) get
+their `--bs-*-*` variables re-pointed at `--mf-mode` **once**, in
+`_mode-bootstrap.scss`. No `[data-mode=…]` selector appears in a component.
 
-Two entries the demo proposed were dropped on implementation: a **per-mode
-background** (warm vs cool paper) bought too little signal for a change that
-touched every surface, and a **per-mode card radius** made the home round
-differently from the page behind it, which reads as a bug rather than as a
-mode.
+Plus a three-pixel accent rail down the left edge of the conversation panel —
+the cheapest persistent signal there is, and the only one that survives
+scrolling a long page.
 
-What survives as the persistent signal is a three-pixel accent rail down the
-left edge of the conversation panel, plus the segmented switch on the home
-itself (not at the top of the sidebar — §1.14 put it on a row of its own above
-each composition). The accent does **not** repaint Bootstrap's own components:
-`.btn-primary` is compiled to concrete values, so a full reskin would mean
-forking every component per mode. The mode is a marker, not a skin.
-
-### Rules for mode differentiation
-
-1. **Differentiate through the token layer, never by forking a component.** If
-   a difference cannot be expressed as a variable, it probably should not exist.
-2. **Cap it at five or six differences.** More and the two modes stop reading
-   as one product.
-3. **Never differentiate meaning.** A green check means the same thing in both.
-   Family colors are identical in both. Only chrome, density and voice change.
-4. **Copy is a differentiator and must be authored per mode**, through i18n
-   keys, not by string-swapping in the view. The demo fakes this with
-   `data-copy-aprendo` / `data-copy-enseno`; the real app needs parallel key
-   families (`library.title.learner` / `library.title.teacher`).
-5. **Whole blocks may be mode-only** (`.only-aprendo` / `.only-enseno` in the
-   demo). In the app, branch in the view — do not ship hidden markup.
-
-### What a mode is *not*
-
-It is not a permission and not an account type. The same person switches all
-day. Mode must be a cheap, reversible, per-session toggle — the existing
-profile switcher is the natural place for it, and profiles already exist
-(`profiles` table, `misterf-web/src/server/profiles/`).
+Two guardrails: the mode never moves **layout** (nothing reflows or disappears,
+so switching stays a repaint you can do all day) and never changes **meaning**
+(a green check, a family color and a warning are identical in both). A page
+with no profile — the sign-in screens — gets no mode and keeps the app's navy.
 
 ---
 

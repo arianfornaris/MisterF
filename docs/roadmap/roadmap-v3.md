@@ -1468,8 +1468,33 @@ whole surface was exercised live on the QA account (evidence below).
   `.nav-pills .nav-link.active` compiles to the app's primary, so in learning
   mode the control that exists to show the mode was painted the teaching
   color. `.mf-mode-switch` paints its selected option with `--mf-mode`, so the
-  control now shows the mode instead of only naming it. Same row of its own,
-  same two options, same posted form.
+  control now shows the mode instead of only naming it. Same two options, same
+  posted form.
+- **Amended again 2026-09-10, on founder direction, and this one reverses the
+  two calls above.** Shown both versions side by side, the founder chose the
+  demo's behavior: the switch lives **under the brand in the side panel**, and
+  the mode reskins the **whole signed-in app**, not just the home.
+  - The switch moved out of both home compositions into
+    `views/partials/app-shell-open.ejs`, with the profile's mode help text
+    under it. One control in one place; `returnTo` is now the current page, so
+    switching repaints where you are instead of sending you home. It is
+    stacked rather than side by side because two first-person verbs do not fit
+    across a 220px panel. Cost, accepted: below `lg` the panel is an offcanvas,
+    so on a phone the switch is one tap behind the hamburger.
+  - The mode now moves the page ground, the card radius, the heading face and
+    Bootstrap's whole primary family, so a primary button is terracotta while
+    you are learning and navy while you are teaching. This restores the two
+    variables the theme had dropped (`--mf-app-bg`, `--mf-card-radius`).
+  - The earlier claim that this would mean "forking every Bootstrap component"
+    was wrong, and worth recording because it nearly settled the decision.
+    Bootstrap 5.3 components read their own `--bs-*-*` custom properties, so
+    re-pointing those at `--mf-mode` is a set of rules written **once** —
+    `misterf-web/src/client/theme/_mode-bootstrap.scss`, which contains no
+    `[data-mode=…]` selector at all.
+  - Two guardrails hold and are the reason this stays safe: the mode never
+    moves **layout** (nothing reflows or disappears, so switching is a repaint)
+    and never changes **meaning** (semantic colors are identical in both). A
+    page with no profile gets no mode and keeps the app's navy.
 - Also extracted in passing: `src/server/resources/paths.ts`, so the catalog
   and the home build resource links from one definition, and
   `PedagogicalResourceType`, which makes "folders are not activities" a type

@@ -136,38 +136,38 @@ the column stores, so the CSS and the database cannot drift. The label a person
 reads is a verb in the first person — *Estoy aprendiendo* / *Estoy enseñando* —
 and lives in the i18n catalogs, never here.
 
-The theme applies a mode in **two layers**, and the split is the point:
-
-**Layer 1 — the accent, app-wide.** Set on the element carrying the attribute,
-so any page can read it. Color only; nothing moves.
-
-| | Learn | Teach |
-| --- | --- | --- |
-| `--mf-mode` | terracotta | navy |
-| `--mf-mode-deep` / `--mf-mode-tint` / `--mf-mode-rgb` | follow it | follow it |
-| `--bs-focus-ring-color` | follows it | follows it |
-
-**Layer 2 — the skin, scoped to `.mf-mode-skin`.** Typographic decisions that
-only make sense where the mode composes the page. Today `views/home-teaching.ejs`
-is its only consumer.
+The mode is a **full change of skin for the signed-in app** — founder decision
+2026-09-10, taken after comparing this against a narrower "accent only" version
+on screen. Seven variables do all of it:
 
 | | Learn | Teach |
 | --- | --- | --- |
+| `--mf-mode` (+ `-deep`, `-tint`, `-rgb`) | terracotta | navy |
+| `--mf-app-bg` / `--bs-body-bg` | warm paper `#FBF8F4` | cool paper `#F2F5F7` |
+| `--mf-app-bg-deep` / `--bs-secondary-bg` | `#F3ECE2` | `#E6EDF1` |
+| `--mf-card-radius` | `1rem` | `0.75rem` |
 | `--mf-heading-font` | Literata | system sans |
 | `--mf-heading-tracking` | `-.015em` | `-.02em` |
-| `.mf-page-title` size | `--mf-text-3xl` | `--mf-text-2xl` |
-| `.mf-hero-art` | shown | hidden |
+| Bootstrap primary family | follows the accent | follows the accent |
 
-**Why the accent stops at Cuaderno's own components.** Bootstrap compiles
-`.btn-primary` to concrete values at build time, so no custom property can
-restyle it at runtime. Repainting every Bootstrap component per mode would mean
-a `[data-mode]` fork of each one — exactly what rule 1 forbids. The mode is
-therefore a persistent *marker* (the rail, the switch, the eyebrow, the home
-composition), not a reskin of the whole app.
+**Bootstrap follows too.** `_modes.scss` redefines the `--bs-*` properties
+Bootstrap emits on `:root` (`--bs-primary`, its `-rgb`, `-bg-subtle`,
+`-text-emphasis`, `-border-subtle`, and the link colors), which moves every
+utility, every link and every subtle surface. `_mode-bootstrap.scss` then
+re-points the components Bootstrap compiles from `$primary` at build time —
+`.btn-primary`, `.nav-pills`, `.list-group`, checked form controls and the
+rest. **That file is not a per-mode fork:** every rule is written once and
+reads `--mf-mode`, so it contains no `[data-mode=…]` selector and a third mode
+would need no change to it.
 
-**Two things were tried and removed.** A per-mode page background: too little
-signal for a change that touched every surface. A per-mode card radius: a home
-that rounds differently from the page behind it reads as a bug, not as a mode.
+**Two things the mode still never does.** It never moves **layout** — nothing
+reflows, nothing appears or disappears, so switching is a repaint and stays
+cheap to do several times a day. And it never changes **meaning** — a green
+check, a family color and a warning are identical in both.
+
+**A page with no profile has no mode.** `:root` gets the `--mf-*` fallbacks but
+**not** the Bootstrap re-point, so the sign-in screens keep the theme's own
+navy identity instead of inheriting a mode they are not in.
 
 **No component in this theme contains the word `learn` or `teach`.** That is
 the invariant. Keep it.
@@ -199,8 +199,8 @@ person switches several times a day.
 - `views/partials/app-shell-open.ejs` renders `.mf-mode-rail` inside the
   conversation panel — three pixels of accent, the one mode signal that
   survives navigating away from the home. Positioned in `app-shell.css`.
-- `views/home-teaching.ejs` carries `.mf-mode-skin`. Nothing else does, and
-  adding it somewhere new is a design decision, not a styling one.
+- Nothing else opts in. The mode reaches every page through `<html>`, so no
+  view carries a mode class and no view should start.
 
 ## 6. Families
 
@@ -303,8 +303,10 @@ reviewed, and will be re-invented six weeks later.
 own output.
 
 **Make something mode-dependent.** Add a variable to `$mf-modes` and emit it in
-`mf-mode-accent` (color only) or `mf-mode-skin` (everything else). Do not add a
-`[data-mode=…]` selector to a component file.
+`mf-mode-properties`. If it is a Bootstrap component that compiles the color
+in, re-point its `--bs-*` variables in `_mode-bootstrap.scss` — reading
+`--mf-mode`, never naming a mode. Do not add a `[data-mode=…]` selector to a
+component file.
 
 ## 10. Relationship to the app's existing stylesheets
 
@@ -382,10 +384,10 @@ markup back and the rail element removed.
 
 ## 14. Known gaps
 
-- **Only the teaching home wears `.mf-mode-skin`.** The learning composition is
-  the chat page with a compact panel above the composer (§1.14) and has no page
-  title, so layer 2 has nothing to act on there. The `learn` column of the skin
-  table is the theme's default rather than a second look.
+- **The mode switch is inside the offcanvas on mobile.** Below `lg` the side
+  panel collapses, so the control is one tap behind the hamburger. Accepted:
+  the alternative was a second copy on the home, and two identical controls on
+  one screen read as two different settings.
 - **`base.css` still owns a `:root` block** that duplicates part of the theme.
 - **Few views use the `mf-` components.** The mode switch, the rail and the
   teaching home's page furniture do; everything else still uses the app's own

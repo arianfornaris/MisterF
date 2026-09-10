@@ -3,11 +3,15 @@
     source of truth and the choice survives the next visit — the same value the
     profile form edits. It gates nothing: both modes reach every feature.
 
-    Rendered as the theme's `.mf-mode-switch` on a row of its own. It was nav
-    pills until the theme landed; the segmented control is the same idea, but
-    its selected option paints itself with the mode accent rather than with the
-    app's primary, so the control shows which mode you are in instead of only
-    saying it. %>
+    Rendered as the theme's `.mf-mode-switch`, whose selected option paints
+    itself with the mode accent — so the control shows which mode you are in
+    rather than only naming it.
+
+    It lives under the brand in the side panel, not on the home: the mode now
+    reskins the whole signed-in app, so the switch belongs with the app chrome
+    and has to be reachable from any page. `returnTo` is therefore the current
+    page rather than `/`, so switching repaints where you are instead of
+    sending you home. %>
 <form
   class="mf-mode-switch home-mode-switch"
   method="post"
@@ -15,7 +19,7 @@
   aria-label="<%= t('home.modeAria') %>"
 >
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-  <input type="hidden" name="returnTo" value="/">
+  <input type="hidden" name="returnTo" value="<%= currentPath %>">
   <% const activeHomeMode = activeProfile ? activeProfile.homeMode : 'learn'; %>
   <button
     type="submit"
