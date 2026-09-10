@@ -43,9 +43,9 @@ import {
   buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
-  formatRelativeTime,
   getHomeAuthMessage,
 } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import {
   countLearnerTurns,
   createRoleplayDraftFromManualInput,
@@ -441,7 +441,7 @@ function buildAttemptListItems(
     ...attempt,
     ...getRoleplayAttemptStatusView(attempt.status, locale),
     learnerTurnCount: countLearnerTurns(attempt.turns),
-    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
   }));
 }
 
@@ -1390,7 +1390,7 @@ function buildCollectedRoleplayAttemptListItems(
       || attempt.participantName
       || attempt.participantEmail
       || translate(locale, 'quizzes.resultsAnonymousParticipant'),
-    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
   }));
 }
 
@@ -1419,7 +1419,7 @@ export function renderRoleplayParticipationPage(
   const storedSummary = getResourceParticipationSummary(resolved.roleplay.id);
   const participationSummary = storedSummary
     ? {
-        generatedAtRelative: formatRelativeTime(storedSummary.generatedAt),
+        generatedAtRelative: formatRelativeTime(storedSummary.generatedAt, request.locale),
         stale:
           storedSummary.inputFingerprint
           !== computeParticipationFingerprint(collectedAttempts),

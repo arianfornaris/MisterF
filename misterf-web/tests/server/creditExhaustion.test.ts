@@ -13,18 +13,24 @@ describe('credit exhaustion UI events', () => {
   it('emits a socket credit exhaustion event for exhausted user credit', () => {
     const emit = vi.fn();
 
-    const emitted = emitCreditExhaustedIfNeeded({ emit }, new CreditExhaustedError());
+    const emitted = emitCreditExhaustedIfNeeded({ emit }, new CreditExhaustedError(), {
+      locale: 'en',
+    });
 
     expect(emitted).toBe(true);
     expect(emit).toHaveBeenCalledWith('llm:credit_exhausted', {
-      message: getCreditExhaustedMessage(),
+      message: getCreditExhaustedMessage('en'),
     });
+    // Regression, Roadmap V3 §2.8: this notice used to be Spanish for everyone.
+    expect(getCreditExhaustedMessage('en')).not.toBe(getCreditExhaustedMessage('es'));
   });
 
   it('does not emit a socket credit exhaustion event for unrelated errors', () => {
     const emit = vi.fn();
 
-    const emitted = emitCreditExhaustedIfNeeded({ emit }, new Error('Provider failed.'));
+    const emitted = emitCreditExhaustedIfNeeded({ emit }, new Error('Provider failed.'), {
+      locale: 'es',
+    });
 
     expect(emitted).toBe(false);
     expect(emit).not.toHaveBeenCalled();
@@ -38,12 +44,13 @@ describe('credit exhaustion UI events', () => {
       { to },
       'conversation-1',
       new CreditExhaustedError(),
+      { locale: 'ht' },
     );
 
     expect(emitted).toBe(true);
     expect(to).toHaveBeenCalledWith('conversation-1');
     expect(roomEmit).toHaveBeenCalledWith('llm:credit_exhausted', {
-      message: getCreditExhaustedMessage(),
+      message: getCreditExhaustedMessage('ht'),
     });
   });
 });

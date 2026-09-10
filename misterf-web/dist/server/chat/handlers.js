@@ -73,7 +73,11 @@ export function renderChatPage(request, response) {
     // above the composer, shown only on the empty state. Once a conversation is
     // open the chat is the page, and starter cards would be noise.
     const learningHome = user?.emailVerified && activeProfile && !initialConversationId
-        ? buildLearningHomeData({ profileId: activeProfile.id, userId: user.id })
+        ? buildLearningHomeData({
+            locale: request.locale,
+            profileId: activeProfile.id,
+            userId: user.id,
+        })
         : null;
     response.render('chat', {
         ...buildAppShellContext({
@@ -135,7 +139,7 @@ export async function handleFinalizeTutorConversation(request, response) {
                 surface: 'tutor_report',
                 userId: user.id,
             });
-            response.redirect(buildConversationCreditExhaustedPath(conversation.id));
+            response.redirect(buildConversationCreditExhaustedPath(conversation.id, request.locale));
             return;
         }
         throw error;
@@ -226,7 +230,7 @@ export async function handleCreateResourceFromTutorConversationReport(request, r
                 surface: 'tutor_report_resource',
                 userId: user.id,
             });
-            response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
+            response.redirect(buildConversationCreditExhaustedPath(conversation.id, request.locale, 'summary'));
             return;
         }
         throw error;
@@ -288,7 +292,7 @@ export async function handleCreateResourceFromConversation(request, response) {
                 surface: 'conversation_resource',
                 userId: user.id,
             });
-            response.redirect(buildConversationCreditExhaustedPath(conversation.id));
+            response.redirect(buildConversationCreditExhaustedPath(conversation.id, request.locale));
             return;
         }
         throw error;
@@ -353,10 +357,10 @@ function buildTutorReportContext(report) {
         summaryTitle: report.summaryTitle,
     }, null, 2);
 }
-function buildConversationCreditExhaustedPath(conversationId, tab) {
+function buildConversationCreditExhaustedPath(conversationId, locale, tab) {
     const params = new URLSearchParams({
         credit: 'exhausted',
-        creditMessage: getCreditExhaustedMessage(),
+        creditMessage: getCreditExhaustedMessage(locale),
     });
     if (tab) {
         params.set('tab', tab);

@@ -1,6 +1,6 @@
 import { listResourcesSharedWithProfile, listSharedResourceParticipationForProfile, } from '../db/repository.js';
 import { buildResourceDetailPath, buildResourceParticipationPath, } from '../resources/paths.js';
-import { formatRelativeTime } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 /**
  * How far back the teaching home looks when it leads with what happened while
  * the owner was away.
@@ -37,7 +37,7 @@ export function buildTeachingHomeData(input) {
         id: resource.id,
         labelKey: resourceTypePresentation[resource.type].labelKey,
         lastParticipationRelative: resource.lastParticipationAt
-            ? formatRelativeTime(resource.lastParticipationAt)
+            ? formatRelativeTime(resource.lastParticipationAt, input.locale)
             : null,
         participantCount: resource.participantCount,
         participationPath: buildResourceParticipationPath(resource),
@@ -72,7 +72,7 @@ export function buildLearningHomeData(input) {
             iconClass: resourceTypePresentation[resource.type].iconClass,
             id: resource.id,
             labelKey: resourceTypePresentation[resource.type].labelKey,
-            sharedRelative: formatRelativeTime(resource.sharedAt),
+            sharedRelative: formatRelativeTime(resource.sharedAt, input.locale),
             title: resource.title,
         })),
     };

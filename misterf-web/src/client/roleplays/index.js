@@ -76,7 +76,7 @@ function initializeRoleplaySharingUi() {
 
         try {
           await navigator.share({
-            title: 'Roleplay compartido',
+            title: t('clientMisc.roleplaySharedTitle'),
             url: shareFieldEl.value,
           });
         } catch {

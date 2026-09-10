@@ -3,7 +3,8 @@ import QRCode from 'qrcode';
 import { addResourceToFolder, archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceAccessGrant, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, getQuizResponseSummary, listCollectedQuizAttemptsForOwner, listQuizAttemptsForUser, upsertQuizResponseSummary, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
-import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import { applyQuizMetadataToDraft, buildQuizBlockSectionList, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResponsesSummary, buildQuizResultTitle, computeQuizResponsesFingerprint, canonicalizeQuizDraftBlockOrder, createQuizDraftFromManualInput, applyQuizBlocksAndSectionsToDraft, diffQuizBlocks, duplicateQuizBlock, evaluateQuizAttempt, findQuizBlock, insertQuizBlock, moveQuizBlock, normalizeQuizResponses, quizBlocksDiffHasChanges, quizDraftToMetadata, removeQuizBlock, safeParseQuizDraft, safeParseQuizMetadata, setQuizBlockItem, storedQuizToDraft, } from '../services/quizzes.js';
 import { claimRequestAttachments } from '../attachments/requestAttachments.js';
 import { generateQuizDraft, generateQuizRevision, generateQuizBlockRevision, generateQuizResponsesSummary, } from '../services/resourceDrafts.js';
@@ -304,7 +305,7 @@ function buildQuizAttemptListItems(attempts, locale) {
     return attempts.map((attempt) => ({
         ...attempt,
         ...getQuizAttemptStatusView(attempt.status, locale),
-        relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+        relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
     }));
 }
 function buildCollectedQuizAttemptListItems(attempts, locale) {
@@ -318,7 +319,7 @@ function buildCollectedQuizAttemptListItems(attempts, locale) {
         return {
             ...attempt,
             ...getQuizAttemptStatusView(attempt.status, locale),
-            relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+            relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
             resultSummaryLabel: summary
                 ? `${summary.correctCount}/${summary.totalCount}`
                 : '',
@@ -1311,7 +1312,7 @@ export async function renderQuizParticipationPage(request, response) {
     const storedAiSummary = getQuizResponseSummary(resolved.quiz.id);
     const aiSummary = storedAiSummary
         ? {
-            generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt),
+            generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt, request.locale),
             stale: storedAiSummary.inputFingerprint
                 !== computeQuizResponsesFingerprint(collectedAttempts),
             text: storedAiSummary.summaryText,

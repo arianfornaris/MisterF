@@ -526,13 +526,15 @@ export async function runTutorAgentLoop(
 
 export async function translateTextWithLlm(input: {
   direction: TranslationDirection;
+  /** Language of any user-facing notice about the translation itself. */
+  instructionLanguage: Locale;
   languageName: string;
   llm?: LlmRequestOptions;
   text: string;
 }): Promise<TranslationResult> {
   const text = input.text.trim();
   if (!text) {
-    throw new Error('No hay texto para traducir.');
+    throw new Error('There is no text to translate.');
   }
 
   const result = await generateText({
@@ -546,7 +548,7 @@ export async function translateTextWithLlm(input: {
   const userFacingFinishMessage = getUserFacingFinishReasonMessage(
     result.finishReason,
     result.providerMetadata,
-    'es',
+    input.instructionLanguage,
   );
   if (userFacingFinishMessage) {
     throw new LlmFinishReasonError(
@@ -568,7 +570,7 @@ export async function translateTextWithLlm(input: {
       value: fullTrace ? result.text : undefined,
       valueLength: result.text.length,
     });
-    throw new Error('El traductor no devolvió una respuesta válida.');
+    throw new Error('The translator returned no valid response.');
   }
 
   logLlmCost({
@@ -724,7 +726,7 @@ export async function evaluateQuizResultItemsWithLlm(input: {
 
   throw lastError instanceof Error
     ? lastError
-    : new Error('El evaluador del quiz no devolvió una respuesta válida.');
+    : new Error('The quiz evaluator returned no valid response.');
 }
 
 function appendQuizResultEvaluationCorrectionRequest(

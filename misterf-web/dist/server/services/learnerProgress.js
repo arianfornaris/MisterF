@@ -1,6 +1,7 @@
-import { listLearnerProgressEvents, setQuizAttemptProgressEvent, setRoleplayAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
+import { findProfileForUser, listLearnerProgressEvents, setQuizAttemptProgressEvent, setRoleplayAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
 import { buildQuizEvaluationSummary, parseQuizDraft, } from './quizzes.js';
 import { quizResultBlockSchema } from './llmTutor/schemas.js';
+import { defaultLocale, translate } from '../i18n/index.js';
 import { buildRoleplayProgressSummary, parseRoleplayDraft, roleplayEvaluationResultSchema, } from './roleplays.js';
 const maxTimelineSummaryLength = 280;
 export function recordQuizAttemptProgress(attempt) {
@@ -16,6 +17,10 @@ export function recordQuizAttemptProgress(attempt) {
     const draft = parseQuizDraft(attempt.snapshot);
     const summary = buildQuizEvaluationSummary(result.data);
     const title = compactText(`Quiz: ${draft.title}`, 120);
+    // Stored with the event, so it is worded in the learner's language now;
+    // events recorded before 2026-09-10 keep their Spanish wording.
+    const locale = findProfileForUser(attempt.profileId, attempt.userId)?.instructionLanguage ??
+        defaultLocale;
     const event = upsertLearnerProgressEvent({
         details: buildQuizAttemptEventDetails({
             attempt,
@@ -26,7 +31,12 @@ export function recordQuizAttemptProgress(attempt) {
         profileId: attempt.profileId,
         sourceId: attempt.id,
         sourceType: 'quiz_attempt',
-        summary: compactText(`Completaste ${summary.totalCount} ejercicios: ${summary.correctCount} correctos, ${summary.partialCount} parciales y ${summary.incorrectCount} por mejorar.`, maxTimelineSummaryLength),
+        summary: compactText(translate(locale, 'progress.quizEventSummary', {
+            correct: summary.correctCount,
+            incorrect: summary.incorrectCount,
+            partial: summary.partialCount,
+            total: summary.totalCount,
+        }), maxTimelineSummaryLength),
         title,
         userId: attempt.userId,
     });
@@ -89,12 +99,32 @@ export function recordTutorConversationReportProgress(report) {
         userId: report.userId,
     });
 }
+/** How many recent events a progress summary draws on. */
+export const learnerProgressSummaryEventLimit = 30;
 export function refreshLearnerProgressSummary(input) {
     const events = listLearnerProgressEvents({
-        limit: 30,
+        limit: learnerProgressSummaryEventLimit,
         profileId: input.profileId,
         userId: input.userId,
     });
+    // The stored copy feeds the tutor's progress tool, so it is worded in the
+    // profile's language. The progress page rebuilds its own copy per request.
+    const locale = findProfileForUser(input.profileId, input.userId)?.instructionLanguage ??
+        defaultLocale;
+    const summary = buildLearnerProgressSummary(events, locale);
+    upsertLearnerProgressProfile({
+        profileId: input.profileId,
+        summary,
+        userId: input.userId,
+    });
+    return summary;
+}
+/**
+ * Aggregates recent progress events, newest first, into the summary the
+ * progress page and the tutor read. Pure, so a page can rebuild it in the
+ * viewer's language instead of showing the stored wording.
+ */
+export function buildLearnerProgressSummary(events, locale) {
     const latest = events[0] ?? null;
     const strengths = uniqueLimited(events.flatMap((event) => event.details.progress), 8);
     const focusAreas = uniqueLimited(events.flatMap((event) => [
@@ -103,27 +133,21 @@ export function refreshLearnerProgressSummary(input) {
     ]), 10);
     const vocabulary = uniqueLimited(events.flatMap((event) => event.details.vocabulary), 24);
     const recommendedPractice = uniqueLimited(events.flatMap((event) => [
-        ...event.details.practiced.map((item) => `Seguir practicando: ${item}`),
+        ...event.details.practiced.map((item) => translate(locale, 'progress.keepPracticing', { item })),
         ...event.details.recommendations,
     ]), 10);
-    const summary = {
+    return {
         focusAreas,
         overview: buildOverview({
             eventCount: events.length,
             latestSummary: latest?.summary ?? '',
             latestTitle: latest?.title ?? '',
-        }),
+        }, locale),
         recommendedPractice,
         strengths,
         updatedFromEvents: events.length,
         vocabulary,
     };
-    upsertLearnerProgressProfile({
-        profileId: input.profileId,
-        summary,
-        userId: input.userId,
-    });
-    return summary;
 }
 function buildTutorReportEventDetails(report) {
     return {
@@ -212,16 +236,19 @@ function extractQuizInlineReviewText(result) {
         return [];
     });
 }
-function buildOverview(input) {
+function buildOverview(input, locale) {
     if (input.eventCount === 0) {
-        return 'Todavía no hay suficiente actividad cerrada para construir un progreso global.';
+        return translate(locale, 'progress.overviewEmpty');
     }
     const prefix = input.eventCount === 1
-        ? 'Progreso basado en 1 práctica cerrada.'
-        : `Progreso basado en ${input.eventCount} prácticas recientes.`;
+        ? translate(locale, 'progress.overviewOne')
+        : translate(locale, 'progress.overviewMany', { count: input.eventCount });
     const latest = input.latestSummary || input.latestTitle;
     return latest
-        ? `${prefix} Última señal importante: ${compactText(latest, 220)}`
+        ? translate(locale, 'progress.overviewLatest', {
+            latest: compactText(latest, 220),
+            prefix,
+        })
         : prefix;
 }
 function uniqueLimited(items, limit) {

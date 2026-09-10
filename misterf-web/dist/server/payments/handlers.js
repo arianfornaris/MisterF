@@ -54,7 +54,7 @@ export async function handleCreateCreditsCheckout(request, response) {
             user,
         });
         if (!session.url) {
-            throw new Error('Stripe no devolvió una URL de Checkout.');
+            throw new Error('Stripe returned no Checkout URL.');
         }
         response.redirect(303, session.url);
     }
@@ -64,10 +64,10 @@ export async function handleCreateCreditsCheckout(request, response) {
             returnTo: normalizeReturnTo(request.body.returnTo),
             userId: user.id,
         });
-        const message = error instanceof Error
-            ? error.message
-            : 'No se pudo iniciar el pago con Stripe.';
-        response.redirect(`/credits?checkout=error&error=${encodeURIComponent(message)}&returnTo=${encodeURIComponent(normalizeReturnTo(request.body.returnTo))}`);
+        // The reason stays in the log: raw provider and configuration errors are
+        // neither translated nor meant for the buyer, who gets
+        // `credits.payErrorDefault` in their own language.
+        response.redirect(`/credits?checkout=error&returnTo=${encodeURIComponent(normalizeReturnTo(request.body.returnTo))}`);
     }
 }
 export async function handleStripeWebhook(request, response) {

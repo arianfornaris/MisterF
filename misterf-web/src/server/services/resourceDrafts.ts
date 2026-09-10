@@ -52,7 +52,7 @@ import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRe
 const maxDraftGenerationTurns = 4;
 
 function languagePromptVariables(
-  instructionLanguage: Locale = 'es',
+  instructionLanguage: Locale,
 ): Record<string, string> {
   return {
     INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(instructionLanguage),
@@ -325,7 +325,7 @@ async function generateStructuredDraft<T>(input: {
         continue;
       }
 
-      throw new Error('La IA devolvió un borrador truncado.');
+      throw new Error('The model returned a truncated draft.');
     }
 
     let parsedJson: unknown;
@@ -351,7 +351,7 @@ async function generateStructuredDraft<T>(input: {
         continue;
       }
 
-      throw new Error('La IA devolvió un borrador inválido.');
+      throw new Error('The model returned an invalid draft.');
     }
 
     const parsed = input.schema.safeParse(parsedJson);
@@ -377,7 +377,7 @@ async function generateStructuredDraft<T>(input: {
         continue;
       }
 
-      throw new Error('La IA devolvió un borrador incompleto.');
+      throw new Error('The model returned an incomplete draft.');
     }
 
     return parsed.data;
@@ -388,7 +388,7 @@ async function generateStructuredDraft<T>(input: {
 
 export async function generatePracticeGuideDraft(input: {
   attachments?: AttachmentInput[];
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -409,7 +409,7 @@ export async function generatePracticeGuideDraft(input: {
 export async function generatePracticeGuideRevision(input: {
   attachments?: AttachmentInput[];
   currentPracticeGuide: PracticeGuideDraft;
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -441,7 +441,7 @@ export function safeParsePracticeGuideDraft(value: unknown): PracticeGuideDraft 
 
 export async function generateQuizDraft(input: {
   attachments?: AttachmentInput[];
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -455,7 +455,7 @@ export async function generateQuizDraft(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizDraftSchema,
     systemPromptPath: 'resources/quiz-draft.md',
-    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
   });
 }
 
@@ -466,7 +466,7 @@ const quizResponsesSummarySchema = z
   .strict();
 
 export async function generateQuizResponsesSummary(input: {
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   request: {
@@ -490,7 +490,7 @@ export async function generateQuizResponsesSummary(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizResponsesSummarySchema,
     systemPromptPath: 'resources/quiz-responses-summary.md',
-    systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
@@ -505,7 +505,7 @@ const participationSummarySchema = z
   .strict();
 
 export async function generateRoleplayParticipationSummary(input: {
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   request: {
@@ -528,12 +528,12 @@ export async function generateRoleplayParticipationSummary(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: participationSummarySchema,
     systemPromptPath: 'resources/roleplay-participation-summary.md',
-    systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
 export async function generateGuideParticipationSummary(input: {
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   request: {
@@ -555,13 +555,13 @@ export async function generateGuideParticipationSummary(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: participationSummarySchema,
     systemPromptPath: 'resources/guide-participation-summary.md',
-    systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
 export async function generateQuizMetadataRevision(input: {
   currentMetadata: QuizMetadata;
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -581,7 +581,7 @@ export async function generateQuizMetadataRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizMetadataRevisionSchema,
     systemPromptPath: 'resources/quiz-metadata-revision.md',
-    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
   });
 }
 
@@ -595,7 +595,7 @@ export async function generateQuizMetadataRevision(input: {
 export async function generateQuizBlocksRevision(input: {
   currentMetadata: QuizMetadata;
   currentDraft: QuizDraft;
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -642,7 +642,7 @@ export async function generateQuizBlocksRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: blocksRevisionSchema,
     systemPromptPath: 'resources/quiz-blocks-revision.md',
-    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
   });
 }
 
@@ -672,7 +672,7 @@ export async function generateQuizRevision(input: {
   attachments?: AttachmentInput[];
   currentDraft: QuizDraft;
   currentMetadata: QuizMetadata;
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -730,7 +730,7 @@ export async function generateQuizRevision(input: {
     schema: revisionSchema,
     systemPromptPath: 'resources/quiz-modification.md',
     systemPromptVariables: {
-      ...quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+      ...quizAuthoringPlaceholders(input.instructionLanguage),
       REVISION_SCOPE_RULES: buildQuizRevisionScopeRules(scope),
     },
   });
@@ -785,7 +785,7 @@ export function buildQuizRevisionScopeRules(scope: QuizRevisionScope): string {
 export async function generateQuizBlockRevision(input: {
   attachments?: AttachmentInput[];
   currentItem?: TutorQuizItem;
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   level: string;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
@@ -820,13 +820,13 @@ export async function generateQuizBlockRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: blockRevisionSchema,
     systemPromptPath: 'resources/quiz-block-revision.md',
-    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
   });
 }
 
 export async function generateRoleplayDraft(input: {
   attachments?: AttachmentInput[];
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;
@@ -852,7 +852,7 @@ export async function generateRoleplayRevision(input: {
   attachments?: AttachmentInput[];
   conversationHistory?: RoleplayRevisionConversationMessage[];
   currentDraft: RoleplayDraft;
-  instructionLanguage?: Locale;
+  instructionLanguage: Locale;
   modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   prompt: string;

@@ -38,6 +38,27 @@ export function resolvePreAccountLocale(request: Request): Locale {
 }
 
 /**
+ * The pre-account language for a raw HTTP request that never went through
+ * Express, such as a socket handshake: the switcher cookie, then the first
+ * supported `Accept-Language` entry, then the default locale.
+ */
+export function resolveHandshakeLocale(headers: {
+  'accept-language'?: string;
+  cookie?: string;
+}): Locale {
+  const cookieLocale = readCookie(headers.cookie, languageCookieName);
+  if (isLocale(cookieLocale)) {
+    return cookieLocale;
+  }
+
+  const accepted = (headers['accept-language'] ?? '')
+    .split(',')
+    .map((entry) => entry.split(';')[0]?.trim().toLowerCase().split('-')[0])
+    .find(isLocale);
+  return accepted ?? defaultLocale;
+}
+
+/**
  * Language for the current request. A logged-in profile's instruction language
  * is authoritative for the app UI; otherwise fall back to the pre-account
  * chain.

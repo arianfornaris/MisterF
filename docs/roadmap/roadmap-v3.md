@@ -2089,7 +2089,7 @@ Known offenders, from a first grep (not exhaustive):
 - `server/superadmin/routes.ts` formats dates with `'es'`. It is internal-only,
   so the decision is whether to leave it as-is on purpose, not whether to fix it.
 
-- [ ] **Audit the whole site for this class of defect.** The goal is an
+- [x] **Audit the whole site for this class of defect.** The goal is an
   inventory of every place a user sees text that ignores the profile language,
   not just the "hace…" labels. Two passes:
   1. *Code:* every `Intl.*` constructor and `toLocale*String` / `localeCompare`
@@ -2105,16 +2105,134 @@ Known offenders, from a first grep (not exhaustive):
 
   Record the findings as checkboxes in this section before fixing, so the scope
   is visible.
-- [ ] Make `formatRelativeTime` take the request locale, with no Spanish
-  default, so a caller cannot silently fall back to it, and update every caller.
-  Do the same for the client helper, reading the locale the page already
-  exposes, e.g. `<html lang>`.
-- [ ] Fix the remaining findings from the audit in es/en/ht.
-- [ ] Add a regression guard: at minimum a test that renders a page carrying
-  relative dates under an `en` profile and asserts that no Spanish time phrase
-  appears, and ideally a lint or test that rejects `Intl.*` / `localeCompare`
-  calls with a literal locale outside the i18n module.
 
+  **Done 2026-09-10.** Code pass: greps for literal-locale `Intl`,
+  `toLocale*String` and `localeCompare`; for string literals carrying Spanish
+  (accented *and* unaccented) in `views/`, `src/client/` and `src/server/`; and
+  for every function with a `locale = 'es'` default together with the callers
+  that rely on it. Live pass: `qa.fable` with the `QA Fable` profile switched
+  to `en`, then `ht`, directly in SQLite (restored to `es` afterwards); 38
+  signed-in pages fetched and scanned (text nodes plus `title`, `placeholder`,
+  `aria-label`, `alt`, and the document title), and 5 JS-heavy pages rendered in
+  an iframe so client-rendered copy was included. The es/en/ht catalogs have
+  identical key sets, so every finding below is code that never asks the
+  catalog, not a missing translation.
+
+  **The one design finding: `ht` has no locale data in `Intl`.** Node's ICU
+  resolves `Intl.RelativeTimeFormat('ht')` and `Intl.DateTimeFormat('ht')` to
+  `en-US`. So "pass the request locale" fixes `es` and `en` but renders
+  Haitian Creole users **English** ("3 months ago", "Jul 23, 2026, 12:34 PM"
+  on `/progress` under `ht`, seen live). Relative and absolute date wording for
+  `ht` has to come from the catalog or the language registry, not from `Intl`.
+  Check the browser's ICU for the client helper before assuming it differs.
+
+  Findings — dates and collation (all fixed 2026-09-10 unless noted):
+
+  - [x] `formatRelativeTime` moved to `src/server/i18n/dates.ts` with a
+    required locale; all 16 callers pass the request, conversation, or
+    profile locale.
+  - [x] `src/client/chat/utils/dates.js` now words dates through
+    `src/client/shared/relativeTime.js` (same thresholds, same catalog keys),
+    and reads zone-less SQLite timestamps as UTC like the server does.
+  - [x] Absolute dates in `progress.ejs` / `credits.ejs` go through
+    `formatDateTime` (`res.locals.formatDateTime`); `ht` uses the registry's
+    Creole month names.
+  - [x] Title sorting uses `compareText` on the server and the client
+    `locale` in the move modal.
+  - [x] `superadmin/routes.ts`: **left as-is on purpose** (founder-only
+    surface), and allowlisted by name in the guard test.
+
+  Findings — server-built copy that bypasses the catalogs:
+
+  - [x] Resource type labels now come from `resources.type*` keys. The folder
+    label uses `resources.folder`: `resources.typeFolder` never existed, so
+    the shared-resource preview for a folder had been rendering the raw key.
+  - [x] `/progress` overview and "Seguir practicando: …": the summary
+    builder is now pure (`buildLearnerProgressSummary(events, locale)`); the
+    page rebuilds it per request in the viewer's language, so stored rows
+    written in Spanish no longer leak. The stored copy (read by the tutor's
+    progress tool) is worded in the profile's language.
+  - [x] Found during implementation: the quiz progress event summary
+    ("Completaste N ejercicios…") was built in Spanish and stored with the
+    event. New events are worded in the learner's language
+    (`progress.quizEventSummary`); events recorded before 2026-09-10 keep their
+    stored wording.
+  - [x] `getHomeAuthMessage` → `home.verifyEmailNotice` /
+    `home.verifyEmailLink`.
+  - [x] Onboarding validation error → `profiles.nameRequired`.
+  - [x] Credits: the balance error no longer prints the raw internal message,
+    and a failed checkout no longer puts the raw Stripe or configuration error
+    into `?error=`; the buyer sees `credits.payErrorDefault`. The package's
+    Spanish `label`/`description` were internal defaults the page already
+    overrode (Stripe gets the price id, not the label); now English and marked
+    internal.
+  - [x] Scene-media content-policy message: **not a user-facing string** — the
+    page maps the error to `mediaLibrary.failure.contentPolicy`. The literal
+    is now an English internal message.
+  - [x] Default names: a new conversation's title, the first profile's name,
+    and "Practicar: …" (found during implementation) are written in the
+    profile's language at creation. Rows created before 2026-09-10 keep the
+    Spanish value until renamed; the tutor prompt's fallback title uses the
+    conversation language.
+
+  Findings — socket messages:
+
+  - [x] All 18 literals and both `translate('es', …)` calls now use the
+    conversation's language, or `socketLocale()` (profile, then handshake
+    cookie / `Accept-Language` via `resolveHandshakeLocale`) when no
+    conversation loaded. `emitAuthRequired` uses `msg.authRequiredUse`.
+  - [x] Every `locale = 'es'` default is gone (`toUserFacingError`,
+    `getCreditExhaustedMessage`, the credit-exhaustion emitters, mailer,
+    greetings, `buildQuizResultTitle`, finish-reason messages, resource-draft
+    prompts, whose `instructionLanguage` is now required). The compiler listed
+    the callers; the translator's finish-reason notice and credit notice now
+    follow the profile. Internal `Error` messages that were Spanish (draft
+    parsing, evaluator, translator, Google sign-in) are now English.
+
+  Findings — client copy:
+
+  - [x] Chat cards, pending labels, markdown toolbar, move modal, quiz editor
+    remove button, and native-share titles all read the client catalog
+    (`card.*`, `clientChat.*`, `clientMisc.*`, es/en/ht).
+  - [x] `Correct` badge in `partials/quiz-item-card.ejs` →
+    `card.evaluationCorrect`.
+  - [x] `Modify with AI`: **not a violation.** The audit saw it under an
+    `en` profile, where it is the English catalog value; es and ht are
+    translated.
+  - [x] `sceneAudioPlayer.js` English fallbacks: **unreachable.** The only
+    partial that renders the player sets every `data-*` label.
+  - [x] `ht` `restoreQuiz` / `restoreRoleplay`: **not a violation.** The Creole
+    catalog uses the loanword "restore" throughout ("Restore gid",
+    "jiskaske ou restore yo").
+
+  Verification (2026-09-10): `npm run typecheck`, `npm run test:typecheck`,
+  and `npm test` pass. Live, as `qa.fable` with `QA Fable` switched to `en`
+  and then `ht` in SQLite (restored to `es` afterwards): 27 signed-in pages
+  under `en` with no Spanish chrome ("Updated 6 days ago"); 10 pages under
+  `ht` with no Spanish chrome and no English dates ("sa gen 2 semèn",
+  "23 jiyè 2026, 12:34", "Pwogrè ki baze sou 2 pratik resan"); the
+  client-rendered conversation list and markdown toolbar checked in a rendered
+  frame ("Tit", "Gra", "Italik"). Signed-out home, login, signup and password
+  reset checked under `en` and `ht` with the language cookie.
+
+  Still not covered: email bodies (the mailer's locale parameter is now
+  required, so every caller passes one), and modals that only render on
+  interaction beyond the move modal.
+- [x] Make `formatRelativeTime` take the request locale, with no Spanish
+  default. **Done 2026-09-10**, amended by the audit: relative wording comes
+  from the catalog's `common.relativeTime` keys rather than
+  `Intl.RelativeTimeFormat`, and absolute dates use the registry's new
+  `dates` field (`intlLocale`, or Creole `monthNames` when it is `null`).
+- [x] Fix the remaining findings from the audit in es/en/ht. **Done
+  2026-09-10**, see the findings above.
+- [x] Add a regression guard. **Done 2026-09-10:**
+  `tests/server/localeArchitecture.test.ts` rejects a literal locale handed
+  to `Intl`, `localeCompare`, `toLocale*String` or `translate`, and any
+  `Locale = 'xx'` default, outside `src/server/i18n/` and two named files;
+  `tests/server/i18n.test.ts` renders `/resources` under `en` and `ht`
+  profiles and asserts no "hace" and no Spanish type label;
+  `tests/server/dates.test.ts` covers the wording in all three languages and
+  checks that the browser formatter buckets time exactly as the server does.
 ---
 
 # V3 Exit Criteria

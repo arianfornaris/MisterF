@@ -43,7 +43,8 @@ import type { CreateReadyUserSceneMediaInput } from './userMediaRepository.js';
 
 const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
 const contentPolicyMessage =
-  'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.';
+  // Internal: the page shows `mediaLibrary.failure.contentPolicy` instead.
+  'Scene media was rejected by the content policy.';
 
 export type SceneMediaGenerationStage =
   | 'image'

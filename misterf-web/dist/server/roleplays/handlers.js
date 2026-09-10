@@ -6,7 +6,8 @@ import { addResourceToFolder, appendRoleplayAttemptTurns, createConversationFrom
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
 import { defaultProfileModelTier } from '../profiles/modelTier.js';
-import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import { countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, roleplayLevelOptions, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
 import { generateRoleplayDraft, generateRoleplayParticipationSummary, generateRoleplayRevision, } from '../services/resourceDrafts.js';
 import { computeParticipationFingerprint, readParticipationSummaryError, } from '../resources/participationSummary.js';
@@ -259,7 +260,7 @@ function buildAttemptListItems(attempts, locale) {
         ...attempt,
         ...getRoleplayAttemptStatusView(attempt.status, locale),
         learnerTurnCount: countLearnerTurns(attempt.turns),
-        relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+        relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
     }));
 }
 function getRoleplayAttemptStatusView(status, locale) {
@@ -1067,7 +1068,7 @@ function buildCollectedRoleplayAttemptListItems(attempts, locale) {
             || attempt.participantName
             || attempt.participantEmail
             || translate(locale, 'quizzes.resultsAnonymousParticipant'),
-        relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+        relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
     }));
 }
 /**
@@ -1091,7 +1092,7 @@ export function renderRoleplayParticipationPage(request, response) {
     const storedSummary = getResourceParticipationSummary(resolved.roleplay.id);
     const participationSummary = storedSummary
         ? {
-            generatedAtRelative: formatRelativeTime(storedSummary.generatedAt),
+            generatedAtRelative: formatRelativeTime(storedSummary.generatedAt, request.locale),
             stale: storedSummary.inputFingerprint
                 !== computeParticipationFingerprint(collectedAttempts),
             text: storedSummary.summaryText,

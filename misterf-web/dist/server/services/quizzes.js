@@ -651,7 +651,7 @@ export function computeQuizResponsesFingerprint(attempts) {
     }
     return `${evaluatedCount}:${latestUpdatedAt}`;
 }
-export function buildQuizResultTitle(result, locale = 'es') {
+export function buildQuizResultTitle(result, locale) {
     const summary = buildQuizEvaluationSummary(result);
     return translate(locale, 'msg.quizCorrectAnswers', {
         correct: summary.correctCount,

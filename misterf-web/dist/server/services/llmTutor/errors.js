@@ -30,7 +30,7 @@ export class QuizResultEvaluationValidationError extends Error {
     generatedText;
     constructor(input) {
         super(input.message ??
-            'El evaluador del quiz no devolvió una respuesta válida.');
+            'The quiz evaluator returned no valid response.');
         this.name = 'QuizResultEvaluationValidationError';
         this.issues = input.issues;
         this.generatedText = input.generatedText?.trim() || null;

@@ -66,6 +66,7 @@ describe('resource draft reasoning effort', () => {
     );
     await generateRoleplayRevision({
       currentDraft,
+      instructionLanguage: 'es',
       openRouterApiKey: 'test-openrouter-key',
       prompt: 'Rename Leo to Leonardo.',
     });

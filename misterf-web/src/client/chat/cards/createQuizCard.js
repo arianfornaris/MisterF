@@ -190,10 +190,10 @@ function syncQuizCardStatus(section, state) {
   status.classList.remove('is-success', 'is-error');
 
   if (state.aborted) {
-    setQuizStatusContent(status, 'Quiz cancelado.');
+    setQuizStatusContent(status, t('card.quizCancelled'));
     status.classList.add('is-error');
   } else if (section.dataset.quizEvaluationComplete === 'true') {
-    setQuizStatusContent(status, 'Quiz evaluado.');
+    setQuizStatusContent(status, t('card.quizEvaluated'));
     status.classList.add('is-success');
   } else if (state.submitted) {
     setQuizStatusContent(status, t('card.quizSubmitted'), {
@@ -234,7 +234,7 @@ export function markQuizCardEvaluationComplete(messageId, blockIndex) {
   if (status instanceof HTMLParagraphElement) {
     status.classList.remove('is-error');
     status.classList.add('is-success');
-    setQuizStatusContent(status, 'Quiz evaluado.');
+    setQuizStatusContent(status, t('card.quizEvaluated'));
   }
 }
 

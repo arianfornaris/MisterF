@@ -110,7 +110,7 @@ export async function finishGoogleLogin(
   try {
     const googleUser = await getGoogleUserInfo(code);
     if (!googleUser.emailVerified) {
-      throw new Error('Google no confirmó que el correo esté verificado.');
+      throw new Error('Google did not confirm the email is verified.');
     }
 
     const user = resolveGoogleUser(googleUser);
@@ -237,7 +237,7 @@ async function getGoogleUserInfo(code: string): Promise<{
     typeof userInfo.email !== 'string' ||
     typeof userInfo.name !== 'string'
   ) {
-    throw new Error('Google devolvió un perfil incompleto.');
+    throw new Error('Google returned an incomplete profile.');
   }
 
   return {

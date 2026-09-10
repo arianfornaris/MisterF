@@ -119,7 +119,11 @@ export function renderChatPage(request: Request, response: Response): void {
   // open the chat is the page, and starter cards would be noise.
   const learningHome: LearningHomeData | null =
     user?.emailVerified && activeProfile && !initialConversationId
-      ? buildLearningHomeData({ profileId: activeProfile.id, userId: user.id })
+      ? buildLearningHomeData({
+          locale: request.locale,
+          profileId: activeProfile.id,
+          userId: user.id,
+        })
       : null;
 
   response.render('chat', {
@@ -188,7 +192,7 @@ export async function handleFinalizeTutorConversation(
         surface: 'tutor_report',
         userId: user.id,
       });
-      response.redirect(buildConversationCreditExhaustedPath(conversation.id));
+      response.redirect(buildConversationCreditExhaustedPath(conversation.id, request.locale));
       return;
     }
 
@@ -299,7 +303,7 @@ export async function handleCreateResourceFromTutorConversationReport(
         surface: 'tutor_report_resource',
         userId: user.id,
       });
-      response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
+      response.redirect(buildConversationCreditExhaustedPath(conversation.id, request.locale, 'summary'));
       return;
     }
 
@@ -373,7 +377,7 @@ export async function handleCreateResourceFromConversation(
         surface: 'conversation_resource',
         userId: user.id,
       });
-      response.redirect(buildConversationCreditExhaustedPath(conversation.id));
+      response.redirect(buildConversationCreditExhaustedPath(conversation.id, request.locale));
       return;
     }
 
@@ -462,11 +466,12 @@ function buildTutorReportContext(report: {
 
 function buildConversationCreditExhaustedPath(
   conversationId: string,
+  locale: Locale,
   tab?: 'conversation' | 'summary',
 ): string {
   const params = new URLSearchParams({
     credit: 'exhausted',
-    creditMessage: getCreditExhaustedMessage(),
+    creditMessage: getCreditExhaustedMessage(locale),
   });
   if (tab) {
     params.set('tab', tab);

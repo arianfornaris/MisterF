@@ -77,6 +77,7 @@ describe('quiz draft generation contract', () => {
     enqueueModelTexts(JSON.stringify(validQuizDraft));
 
     const draft = await generateQuizDraft({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Un quiz de rutinas diarias, nivel A2.',
     });
@@ -92,6 +93,7 @@ describe('quiz draft generation contract', () => {
     enqueueModelTexts(markdownFencedDraftText);
 
     const draft = await generateQuizDraft({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Un quiz de rutinas diarias.',
     });
@@ -104,6 +106,7 @@ describe('quiz draft generation contract', () => {
     enqueueModelTexts(proseWrappedDraftText, JSON.stringify(validQuizDraft));
 
     const draft = await generateQuizDraft({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Un quiz de rutinas diarias.',
     });
@@ -119,6 +122,7 @@ describe('quiz draft generation contract', () => {
     );
 
     const draft = await generateQuizDraft({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Un quiz de rutinas diarias.',
     });
@@ -140,10 +144,11 @@ describe('quiz draft generation contract', () => {
 
     await expect(
       generateQuizDraft({
+        instructionLanguage: 'es',
         openRouterApiKey: testApiKey,
         prompt: 'Un quiz de rutinas diarias.',
       }),
-    ).rejects.toThrow('La IA devolvió un borrador inválido.');
+    ).rejects.toThrow('The model returned an invalid draft.');
     expect(generateTextMock).toHaveBeenCalledTimes(4);
   });
 
@@ -157,10 +162,11 @@ describe('quiz draft generation contract', () => {
 
     await expect(
       generateQuizDraft({
+        instructionLanguage: 'es',
         openRouterApiKey: testApiKey,
         prompt: 'Un quiz de rutinas diarias.',
       }),
-    ).rejects.toThrow('La IA devolvió un borrador incompleto.');
+    ).rejects.toThrow('The model returned an incomplete draft.');
     expect(generateTextMock).toHaveBeenCalledTimes(4);
   });
 
@@ -201,6 +207,7 @@ describe('quiz metadata modification contract', () => {
 
     const revision = await generateQuizMetadataRevision({
       currentMetadata,
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Súbelo a nivel B1.',
     });
@@ -244,6 +251,7 @@ describe('quiz block modification contract', () => {
     const revision = await generateQuizBlockRevision({
       currentItem,
       level: 'A2',
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Agrega un distractor.',
       quizContext,
@@ -269,6 +277,7 @@ describe('quiz block modification contract', () => {
     const revision = await generateQuizBlockRevision({
       currentItem,
       level: 'A2',
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Conviértelo en respuesta abierta.',
       quizContext,
@@ -292,6 +301,7 @@ describe('quiz block modification contract', () => {
 
     const revision = await generateQuizBlockRevision({
       level: 'A2',
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Una pregunta abierta sobre el fin de semana.',
       quizContext,
@@ -323,6 +333,7 @@ describe('quiz blocks modification contract', () => {
     const revision = await generateQuizBlocksRevision({
       currentDraft,
       currentMetadata,
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Reordena los bloques.',
     });
@@ -346,6 +357,7 @@ describe('quiz blocks modification contract', () => {
     const revision = await generateQuizBlocksRevision({
       currentDraft,
       currentMetadata,
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Cambia el primer bloque.',
     });
@@ -367,6 +379,7 @@ describe('practice guide draft generation contract', () => {
       .mockResolvedValueOnce(modelResult(JSON.stringify(validDraft)));
 
     const draft = await generatePracticeGuideDraft({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Crea una guía de práctica sobre los colores.',
     });
@@ -404,6 +417,7 @@ describe('practice guide draft generation contract', () => {
 
     const revision = await generatePracticeGuideRevision({
       currentPracticeGuide,
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       prompt: 'Add spoken practice to the tutor instructions.',
     });

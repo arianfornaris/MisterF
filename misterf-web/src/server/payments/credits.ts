@@ -73,7 +73,7 @@ export async function getCreditBalanceForUser(
       error:
         error instanceof Error
           ? error.message
-          : 'No se pudo consultar el saldo de créditos.',
+          : 'Could not read the credit balance.',
       keyStatus: keyRecord?.status ?? 'error',
       remainingUsd: null,
     };

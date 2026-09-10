@@ -46,7 +46,7 @@ export function createMatchingPairsCard(block, context, deps) {
 
   const label = document.createElement('p');
   label.className = 'matching-pairs-label';
-  label.textContent = 'Empareja';
+  label.textContent = t('card.matchLabel');
 
   const prompt = document.createElement('div');
   prompt.className = 'matching-pairs-prompt';
@@ -292,7 +292,7 @@ function renderMatchingPairsState(section, state) {
       summary.append(list);
       summary.classList.remove('d-none');
     }
-    status.textContent = 'Completado. Buen trabajo.';
+    status.textContent = t('card.completedWellDone');
     status.classList.add('is-success');
     return;
   }

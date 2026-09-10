@@ -20,7 +20,7 @@ export function createQuizResultCard(block) {
 
   const label = document.createElement('p');
   label.className = 'quiz-result-label';
-  label.textContent = 'Resumen del quiz';
+  label.textContent = t('card.quizSummaryLabel');
 
   header.append(label);
 
@@ -320,7 +320,7 @@ function createQuizResultMultipleChoice(item) {
 function createQuizResultMatchingPairs(item) {
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
-  wrap.append(createResponseLabel('Tus parejas'));
+  wrap.append(createResponseLabel(t('card.yourPairs')));
 
   const pairs = document.createElement('div');
   pairs.className = 'quiz-result-pairs';
@@ -367,7 +367,7 @@ function createQuizResultUnscramble(item) {
 function createQuizResultOrderSentences(item) {
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
-  wrap.append(createResponseLabel('Tu orden'));
+  wrap.append(createResponseLabel(t('card.yourOrder')));
 
   const orderedSentences = Array.isArray(item.userResponse?.orderedSentences)
     ? item.userResponse.orderedSentences
@@ -470,7 +470,7 @@ function createMultipleChoiceReviewNode(optionReview) {
     row.type = 'button';
     attachPopoverMetadata(
       row,
-      optionReview.status === 'missed' ? 'Puede mejorar' : 'Error',
+      optionReview.status === 'missed' ? t('card.canImprove') : t('card.errorLabel'),
       optionReview.explanation || (optionReview.status === 'missed'
         ? t('card.optionMissed')
         : t('card.optionNeedsReview')),
@@ -530,7 +530,7 @@ function createInlineStatusNode(text, status, explanation, extraClassName = '') 
     node.type = 'button';
     attachPopoverMetadata(
       node,
-      status === 'error' ? 'Error' : 'Puede mejorar',
+      status === 'error' ? t('card.errorLabel') : t('card.canImprove'),
       explanation,
       status,
     );

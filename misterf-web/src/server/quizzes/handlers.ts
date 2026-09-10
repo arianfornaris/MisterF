@@ -42,9 +42,9 @@ import {
   buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
-  formatRelativeTime,
   getHomeAuthMessage,
 } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import {
   applyQuizMetadataToDraft,
   buildQuizBlockSectionList,
@@ -527,7 +527,7 @@ function buildQuizAttemptListItems(
   return attempts.map((attempt) => ({
     ...attempt,
     ...getQuizAttemptStatusView(attempt.status, locale),
-    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
   }));
 }
 
@@ -546,7 +546,7 @@ function buildCollectedQuizAttemptListItems(
     return {
       ...attempt,
       ...getQuizAttemptStatusView(attempt.status, locale),
-      relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+      relativeUpdatedAt: formatRelativeTime(attempt.updatedAt, locale),
       resultSummaryLabel: summary
         ? `${summary.correctCount}/${summary.totalCount}`
         : '',
@@ -1805,7 +1805,7 @@ export async function renderQuizParticipationPage(
   const storedAiSummary = getQuizResponseSummary(resolved.quiz.id);
   const aiSummary = storedAiSummary
     ? {
-        generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt),
+        generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt, request.locale),
         stale:
           storedAiSummary.inputFingerprint
           !== computeQuizResponsesFingerprint(collectedAttempts),

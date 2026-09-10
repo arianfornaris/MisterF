@@ -83,7 +83,7 @@ function initializeQuizSharingUi() {
 
         try {
           await navigator.share({
-            title: 'Quiz compartido',
+            title: t('clientMisc.quizSharedTitle'),
             url: shareFieldEl.value,
           });
         } catch {

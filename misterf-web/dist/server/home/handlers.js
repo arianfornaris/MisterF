@@ -47,6 +47,7 @@ function renderTeachingHomePage(request, response) {
             user,
         }),
         teachingHome: buildTeachingHomeData({
+            locale: request.locale,
             profileId: activeProfile.id,
             userId: user.id,
         }),

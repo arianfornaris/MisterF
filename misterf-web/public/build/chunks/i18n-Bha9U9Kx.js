@@ -1,0 +1,2 @@
+var e=typeof window<`u`&&window.__APP_I18N__||{},t=typeof window<`u`&&window.__APP_LOCALE__||`es`;function n(t){let n=e;for(let e of t.split(`.`)){if(n==null||typeof n==`string`)return;n=n[e]}return typeof n==`string`?n:void 0}function r(e,t){return t?e.replace(/\{\{\s*(\w+)\s*\}\}/g,(e,n)=>t[n]===void 0?e:String(t[n])):e}function i(e,t){let i=n(e);return i===void 0?(typeof console<`u`&&console.warn(`[i18n] missing client translation key: ${e}`),e):r(i,t)}export{i as n,t};
+//# sourceMappingURL=i18n-Bha9U9Kx.js.map

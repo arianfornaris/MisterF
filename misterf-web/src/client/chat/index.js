@@ -472,10 +472,10 @@ function initializeTutorReportPendingForms() {
     const submitButtonEl = finalizeConversationFormEl.querySelector('[data-finalize-conversation-submit]');
     if (submitButtonEl instanceof HTMLButtonElement) {
       submitButtonEl.disabled = true;
-      submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Generando resumen...';
+      submitButtonEl.textContent = submitButtonEl.dataset.loadingText || t('clientChat.generatingSummary');
     }
 
-    showTutorReportPendingModal('Generando resumen...');
+    showTutorReportPendingModal(t('clientChat.generatingSummary'));
     if (finalizeConversationModalEl) {
       window.bootstrap.Modal.getOrCreateInstance(finalizeConversationModalEl).hide();
     }
@@ -487,10 +487,10 @@ function initializeTutorReportPendingForms() {
     );
     if (submitButtonEl instanceof HTMLButtonElement) {
       submitButtonEl.disabled = true;
-      submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Creando recurso...';
+      submitButtonEl.textContent = submitButtonEl.dataset.loadingText || t('clientChat.creatingResource');
     }
 
-    showTutorReportPendingModal('Creando recurso...');
+    showTutorReportPendingModal(t('clientChat.creatingResource'));
     if (createResourceFromConversationModalEl) {
       window.bootstrap.Modal.getOrCreateInstance(createResourceFromConversationModalEl).hide();
     }

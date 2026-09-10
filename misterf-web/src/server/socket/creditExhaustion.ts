@@ -3,6 +3,7 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import { logger } from '../services/logger.js';
+import type { Locale } from '../i18n/index.js';
 
 type SocketCreditEmitter = {
   emit(event: 'llm:credit_exhausted', payload: { message: string }): unknown;
@@ -17,6 +18,8 @@ type RoomTarget = {
 };
 
 type CreditExhaustionLogContext = {
+  /** Language of the notice: the conversation's, else the profile's. */
+  locale: Locale;
   conversationId?: string | null;
   messageId?: number | string | null;
   profileId?: string | null;
@@ -27,7 +30,7 @@ type CreditExhaustionLogContext = {
 export function emitCreditExhaustedIfNeeded(
   socket: SocketCreditEmitter,
   error: unknown,
-  context: CreditExhaustionLogContext = {},
+  context: CreditExhaustionLogContext,
 ): boolean {
   if (!isCreditExhaustedError(error)) {
     return false;
@@ -41,7 +44,7 @@ export function emitCreditExhaustedIfNeeded(
     userId: context.userId ?? null,
   });
   socket.emit('llm:credit_exhausted', {
-    message: getCreditExhaustedMessage(),
+    message: getCreditExhaustedMessage(context.locale),
   });
   return true;
 }
@@ -50,7 +53,7 @@ export function emitRoomCreditExhaustedIfNeeded(
   io: RoomTarget,
   conversationId: string,
   error: unknown,
-  context: Omit<CreditExhaustionLogContext, 'conversationId'> = {},
+  context: Omit<CreditExhaustionLogContext, 'conversationId'>,
 ): boolean {
   if (!isCreditExhaustedError(error)) {
     return false;
@@ -64,7 +67,7 @@ export function emitRoomCreditExhaustedIfNeeded(
     userId: context.userId ?? null,
   });
   io.to(conversationId).emit('llm:credit_exhausted', {
-    message: getCreditExhaustedMessage(),
+    message: getCreditExhaustedMessage(context.locale),
   });
   return true;
 }

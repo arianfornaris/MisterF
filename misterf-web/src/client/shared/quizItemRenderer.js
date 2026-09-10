@@ -452,7 +452,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
         const remove = document.createElement('button');
         remove.className = 'quiz-pair-remove btn btn-sm btn-outline-secondary';
         remove.type = 'button';
-        remove.textContent = 'Quitar';
+        remove.textContent = t('card.removePair');
         remove.disabled = disabled;
         remove.addEventListener('click', () => {
           itemState.pairs.splice(pairIndex, 1);

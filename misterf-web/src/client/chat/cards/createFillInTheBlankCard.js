@@ -252,7 +252,7 @@ function renderFillInTheBlankState(section, state) {
     if (state.type === 'fill_in_the_blank_input' && state.submitted) {
       status.textContent = t('card.submittedResponding');
     } else if (state.completed) {
-      status.textContent = 'Completado. Buen trabajo.';
+      status.textContent = t('card.completedWellDone');
       status.classList.add('is-success');
     } else if (state.statusText) {
       status.textContent = state.statusText;

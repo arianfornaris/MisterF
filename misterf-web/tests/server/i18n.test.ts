@@ -121,3 +121,69 @@ describe('UI localization', () => {
     expect(response.headers.get('set-cookie')).toContain('misterf_lang=es');
   });
 });
+
+describe('dates and labels follow the profile language (Roadmap V3 §2.8)', () => {
+  async function createCookieForProfile(instructionLanguage: 'en' | 'ht'): Promise<string> {
+    const { createExternalUser, createSession } = await import(
+      '../../src/server/auth/repository.js'
+    );
+    const { createPracticeGuide, createProfile } = await import(
+      '../../src/server/db/repository.js'
+    );
+    const { activeProfileCookieName } = await import('../../src/server/auth/profiles.js');
+    const { createSessionCookie, sessionCookieName } = await import(
+      '../../src/server/auth/session.js'
+    );
+
+    const user = createExternalUser({
+      email: `dates-${instructionLanguage}@example.com`,
+      emailVerified: true,
+      fullName: `Dates ${instructionLanguage}`,
+      provider: 'google',
+      providerSubject: `dates-${instructionLanguage}`,
+    });
+    const profile = createProfile({
+      instructionLanguage,
+      name: `Profile ${instructionLanguage}`,
+      userId: user.id,
+    });
+    createPracticeGuide({
+      description: 'Guide used to render a relative date.',
+      profileId: profile.id,
+      title: 'Past simple at work',
+      tutorInstructions: 'Practice the past simple.',
+      userId: user.id,
+    });
+
+    const session = createSessionCookie();
+    createSession({ expiresAt: session.expiresAt, tokenHash: session.tokenHash, userId: user.id });
+    return [
+      `${sessionCookieName}=${encodeURIComponent(session.token)}`,
+      `${activeProfileCookieName}=${encodeURIComponent(profile.id)}`,
+    ].join('; ');
+  }
+
+  it('renders the catalog in English with no Spanish dates or type labels', async () => {
+    const cookie = await createCookieForProfile('en');
+    const response = await fetch(`${baseUrl}/resources`, { headers: { cookie } });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('<html lang="en"');
+    expect(html).toContain('Practice Guide');
+    expect(html).toContain('just now');
+    expect(html).not.toMatch(/\bhace\b/);
+    expect(html).not.toContain('Guía de Práctica');
+  });
+
+  it('renders Haitian Creole dates from the catalog, not in English', async () => {
+    const cookie = await createCookieForProfile('ht');
+    const response = await fetch(`${baseUrl}/resources`, { headers: { cookie } });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('kounye a');
+    expect(html).not.toContain('just now');
+    expect(html).not.toMatch(/\bhace\b/);
+  });
+});

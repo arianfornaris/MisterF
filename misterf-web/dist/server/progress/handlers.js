@@ -1,6 +1,7 @@
 import { translate } from '../i18n/index.js';
 import { findLearnerProgressProfile, listLearnerProgressEvents, } from '../db/repository.js';
 import { buildLearnerProgressEventViews, buildLearnerProgressVocabularyItems, } from '../services/learnerProgressView.js';
+import { buildLearnerProgressSummary, learnerProgressSummaryEventLimit, } from '../services/learnerProgress.js';
 import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 function ensureVerifiedProgressUser(request, response) {
     const user = request.authUser;
@@ -38,7 +39,14 @@ export function renderProgressPage(request, response) {
             user,
         }),
         events: eventViews,
-        progressProfile,
+        progressProfile: progressProfile
+            ? {
+                ...progressProfile,
+                // Rebuilt from the same events so it reads in the viewer's language;
+                // the stored copy keeps the wording of its last refresh.
+                summary: buildLearnerProgressSummary(events.slice(0, learnerProgressSummaryEventLimit), request.locale),
+            }
+            : null,
         selectedProgressTab: normalizeProgressTab(request.query.tab),
         vocabularyItems,
     });

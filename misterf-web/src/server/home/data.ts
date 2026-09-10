@@ -7,7 +7,8 @@ import {
   buildResourceDetailPath,
   buildResourceParticipationPath,
 } from '../resources/paths.js';
-import { formatRelativeTime } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
+import type { Locale } from '../i18n/index.js';
 
 /**
  * How far back the teaching home looks when it leads with what happened while
@@ -60,6 +61,7 @@ export type TeachingHomeData = {
 };
 
 export function buildTeachingHomeData(input: {
+  locale: Locale;
   profileId: string;
   userId: string;
 }): TeachingHomeData {
@@ -77,7 +79,7 @@ export function buildTeachingHomeData(input: {
     id: resource.id,
     labelKey: resourceTypePresentation[resource.type].labelKey,
     lastParticipationRelative: resource.lastParticipationAt
-      ? formatRelativeTime(resource.lastParticipationAt)
+      ? formatRelativeTime(resource.lastParticipationAt, input.locale)
       : null,
     participantCount: resource.participantCount,
     participationPath: buildResourceParticipationPath(resource),
@@ -124,6 +126,7 @@ export type LearningHomeData = {
 const learningHomeActivityLimit = 4;
 
 export function buildLearningHomeData(input: {
+  locale: Locale;
   profileId: string;
   userId: string;
 }): LearningHomeData {
@@ -142,7 +145,7 @@ export function buildLearningHomeData(input: {
         iconClass: resourceTypePresentation[resource.type].iconClass,
         id: resource.id,
         labelKey: resourceTypePresentation[resource.type].labelKey,
-        sharedRelative: formatRelativeTime(resource.sharedAt),
+        sharedRelative: formatRelativeTime(resource.sharedAt, input.locale),
         title: resource.title,
       })),
   };

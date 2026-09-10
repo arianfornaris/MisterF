@@ -5,18 +5,11 @@
     currency: 'USD',
     style: 'currency',
   });
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
   const formatMoney = (cents) => moneyFormatter.format(cents / 100);
   const formatUsd = (value) => value === null || value === undefined
     ? t('credits.notAvailable')
     : moneyFormatter.format(value);
-  const formatDate = (value) => {
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : dateFormatter.format(date);
-  };
+  const formatDate = formatDateTime;
   const statusLabels = {
     failed: t('credits.statusFailed'),
     fulfilled: t('credits.statusFulfilled'),
@@ -78,7 +71,6 @@
             <% if (balance.error) { %>
               <div class="alert alert-warning mt-4 mb-0" role="alert">
                 <strong><%= t('credits.balanceError') %></strong>
-                <span class="d-block"><%= balance.error %></span>
               </div>
             <% } %>
           </div>

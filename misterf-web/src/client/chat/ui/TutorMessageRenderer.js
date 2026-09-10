@@ -99,7 +99,7 @@ export function createTutorMessageRenderer(deps) {
 
         const label = document.createElement('p');
         label.className = 'dialogue-transcript-label';
-        label.textContent = 'Dialogo completo';
+        label.textContent = t('card.dialogueTranscript');
 
         const turns = document.createElement('div');
         turns.className = 'dialogue-transcript-turns';
@@ -632,12 +632,12 @@ export function createTutorMessageRenderer(deps) {
         node.dataset.bsContainer = 'body';
         node.dataset.bsCustomClass = `sentence-popover sentence-popover-${normalizedStatus}`;
         node.dataset.bsTitle =
-          normalizedStatus === 'error' ? 'Error' : 'Puede mejorar';
+          normalizedStatus === 'error' ? t('card.errorLabel') : t('card.canImprove');
         node.dataset.bsContent =
-          part.explanation || 'Esta parte necesita un ajuste.';
+          part.explanation || t('card.partNeedsAdjustment');
         node.setAttribute(
           'aria-label',
-          `${part.text}: ${part.explanation || 'Esta parte necesita un ajuste.'}`,
+          `${part.text}: ${part.explanation || t('card.partNeedsAdjustment')}`,
         );
       }
 
@@ -676,7 +676,7 @@ export function createTutorMessageRenderer(deps) {
     actions.className = 'message-actions';
 
     const editButton = createMessageActionButton({
-      label: 'Editar texto',
+      label: t('clientChat.editText'),
       iconClass: 'bi-pencil',
     });
     editButton.addEventListener('click', () => {

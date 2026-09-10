@@ -67,7 +67,7 @@ export function shouldUseTemperature(options = {}) {
     const modelSegment = getConfiguredModelId(options).split('/').pop() ?? '';
     return !/^(gemini-3|gpt-5|o[134])/i.test(modelSegment);
 }
-export function getUserFacingFinishReasonMessage(finishReason, providerMetadata, locale = 'es') {
+export function getUserFacingFinishReasonMessage(finishReason, providerMetadata, locale) {
     const metadataText = JSON.stringify(providerMetadata ?? {}).toUpperCase();
     if (finishReason === 'length') {
         return translate(locale, 'msg.finishTokenLimit');

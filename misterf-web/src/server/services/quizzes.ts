@@ -952,7 +952,7 @@ export function computeQuizResponsesFingerprint(
 
 export function buildQuizResultTitle(
   result: TutorQuizResultBlock,
-  locale: Locale = 'es',
+  locale: Locale,
 ): string {
   const summary = buildQuizEvaluationSummary(result);
   return translate(locale, 'msg.quizCorrectAnswers', {

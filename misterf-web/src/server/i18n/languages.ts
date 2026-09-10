@@ -75,6 +75,24 @@ export type LeakagePatterns = {
 };
 
 /**
+ * How absolute dates are worded and text is collated. `Intl` carries CLDR data
+ * for most languages; where the runtime has none it does not fail, it quietly
+ * renders `en-US` (Node's ICU has no Haitian Creole), so such a language sets
+ * `intlLocale: null` and supplies its own month names. Relative times never
+ * use `Intl`: they come from the catalog's `common.relativeTime` wording.
+ */
+export type LanguageDates =
+  | { intlLocale: string }
+  | {
+      intlLocale: null;
+      /** January first. */
+      monthNames: readonly [
+        string, string, string, string, string, string,
+        string, string, string, string, string, string,
+      ];
+    };
+
+/**
  * Everything that defines a supported instruction language, in one object.
  * Adding a language is a single entry here — the type makes it exhaustive, so
  * the compiler lists every field you still owe.
@@ -92,6 +110,7 @@ export type LanguageDefinition = {
   /** Marks a beta language; pickers surface it as experimental. */
   experimental?: boolean;
   catalog: LocaleCatalog;
+  dates: LanguageDates;
   tutor: TutorLanguagePack;
   greetings: LanguageGreetings;
   leakagePatterns: LeakagePatterns;
@@ -112,6 +131,7 @@ export const languages = {
     monolingual: false,
     experimental: false,
     catalog: es,
+    dates: { intlLocale: 'es' },
     tutor: {
       learnerAudienceClause: ' for Spanish-speaking learners',
       directionOptionsList:
@@ -212,6 +232,7 @@ export const languages = {
     monolingual: true,
     experimental: false,
     catalog: en,
+    dates: { intlLocale: 'en' },
     tutor: {
       learnerAudienceClause: '',
       directionOptionsList:
@@ -303,6 +324,14 @@ export const languages = {
     monolingual: false,
     experimental: false,
     catalog: ht,
+    // Node's ICU has no Haitian Creole data; Intl would silently format en-US.
+    dates: {
+      intlLocale: null,
+      monthNames: [
+        'janvye', 'fevriye', 'mas', 'avril', 'me', 'jen',
+        'jiyè', 'out', 'septanm', 'oktòb', 'novanm', 'desanm',
+      ],
+    },
     tutor: {
       learnerAudienceClause: ' for Haitian Creole-speaking learners',
       directionOptionsList:

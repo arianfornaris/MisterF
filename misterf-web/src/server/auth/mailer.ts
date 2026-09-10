@@ -13,7 +13,7 @@ type MailMessage = {
 export async function sendEmailVerification(
   user: AuthUser,
   code: string,
-  locale: Locale = 'es',
+  locale: Locale,
 ): Promise<void> {
   const t = (key: string, params?: Record<string, string>) =>
     translate(locale, key, params);
@@ -42,7 +42,7 @@ export async function sendEmailVerification(
 export async function sendPasswordReset(
   user: AuthUser,
   code: string,
-  locale: Locale = 'es',
+  locale: Locale,
 ): Promise<void> {
   const t = (key: string, params?: Record<string, string>) =>
     translate(locale, key, params);
@@ -77,7 +77,7 @@ export function isMailerConfigured(): boolean {
   );
 }
 
-export function getMailerConfigurationError(locale: Locale = 'es'): string {
+export function getMailerConfigurationError(locale: Locale): string {
   return translate(locale, 'email.configError');
 }
 

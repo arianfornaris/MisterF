@@ -170,7 +170,7 @@ function renderUnscrambleSentenceState(section, state) {
 
   status.classList.remove('is-error', 'is-success');
   if (state.completed) {
-    status.textContent = 'Completado. Buen trabajo.';
+    status.textContent = t('card.completedWellDone');
     status.classList.add('is-success');
     return;
   }

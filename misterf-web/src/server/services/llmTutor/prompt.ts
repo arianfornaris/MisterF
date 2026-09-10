@@ -1,5 +1,5 @@
 import { renderSystemPrompt } from '../systemPrompts.js';
-import type { Locale } from '../../i18n/index.js';
+import { translate, type Locale } from '../../i18n/index.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
 import { isGenericConversationTitle } from './conversationTitles.js';
 import {
@@ -47,9 +47,10 @@ export function buildAgentSystemInstruction(options: {
   titleUpdatedByUser?: boolean;
   tutorPlanText?: string | null;
 }): string {
-  const currentTitle = options.currentTitle?.trim() || 'Nueva conversación';
   const instructionLanguage =
     options.instructionLanguage ?? defaultInstructionLanguage;
+  const currentTitle =
+    options.currentTitle?.trim() || translate(instructionLanguage, 'nav.newConversation');
   const base = renderSystemPrompt('tutor/system.md', {
     ...tutorSystemLanguagePlaceholders(instructionLanguage),
     BLOCK_PROTOCOL: renderTutorBlockProtocol(undefined, instructionLanguage),

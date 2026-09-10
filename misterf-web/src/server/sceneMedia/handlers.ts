@@ -5,9 +5,9 @@ import {
 import {
   buildDocumentTitle,
   buildAppShellContext,
-  formatRelativeTime,
   getHomeAuthMessage,
 } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import {
   findSceneMediaItemById,
   listSceneMediaItems,
@@ -140,7 +140,7 @@ export function renderSceneMediaTrashPage(
     ownerUserId: auth.user.id,
   }).map((item) => ({
     ...item,
-    relativeArchivedAt: formatRelativeTime(item.archivedAt ?? item.updatedAt ?? ''),
+    relativeArchivedAt: formatRelativeTime(item.archivedAt ?? item.updatedAt ?? '', request.locale),
   }));
 
   response.render('media-library-trash', {

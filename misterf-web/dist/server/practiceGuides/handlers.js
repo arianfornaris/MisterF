@@ -9,7 +9,8 @@ import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isC
 import { generateGuideParticipationSummary, generatePracticeGuideDraft, generatePracticeGuideRevision, safeParsePracticeGuideDraft, } from '../services/resourceDrafts.js';
 import { computeParticipationFingerprint, readParticipationSummaryError, } from '../resources/participationSummary.js';
 import { deletePendingModification, getPendingModification, setPendingModification, } from '../resources/modificationPreviewStore.js';
-import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import { logger } from '../services/logger.js';
 import { listPracticeGuideModificationChanges } from './modificationChanges.js';
 import { resolveOriginFolderContext, } from '../resources/originFolder.js';
@@ -250,7 +251,7 @@ function buildCollectedPracticeGuideReportListItems(reports, locale) {
             || report.participantName
             || report.participantEmail
             || translate(locale, 'quizzes.resultsAnonymousParticipant'),
-        relativeUpdatedAt: formatRelativeTime(report.updatedAt),
+        relativeUpdatedAt: formatRelativeTime(report.updatedAt, locale),
         summaryTitle: report.summaryTitle,
     }));
 }
@@ -272,7 +273,7 @@ export function renderPracticeGuideParticipationPage(request, response) {
     const storedSummary = getResourceParticipationSummary(resolved.practiceGuide.id);
     const participationSummary = storedSummary
         ? {
-            generatedAtRelative: formatRelativeTime(storedSummary.generatedAt),
+            generatedAtRelative: formatRelativeTime(storedSummary.generatedAt, request.locale),
             stale: storedSummary.inputFingerprint
                 !== computeParticipationFingerprint(reports),
             text: storedSummary.summaryText,

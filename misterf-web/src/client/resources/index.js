@@ -94,7 +94,7 @@ function initializeResourceFolderSharing() {
 
         try {
           await navigator.share({
-            title: 'Carpeta compartida',
+            title: t('clientMisc.folderSharedTitle'),
             url: shareFieldEl.value,
           });
         } catch {

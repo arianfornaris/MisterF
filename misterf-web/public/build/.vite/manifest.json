@@ -1,58 +1,62 @@
 {
-  "_createResourceFromContext-BFMDI3n-.js": {
-    "file": "chunks/createResourceFromContext-BFMDI3n-.js",
+  "_createResourceFromContext--Bwv6zlZ.js": {
+    "file": "chunks/createResourceFromContext--Bwv6zlZ.js",
     "name": "createResourceFromContext",
     "imports": [
-      "_i18n-B0EnNoHg.js"
+      "_i18n-Bha9U9Kx.js"
     ]
   },
-  "_i18n-B0EnNoHg.js": {
-    "file": "chunks/i18n-B0EnNoHg.js",
+  "_i18n-Bha9U9Kx.js": {
+    "file": "chunks/i18n-Bha9U9Kx.js",
     "name": "i18n"
   },
   "_listGroupDropdownStacking-B_4Fb5dR.js": {
     "file": "chunks/listGroupDropdownStacking-B_4Fb5dR.js",
     "name": "listGroupDropdownStacking"
   },
-  "_markdownEditor-DZWW8tch.js": {
-    "file": "chunks/markdownEditor-DZWW8tch.js",
+  "_markdownEditor-C2hs7INI.js": {
+    "file": "chunks/markdownEditor-C2hs7INI.js",
     "name": "markdownEditor",
     "imports": [
-      "_staticMarkdown-DuiaumsP.js"
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js"
     ]
   },
   "_modificationModal-Dfti3vse.js": {
     "file": "chunks/modificationModal-Dfti3vse.js",
     "name": "modificationModal"
   },
-  "_quizItemRenderer-UIHUK0cB.js": {
-    "file": "chunks/quizItemRenderer-UIHUK0cB.js",
+  "_quizItemRenderer-1YYYiuPs.js": {
+    "file": "chunks/quizItemRenderer-1YYYiuPs.js",
     "name": "quizItemRenderer",
     "imports": [
-      "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-DuiaumsP.js"
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js"
     ]
   },
-  "_resourceMoveModal-DArnkOca.js": {
-    "file": "chunks/resourceMoveModal-DArnkOca.js",
-    "name": "resourceMoveModal"
+  "_resourceMoveModal-BTsg2lix.js": {
+    "file": "chunks/resourceMoveModal-BTsg2lix.js",
+    "name": "resourceMoveModal",
+    "imports": [
+      "_i18n-Bha9U9Kx.js"
+    ]
   },
-  "_staticMarkdown-DuiaumsP.js": {
-    "file": "chunks/staticMarkdown-DuiaumsP.js",
+  "_staticMarkdown-DmnI-Lla.js": {
+    "file": "chunks/staticMarkdown-DmnI-Lla.js",
     "name": "staticMarkdown",
     "imports": [
-      "_i18n-B0EnNoHg.js"
+      "_i18n-Bha9U9Kx.js"
     ]
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-CfiuKQqG.js",
+    "file": "entries/chat-DE7Kg2Dw.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
-      "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-DuiaumsP.js",
-      "_quizItemRenderer-UIHUK0cB.js"
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js",
+      "_quizItemRenderer-1YYYiuPs.js"
     ]
   },
   "src/client/mediaLibrary/index.js": {
@@ -62,56 +66,56 @@
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-C_1_vquS.js",
+    "file": "entries/practice-guides-CiIEwnwY.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-DZWW8tch.js",
-      "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-DuiaumsP.js",
-      "_resourceMoveModal-DArnkOca.js",
+      "_markdownEditor-C2hs7INI.js",
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js",
+      "_resourceMoveModal-BTsg2lix.js",
       "_modificationModal-Dfti3vse.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-BXflCZLM.js",
+    "file": "entries/quizzes-DXIHW36P.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
-      "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-DuiaumsP.js",
-      "_quizItemRenderer-UIHUK0cB.js",
-      "_createResourceFromContext-BFMDI3n-.js",
-      "_resourceMoveModal-DArnkOca.js",
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js",
+      "_quizItemRenderer-1YYYiuPs.js",
+      "_createResourceFromContext--Bwv6zlZ.js",
+      "_resourceMoveModal-BTsg2lix.js",
       "_modificationModal-Dfti3vse.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-Dgjixs4w.js",
+    "file": "entries/resources-ezGK0lj_.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
-      "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-DuiaumsP.js",
-      "_resourceMoveModal-DArnkOca.js",
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js",
+      "_resourceMoveModal-BTsg2lix.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-DpgwLUOX.js",
+    "file": "entries/roleplays-CpFn85Hq.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-DZWW8tch.js",
-      "_i18n-B0EnNoHg.js",
-      "_staticMarkdown-DuiaumsP.js",
-      "_createResourceFromContext-BFMDI3n-.js",
-      "_resourceMoveModal-DArnkOca.js",
+      "_markdownEditor-C2hs7INI.js",
+      "_i18n-Bha9U9Kx.js",
+      "_staticMarkdown-DmnI-Lla.js",
+      "_createResourceFromContext--Bwv6zlZ.js",
+      "_resourceMoveModal-BTsg2lix.js",
       "_modificationModal-Dfti3vse.js"
     ]
   },
@@ -128,12 +132,12 @@
     "isEntry": true
   },
   "src/client/translator/index.js": {
-    "file": "entries/translator-CMF-q-wN.js",
+    "file": "entries/translator-CXrhSjHR.js",
     "name": "translator",
     "src": "src/client/translator/index.js",
     "isEntry": true,
     "imports": [
-      "_i18n-B0EnNoHg.js"
+      "_i18n-Bha9U9Kx.js"
     ]
   }
 }

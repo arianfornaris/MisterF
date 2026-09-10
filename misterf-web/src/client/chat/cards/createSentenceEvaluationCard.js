@@ -39,7 +39,7 @@ export function createSentenceEvaluationCard({
 
   const partsLabel = document.createElement('p');
   partsLabel.className = 'sentence-evaluation-parts-label';
-  partsLabel.textContent = 'Texto analizado, por partes';
+  partsLabel.textContent = t('card.analyzedTextByParts');
 
   body.append(partsLabel);
   body.append(createSentencePartsElement(evaluation.parts));

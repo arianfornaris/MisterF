@@ -1,6 +1,6 @@
 import { getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { logger } from '../services/logger.js';
-export function emitCreditExhaustedIfNeeded(socket, error, context = {}) {
+export function emitCreditExhaustedIfNeeded(socket, error, context) {
     if (!isCreditExhaustedError(error)) {
         return false;
     }
@@ -12,11 +12,11 @@ export function emitCreditExhaustedIfNeeded(socket, error, context = {}) {
         userId: context.userId ?? null,
     });
     socket.emit('llm:credit_exhausted', {
-        message: getCreditExhaustedMessage(),
+        message: getCreditExhaustedMessage(context.locale),
     });
     return true;
 }
-export function emitRoomCreditExhaustedIfNeeded(io, conversationId, error, context = {}) {
+export function emitRoomCreditExhaustedIfNeeded(io, conversationId, error, context) {
     if (!isCreditExhaustedError(error)) {
         return false;
     }
@@ -28,7 +28,7 @@ export function emitRoomCreditExhaustedIfNeeded(io, conversationId, error, conte
         userId: context.userId ?? null,
     });
     io.to(conversationId).emit('llm:credit_exhausted', {
-        message: getCreditExhaustedMessage(),
+        message: getCreditExhaustedMessage(context.locale),
     });
     return true;
 }

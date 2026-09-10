@@ -47,7 +47,7 @@ export function initializeCreateResourceFromContext() {
     const submitEl = formEl.querySelector('[data-create-resource-from-context-submit]');
     if (submitEl instanceof HTMLButtonElement) {
       submitEl.disabled = true;
-      submitEl.textContent = submitEl.dataset.loadingText || 'Creando recurso...';
+      submitEl.textContent = submitEl.dataset.loadingText || t('clientChat.creatingResource');
     }
   });
 }

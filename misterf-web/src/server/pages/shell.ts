@@ -13,6 +13,7 @@ import {
 import { env } from '../config/env.js';
 import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import { translate, type Locale } from '../i18n/index.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 
 /**
  * The application name as it appears in the browser tab and, through
@@ -41,10 +42,6 @@ export function buildDocumentTitle(locale: Locale, pageTitle?: string): string {
   return trimmed ? `${trimmed} · ${appTitle}` : appTitle;
 }
 
-const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
-  numeric: 'always',
-});
-
 export function normalizeSearchText(value: string): string {
   return value
     .normalize('NFD')
@@ -52,65 +49,6 @@ export function normalizeSearchText(value: string): string {
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-function parseAppTimestamp(value: string): number {
-  const trimmed = value.trim();
-  if (
-    /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(trimmed)
-  ) {
-    return Date.parse(`${trimmed.replace(' ', 'T')}Z`);
-  }
-
-  return Date.parse(trimmed);
-}
-
-export function formatRelativeTime(value: string): string {
-  const timestamp = parseAppTimestamp(value);
-  if (Number.isNaN(timestamp)) {
-    return value;
-  }
-
-  const diffMs = timestamp - Date.now();
-  const diffSeconds = Math.round(diffMs / 1000);
-  const absSeconds = Math.abs(diffSeconds);
-
-  if (absSeconds < 60) {
-    return spanishRelativeTimeFormatter.format(diffSeconds, 'second');
-  }
-
-  const diffMinutes = Math.round(diffSeconds / 60);
-  const absMinutes = Math.abs(diffMinutes);
-  if (absMinutes < 60) {
-    return spanishRelativeTimeFormatter.format(diffMinutes, 'minute');
-  }
-
-  const diffHours = Math.round(diffMinutes / 60);
-  const absHours = Math.abs(diffHours);
-  if (absHours < 24) {
-    return spanishRelativeTimeFormatter.format(diffHours, 'hour');
-  }
-
-  const diffDays = Math.round(diffHours / 24);
-  const absDays = Math.abs(diffDays);
-  if (absDays < 7) {
-    return spanishRelativeTimeFormatter.format(diffDays, 'day');
-  }
-
-  const diffWeeks = Math.round(diffDays / 7);
-  const absWeeks = Math.abs(diffWeeks);
-  if (absWeeks < 5) {
-    return spanishRelativeTimeFormatter.format(diffWeeks, 'week');
-  }
-
-  const diffMonths = Math.round(diffDays / 30);
-  const absMonths = Math.abs(diffMonths);
-  if (absMonths < 12) {
-    return spanishRelativeTimeFormatter.format(diffMonths, 'month');
-  }
-
-  const diffYears = Math.round(diffDays / 365);
-  return spanishRelativeTimeFormatter.format(diffYears, 'year');
 }
 
 export function buildAbsoluteAppUrl(pathname: string): string {
@@ -124,8 +62,8 @@ export function getHomeAuthMessage(request: Request, user: AuthUser | null): str
 
   if (user && !user.emailVerified) {
     return [
-      `Antes de practicar, verifica tu correo: **${user.email}**.`,
-      '[Escribir código de verificación](/verify-needed).',
+      translate(request.locale, 'home.verifyEmailNotice', { email: user.email }),
+      translate(request.locale, 'home.verifyEmailLink'),
     ].join('\n\n');
   }
 
@@ -176,7 +114,10 @@ export function buildAppShellContext(input: {
         ? listConversationsForProfile(input.user.id, input.activeProfile.id).map(
             (conversation) => ({
               ...conversation,
-              relativeUpdatedAt: formatRelativeTime(conversation.updatedAt),
+              relativeUpdatedAt: formatRelativeTime(
+                conversation.updatedAt,
+                input.request.locale,
+              ),
             }),
           )
         : [],

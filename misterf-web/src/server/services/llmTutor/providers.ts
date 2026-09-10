@@ -106,8 +106,8 @@ export function shouldUseTemperature(
 
 export function getUserFacingFinishReasonMessage(
   finishReason: FinishReason,
-  providerMetadata?: ProviderMetadata,
-  locale: Locale = 'es',
+  providerMetadata: ProviderMetadata | undefined,
+  locale: Locale,
 ): string | null {
   const metadataText = JSON.stringify(providerMetadata ?? {}).toUpperCase();
 

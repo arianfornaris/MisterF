@@ -373,7 +373,7 @@ export async function runTutorAgentLoop(history, options) {
 export async function translateTextWithLlm(input) {
     const text = input.text.trim();
     if (!text) {
-        throw new Error('No hay texto para traducir.');
+        throw new Error('There is no text to translate.');
     }
     const result = await generateText({
         messages: [{ content: text, role: 'user' }],
@@ -382,7 +382,7 @@ export async function translateTextWithLlm(input) {
         system: buildTranslatorSystemInstruction(input.direction, input.languageName),
         temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
     });
-    const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, result.providerMetadata, 'es');
+    const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, result.providerMetadata, input.instructionLanguage);
     if (userFacingFinishMessage) {
         throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
     }
@@ -399,7 +399,7 @@ export async function translateTextWithLlm(input) {
             value: fullTrace ? result.text : undefined,
             valueLength: result.text.length,
         });
-        throw new Error('El traductor no devolvió una respuesta válida.');
+        throw new Error('The translator returned no valid response.');
     }
     logLlmCost({
         context: { actorLabel: 'Translator', llm: input.llm, operation: 'translator' },
@@ -506,7 +506,7 @@ export async function evaluateQuizResultItemsWithLlm(input) {
     }
     throw lastError instanceof Error
         ? lastError
-        : new Error('El evaluador del quiz no devolvió una respuesta válida.');
+        : new Error('The quiz evaluator returned no valid response.');
 }
 function appendQuizResultEvaluationCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();

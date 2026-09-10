@@ -160,7 +160,7 @@ export function handleProfileOnboarding(request, response) {
                 title: buildDocumentTitle(request.locale, translate(request.locale, 'profiles.onbAria')),
                 user,
             }),
-            error: 'Escribe un nombre para este perfil.',
+            error: translate(request.locale, 'profiles.nameRequired'),
             profileFieldLimits,
             returnTo,
             selectedProfile: activeProfile,

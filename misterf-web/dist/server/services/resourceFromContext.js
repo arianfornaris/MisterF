@@ -1,5 +1,5 @@
 import { createQuiz, createPracticeGuide, createRoleplay, findProfileForUser, } from '../db/repository.js';
-import { translate } from '../i18n/index.js';
+import { defaultLocale, translate } from '../i18n/index.js';
 import { generateQuizDraft, generatePracticeGuideDraft, generateRoleplayDraft, } from './resourceDrafts.js';
 // The prompt intros are model-facing meta text and follow the project
 // convention of English meta-prompts; the draft system prompt makes the
@@ -62,7 +62,7 @@ export async function createResourceFromContextDraft(input) {
     // model tier comes from the same row so generation honours the learner's
     // choice like every other inference.
     const profile = findProfileForUser(profileId, userId);
-    const instructionLanguage = profile?.instructionLanguage;
+    const instructionLanguage = profile?.instructionLanguage ?? defaultLocale;
     const modelTier = profile?.modelTier;
     if (type === 'practice_guide') {
         const draft = await generatePracticeGuideDraft({

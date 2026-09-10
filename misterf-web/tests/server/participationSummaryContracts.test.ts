@@ -45,6 +45,7 @@ describe('roleplay participation summary contract', () => {
     );
 
     const result = await generateRoleplayParticipationSummary({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       request: {
         attempts: [
@@ -75,6 +76,7 @@ describe('roleplay participation summary contract', () => {
       );
 
     const result = await generateRoleplayParticipationSummary({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       request: {
         attempts: [{ difficulties: [], turnCount: 3, turnsToImprove: 0 }],
@@ -97,6 +99,7 @@ describe('practice guide participation summary contract', () => {
     );
 
     const result = await generateGuideParticipationSummary({
+      instructionLanguage: 'es',
       openRouterApiKey: testApiKey,
       request: {
         description: 'Technical English for developers',

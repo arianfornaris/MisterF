@@ -29,10 +29,11 @@ import {
   buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
-  formatRelativeTime,
   getHomeAuthMessage,
   normalizeSearchText,
 } from '../pages/shell.js';
+import { compareText, formatRelativeTime } from '../i18n/dates.js';
+import type { Locale } from '../i18n/index.js';
 import { translate } from '../i18n/index.js';
 import { logger } from '../services/logger.js';
 import { duplicateResourceForProfile } from './duplicate.js';
@@ -176,6 +177,7 @@ function toAccessibleOwnerResource(resource: StoredResource): StoredAccessibleRe
 
 function buildResourceListItem(
   resource: StoredAccessibleResource,
+  locale: Locale,
   sharedByMeIds?: ReadonlyMap<string, number>,
   folderTitle: string | null = null,
 ): ResourceListItem {
@@ -184,25 +186,25 @@ function buildResourceListItem(
       badgeClass: 'text-bg-primary',
       headerClass: 'bg-primary text-white',
       iconClass: 'bi-ui-checks-grid',
-      label: 'Quiz',
+      labelKey: 'resources.typeQuiz',
     },
     practice_guide: {
       badgeClass: 'text-bg-success',
       headerClass: 'bg-success text-white',
       iconClass: 'bi-journal-text',
-      label: 'Guía de Práctica',
+      labelKey: 'resources.typePracticeGuide',
     },
     resource_folder: {
       badgeClass: 'text-bg-info',
       headerClass: 'bg-info-subtle text-info-emphasis',
       iconClass: 'bi-folder',
-      label: 'Carpeta',
+      labelKey: 'resources.folder',
     },
     roleplay: {
       badgeClass: 'text-bg-warning',
       headerClass: 'bg-warning-subtle text-warning-emphasis',
       iconClass: 'bi-person-video3',
-      label: 'Roleplay',
+      labelKey: 'resources.typeRoleplay',
     },
   }[resource.type];
   const action = buildResourceAction(resource);
@@ -214,8 +216,8 @@ function buildResourceListItem(
     detailPath: buildResourceDetailPath(resource),
     headerClass: meta.headerClass,
     iconClass: meta.iconClass,
-    label: meta.label,
-    relativeUpdatedAt: formatRelativeTime(resource.updatedAt),
+    label: translate(locale, meta.labelKey),
+    relativeUpdatedAt: formatRelativeTime(resource.updatedAt, locale),
     canManage: resource.accessKind === 'owner',
     isSharedByMe:
       resource.accessKind === 'owner' && (sharedByMeIds?.has(resource.id) ?? false),
@@ -227,9 +229,10 @@ function buildResourceListItem(
 
 function buildResourceFolderListItem(
   folder: StoredResourceFolderMoveOption,
+  locale: Locale,
 ): ResourceFolderListItem {
   return {
-    ...buildResourceListItem(toAccessibleOwnerResource(folder)),
+    ...buildResourceListItem(toAccessibleOwnerResource(folder), locale),
     parentFolderId: folder.parentFolderId,
   };
 }
@@ -255,8 +258,12 @@ const resourceTypeSortRank: Record<StoredResource['type'], number> = {
   roleplay: 3,
 };
 
-function compareResourceTitles(left: StoredResource, right: StoredResource): number {
-  return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
+function compareResourceTitles(
+  left: StoredResource,
+  right: StoredResource,
+  locale: Locale,
+): number {
+  return compareText(left.title, right.title, locale);
 }
 
 function compareResourceDates(left: StoredResource, right: StoredResource): number {
@@ -278,6 +285,7 @@ function filterAndSortResources(
     type: ResourceFilterType;
   },
   sharedByMeIds: ReadonlyMap<string, number>,
+  locale: Locale,
 ): StoredAccessibleResource[] {
   const normalizedQuery = normalizeSearchText(filters.query);
   const filteredResources = resources.filter((resource) => {
@@ -319,14 +327,14 @@ function filterAndSortResources(
     }
 
     if (filters.sort === 'title_asc') {
-      return compareResourceTitles(left, right) || compareResourceDates(left, right);
+      return compareResourceTitles(left, right, locale) || compareResourceDates(left, right);
     }
 
     if (filters.sort === 'type') {
-      return folderComparison || compareResourceTitles(left, right);
+      return folderComparison || compareResourceTitles(left, right, locale);
     }
 
-    return compareResourceDates(left, right) || compareResourceTitles(left, right);
+    return compareResourceDates(left, right) || compareResourceTitles(left, right, locale);
   });
 }
 
@@ -447,7 +455,12 @@ export async function renderResourcesListPage(
     sort: readResourceSort(request.query.sort),
     type: readResourceTypeFilter(request.query.type),
   };
-  const resourceItems = filterAndSortResources(allResources, filters, sharedByMeIds);
+  const resourceItems = filterAndSortResources(
+    allResources,
+    filters,
+    sharedByMeIds,
+    request.locale,
+  );
 
   response.render('resources-list', {
     ...buildAppShellContext({
@@ -461,8 +474,10 @@ export async function renderResourcesListPage(
         : buildDocumentTitle(request.locale, response.locals.t('resources.title')),
       user: auth.user,
     }),
-    folderBreadcrumbItems: selectedFolderPath.map((item) => buildResourceListItem(item)),
-    folderOptions: folderOptions.map(buildResourceFolderListItem),
+    folderBreadcrumbItems: selectedFolderPath.map((item) => buildResourceListItem(item, request.locale)),
+    folderOptions: folderOptions.map((folder) =>
+      buildResourceFolderListItem(folder, request.locale),
+    ),
     resourceFilters: {
       ...filters,
       hasActiveFilters:
@@ -474,15 +489,16 @@ export async function renderResourcesListPage(
     resourceItems: resourceItems.map((resource) =>
       buildResourceListItem(
         resource,
+        request.locale,
         sharedByMeIds,
         globalScope ? resourceFolderTitles.get(resource.id) ?? null : null,
       ),
     ),
     selectedFolderCanManage,
     selectedFolderParent: selectedFolderParent
-      ? buildResourceListItem(toAccessibleOwnerResource(selectedFolderParent))
+      ? buildResourceListItem(toAccessibleOwnerResource(selectedFolderParent), request.locale)
       : null,
-    selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
+    selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder, request.locale) : null,
     selectedFolderShareMode: readResourceShareMode(request.query.share),
     selectedFolderShareQrDataUrl,
     selectedFolderShareUrl,
@@ -518,6 +534,7 @@ export function renderResourceTrashPage(request: Request, response: Response): v
     .map((resource) =>
       buildResourceListItem(
         resource,
+        request.locale,
         undefined,
         resourceFolderTitles.get(resource.id) ?? null,
       ),
@@ -579,7 +596,7 @@ export function renderSharedResourcePage(request: Request, response: Response): 
   const typeLabelKeys: Record<string, string> = {
     practice_guide: 'resources.typePracticeGuide',
     quiz: 'resources.typeQuiz',
-    resource_folder: 'resources.typeFolder',
+    resource_folder: 'resources.folder',
     roleplay: 'resources.typeRoleplay',
   };
   const typeLabel = translate(
@@ -619,7 +636,7 @@ export function renderSharedResourcePage(request: Request, response: Response): 
     startAction,
     returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
     shareLink,
-    sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource)),
+    sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource), request.locale),
   });
 }
 

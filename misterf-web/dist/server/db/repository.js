@@ -1,10 +1,8 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { translate } from '../i18n/index.js';
+import { defaultLocale, translate } from '../i18n/index.js';
 import { defaultProfileModelTier, normalizeProfileModelTier, } from '../profiles/modelTier.js';
 import { defaultProfileHomeMode, normalizeProfileHomeMode, } from '../profiles/homeMode.js';
 import { getDb } from './database.js';
-const defaultConversationTitle = 'Nueva conversación';
-const defaultProfileName = 'Perfil principal';
 function toStoredProfile(row) {
     return {
         id: row.id,
@@ -1823,7 +1821,8 @@ export function ensureUserHasProfile(userId, instructionLanguage) {
     return createProfile({
         description: '',
         instructionLanguage,
-        name: defaultProfileName,
+        // Stored in the language the account starts in; the user can rename it.
+        name: translate(instructionLanguage ?? defaultLocale, 'profiles.defaultName'),
         profileOnboardingCompleted: false,
         userId,
     });
@@ -1889,11 +1888,13 @@ export function updateProfileModelTierForUser(profileId, userId, modelTier) {
         .run(modelTier, profileId, userId);
     return findProfileForUser(profileId, userId);
 }
-export function createConversation(userId, profileId, title = defaultConversationTitle, options = {}) {
+export function createConversation(userId, profileId, 
+/** Defaults to "New conversation" in the profile's language. */
+title, options = {}) {
     const id = randomUUID();
     const profile = findProfileById(profileId);
     const modelTier = options.modelTier ?? profile?.modelTier ?? defaultProfileModelTier;
-    const instructionLanguage = profile?.instructionLanguage ?? 'es';
+    const instructionLanguage = profile?.instructionLanguage ?? defaultLocale;
     getDb()
         .prepare(`
         INSERT INTO conversations (
@@ -1909,7 +1910,7 @@ export function createConversation(userId, profileId, title = defaultConversatio
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, userId, profileId, title, options.practiceGuideId ?? null, 'tutor', modelTier, instructionLanguage, options.collectResults ? 1 : 0);
+        .run(id, userId, profileId, title ?? translate(instructionLanguage, 'nav.newConversation'), options.practiceGuideId ?? null, 'tutor', modelTier, instructionLanguage, options.collectResults ? 1 : 0);
     const conversation = findConversationForUser(id, userId);
     if (!conversation) {
         throw new Error('Could not load newly created conversation.');
@@ -1917,7 +1918,7 @@ export function createConversation(userId, profileId, title = defaultConversatio
     return conversation;
 }
 export function createConversationFromPracticeGuide(userId, practiceGuide, profileId = practiceGuide.profileId, options = {}) {
-    const conversation = createConversation(userId, profileId, defaultConversationTitle, {
+    const conversation = createConversation(userId, profileId, undefined, {
         collectResults: options.collectResults,
         practiceGuideId: practiceGuide.id,
     });
@@ -1925,7 +1926,7 @@ export function createConversationFromPracticeGuide(userId, practiceGuide, profi
     return conversation;
 }
 export function createConversationFromTutorReport(input) {
-    const conversation = createConversation(input.userId, input.profileId, defaultConversationTitle);
+    const conversation = createConversation(input.userId, input.profileId);
     createConversationTutorReportSnapshot(conversation.id, input.report);
     return conversation;
 }
@@ -2845,8 +2846,10 @@ export function setQuizAttemptProgressEvent(input) {
     return findQuizAttemptById(input.attemptId);
 }
 export function createConversationFromQuizAttempt(input) {
-    const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
-    const conversation = createConversation(input.userId, input.profileId, `Practicar: ${title}`);
+    const locale = findProfileById(input.profileId)?.instructionLanguage ?? defaultLocale;
+    const title = readStringFromRecord(input.attempt.snapshot, 'title') ||
+        translate(locale, 'nav.newConversation');
+    const conversation = createConversation(input.userId, input.profileId, translate(locale, 'nav.practiceConversationTitle', { title }));
     createConversationQuizAttemptSnapshot(conversation.id, input.attempt);
     addResourceSourceNoticeMessage(conversation.id, {
         attemptId: input.attempt.id,
@@ -3231,8 +3234,10 @@ export function setRoleplayAttemptProgressEvent(input) {
     return findRoleplayAttemptById(input.attemptId);
 }
 export function createConversationFromRoleplayAttempt(input) {
-    const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
-    const conversation = createConversation(input.userId, input.profileId, `Practicar: ${title}`);
+    const locale = findProfileById(input.profileId)?.instructionLanguage ?? defaultLocale;
+    const title = readStringFromRecord(input.attempt.snapshot, 'title') ||
+        translate(locale, 'nav.newConversation');
+    const conversation = createConversation(input.userId, input.profileId, translate(locale, 'nav.practiceConversationTitle', { title }));
     createConversationRoleplayAttemptSnapshot(conversation.id, input.attempt);
     addResourceSourceNoticeMessage(conversation.id, {
         attemptId: input.attempt.id,

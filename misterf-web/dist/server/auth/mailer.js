@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
 import { translate } from '../i18n/index.js';
-export async function sendEmailVerification(user, code, locale = 'es') {
+export async function sendEmailVerification(user, code, locale) {
     const t = (key, params) => translate(locale, key, params);
     await sendMail({
         to: user.email,
@@ -24,7 +24,7 @@ export async function sendEmailVerification(user, code, locale = 'es') {
         }),
     });
 }
-export async function sendPasswordReset(user, code, locale = 'es') {
+export async function sendPasswordReset(user, code, locale) {
     const t = (key, params) => translate(locale, key, params);
     await sendMail({
         to: user.email,
@@ -53,7 +53,7 @@ export function isMailerConfigured() {
         env.smtpPassword &&
         env.mailFrom);
 }
-export function getMailerConfigurationError(locale = 'es') {
+export function getMailerConfigurationError(locale) {
     return translate(locale, 'email.configError');
 }
 async function sendMail(message) {

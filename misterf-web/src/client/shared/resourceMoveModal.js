@@ -1,3 +1,5 @@
+import { locale, t } from './i18n.js';
+
 function createIcon(className) {
   const iconEl = document.createElement('i');
   iconEl.className = `bi ${className}`;
@@ -15,7 +17,7 @@ function createTextButton(label, className) {
 
 function sortFoldersByTitle(folders) {
   return [...folders].sort((left, right) =>
-    left.title.localeCompare(right.title, 'es', { sensitivity: 'base' }),
+    left.title.localeCompare(right.title, locale, { sensitivity: 'base' }),
   );
 }
 
@@ -131,7 +133,7 @@ export function initializeResourceMoveModal(root = document) {
 
   function getViewedDestinationLabel() {
     const folder = viewedFolderId ? findFolder(viewedFolderId) : null;
-    return folder ? folder.title : 'Recursos';
+    return folder ? folder.title : t('clientMisc.resourcesRoot');
   }
 
   function isCurrentDestination() {
@@ -185,7 +187,7 @@ export function initializeResourceMoveModal(root = document) {
     rootItemEl.className = viewedFolderId ? 'breadcrumb-item' : 'breadcrumb-item active';
 
     if (viewedFolderId) {
-      const rootButtonEl = createTextButton('Recursos', 'btn btn-link p-0 align-baseline');
+      const rootButtonEl = createTextButton(t('clientMisc.resourcesRoot'), 'btn btn-link p-0 align-baseline');
       rootButtonEl.addEventListener('click', () => {
         viewedFolderId = '';
         renderModalState();
@@ -193,7 +195,7 @@ export function initializeResourceMoveModal(root = document) {
       rootItemEl.append(rootButtonEl);
     } else {
       rootItemEl.setAttribute('aria-current', 'page');
-      rootItemEl.textContent = 'Recursos';
+      rootItemEl.textContent = t('clientMisc.resourcesRoot');
     }
 
     breadcrumbEl.append(rootItemEl);
@@ -225,8 +227,8 @@ export function initializeResourceMoveModal(root = document) {
     itemEl.className = 'list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3';
     itemEl.type = 'button';
     itemEl.dataset.resourceMoveOpenFolder = folder.id;
-    itemEl.title = `Abrir ${folder.title}`;
-    itemEl.setAttribute('aria-label', `Abrir ${folder.title}`);
+    itemEl.title = t('clientMisc.openFolder', { title: folder.title });
+    itemEl.setAttribute('aria-label', itemEl.title);
 
     const labelEl = document.createElement('div');
     labelEl.className = 'min-w-0';
@@ -237,7 +239,7 @@ export function initializeResourceMoveModal(root = document) {
 
     const badgeEl = document.createElement('span');
     badgeEl.className = 'badge text-bg-light border flex-shrink-0';
-    badgeEl.textContent = 'Carpeta';
+    badgeEl.textContent = t('clientMisc.folderBadge');
 
     itemEl.append(labelEl, badgeEl);
     destinationsEl.append(itemEl);

@@ -1,5 +1,6 @@
 import { isCreditExhaustedError, } from '../services/creditGate.js';
-import { buildDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import { findSceneMediaItemById, listSceneMediaItems, normalizeSceneMediaFormat, normalizeSceneMediaLevel, sceneMediaFormats, sceneMediaLevels, } from './library.js';
 import { applyUserSceneMediaImage, applyUserSceneMediaMetadata, applyUserSceneMediaScript, archiveUserSceneMediaForProfile, createReadyUserSceneMedia, listArchivedUserSceneMediaForProfile, restoreUserSceneMediaForProfile, updateUserSceneMediaTitle, } from './userMediaRepository.js';
 import { generateAndStoreSceneMediaAudio, generateSceneMediaImagePreview, generateSceneMediaMetadataDraft, generateSceneMediaScriptDraft, generateSceneMediaTitleDraft, readSceneMediaReferenceImage, } from './sceneMediaPreview.js';
@@ -66,7 +67,7 @@ export function renderSceneMediaTrashPage(request, response) {
         ownerUserId: auth.user.id,
     }).map((item) => ({
         ...item,
-        relativeArchivedAt: formatRelativeTime(item.archivedAt ?? item.updatedAt ?? ''),
+        relativeArchivedAt: formatRelativeTime(item.archivedAt ?? item.updatedAt ?? '', request.locale),
     }));
     response.render('media-library-trash', {
         ...buildAppShellContext({

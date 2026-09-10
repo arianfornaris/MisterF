@@ -58,9 +58,9 @@ import {
   buildDocumentTitle,
   buildAbsoluteAppUrl,
   buildAppShellContext,
-  formatRelativeTime,
   getHomeAuthMessage,
 } from '../pages/shell.js';
+import { formatRelativeTime } from '../i18n/dates.js';
 import { logger } from '../services/logger.js';
 import { listPracticeGuideModificationChanges } from './modificationChanges.js';
 import {
@@ -387,7 +387,7 @@ function buildCollectedPracticeGuideReportListItems(
       || report.participantName
       || report.participantEmail
       || translate(locale, 'quizzes.resultsAnonymousParticipant'),
-    relativeUpdatedAt: formatRelativeTime(report.updatedAt),
+    relativeUpdatedAt: formatRelativeTime(report.updatedAt, locale),
     summaryTitle: report.summaryTitle,
   }));
 }
@@ -414,7 +414,7 @@ export function renderPracticeGuideParticipationPage(
   const storedSummary = getResourceParticipationSummary(resolved.practiceGuide.id);
   const participationSummary = storedSummary
     ? {
-        generatedAtRelative: formatRelativeTime(storedSummary.generatedAt),
+        generatedAtRelative: formatRelativeTime(storedSummary.generatedAt, request.locale),
         stale:
           storedSummary.inputFingerprint
           !== computeParticipationFingerprint(reports),

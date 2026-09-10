@@ -2,7 +2,8 @@ import { getOpenRouterApiKeyForUser, getOpenRouterRemoteKeyInfoForUser, } from '
 import { translate } from '../i18n/index.js';
 const minimumLlmCreditUsd = 0.01;
 export class CreditExhaustedError extends Error {
-    constructor(message = getCreditExhaustedMessage()) {
+    // Internal: users read `getCreditExhaustedMessage(locale)`, never this.
+    constructor(message = 'The LLM credit is exhausted.') {
         super(message);
         this.name = 'CreditExhaustedError';
     }
@@ -19,7 +20,7 @@ export async function assertUserHasLlmCredit(userId) {
         throw new CreditExhaustedError();
     }
 }
-export function getCreditExhaustedMessage(locale = 'es') {
+export function getCreditExhaustedMessage(locale) {
     return translate(locale, 'credit.exhaustedFull');
 }
 export function isCreditExhaustedError(error) {

@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { translate, type Locale } from '../i18n/index.js';
+import { defaultLocale, translate, type Locale } from '../i18n/index.js';
 import {
   defaultProfileModelTier,
   normalizeProfileModelTier,
@@ -668,9 +668,6 @@ type LearnerProgressEventRow = {
   created_at: string;
   updated_at: string;
 };
-
-const defaultConversationTitle = 'Nueva conversación';
-const defaultProfileName = 'Perfil principal';
 
 function toStoredProfile(row: ProfileRow): StoredProfile {
   return {
@@ -3053,7 +3050,8 @@ export function ensureUserHasProfile(
   return createProfile({
     description: '',
     instructionLanguage,
-    name: defaultProfileName,
+    // Stored in the language the account starts in; the user can rename it.
+    name: translate(instructionLanguage ?? defaultLocale, 'profiles.defaultName'),
     profileOnboardingCompleted: false,
     userId,
   });
@@ -3170,7 +3168,8 @@ export function updateProfileModelTierForUser(
 export function createConversation(
   userId: string,
   profileId: string,
-  title = defaultConversationTitle,
+  /** Defaults to "New conversation" in the profile's language. */
+  title?: string,
   options: {
     collectResults?: boolean;
     modelTier?: ProfileModelTier;
@@ -3181,7 +3180,7 @@ export function createConversation(
   const profile = findProfileById(profileId);
   const modelTier =
     options.modelTier ?? profile?.modelTier ?? defaultProfileModelTier;
-  const instructionLanguage = profile?.instructionLanguage ?? 'es';
+  const instructionLanguage = profile?.instructionLanguage ?? defaultLocale;
   getDb()
     .prepare(
       `
@@ -3203,7 +3202,7 @@ export function createConversation(
       id,
       userId,
       profileId,
-      title,
+      title ?? translate(instructionLanguage, 'nav.newConversation'),
       options.practiceGuideId ?? null,
       'tutor',
       modelTier,
@@ -3228,7 +3227,7 @@ export function createConversationFromPracticeGuide(
   const conversation = createConversation(
     userId,
     profileId,
-    defaultConversationTitle,
+    undefined,
     {
       collectResults: options.collectResults,
       practiceGuideId: practiceGuide.id,
@@ -3247,7 +3246,6 @@ export function createConversationFromTutorReport(input: {
   const conversation = createConversation(
     input.userId,
     input.profileId,
-    defaultConversationTitle,
   );
 
   createConversationTutorReportSnapshot(conversation.id, input.report);
@@ -4651,11 +4649,15 @@ export function createConversationFromQuizAttempt(input: {
   profileId: string;
   userId: string;
 }): StoredConversation {
-  const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
+  const locale =
+    findProfileById(input.profileId)?.instructionLanguage ?? defaultLocale;
+  const title =
+    readStringFromRecord(input.attempt.snapshot, 'title') ||
+    translate(locale, 'nav.newConversation');
   const conversation = createConversation(
     input.userId,
     input.profileId,
-    `Practicar: ${title}`,
+    translate(locale, 'nav.practiceConversationTitle', { title }),
   );
 
   createConversationQuizAttemptSnapshot(conversation.id, input.attempt);
@@ -5252,11 +5254,15 @@ export function createConversationFromRoleplayAttempt(input: {
   profileId: string;
   userId: string;
 }): StoredConversation {
-  const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
+  const locale =
+    findProfileById(input.profileId)?.instructionLanguage ?? defaultLocale;
+  const title =
+    readStringFromRecord(input.attempt.snapshot, 'title') ||
+    translate(locale, 'nav.newConversation');
   const conversation = createConversation(
     input.userId,
     input.profileId,
-    `Practicar: ${title}`,
+    translate(locale, 'nav.practiceConversationTitle', { title }),
   );
 
   createConversationRoleplayAttemptSnapshot(conversation.id, input.attempt);

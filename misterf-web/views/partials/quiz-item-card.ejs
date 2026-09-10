@@ -233,7 +233,7 @@
             <div class="quiz-design-choice <%= item.correctOptions.includes(option) ? 'is-correct' : '' %>">
               <span><%= option %></span>
               <% if (item.correctOptions.includes(option)) { %>
-                <span class="badge text-bg-success">Correct</span>
+                <span class="badge text-bg-success"><%= t('card.evaluationCorrect') %></span>
               <% } %>
             </div>
           <% } else { %>

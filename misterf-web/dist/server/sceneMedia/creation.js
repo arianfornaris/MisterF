@@ -9,7 +9,9 @@ import { createSceneMediaStorageKey, getUserFileStorageProvider, } from '../stor
 import { createSceneMediaGenerationSourceContext, } from './generationContext.js';
 import { readSceneMediaImageAsset } from './imageAssets.js';
 const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
-const contentPolicyMessage = 'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.';
+const contentPolicyMessage = 
+// Internal: the page shows `mediaLibrary.failure.contentPolicy` instead.
+'Scene media was rejected by the content policy.';
 export class SceneMediaCreationError extends Error {
     reason;
     constructor(message, reason = 'generation_failed', options = {}) {

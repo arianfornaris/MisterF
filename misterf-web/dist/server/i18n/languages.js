@@ -16,6 +16,7 @@ export const languages = {
         monolingual: false,
         experimental: false,
         catalog: es,
+        dates: { intlLocale: 'es' },
         tutor: {
             learnerAudienceClause: ' for Spanish-speaking learners',
             directionOptionsList: '  - practicar vocabulario\n  - practicar con frases\n  - hacer una mini conversación',
@@ -97,6 +98,7 @@ export const languages = {
         monolingual: true,
         experimental: false,
         catalog: en,
+        dates: { intlLocale: 'en' },
         tutor: {
             learnerAudienceClause: '',
             directionOptionsList: '  - practice vocabulary\n  - practice with sentences\n  - do a mini conversation',
@@ -177,6 +179,14 @@ export const languages = {
         monolingual: false,
         experimental: false,
         catalog: ht,
+        // Node's ICU has no Haitian Creole data; Intl would silently format en-US.
+        dates: {
+            intlLocale: null,
+            monthNames: [
+                'janvye', 'fevriye', 'mas', 'avril', 'me', 'jen',
+                'jiyè', 'out', 'septanm', 'oktòb', 'novanm', 'desanm',
+            ],
+        },
         tutor: {
             learnerAudienceClause: ' for Haitian Creole-speaking learners',
             directionOptionsList: '  - pratike vokabilè\n  - pratike ak fraz\n  - fè yon ti konvèsasyon',

@@ -7,7 +7,8 @@ import { translate, type Locale } from '../i18n/index.js';
 const minimumLlmCreditUsd = 0.01;
 
 export class CreditExhaustedError extends Error {
-  constructor(message = getCreditExhaustedMessage()) {
+  // Internal: users read `getCreditExhaustedMessage(locale)`, never this.
+  constructor(message = 'The LLM credit is exhausted.') {
     super(message);
     this.name = 'CreditExhaustedError';
   }
@@ -30,7 +31,7 @@ export async function assertUserHasLlmCredit(userId: string): Promise<void> {
   }
 }
 
-export function getCreditExhaustedMessage(locale: Locale = 'es'): string {
+export function getCreditExhaustedMessage(locale: Locale): string {
   return translate(locale, 'credit.exhaustedFull');
 }
 

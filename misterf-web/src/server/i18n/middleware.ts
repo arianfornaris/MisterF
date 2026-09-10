@@ -7,6 +7,7 @@ import {
   type Locale,
   type Translator,
 } from './index.js';
+import { formatDateTime } from './dates.js';
 import { getLocaleCookie, resolveLocale, setLocaleCookie } from './resolve.js';
 import { translatorLanguagesJson } from './translatorLanguages.js';
 
@@ -18,6 +19,8 @@ declare global {
     }
     interface Locals {
       clientI18nJson: string;
+      /** A date with its time, worded for the request's locale. */
+      formatDateTime: (value: string | Date) => string;
       htmlLang: Locale;
       languages: { code: Locale; endonym: string; experimental: boolean }[];
       locale: Locale;
@@ -51,6 +54,7 @@ export function attachLocale(
   const locale = resolveLocale(request);
   request.locale = locale;
   response.locals.clientI18nJson = getClientCatalogJson(locale);
+  response.locals.formatDateTime = (value) => formatDateTime(value, locale);
   response.locals.htmlLang = locale;
   response.locals.languages = languageOptions();
   response.locals.locale = locale;

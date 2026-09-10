@@ -13,7 +13,7 @@ import { renderSystemPrompt } from './systemPrompts.js';
 import { instructionLanguageEnglishName, quizAuthoringPlaceholders, } from './llmTutor/languagePack.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
 const maxDraftGenerationTurns = 4;
-function languagePromptVariables(instructionLanguage = 'es') {
+function languagePromptVariables(instructionLanguage) {
     return {
         INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(instructionLanguage),
     };
@@ -202,7 +202,7 @@ async function generateStructuredDraft(input) {
                 });
                 continue;
             }
-            throw new Error('La IA devolvió un borrador truncado.');
+            throw new Error('The model returned a truncated draft.');
         }
         let parsedJson;
         try {
@@ -227,7 +227,7 @@ async function generateStructuredDraft(input) {
                 });
                 continue;
             }
-            throw new Error('La IA devolvió un borrador inválido.');
+            throw new Error('The model returned an invalid draft.');
         }
         const parsed = input.schema.safeParse(parsedJson);
         if (!parsed.success) {
@@ -250,7 +250,7 @@ async function generateStructuredDraft(input) {
                 });
                 continue;
             }
-            throw new Error('La IA devolvió un borrador incompleto.');
+            throw new Error('The model returned an incomplete draft.');
         }
         return parsed.data;
     }
@@ -299,7 +299,7 @@ export async function generateQuizDraft(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: quizDraftSchema,
         systemPromptPath: 'resources/quiz-draft.md',
-        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
     });
 }
 const quizResponsesSummarySchema = z
@@ -316,7 +316,7 @@ export async function generateQuizResponsesSummary(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: quizResponsesSummarySchema,
         systemPromptPath: 'resources/quiz-responses-summary.md',
-        systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage),
     });
 }
 /**
@@ -337,7 +337,7 @@ export async function generateRoleplayParticipationSummary(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: participationSummarySchema,
         systemPromptPath: 'resources/roleplay-participation-summary.md',
-        systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage),
     });
 }
 export async function generateGuideParticipationSummary(input) {
@@ -349,7 +349,7 @@ export async function generateGuideParticipationSummary(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: participationSummarySchema,
         systemPromptPath: 'resources/guide-participation-summary.md',
-        systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage),
     });
 }
 export async function generateQuizMetadataRevision(input) {
@@ -364,7 +364,7 @@ export async function generateQuizMetadataRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: quizMetadataRevisionSchema,
         systemPromptPath: 'resources/quiz-metadata-revision.md',
-        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
     });
 }
 /**
@@ -412,7 +412,7 @@ export async function generateQuizBlocksRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: blocksRevisionSchema,
         systemPromptPath: 'resources/quiz-blocks-revision.md',
-        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
     });
 }
 /**
@@ -472,7 +472,7 @@ export async function generateQuizRevision(input) {
         schema: revisionSchema,
         systemPromptPath: 'resources/quiz-modification.md',
         systemPromptVariables: {
-            ...quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+            ...quizAuthoringPlaceholders(input.instructionLanguage),
             REVISION_SCOPE_RULES: buildQuizRevisionScopeRules(scope),
         },
     });
@@ -542,7 +542,7 @@ export async function generateQuizBlockRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: blockRevisionSchema,
         systemPromptPath: 'resources/quiz-block-revision.md',
-        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage),
     });
 }
 export async function generateRoleplayDraft(input) {

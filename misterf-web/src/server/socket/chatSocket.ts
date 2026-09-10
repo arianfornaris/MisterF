@@ -70,7 +70,8 @@ import {
   getCreditExhaustedMessage,
   isCreditExhaustedError,
 } from '../services/creditGate.js';
-import { translate, type Locale } from '../i18n/index.js';
+import { defaultLocale, translate, type Locale } from '../i18n/index.js';
+import { resolveHandshakeLocale } from '../i18n/resolve.js';
 import { resolveTranslatorLanguage } from '../i18n/translatorLanguages.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 import { logger, serializeError } from '../services/logger.js';
@@ -240,12 +241,20 @@ export function registerChatSocket(io: Server): void {
     let currentConversationId: string | null = null;
     let currentProfile: StoredProfile | null = null;
     // Placeholder greeting; reassigned with the profile's language on register.
-    let pendingInitialGreeting = pickInitialGreeting();
+    let pendingInitialGreeting = pickInitialGreeting(
+      resolveHandshakeLocale(socket.request.headers),
+    );
 
     const authenticatedUserId = getAuthenticatedUserId(socket);
     if (authenticatedUserId) {
       currentProfile = resolveSocketProfile(socket, authenticatedUserId);
     }
+
+    // For messages about a conversation that could not be loaded, so there is
+    // no conversation language to use.
+    const socketLocale = (): Locale =>
+      currentProfile?.instructionLanguage ??
+      resolveHandshakeLocale(socket.request.headers);
 
     socket.on('conversation:join', async (payload: JoinPayload = {}) => {
       const userId = getAuthenticatedUserId(socket);
@@ -260,7 +269,7 @@ export function registerChatSocket(io: Server): void {
         : null;
 
       if (!conversation) {
-        pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
+        pendingInitialGreeting = pickInitialGreeting(socketLocale());
         leaveConversationRoom(socket, currentConversationId);
         currentConversationId = null;
         socket.emit('conversation:ready', {
@@ -308,7 +317,7 @@ export function registerChatSocket(io: Server): void {
       const hasOnlySourceNoticeMessages =
         isReportFollowUpConversation && hasOnlyResourceSourceNoticeMessages(messages);
       if (messages.length === 0) {
-        pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
+        pendingInitialGreeting = pickInitialGreeting(socketLocale());
       }
 
       socket.emit('conversation:ready', {
@@ -409,7 +418,7 @@ export function registerChatSocket(io: Server): void {
 
       if (runningConversations.has(conversation.id)) {
         socket.emit('assistant:error', {
-          message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
         });
         return;
       }
@@ -525,7 +534,7 @@ export function registerChatSocket(io: Server): void {
         return;
       }
 
-      pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
+      pendingInitialGreeting = pickInitialGreeting(socketLocale());
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
@@ -551,7 +560,7 @@ export function registerChatSocket(io: Server): void {
       const title = normalizeConversationTitle(payload.title);
       if (!conversationId || !title) {
         socket.emit('conversation:error', {
-          message: 'El titulo de la conversacion no puede estar vacio.',
+          message: translate(socketLocale(), 'msg.convTitleEmpty'),
         });
         return;
       }
@@ -564,7 +573,7 @@ export function registerChatSocket(io: Server): void {
       );
       if (!conversation) {
         socket.emit('conversation:error', {
-          message: 'No pude encontrar esa conversacion.',
+          message: translate(socketLocale(), 'msg.convNotFound'),
         });
         return;
       }
@@ -594,7 +603,7 @@ export function registerChatSocket(io: Server): void {
       const conversation = findConversationForUser(conversationId, userId);
       if (!conversation) {
         socket.emit('conversation:error', {
-          message: 'No pude encontrar esa conversacion.',
+          message: translate(socketLocale(), 'msg.convNotFound'),
         });
         return;
       }
@@ -603,7 +612,7 @@ export function registerChatSocket(io: Server): void {
       const deleted = deleteConversationForUser(conversation.id, userId);
       if (!deleted) {
         socket.emit('conversation:error', {
-          message: 'No pude eliminar esa conversacion.',
+          message: translate(conversation.instructionLanguage, 'msg.convDeleteFailed'),
         });
         return;
       }
@@ -622,7 +631,7 @@ export function registerChatSocket(io: Server): void {
         return;
       }
 
-      pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
+      pendingInitialGreeting = pickInitialGreeting(socketLocale());
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
@@ -652,7 +661,7 @@ export function registerChatSocket(io: Server): void {
       const conversation = findConversationForUser(conversationId, userId);
       if (!conversation) {
         socket.emit('conversation:error', {
-          message: translate('es', 'msg.convNotFound'),
+          message: translate(socketLocale(), 'msg.convNotFound'),
         });
         return;
       }
@@ -687,7 +696,10 @@ export function registerChatSocket(io: Server): void {
       const conversation = findConversationForUser(conversationId, userId);
       if (!conversation?.practiceGuideId) {
         socket.emit('assistant:error', {
-          message: translate('es', 'msg.guideStartError'),
+          message: translate(
+            conversation?.instructionLanguage ?? socketLocale(),
+            'msg.guideStartError',
+          ),
         });
         return;
       }
@@ -737,6 +749,7 @@ export function registerChatSocket(io: Server): void {
       try {
         const translation = await translateTextWithLlm({
           direction,
+          instructionLanguage: socketLocale(),
           languageName: language.englishName,
           llm: await getLlmRequestOptionsForUser(userId),
           text,
@@ -748,6 +761,7 @@ export function registerChatSocket(io: Server): void {
         });
       } catch (error) {
         const creditExhausted = emitCreditExhaustedIfNeeded(socket, error, {
+          locale: socketLocale(),
           surface: 'translator',
           userId,
         });
@@ -760,7 +774,7 @@ export function registerChatSocket(io: Server): void {
           });
         }
         socket.emit('translator:error', {
-          message: toUserFacingError(error),
+          message: toUserFacingError(error, socketLocale()),
         });
       }
     });
@@ -785,14 +799,14 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
 
         if (runningConversations.has(conversationId)) {
           socket.emit('assistant:error', {
-            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+            message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
           });
           return;
         }
@@ -871,14 +885,14 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
 
         if (runningConversations.has(conversationId)) {
           socket.emit('assistant:error', {
-            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+            message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
           });
           return;
         }
@@ -959,14 +973,14 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
 
         if (runningConversations.has(conversationId)) {
           socket.emit('assistant:error', {
-            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+            message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
           });
           return;
         }
@@ -1048,14 +1062,14 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
 
         if (runningConversations.has(conversationId)) {
           socket.emit('assistant:error', {
-            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+            message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
           });
           return;
         }
@@ -1137,14 +1151,14 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
 
         if (runningConversations.has(conversationId)) {
           socket.emit('assistant:error', {
-            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+            message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
           });
           return;
         }
@@ -1223,14 +1237,14 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
 
         if (runningConversations.has(conversationId)) {
           socket.emit('assistant:error', {
-            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+            message: translate(conversation.instructionLanguage, 'msg.stillResponding'),
           });
           return;
         }
@@ -1284,6 +1298,7 @@ export function registerChatSocket(io: Server): void {
         } catch (error) {
           if (emitCreditExhaustedIfNeeded(socket, error, {
             conversationId,
+            locale: conversation.instructionLanguage,
             messageId,
             surface: 'quiz_result_evaluation',
             userId,
@@ -1363,7 +1378,7 @@ export function registerChatSocket(io: Server): void {
         const conversation = findConversationForUser(conversationId, userId);
         if (!conversation) {
           socket.emit('conversation:error', {
-            message: 'No pude encontrar esa conversacion.',
+            message: translate(socketLocale(), 'msg.convNotFound'),
           });
           return;
         }
@@ -1441,8 +1456,10 @@ function getAuthenticatedUserId(socket: Socket): string | null {
 
 function emitAuthRequired(socket: Socket): void {
   socket.emit('auth:required', {
-    message:
-      'Para usar Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
+    message: translate(
+      resolveHandshakeLocale(socket.request.headers),
+      'msg.authRequiredUse',
+    ),
   });
 }
 
@@ -1643,7 +1660,13 @@ async function streamAssistantMessage(
       return;
     }
 
+    // The conversation was loaded inside the try block, so read its language
+    // again rather than widen that scope.
+    const errorLocale =
+      findConversationForUser(conversationId, userId)?.instructionLanguage ??
+      defaultLocale;
     if (emitRoomCreditExhaustedIfNeeded(io, conversationId, error, {
+      locale: errorLocale,
       messageId: lastUserMessageId,
       surface: 'tutor_response',
       userId,
@@ -1658,7 +1681,7 @@ async function streamAssistantMessage(
     });
 
     io.to(conversationId).emit('assistant:error', {
-      message: toUserFacingError(error),
+      message: toUserFacingError(error, errorLocale),
     });
   } finally {
     runningConversations.delete(conversationId);
@@ -2814,7 +2837,7 @@ function emitLlmRequestTokenUsage(
   });
 }
 
-function toUserFacingError(error: unknown, locale: Locale = 'es'): string {
+function toUserFacingError(error: unknown, locale: Locale): string {
   if (isCreditExhaustedError(error)) {
     return getCreditExhaustedMessage(locale);
   }

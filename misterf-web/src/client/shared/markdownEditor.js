@@ -1,5 +1,6 @@
 import EasyMDE from 'easymde';
 import { renderMarkdown } from '../chat/shared/markdown.js';
+import { t } from './i18n.js';
 
 const editorInstances = new WeakMap();
 
@@ -33,14 +34,14 @@ const defaultToolbar = [
 ];
 
 const toolbarButtonPresentation = {
-  bold: { iconClass: 'bi bi-type-bold', label: 'Negrita' },
-  'heading-2': { iconClass: 'bi bi-type-h2', label: 'Encabezado' },
-  italic: { iconClass: 'bi bi-type-italic', label: 'Cursiva' },
-  link: { iconClass: 'bi bi-link-45deg', label: 'Enlace' },
-  'ordered-list': { iconClass: 'bi bi-list-ol', label: 'Lista numerada' },
-  preview: { iconClass: 'bi bi-eye', label: 'Vista previa' },
-  quote: { iconClass: 'bi bi-quote', label: 'Cita' },
-  'unordered-list': { iconClass: 'bi bi-list-ul', label: 'Lista' },
+  bold: { iconClass: 'bi bi-type-bold', label: t('clientMisc.mdBold') },
+  'heading-2': { iconClass: 'bi bi-type-h2', label: t('clientMisc.mdHeading') },
+  italic: { iconClass: 'bi bi-type-italic', label: t('clientMisc.mdItalic') },
+  link: { iconClass: 'bi bi-link-45deg', label: t('clientMisc.mdLink') },
+  'ordered-list': { iconClass: 'bi bi-list-ol', label: t('clientMisc.mdOrderedList') },
+  preview: { iconClass: 'bi bi-eye', label: t('clientMisc.mdPreview') },
+  quote: { iconClass: 'bi bi-quote', label: t('clientMisc.mdQuote') },
+  'unordered-list': { iconClass: 'bi bi-list-ul', label: t('clientMisc.mdList') },
 };
 
 export function initializeMarkdownEditors(root = document) {

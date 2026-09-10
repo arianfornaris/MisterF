@@ -9,7 +9,9 @@ import { createSceneMediaGenerationSourceContext } from './generationContext.js'
 import { generateSceneMediaImage, SceneMediaImageContentPolicyError, SceneMediaImageProviderError, } from './imageGeneration.js';
 import { readSceneMediaImageAsset } from './imageAssets.js';
 const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
-const contentPolicyMessage = 'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.';
+const contentPolicyMessage = 
+// Internal: the page shows `mediaLibrary.failure.contentPolicy` instead.
+'Scene media was rejected by the content policy.';
 // Reads the image the next generation should refine: the pending preview image
 // when one exists (so edits chain iteratively), otherwise the live image.
 export async function readSceneMediaReferenceImage(media, previewImage) {

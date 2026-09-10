@@ -1,14 +1,7 @@
 <%- include('partials/app-shell-open') %>
 
 <%
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-  const formatDate = (value) => {
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : dateFormatter.format(date);
-  };
+  const formatDate = formatDateTime;
   const summary = progressProfile ? progressProfile.summary : null;
   const hasGeneralProgress = Boolean(summary && (
     summary.overview ||

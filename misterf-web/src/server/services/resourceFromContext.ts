@@ -5,7 +5,7 @@ import {
   createRoleplay,
   findProfileForUser,
 } from '../db/repository.js';
-import { translate, type Locale } from '../i18n/index.js';
+import { defaultLocale, translate, type Locale } from '../i18n/index.js';
 import {
   generateQuizDraft,
   generatePracticeGuideDraft,
@@ -112,7 +112,7 @@ export async function createResourceFromContextDraft(input: {
   // model tier comes from the same row so generation honours the learner's
   // choice like every other inference.
   const profile = findProfileForUser(profileId, userId);
-  const instructionLanguage = profile?.instructionLanguage;
+  const instructionLanguage = profile?.instructionLanguage ?? defaultLocale;
   const modelTier = profile?.modelTier;
 
   if (type === 'practice_guide') {

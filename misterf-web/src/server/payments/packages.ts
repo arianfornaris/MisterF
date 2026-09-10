@@ -15,8 +15,10 @@ export const creditPackages: Record<CreditPackageCode, CreditPackage> = {
     creditedAmountCents: 200,
     currency: 'usd',
     customerAmountCents: 500,
-    description: 'Agrega muchas horas de práctica guiada con Mr. F.',
-    label: '200 créditos',
+    // Internal names: the credits page shows `credits.packageDescription` and
+    // `credits.package200` in the buyer's language.
+    description: 'Adds many hours of guided practice with Mr. F.',
+    label: '200 credits',
   },
 };
 

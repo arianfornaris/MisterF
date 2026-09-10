@@ -9,6 +9,10 @@ import {
   buildLearnerProgressVocabularyItems,
 } from '../services/learnerProgressView.js';
 import {
+  buildLearnerProgressSummary,
+  learnerProgressSummaryEventLimit,
+} from '../services/learnerProgress.js';
+import {
   buildDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
@@ -61,7 +65,17 @@ export function renderProgressPage(request: Request, response: Response): void {
       user,
     }),
     events: eventViews,
-    progressProfile,
+    progressProfile: progressProfile
+      ? {
+          ...progressProfile,
+          // Rebuilt from the same events so it reads in the viewer's language;
+          // the stored copy keeps the wording of its last refresh.
+          summary: buildLearnerProgressSummary(
+            events.slice(0, learnerProgressSummaryEventLimit),
+            request.locale,
+          ),
+        }
+      : null,
     selectedProgressTab: normalizeProgressTab(request.query.tab),
     vocabularyItems,
   });

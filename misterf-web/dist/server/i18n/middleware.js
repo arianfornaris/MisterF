@@ -1,4 +1,5 @@
 import { createTranslator, getClientCatalogJson, isLocale, languageOptions, } from './index.js';
+import { formatDateTime } from './dates.js';
 import { getLocaleCookie, resolveLocale, setLocaleCookie } from './resolve.js';
 import { translatorLanguagesJson } from './translatorLanguages.js';
 /**
@@ -18,6 +19,7 @@ export function attachLocale(request, response, next) {
     const locale = resolveLocale(request);
     request.locale = locale;
     response.locals.clientI18nJson = getClientCatalogJson(locale);
+    response.locals.formatDateTime = (value) => formatDateTime(value, locale);
     response.locals.htmlLang = locale;
     response.locals.languages = languageOptions();
     response.locals.locale = locale;
