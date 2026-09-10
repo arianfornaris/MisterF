@@ -1054,8 +1054,10 @@ export const ht: LocaleCatalog = {
     modeHelp:
       'Li sèlman chanje ak kisa paj akèy la louvri. Anyen pa bloke: nan de mòd yo ou ka kreye aktivite, pataje yo, epi pratike ak Mr. F.',
     modeLearn: 'M ap aprann',
+    modeLearnShort: 'Aprann',
     modeLearnHelp: 'Akèy la louvri chat la ak Mr. F ansanm ak aktivite yo pataje avè w.',
     modeTeach: 'M ap anseye',
+    modeTeachShort: 'Anseye',
     modeTeachHelp:
       'Klas ou, pitit ou, oswa nenpòt moun w ap ede. Akèy la louvri sa ou pataje ak repons k ap rive yo.',
     newsTitle: 'Nouvote',

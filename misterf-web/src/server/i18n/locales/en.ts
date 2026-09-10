@@ -1228,8 +1228,10 @@ export const en: LocaleCatalog = {
     modeHelp:
       'It only changes what the home screen opens with. Nothing is locked: in both modes you can create activities, share them, and practice with Mr. F.',
     modeLearn: "I'm learning",
+    modeLearnShort: 'Learning',
     modeLearnHelp: 'Home opens the chat with Mr. F and the activities shared with you.',
     modeTeach: "I'm teaching",
+    modeTeachShort: 'Teaching',
     modeTeachHelp:
       'Your class, your child, or anyone you are helping. Home opens what you shared and the answers coming in.',
     newsTitle: "What's new",

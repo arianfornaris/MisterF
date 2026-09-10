@@ -1477,9 +1477,14 @@ whole surface was exercised live on the QA account (evidence below).
   - The switch moved out of both home compositions into
     `views/partials/app-shell-open.ejs`, with the profile's mode help text
     under it. One control in one place; `returnTo` is now the current page, so
-    switching repaints where you are instead of sending you home. It is
-    stacked rather than side by side because two first-person verbs do not fit
-    across a 220px panel. Cost, accepted: below `lg` the panel is an offcanvas,
+    switching repaints where you are instead of sending you home. The two
+    options sit on one line with short labels (`Aprendo` / `Enseño`,
+    `Learning` / `Teaching`, `Aprann` / `Anseye` — keys `home.modeLearnShort`
+    and `home.modeTeachShort`), founder direction 2026-09-10: the full phrases
+    do not fit side by side in a 220px panel, and stacked they read as two nav
+    links rather than one choice. The short forms are still verbs, never a noun
+    for the person, so the naming rule above holds; the full phrase stays as
+    the tooltip and on the profile form. Cost, accepted: below `lg` the panel is an offcanvas,
     so on a phone the switch is one tap behind the hamburger.
   - The mode now moves the page ground, the card radius, the heading face and
     Bootstrap's whole primary family, so a primary button is terracotta while
@@ -1935,6 +1940,60 @@ address was theirs.
   accounts came through the email form and none through Google, so it would have
   blocked this specific attack — but it raises the attacker's cost rather than
   eliminating it, and excludes learners without a Google account.
+
+---
+
+## 2.8 Hardcoded Spanish In A Non-Spanish UI
+
+Added 2026-09-10 (founder observation). With the profile language set to
+English, the app shows many Spanish strings like "hace 3 meses". The UI locale
+itself is correct: `resolveLocale` (`src/server/i18n/resolve.ts`) makes the
+active profile's `instructionLanguage` authoritative. The problem is code that
+never asks for the locale. The relative-time case is the most visible one, and
+it is not the only one.
+
+Known offenders, from a first grep (not exhaustive):
+
+- `formatRelativeTime` in `src/server/pages/shell.ts` formats through a
+  module-level `Intl.RelativeTimeFormat('es')`. It has no locale parameter and
+  feeds every "updated X ago" / "generated X ago" label: the home page
+  (`home/data.ts`), the resource catalog, quizzes, roleplays, practice guides,
+  scene media, and the conversation list in the shell.
+- `src/client/chat/utils/dates.js` has its own `Intl.RelativeTimeFormat('es')`
+  for the chat conversation list (`formatConversationDates` /
+  `formatConversationDate`).
+- `localeCompare(..., 'es')` sorts resource titles in
+  `server/resources/handlers.ts` and `client/shared/resourceMoveModal.js`. The
+  effect is small (collation, not visible copy), but it belongs to the same
+  class of bug.
+- `server/superadmin/routes.ts` formats dates with `'es'`. It is internal-only,
+  so the decision is whether to leave it as-is on purpose, not whether to fix it.
+
+- [ ] **Audit the whole site for this class of defect.** The goal is an
+  inventory of every place a user sees text that ignores the profile language,
+  not just the "hace…" labels. Two passes:
+  1. *Code:* every `Intl.*` constructor and `toLocale*String` / `localeCompare`
+     with a hardcoded locale; literal user-facing copy in `views/` and
+     `src/client/` that bypasses the i18n catalogs (including `title`,
+     `placeholder`, `aria-label`, and `alt` attributes); server responses and
+     flash messages built from string literals instead of `translate`; and
+     LLM-generated labels or fallbacks that assume Spanish.
+  2. *Live:* browse every page, modal, and empty state signed in with an `en`
+     profile, then an `ht` profile, and write down every Spanish string. The
+     grep will miss copy that comes from data, prompts, or client-rendered
+     templates, and this pass catches it.
+
+  Record the findings as checkboxes in this section before fixing, so the scope
+  is visible.
+- [ ] Make `formatRelativeTime` take the request locale, with no Spanish
+  default, so a caller cannot silently fall back to it, and update every caller.
+  Do the same for the client helper, reading the locale the page already
+  exposes, e.g. `<html lang>`.
+- [ ] Fix the remaining findings from the audit in es/en/ht.
+- [ ] Add a regression guard: at minimum a test that renders a page carrying
+  relative dates under an `en` profile and asserts that no Spanish time phrase
+  appears, and ideally a lint or test that rejects `Intl.*` / `localeCompare`
+  calls with a literal locale outside the i18n module.
 
 ---
 
