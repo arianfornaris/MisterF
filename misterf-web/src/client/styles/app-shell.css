@@ -153,7 +153,22 @@
 }
 
 .conversation-panel {
+  position: relative;
   border-right: 0;
+}
+
+/*
+ * The mode rail (Roadmap V3 §1.14). The home already tells you which mode you
+ * are in, but only while you are on it; three pixels down the side panel is the
+ * one signal that survives navigating away and scrolling. It is decorative:
+ * the switch and the profile form are what say the mode in words.
+ */
+.conversation-panel .mf-mode-rail {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
 }
 
 /*

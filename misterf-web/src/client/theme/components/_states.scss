@@ -113,8 +113,18 @@
   text-decoration: none;
 }
 
-.mf-mode-switch > *[aria-current='true'],
+// The selected option, however the markup says so: `aria-current="page"` when
+// the control is a nav (the app's home switch), `aria-current="true"` or
+// `aria-pressed="true"` when it is a plain toggle. Matching all three keeps the
+// component usable without dictating which role the markup takes.
+.mf-mode-switch > *[aria-current]:not([aria-current='false']),
 .mf-mode-switch > *[aria-pressed='true'] {
   background: var(--mf-mode);
+  color: #fff;
+}
+
+.mf-mode-switch > *[aria-current]:not([aria-current='false']):hover,
+.mf-mode-switch > *[aria-pressed='true']:hover {
+  background: var(--mf-mode-deep);
   color: #fff;
 }

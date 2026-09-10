@@ -3,11 +3,13 @@
     source of truth and the choice survives the next visit — the same value the
     profile form edits. It gates nothing: both modes reach every feature.
 
-    Rendered as nav pills on a row of its own, the same pattern the app already
-    uses to switch between views (the progress tabs, the closed-conversation
-    tabs), because that is what this is: which view of the home you are in. %>
+    Rendered as the theme's `.mf-mode-switch` on a row of its own. It was nav
+    pills until the theme landed; the segmented control is the same idea, but
+    its selected option paints itself with the mode accent rather than with the
+    app's primary, so the control shows which mode you are in instead of only
+    saying it. %>
 <form
-  class="nav nav-pills flex-nowrap gap-2 home-mode-switch"
+  class="mf-mode-switch home-mode-switch"
   method="post"
   action="/home/mode"
   aria-label="<%= t('home.modeAria') %>"
@@ -16,7 +18,6 @@
   <input type="hidden" name="returnTo" value="/">
   <% const activeHomeMode = activeProfile ? activeProfile.homeMode : 'learn'; %>
   <button
-    class="nav-link <%= activeHomeMode === 'learn' ? 'active' : '' %>"
     type="submit"
     name="homeMode"
     value="learn"
@@ -25,7 +26,6 @@
     <i class="bi bi-mortarboard me-2" aria-hidden="true"></i><%= t('home.modeLearn') %>
   </button>
   <button
-    class="nav-link <%= activeHomeMode === 'teach' ? 'active' : '' %>"
     type="submit"
     name="homeMode"
     value="teach"

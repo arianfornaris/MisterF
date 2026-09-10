@@ -2098,25 +2098,12 @@ button.sentence-part:focus {
 
 /*
  * The home mode switch sits on a row of its own, above whatever it switches.
- * Bootstrap's nav pills carry no bottom spacing of their own, and this is the
- * one place they act as a form rather than as a tab list.
+ * The theme's `.mf-mode-switch` owns its appearance and its two-up layout; what
+ * is left here is only where the control sits and how wide it is allowed to
+ * get. On the teaching home the page is full width, and a segmented control
+ * stretched across it stops reading as a control.
  */
 .home-mode-switch {
+  max-width: 26rem;
   margin-bottom: 1rem;
-}
-
-/*
- * Two options, always side by side. Wrapped, the inactive pill loses its
- * background and reads as a stray link under the active one, so the labels
- * shrink instead of stacking on a narrow screen.
- */
-.home-mode-switch .nav-link {
-  white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .home-mode-switch .nav-link {
-    padding-inline: 0.6rem;
-    font-size: 0.875rem;
-  }
 }

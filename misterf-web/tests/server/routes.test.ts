@@ -1988,7 +1988,9 @@ describe('main route smoke tests', () => {
     });
     const libraryHtml = await libraryResponse.text();
     expect(libraryResponse.status).toBe(200);
-    expect(libraryHtml).toContain('<html lang="ht">');
+    // The tag now carries the profile's home mode too, so assert the
+    // language attribute rather than the whole opening tag.
+    expect(libraryHtml).toContain('<html lang="ht"');
     expect(libraryHtml).toContain('Bibliyotèk medya');
     expect(libraryHtml).toContain('Detay');
     expect(libraryHtml).toContain('Jwe');
@@ -2005,7 +2007,7 @@ describe('main route smoke tests', () => {
     );
     const detailHtml = await detailResponse.text();
     expect(detailResponse.status).toBe(200);
-    expect(detailHtml).toContain('<html lang="ht">');
+    expect(detailHtml).toContain('<html lang="ht"');
     expect(detailHtml).toContain('Retounen nan bibliyotèk medya a');
     expect(detailHtml).toContain('Odyo');
     expect(detailHtml).toContain('Skrip');
@@ -2554,6 +2556,31 @@ describe('signed-in home modes', () => {
     expect(html).toContain('See my progress');
     // Nothing shared with this profile yet.
     expect(html).toContain('When someone shares an activity with you');
+  });
+
+  it('writes the profile home mode onto the document so the theme can read it', async () => {
+    const learner = await createHomeAccount('home-mode-attr-learn', 'learn');
+    const teacher = await createHomeAccount('home-mode-attr-teach', 'teach');
+
+    const learnerHome = await fetch(`${baseUrl}/`, {
+      headers: { cookie: learner.cookie },
+      redirect: 'manual',
+    });
+    expect(await learnerHome.text()).toContain('<html lang="en" data-mode="learn">');
+
+    const teacherHome = await fetch(`${baseUrl}/`, {
+      headers: { cookie: teacher.cookie },
+      redirect: 'manual',
+    });
+    expect(await teacherHome.text()).toContain('<html lang="en" data-mode="teach">');
+
+    // The attribute is app-wide, not home-only: the rail in the side panel is
+    // the one mode signal that survives navigating away from the home.
+    const catalog = await fetch(`${baseUrl}/resources`, {
+      headers: { cookie: teacher.cookie },
+      redirect: 'manual',
+    });
+    expect(await catalog.text()).toContain('<html lang="en" data-mode="teach">');
   });
 
   it('opens the teaching composition for a teaching profile', async () => {

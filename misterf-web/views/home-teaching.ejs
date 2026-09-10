@@ -11,7 +11,12 @@
   the page.
 %>
 
-<section class="app-page" aria-label="<%= t('home.teachTitle') %>">
+<%# `mf-mode-skin` is what opts this page into the mode's typographic
+    treatment. The attribute on <html> carries the accent everywhere; the skin
+    is scoped, and the two home compositions are its only consumers today —
+    which is what keeps the mode from leaking into pages it says nothing
+    about. %>
+<section class="app-page mf-mode-skin" aria-label="<%= t('home.teachTitle') %>">
   <%# The switch gets a row of its own above the page header. Sitting beside the
       title it read as an action on the title rather than as the choice of which
       home you are looking at. %>
@@ -19,9 +24,9 @@
 
   <div class="app-page-header">
     <div>
-      <p class="app-page-kicker"><%= t('home.kicker') %></p>
-      <h1 class="app-page-title"><%= t('home.teachTitle') %></h1>
-      <p class="app-page-copy"><%= t('home.teachCopy') %></p>
+      <p class="mf-eyebrow"><%= t('home.kicker') %></p>
+      <h1 class="mf-page-title"><%= t('home.teachTitle') %></h1>
+      <p class="mf-page-lede"><%= t('home.teachCopy') %></p>
     </div>
   </div>
 

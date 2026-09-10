@@ -2,9 +2,27 @@
 // Cuaderno — modes
 // =============================================================================
 //
-// `data-mode="aprendo" | "enseno"` on <html> is the whole mechanism. It swaps a
-// fixed set of custom properties; no component in this theme contains the word
-// "aprendo" or "enseno", and no component is forked per mode.
+// `data-mode="learn" | "teach"` on <html> is the whole mechanism. It carries
+// the active profile's `home_mode` (Roadmap V3 §1.14, migration 30) into CSS.
+// No component in this theme contains the word "learn" or "teach", and no
+// component is forked per mode.
+//
+// The theme applies a mode in two layers, and the split is the important part:
+//
+//   1. THE ACCENT, app-wide. Set on the element carrying the attribute, so any
+//      page can read `--mf-mode`. It changes color and nothing else — no
+//      layout, no type, no spacing moves when the mode changes.
+//   2. THE SKIN, scoped to `.mf-mode-skin`. Typographic decisions that only
+//      make sense where the mode actually composes the page. Today that is the
+//      two home compositions and nothing else.
+//
+// Why the accent stops at Cuaderno's own components: Bootstrap compiles
+// `.btn-primary` to concrete values at build time, so no custom property can
+// restyle it at runtime. Repainting every Bootstrap component per mode would
+// mean a `[data-mode]` fork of each one — exactly what rule 1 below forbids.
+// The mode is therefore a persistent marker (the rail, the switch, the home
+// header), not a reskin of the whole app. That is also the smallest blast
+// radius that still answers "which mode am I in" while scrolling.
 //
 // Rules, in order of how easy they are to break:
 //
@@ -13,13 +31,14 @@
 //   2. Keep the list short. Six entries today. More and the two modes stop
 //      reading as one product.
 //   3. Never differentiate MEANING. A green check, a family color and a warning
-//      mean the same thing in both modes. Only chrome, density and voice move.
+//      mean the same thing in both modes. Only chrome and voice move.
 //   4. Copy is a differentiator, but it belongs in the i18n catalogs as
 //      parallel keys — not in CSS, and not in string swaps in the view.
 //   5. Every page must survive with no `data-mode` at all. A signed-out page
 //      has no mode; `:root` carries the default.
 
-@mixin mf-mode-properties($mode) {
+// Layer 1 — the accent. Cheap enough to apply everywhere.
+@mixin mf-mode-accent($mode) {
   $spec: map-get($mf-modes, $mode);
 
   --mf-mode: #{map-get($spec, accent)};
@@ -27,30 +46,32 @@
   --mf-mode-tint: #{map-get($spec, accent-tint)};
   --mf-mode-rgb: #{to-rgb(map-get($spec, accent))};
 
-  --mf-app-bg: #{map-get($spec, bg)};
-  --mf-app-bg-deep: #{map-get($spec, bg-deep)};
-  --mf-card-radius: #{map-get($spec, card-radius)};
+  // The focus ring follows the mode because it is pure color: it moves nothing
+  // and it keeps keyboard focus reading as part of the same surface.
+  --bs-focus-ring-color: #{rgba(map-get($spec, accent), .45)};
+}
+
+// Layer 2 — the skin. Only where the mode composes the page.
+@mixin mf-mode-skin($mode) {
+  $spec: map-get($mf-modes, $mode);
+
   --mf-heading-font: #{if(map-get($spec, heading) == display, inspect($mf-font-display), inspect($mf-font-ui))};
   --mf-heading-tracking: #{if(map-get($spec, heading) == display, -.015em, -.02em)};
-
-  // Bootstrap variables that have to follow the mode. These are the ones
-  // Bootstrap emits on `:root` (not on the component), so redefining them here
-  // is enough — see `_bootstrap-variables.scss` for the ones that are not.
-  --bs-body-bg: #{map-get($spec, bg)};
-  --bs-body-bg-rgb: #{to-rgb(map-get($spec, bg))};
-  --bs-secondary-bg: #{map-get($spec, bg-deep)};
-  --bs-secondary-bg-rgb: #{to-rgb(map-get($spec, bg-deep))};
-  --bs-focus-ring-color: #{rgba(map-get($spec, accent), .45)};
 }
 
 // The default. A page with no `data-mode` still gets a complete theme.
 :root {
-  @include mf-mode-properties($mf-mode-default);
+  @include mf-mode-accent($mf-mode-default);
+  @include mf-mode-skin($mf-mode-default);
 }
 
 @each $mode, $spec in $mf-modes {
   [data-mode='#{$mode}'] {
-    @include mf-mode-properties($mode);
+    @include mf-mode-accent($mode);
+  }
+
+  [data-mode='#{$mode}'] .mf-mode-skin {
+    @include mf-mode-skin($mode);
   }
 }
 
@@ -58,13 +79,21 @@
 // What the mode actually changes on screen
 // -----------------------------------------------------------------------------
 //
-// Everything above is variables. These four rules are the only places the theme
-// reads the attribute directly, and each one is a typographic or density
-// decision that cannot be expressed as a color.
+// Everything above is variables. These are the only places the theme reads the
+// attribute directly, and each one is a decision that cannot be expressed as a
+// color.
 
-[data-mode='enseno'] {
-  // Teaching pages lead with numbers, so the page title stops competing with
-  // them and the serif gives way to the UI face.
+.mf-mode-skin {
+  // A learning home is an invitation and opens with a serif title over its
+  // illustration. A teaching home leads with numbers, so the title stops
+  // competing with them and the serif gives way to the UI face.
+  .mf-page-title {
+    font-family: var(--mf-heading-font);
+    letter-spacing: var(--mf-heading-tracking);
+  }
+}
+
+[data-mode='teach'] .mf-mode-skin {
   .mf-page-title {
     font-size: var(--mf-text-2xl);
   }

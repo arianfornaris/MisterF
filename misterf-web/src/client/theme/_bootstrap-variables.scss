@@ -65,7 +65,7 @@ $dark:      $mf-ink;
 $min-contrast-ratio: 3;
 
 $body-color: $mf-ink;
-$body-bg: $mf-sand; // the "aprendo" ground; `_modes.scss` swaps the custom property
+$body-bg: $mf-sand; // one ground for the product; the mode does not move it
 $body-secondary-color: $mf-ink-soft;
 $body-secondary-bg: $mf-sand-deep;
 $body-tertiary-color: $mf-ink-faint;

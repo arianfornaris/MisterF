@@ -1,5 +1,13 @@
 <!doctype html>
-<html lang="<%= htmlLang %>">
+<%_ /*
+  `data-mode` carries the active profile's home mode (Roadmap V3 §1.14) into
+  CSS. The theme reads it for one thing only — the accent color of its own
+  components, so the rail and the switch answer "which mode am I in" from any
+  page — and never for layout, so nothing moves when it changes. A profile-less
+  request omits it and the theme falls back to its default. See
+  `src/client/theme/_modes.scss`.
+*/ _%>
+<html lang="<%= htmlLang %>"<% if (activeProfile) { %> data-mode="<%= activeProfile.homeMode %>"<% } %>>
   <head>
     <%- include('document-head', { includeBootstrapIcons: true }) %>
   </head>
@@ -49,6 +57,11 @@
             id="conversationPanel"
             aria-label="<%= t('nav.sidePanel') %>"
           >
+            <% if (activeProfile) { %>
+              <%# Decorative only — the mode is stated in words by the switch on
+                  the home and by the profile form. See `app-shell.css`. %>
+              <span class="mf-mode-rail" aria-hidden="true"></span>
+            <% } %>
             <div class="offcanvas-header">
               <a
                 class="panel-home-link d-lg-none"

@@ -17,6 +17,19 @@ step and no dependencies.
 > standalone stylesheet — they predate the theme and were left untouched so the
 > proposal and its implementation can be compared side by side.
 
+> **Correction — the two home pages here are superseded, and were wrong.**
+> `aprendo-inicio.html` and `enseno-inicio.html` were drawn without reading
+> [Roadmap V3 §1.14](../../docs/roadmap/roadmap-v3.md#114-signed-in-home-modes--learning-and-teaching),
+> which had already specified and shipped the signed-in home the same day. The
+> shipped design is **one route, one shell, two compositions** — a compact panel
+> above the composer for learning, a page of shared activities and their answers
+> for teaching — explicitly *"not two dashboards and not a second home route"*.
+> These two pages are two dashboards, and the learning one demotes the composer
+> that §1.14 keeps as the emotional center of the product. Read them as a
+> sketch of tone, never as the home's structure; the real thing is `/` on the
+> running app, `views/home-teaching.ejs` and
+> `views/partials/learning-home-panel.ejs`. §4 below is corrected in place.
+
 ## Open it
 
 ```bash
@@ -30,12 +43,12 @@ Then <http://localhost:8091/ui-refresh-demo/index.html>. The launch entry
 | --- | --- |
 | `index.html` | The argument, and the map of the demo |
 | `estilo.html` | The system on one page: palette, type, modes, components, image rules |
-| `aprendo-inicio.html` | **New.** A learner home; today the root is an empty chat |
+| `aprendo-inicio.html` | ~~A learner home~~ **Superseded** by the shipped §1.14 home — see the correction above |
 | `aprendo-biblioteca.html` | Redesign of `/resources`. Renders in **both** modes — use the switcher |
 | `aprendo-recurso.html` | Redesign of `/quizzes/:id` |
 | `aprendo-progreso.html` | Redesign of `/progress` |
 | `crear.html` | Redesign of the `new` screens. Renders in both modes |
-| `enseno-inicio.html` | **New.** The teacher's dashboard |
+| `enseno-inicio.html` | ~~The teacher's dashboard~~ **Superseded** by `views/home-teaching.ejs` |
 | `enseno-clase.html` | The Teacher Pilot screen: deliveries, per-block failures, next-class report |
 
 Blue boxes labelled **Nota** are review annotations. They are not part of the
@@ -158,24 +171,36 @@ learner who got something wrong is not in an error state.
 
 ## 4. The two modes
 
-`data-mode="aprendo" | "enseno"` on `<html>` redefines six variables:
-`--mode`, `--mode-deep`, `--mode-tint`, `--app-bg`, `--card-radius`,
-`--heading-font`. Nothing else in the sheet knows the modes exist.
+> **Corrected against what shipped.** The demo pages still show the original
+> six-variable version; the paragraph below describes the theme as it actually
+> is. Where they disagree, the theme wins.
 
-| | Aprendo | Enseño |
-| --- | --- | --- |
-| Background | warm paper `--sand` | cool paper `--cool` |
-| Accent | terracotta | navy |
-| Headings | Literata (serif) | system sans, tighter |
-| Radius | 16px | 12px |
-| Hero illustration | yes, on top-level pages | no |
-| Default layout | cards | tables |
-| Voice | second person, about you | third person, about the group |
+`data-mode="learn" | "teach"` on `<html>`, written server-side from the active
+profile's `home_mode`. The demo's `aprendo` / `enseno` are the wrong values —
+the shipped ones match the database column.
 
-Plus a persistent 4px colored rail down the left edge of the shell, and a
-segmented **Aprendo / Enseño** switcher at the top of the sidebar. Four pixels
-of color is the cheapest "which product am I in" signal that survives
-scrolling.
+The theme applies it in two layers:
+
+| | Learn | Teach | Scope |
+| --- | --- | --- | --- |
+| Accent (`--mf-mode` + tint/deep/rgb, focus ring) | terracotta | navy | app-wide |
+| Headings | Literata (serif) | system sans, tighter | `.mf-mode-skin` only |
+| Page title size | 38px | 30px | `.mf-mode-skin` only |
+| Hero illustration | shown | hidden | `.mf-mode-skin` only |
+| Voice | second person, about you | third person, about the group | i18n, not CSS |
+
+Two entries the demo proposed were dropped on implementation: a **per-mode
+background** (warm vs cool paper) bought too little signal for a change that
+touched every surface, and a **per-mode card radius** made the home round
+differently from the page behind it, which reads as a bug rather than as a
+mode.
+
+What survives as the persistent signal is a three-pixel accent rail down the
+left edge of the conversation panel, plus the segmented switch on the home
+itself (not at the top of the sidebar — §1.14 put it on a row of its own above
+each composition). The accent does **not** repaint Bootstrap's own components:
+`.btn-primary` is compiled to concrete values, so a full reskin would mean
+forking every component per mode. The mode is a marker, not a skin.
 
 ### Rules for mode differentiation
 

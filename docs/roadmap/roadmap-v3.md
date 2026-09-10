@@ -1450,6 +1450,26 @@ whole surface was exercised live on the QA account (evidence below).
   next to the data it would read.
 - **The sidebar is unchanged.** The blast radius stays at one page, which is
   what makes the change measurable.
+  **Amended 2026-09-09 (same day, founder direction) when the Cuaderno theme
+  landed**, which asked for the modes to be visibly different rather than only
+  structurally different. `<html>` now carries `data-mode` on every app page
+  (`views/partials/app-shell-open.ejs`, from `activeProfile.homeMode`) and the
+  conversation panel carries a three-pixel accent rail. What that buys is the
+  one mode signal that survives navigating away from the home; what it
+  deliberately does not do is repaint the app. Bootstrap compiles
+  `.btn-primary` to concrete values, so a full per-mode reskin would mean
+  forking every Bootstrap component behind a `[data-mode]` selector — refused.
+  The mode moves color on the theme's own components and nothing else: no
+  layout, no spacing, no type outside `.mf-mode-skin`, which only
+  `views/home-teaching.ejs` wears. The blast radius is therefore wider than
+  one page but still zero-risk to read: see
+  `misterf-web/src/client/theme/README.md` §5.
+- **The switch is the theme's segmented control, not nav pills.** Bootstrap's
+  `.nav-pills .nav-link.active` compiles to the app's primary, so in learning
+  mode the control that exists to show the mode was painted the teaching
+  color. `.mf-mode-switch` paints its selected option with `--mf-mode`, so the
+  control now shows the mode instead of only naming it. Same row of its own,
+  same two options, same posted form.
 - Also extracted in passing: `src/server/resources/paths.ts`, so the catalog
   and the home build resource links from one definition, and
   `PedagogicalResourceType`, which makes "folders are not activities" a type

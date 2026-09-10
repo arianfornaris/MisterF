@@ -15,7 +15,7 @@
   Adding a component to the theme? Add it here in the same commit. A component
   that is not on this page cannot be reviewed, and will be re-invented.
 -->
-<html lang="en" data-mode="aprendo">
+<html lang="en" data-mode="learn">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -55,21 +55,23 @@
     </style>
   </head>
   <body>
-    <div class="ks-wrap">
+    <!-- The skin is scoped in the app; the sink wears it so the heading-face demo works. -->
+    <div class="ks-wrap mf-mode-skin">
       <header class="ks-bar">
         <strong class="font-display">Cuaderno</strong>
         <span class="mf-chip mf-chip-plain">kitchen sink</span>
         <nav class="mf-mode-switch" style="width: 15rem; margin-left: auto" aria-label="Mode">
-          <button type="button" data-set-mode="aprendo" aria-pressed="true">Aprendo</button>
-          <button type="button" data-set-mode="enseno" aria-pressed="false">Enseño</button>
+          <button type="button" data-set-mode="learn" aria-pressed="true">Aprendo</button>
+          <button type="button" data-set-mode="teach" aria-pressed="false">Enseño</button>
         </nav>
       </header>
 
       <p class="mf-eyebrow">Reference</p>
       <h1 class="mf-page-title">Every component the theme ships</h1>
       <p class="mf-page-lede">
-        Flip the mode above and watch the ground, the accent, the heading face and the card radius
-        change — without a single component being duplicated.
+        Flip the mode above and watch the accent change everywhere, and the heading face change
+        inside <code>.mf-mode-skin</code> — without a single component being duplicated. The
+        ground, the radius and every other value stay put on purpose: see <code>_modes.scss</code>.
       </p>
 
       <!-- ================================================================ -->
