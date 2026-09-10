@@ -2065,6 +2065,10 @@ address was theirs.
 
 ## 2.8 Hardcoded Spanish In A Non-Spanish UI
 
+**Done 2026-09-10** (commit `50f910ab` on `v3`, not yet released). Audit,
+fixes, and regression guard are complete; the record of what changed, what
+turned out not to be a violation, and what remains uncovered is below.
+
 Added 2026-09-10 (founder observation). With the profile language set to
 English, the app shows many Spanish strings like "hace 3 meses". The UI locale
 itself is correct: `resolveLocale` (`src/server/i18n/resolve.ts`) makes the
