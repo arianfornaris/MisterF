@@ -1,6 +1,6 @@
 ---
 name: theme-surface-conventions
-description: Use when creating, editing, or reviewing Mister F UI surfaces or CSS that affects page containers, app chrome, panels, cards, backgrounds, borders, border radii, shadows, gradients, or theme portability with Bootstrap/Bootswatch Flatly.
+description: Use when creating, editing, or reviewing Mister F UI surfaces or CSS that affects page containers, app chrome, panels, cards, backgrounds, borders, border radii, shadows, gradients, or theme portability with Bootstrap and the Cuaderno theme.
 ---
 
 # Theme Surface Conventions
@@ -9,13 +9,17 @@ description: Use when creating, editing, or reviewing Mister F UI surfaces or CS
 
 Keep Mister F's general UI surfaces theme-friendly.
 
-**Since the Cuaderno theme (branch `v3-design`), the app no longer loads
+**Since the Cuaderno theme (2026-09-09), the app no longer loads
 Bootswatch Flatly.** It compiles its own Bootstrap build from
 `misterf-web/src/client/theme/`. Read that folder's `README.md` before changing
 any surface: it is the authority on tokens, and it supersedes this skill on
 three points listed under "Cuaderno amendments" below. Everything else here
 still stands — the goal was always portability, and owning the theme is the
 strongest form of it.
+
+Anything about the learning/teaching mode — surfaces that follow it, the
+switch, what may or may not change per mode — is in the `cuaderno-theme`
+skill. Surfaces written with the tokens below already follow the mode.
 
 ## Cuaderno Amendments
 

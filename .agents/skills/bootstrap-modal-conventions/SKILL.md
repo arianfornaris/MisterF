@@ -5,7 +5,7 @@ description: Use when creating, editing, or reviewing Bootstrap modals in the Mi
 
 # Bootstrap Modal Conventions
 
-Use Bootstrap and Bootswatch `Flatly` modal patterns. Do not invent custom close
+Use Bootstrap modal patterns as the app's Cuaderno theme renders them. Do not invent custom close
 or confirmation treatments unless Bootstrap cannot express the interaction.
 
 ## Rules

@@ -7,7 +7,8 @@ the tutor experience its own pedagogical visual language.
 
 The design rule is:
 
-- Bootstrap and Bootswatch `Flatly` own the application theme.
+- Bootstrap, compiled through the app's own Cuaderno theme, owns the
+  application theme.
 - Mister F custom tokens own only the instructional visuals inside practice and
   chat content.
 - Links, buttons, menus, forms, alerts, badges, cards, tables, and app chrome
@@ -24,7 +25,14 @@ different jobs. Nothing below is weakened by that exception.
 
 ## Theme Source of Truth
 
-The app uses Bootswatch `Flatly`.
+The app uses **Cuaderno**, its own Bootstrap build compiled from
+`misterf-web/src/client/theme/`. It replaced Bootswatch `Flatly` on 2026-09-09
+and keeps Flatly's flat structure; the palette, type, radii and the
+learning/teaching modes are ours. The theme's `README.md` is the authority on
+tokens and modes, and `.agents/skills/cuaderno-theme/SKILL.md` is the short
+version. In short: the two modes repaint the signed-in app through CSS custom
+properties, so nothing in a view or an app stylesheet should branch on the
+mode.
 
 When building or changing UI, prefer Bootstrap primitives first:
 
@@ -96,7 +104,7 @@ contains the operational checklist for future modal work.
 
 Tutor exercise cards may use Mister F custom colors for instructional identity,
 but their interactive controls should still feel native to Bootstrap and the
-Flatly theme.
+Cuaderno theme.
 
 General rules:
 
@@ -171,7 +179,7 @@ Quiz UI should follow Bootstrap's control language.
 UI guidance:
 
 - close controls should be Bootstrap-friendly and not use bespoke shapes that
-  fight Flatly
+  fight the theme
 - `Atrás`, `Siguiente`, and `Evaluar` should use `btn-primary`
 - secondary sizing is fine for navigation, but the styling should remain clearly
   enabled when the action is available
@@ -338,6 +346,7 @@ When reviewing UI changes, check:
 - Links use Bootstrap link styling unless they are explicitly converted into a
   Bootstrap button.
 - No selector globally recolors links inside `.message-bubble`.
-- New custom colors appear as `--mf-*` tokens in `base.css`.
+- New custom colors are added to `src/client/theme/_tokens.scss`, never to
+  `base.css`, which still holds legacy tokens pending migration.
 - `chat-content.css` colors are only for tutor/practice content.
-- Non-chat pages use Bootstrap and Bootswatch `Flatly` primitives.
+- Non-chat pages use Bootstrap primitives as the Cuaderno theme renders them.

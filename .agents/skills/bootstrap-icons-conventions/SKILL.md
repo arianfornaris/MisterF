@@ -5,7 +5,7 @@ description: Use when adding, editing, or reviewing icons in Mister F UI, includ
 
 # Bootstrap Icons Conventions
 
-Mister F uses Bootstrap Icons as its UI icon system. Keep icons aligned with Bootstrap, Bootswatch Flatly, and the app's existing accessibility patterns.
+Mister F uses Bootstrap Icons as its UI icon system. Keep icons aligned with Bootstrap, the Cuaderno theme, and the app's existing accessibility patterns.
 
 ## Rules
 

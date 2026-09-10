@@ -24,7 +24,8 @@ their info anonymously and gate the launch behind an account.
 ## Stack
 
 - Node.js, Express, TypeScript, and EJS
-- Bootstrap, Bootswatch Flatly, Bootstrap Icons, and small project CSS
+- Bootstrap compiled through the app's own theme (Cuaderno,
+  `src/client/theme/`), Bootstrap Icons, and small project CSS
 - Socket.IO for tutor realtime flows
 - SQLite with project migrations
 - AI SDK with OpenRouter

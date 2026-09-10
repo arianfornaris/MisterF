@@ -176,15 +176,21 @@ the invariant. Keep it.
 
 1. **Differentiate through `_modes.scss` only.** If a difference cannot be
    expressed as a variable, it probably should not exist.
-2. **Keep the list short.** Six entries. More and the two modes stop reading as
-   one product. Before adding one, ask which layer it belongs to — if it is not
-   pure color it is not allowed in layer 1.
+2. **Keep the list short.** Seven entries today. More and the two modes stop
+   reading as one product.
 3. **Never differentiate meaning.** A green check, a family color and a warning
-   mean the same thing in both. Only chrome, density and voice move.
+   mean the same thing in both. Only chrome and voice move — and chrome never
+   includes layout: nothing reflows, appears or disappears because of the
+   mode.
 4. **Copy is a differentiator** — but it belongs in the i18n catalogs as
    parallel keys, not in CSS and not in string swaps in the view.
 5. **Every page must survive with no `data-mode`.** A signed-out page has no
-   mode; `:root` carries the default (`$mf-mode-default`).
+   mode; `:root` carries the `--mf-*` fallbacks of `$mf-mode-default` but not
+   the Bootstrap re-point, so it stays navy.
+6. **Never style by mode outside the theme.** No `[data-mode]` selector in
+   `src/client/styles/`, and no `homeMode` conditional in a view to choose a
+   class or a color. `btn-primary`, links, `--bs-primary-*` and `--mf-mode`
+   already follow; a view that branches on the mode for looks is a bug.
 
 ### How it is wired in the app
 
@@ -201,6 +207,9 @@ person switches several times a day.
   survives navigating away from the home. Positioned in `app-shell.css`.
 - Nothing else opts in. The mode reaches every page through `<html>`, so no
   view carries a mode class and no view should start.
+
+For agents, `.agents/skills/cuaderno-theme/SKILL.md` is the short operational
+version of this section and of §9.
 
 ## 6. Families
 

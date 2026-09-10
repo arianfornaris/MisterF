@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cuaderno Theme And Modes"
+  short_description: "Build Mister F UI on its own Bootstrap theme, where learning/teaching modes repaint the app through CSS variables."
+  default_prompt: "Use the Mister F Cuaderno theme conventions before changing any UI, CSS, or anything that should differ between learning and teaching mode."

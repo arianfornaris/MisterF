@@ -18,17 +18,24 @@ Project-specific agent guidance lives in `.agents/skills`.
 
 ## UI Theme Guidance
 
-This project uses the Bootswatch `Flatly` theme.
+This project uses its own Bootstrap theme, **Cuaderno**, compiled from
+`misterf-web/src/client/theme/`. It replaced Bootswatch `Flatly` and keeps
+Flatly's flat structure, but the palette, type, radii and modes are ours.
+Read `.agents/skills/cuaderno-theme/SKILL.md` before any UI work, and the
+theme's `README.md` for the full reference.
 
-Follow the visual language and component behavior of `Flatly` instead of inventing a separate style system.
+The signed-in app has two modes, learning and teaching, that repaint it
+through CSS custom properties. Never style by mode by hand — no mode
+conditionals in views, no `[data-mode]` selectors outside the theme. The
+accent, `btn-primary`, links and subtle surfaces already follow the mode.
 
 When building or updating UI:
 
-- Prefer standard Bootstrap and Bootswatch `Flatly` components, spacing, typography, and states.
-- Treat `btn-primary` as the default primary accent unless a specific context calls for another semantic variant.
+- Prefer standard Bootstrap components, spacing, typography, and states, as the Cuaderno theme renders them.
+- Treat `btn-primary` as the default primary accent unless a specific context calls for another semantic variant. It follows the active mode automatically.
 - Preserve clear action hierarchy:
   - one primary action when appropriate
   - quieter secondary actions with outline, link, or lighter variants when they are not primary
 - Avoid custom visual treatments that fight the theme's clean, flat, modern appearance.
 - Prefer Bootstrap-native interaction patterns such as modals, accordions, alerts, badges, cards, list groups, and dropdowns before creating custom UI patterns.
-- If a Bootstrap component has a native focus, hover, active, or expanded state in `Flatly`, assume that state is intentional unless there is a strong UX reason to refine it.
+- If a Bootstrap component has a native focus, hover, active, or expanded state, assume that state is intentional unless there is a strong UX reason to refine it.
