@@ -1,21 +1,27 @@
+/* The workspace fills the window, as in `design/experience-demo/` (founder
+   direction 2026-09-11): the side panel is flush with the window edge and
+   separated from the content by a hairline, and the content sits directly on
+   the page ground — no floating cards, no shadow. The same at every width, so
+   phones and tablets no longer need their own flattening rules. */
 .chat-workspace {
-  width: min(100%, 980px);
-  height: min(860px, calc(100vh - 48px));
-  min-height: 620px;
+  width: 100%;
+  height: 100vh;
 }
 
 .chat-workspace.has-toolbar {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 8px;
 }
 
 .chat-toolbar {
-  min-height: 40px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 4px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--app-side-panel-bg);
 }
 
 .chat-layout {
@@ -27,9 +33,7 @@
   grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
   border: 0;
-  border-radius: var(--bs-card-border-radius);
-  background: var(--app-main-panel-bg);
-  box-shadow: var(--app-main-panel-shadow);
+  background: transparent;
 }
 
 .chat-layout.is-closed-conversation {
@@ -336,11 +340,8 @@
 
 @media (min-width: 992px) {
   .chat-workspace.has-toolbar {
-    width: min(100%, 1240px);
-    display: grid;
     grid-template-columns: 320px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
-    gap: 16px;
     align-items: stretch;
   }
 
@@ -358,9 +359,8 @@
     width: 100%;
     height: 100%;
     border: 0;
-    border-radius: var(--bs-card-border-radius);
-    background: var(--app-main-panel-bg);
-    box-shadow: var(--app-main-panel-shadow);
+    border-right: 1px solid var(--line);
+    background: var(--app-side-panel-bg);
   }
 
   .conversation-panel .offcanvas-body {

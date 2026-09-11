@@ -6,10 +6,6 @@
   --muted: var(--bs-secondary-color);
   --line: var(--bs-border-color);
   --panel: var(--bs-card-bg);
-  --app-main-panel-bg: var(--bs-card-bg);
-  --app-main-panel-shadow:
-    0 18px 45px rgba(var(--bs-primary-rgb), 0.1),
-    0 2px 8px rgba(var(--bs-black-rgb), 0.035);
 
   /* Practice/chat visual language. Bootstrap still owns links, buttons, and app chrome. */
   --mf-dialogue: #6c4b2c;
@@ -69,11 +65,11 @@ body {
   font-family: var(--bs-body-font-family);
 }
 
+/* The shell fills the window (founder direction 2026-09-11, after
+   `design/experience-demo/`): no margin around it and no centered block. The
+   layout inside it lives in `app-shell.css`. */
 .app-shell {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
 }
 
 .superadmin-shell {

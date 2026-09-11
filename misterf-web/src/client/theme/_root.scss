@@ -94,8 +94,9 @@
   --muted: var(--mf-ink-soft);
   --line: var(--mf-line);
   --panel: var(--mf-paper);
-  --app-main-panel-bg: var(--mf-paper);
-  --app-main-panel-shadow: var(--mf-shadow-card);
+  // The side panel's paper. The content has no surface of its own: the shell is
+  // edge to edge and flat (`theme-surface-conventions`, 2026-09-11).
+  --app-side-panel-bg: var(--mf-paper);
 
   --mf-quiz: #{map-get(map-get($mf-families, quiz), base)};
   --mf-quiz-strong: #{map-get(map-get($mf-families, quiz), ink)};

@@ -80,17 +80,27 @@ Custom visual treatment may be appropriate inside content-specific UI, especiall
 
 Keep these exceptions scoped. Do not let their gradients, shadows, or custom radii become the default language for app-level containers.
 
-## Main Panel Border Treatment
+## The App Shell: Edge To Edge, Flat
 
-The app is organized around two main desktop panels: the left navigation/conversation panel and the right content panel. These panels may use a shared shadow treatment so the shell does not feel too flat.
+**Changed 2026-09-11 (founder direction, after `design/experience-demo/`).**
+The shell used to be a centered block holding two floating panels with a
+shared shadow. It is now edge to edge, and the shared-shadow exception that
+used to live here is gone — there is no shadow on app chrome at all.
 
-- Define the main panel treatment once with shared CSS variables.
-- Apply it consistently to the left panel and every right-panel variant.
-- Prefer no visible border on these panels unless the user explicitly asks for one.
-- A shared main-panel `box-shadow` is allowed for these two structural panels only; keep it soft and theme-token-based so it does not compete with content cards.
-- When using Bootstrap `--bs-*-rgb` variables, use comma-compatible `rgba(var(--bs-*-rgb), alpha)` syntax.
-- Do not use gradients, page-specific custom shadows, or fixed radii for this exception.
-- Do not create one-off border styles for individual pages unless the user explicitly asks for a distinct visual state.
+- The shell fills the window at every width (`.app-shell`, `.chat-workspace`
+  in `app-shell.css`). No outer margin, no centered max-width block.
+- The **side panel** is flush with the window edge: `var(--app-side-panel-bg)`
+  (paper), no radius, no shadow, and a single hairline
+  `border-right: 1px solid var(--line)` against the content. Below `lg` it is
+  the offcanvas and the top toolbar takes the same paper and a hairline
+  bottom border.
+- The **content** — `.app-page` and `.chat-layout`, and any new right-hand
+  view — is **not a card**: transparent background on the page ground
+  (`--mf-app-bg`, which the mode swaps), no radius, no shadow, no border. Cards
+  and heroes inside it provide the surfaces.
+- Do not reintroduce a panel shadow, a panel radius, or a margin around the
+  shell. A new full-page view renders inside `.app-page` and inherits all of
+  this.
 
 ## Review Workflow
 

@@ -289,6 +289,10 @@
                     </div>
                   </div>
                 <% } %>
+                <%# Here rather than after the shell: the shell fills the
+                    window edge to edge, so a page footer below it would make
+                    the document scroll under the fixed panel. %>
+                <%- include('legal-footer') %>
               </div>
             </div>
           </aside>

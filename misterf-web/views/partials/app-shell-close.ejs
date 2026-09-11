@@ -1,7 +1,9 @@
         </div>
       </main>
 
-    <%- include('legal-footer') %>
+    <%# The legal footer lives at the bottom of the side panel
+        (`app-shell-open.ejs`): the shell fills the window, and a footer after
+        it would make the whole document scroll. %>
 
     <script>
       window.__APP_LOCALE__ = "<%= locale %>";
