@@ -2361,6 +2361,13 @@ The production server runs **Node 20.16.0** (npm 9.2.0). The deploy's
 - `vite@8.2.2` requires `^20.19.0 || >=22.12.0`. It is a build tool; production
   installs with `--omit=dev` and serves the compiled `public/build`, so this one
   is only a symptom of the same old Node.
+- Every production start logs `ExperimentalWarning: Importing JSON modules is an
+  experimental feature` (seen on both the `3.14.0` and `3.15.0` starts,
+  2026-09-11). It is not our code — nothing in `src/` or `dist/` uses JSON
+  import attributes — but `sharp`, a runtime dependency (image processing),
+  imports JSON with `with { type: 'json' }`, which is experimental on Node 20
+  and stable from Node 22. Harmless today; it disappears with the upgrade
+  below and is a quick way to confirm the server picked up the new Node.
 
 Locally the app runs on Node 24 (see the local-server notes: two Node installs
 on the dev machine, and `better-sqlite3` is compiled for exactly one ABI).
