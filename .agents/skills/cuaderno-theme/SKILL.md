@@ -102,6 +102,8 @@ It happened once (2026-09-09). Check the panel at 375px after touching it. The m
 
 ## Related
 
+- `ui-illustrations` — every image that goes into `.mf-hero`, `.mf-spot` or
+  `.mf-empty`: when one belongs, the locked style prompt, the generator.
 - `misterf-web/src/client/theme/README.md` — the full theme reference.
 - `bootstrap-ui-conventions`, `theme-surface-conventions` — still apply to
   Bootstrap components and surfaces; the theme README overrides the latter on

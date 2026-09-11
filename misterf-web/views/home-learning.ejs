@@ -7,10 +7,16 @@
   learner's own ways into practice. Every section is a deterministic query: no
   inference runs here, so opening the app costs nothing and never waits.
 
-  Order is deliberate: the next step (an activity someone is waiting on, else
-  the learner's open conversation), then the question box, then what was shared
-  with them, then the rest of their open conversations, then self-directed
-  routes.
+  Order is deliberate: the hero carries the greeting and the next step (an
+  activity someone is waiting on, else the learner's open conversation), then
+  the question box, then what was shared with them, then the rest of their open
+  conversations, then self-directed routes.
+
+  Illustrations come from `public/illustrations/` and follow the
+  `ui-illustrations` skill: one hero, inline spots beside text that already says
+  what they show (so `alt=""`), and an empty-state image only when a list is
+  empty. The hero belongs to this composition only — the server decides that by
+  rendering this view, never a mode selector.
 %>
 <%
   const nextStep = learningHome.nextStep;
@@ -34,18 +40,18 @@
           title: nextStep.conversation.title || t('nav.newConversation'),
         };
   const ownRoutes = [
-    { body: t('home.createPracticeBody'), href: '/practice-guides/new', iconClass: 'bi-journal-plus', title: t('home.createPracticeTitle') },
-    { body: t('home.libraryBody'), href: '/resources', iconClass: 'bi-folder2-open', title: t('home.libraryTitle') },
-    { body: t('home.progressBody'), href: '/progress', iconClass: 'bi-graph-up', title: t('home.progressTitle') },
+    { body: t('home.createPracticeBody'), href: '/practice-guides/new', illustration: 'spot-guia', title: t('home.createPracticeTitle') },
+    { body: t('home.libraryBody'), href: '/resources', illustration: 'spot-biblioteca', title: t('home.libraryTitle') },
+    { body: t('home.progressBody'), href: '/progress', illustration: 'spot-progreso', title: t('home.progressTitle') },
   ];
 %>
 
 <section class="app-page" aria-labelledby="homeLearningTitle">
-  <div class="app-page-header">
-    <div>
-      <p class="mf-eyebrow"><%= t('home.kicker') %></p>
+  <section class="mf-hero">
+    <div class="mf-hero-copy">
+      <p class="mf-eyebrow mb-0"><%= t('home.kicker') %></p>
       <h1 class="mf-page-title" id="homeLearningTitle"><%= t('home.learnGreeting', { name: activeProfile.name }) %></h1>
-      <p class="mf-page-lede">
+      <p class="mf-page-lede mt-0">
         <% if (learningHome.pendingCount > 1) { %>
           <%= t('home.learnLedePending', { count: learningHome.pendingCount }) %>
         <% } else if (learningHome.pendingCount === 1) { %>
@@ -54,29 +60,32 @@
           <%= t('home.learnLedeIdle') %>
         <% } %>
       </p>
-    </div>
-  </div>
 
-  <% if (nextStepCard) { %>
-    <div class="card mt-4 <%= nextStepCard.familyClass %>">
-      <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div class="min-w-0">
+      <% if (nextStepCard) { %>
+        <div class="min-w-0 mt-2 <%= nextStepCard.familyClass %>">
           <span class="mf-chip"><%= nextStepCard.chip %></span>
-          <p class="h5 mt-2 mb-1 text-truncate"><%= nextStepCard.title %></p>
-          <p class="small text-body-secondary mb-0"><%= nextStepCard.meta %></p>
+          <p class="h5 mt-2 mb-1"><%= nextStepCard.title %></p>
+          <p class="small text-body-secondary mb-3"><%= nextStepCard.meta %></p>
+          <a class="btn btn-primary" href="<%= nextStepCard.href %>">
+            <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= nextStepCard.action %>
+          </a>
         </div>
-        <a class="btn btn-primary flex-shrink-0" href="<%= nextStepCard.href %>">
-          <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= nextStepCard.action %>
-        </a>
-      </div>
+      <% } %>
     </div>
-  <% } %>
+    <div
+      class="mf-hero-art"
+      style="background-image: url('/public/illustrations/hero-aprendo.png')"
+      role="img"
+      aria-label="<%= t('home.heroAlt') %>"
+    ></div>
+  </section>
 
-  <section class="card mt-4" aria-labelledby="homeAskTitle">
+  <section class="card" aria-labelledby="homeAskTitle">
     <div class="card-body">
-      <h2 class="h6 mb-2" id="homeAskTitle">
-        <i class="bi bi-chat-dots me-2" aria-hidden="true"></i><%= t('home.askTutor') %>
-      </h2>
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <img class="mf-spot mf-spot-inline" src="/public/illustrations/spot-charla.png" alt="" width="56" height="56">
+        <h2 class="h6 mb-0" id="homeAskTitle"><%= t('home.askTutor') %></h2>
+      </div>
       <%# The textarea deliberately has no `name`: without JavaScript the form
           still opens `/chat`, and the text can never reach a query string. The
           home script hands it over through sessionStorage instead. %>
@@ -150,7 +159,12 @@
         <% }) %>
       </div>
     <% } else { %>
-      <p class="text-body-secondary mb-0"><%= t('home.learnEmpty') %></p>
+      <div class="mf-empty">
+        <img src="/public/illustrations/empty-biblioteca.png" alt="" width="640" height="478" loading="lazy">
+        <p class="mf-empty-title"><%= t('home.learnEmptyTitle') %></p>
+        <p class="mf-empty-body"><%= t('home.learnEmpty') %></p>
+        <a class="btn btn-primary btn-sm" href="/practice-guides/new"><%= t('home.createPracticeTitle') %></a>
+      </div>
     <% } %>
   </section>
 
@@ -183,11 +197,14 @@
       <% ownRoutes.forEach((route) => { %>
         <div class="col">
           <div class="card h-100">
-            <div class="card-body">
-              <h3 class="h6 mb-1">
-                <i class="bi <%= route.iconClass %> text-primary me-2" aria-hidden="true"></i><a class="stretched-link text-reset text-decoration-none" href="<%= route.href %>"><%= route.title %></a>
-              </h3>
-              <p class="small text-body-secondary mb-0"><%= route.body %></p>
+            <div class="card-body d-flex align-items-start gap-3">
+              <img class="mf-spot mf-spot-inline flex-shrink-0" src="/public/illustrations/<%= route.illustration %>.png" alt="" width="56" height="56" loading="lazy">
+              <div class="min-w-0">
+                <h3 class="h6 mb-1">
+                  <a class="stretched-link text-reset text-decoration-none" href="<%= route.href %>"><%= route.title %></a>
+                </h3>
+                <p class="small text-body-secondary mb-0"><%= route.body %></p>
+              </div>
             </div>
           </div>
         </div>

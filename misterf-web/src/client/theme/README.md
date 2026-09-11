@@ -277,8 +277,8 @@ Bootstrap's, restyled through variables.
 | `.mf-block` `.mf-choice` `.mf-blank` | exercise blocks | the existing design, plus a family rail |
 | `.mf-mock` `.mf-mock-line` | a product mockup in HTML | never a screenshot |
 | `.mf-streak` | effort record | Aprendo only; no loss state, no red |
-| `.mf-empty` `.mf-spot` | empty states and illustration slots | always ends in an action |
-| `.mf-hero` `.mf-res-band` `.mf-page-*` | page furniture | hero is hidden in Enseño |
+| `.mf-empty` `.mf-spot` | empty states and illustration slots | always ends in an action; images come from `public/illustrations/` via the `ui-illustrations` skill |
+| `.mf-hero` `.mf-res-band` `.mf-page-*` | page furniture | a hero is rendered only by learning compositions — the view decides, never a `[data-mode]` rule (a mode never makes things appear or disappear) |
 | `.mf-mode-switch` `.mf-mode-rail` | mode chrome | |
 | `.mf-lift` `.mf-lift-strong` | opt-in elevation | cards are flat by default |
 

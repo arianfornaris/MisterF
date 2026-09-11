@@ -2561,8 +2561,12 @@ describe('signed-in home modes', () => {
     expect(html).toContain('What would you like to practice today?');
     expect(html).toContain('For you');
     expect(html).toContain('href="/progress"');
-    // Nothing shared with this profile yet.
+    // Nothing shared with this profile yet: the illustrated empty state.
     expect(html).toContain('When someone shares an activity with you');
+    expect(html).toContain('/public/illustrations/empty-biblioteca.png');
+    // The learning composition's hero (`ui-illustrations`).
+    expect(html).toContain("url('/public/illustrations/hero-aprendo.png')");
+    expect(html).toContain('aria-label="A learner practicing English at her kitchen table"');
     // The home is the active entry in the side panel.
     expect(html).toMatch(/class="panel-nav-link is-active" href="\/"/);
   });
@@ -2622,6 +2626,9 @@ describe('signed-in home modes', () => {
     expect(html).toContain('Create an activity');
     expect(html).toContain('href="/quizzes/new"');
     expect(html).toContain('You have not shared an activity yet');
+    expect(html).toContain('/public/illustrations/empty-clase.png');
+    // No hero on the teaching composition; that is decided by the view.
+    expect(html).not.toContain('mf-hero-art');
     // The teaching home is not the chat page; the tutor is one quiet link away.
     expect(html).not.toContain('id="chatForm"');
     expect(html).toContain('href="/chat"');

@@ -1,0 +1,47 @@
+{
+  "$comment": "Registry of every UI illustration the app serves from misterf-web/public/illustrations/. One entry per file. The subject is the only part of the prompt that varies; the style block lives in generate.py. See .agents/skills/ui-illustrations/SKILL.md before adding one.",
+  "illustrations": [
+    {
+      "name": "hero-aprendo",
+      "subject": "A wide horizontal scene: one adult woman learner in her thirties sitting at a small kitchen table at home, relaxed and lightly smiling, a phone propped in front of her and an open notebook and pen beside a mug of coffee. Warm morning light. She looks calm and focused, not stressed. Simple domestic background: a window, a plant, a shelf. Plenty of clean empty space on the left.",
+      "usedIn": ["views/home-learning.ejs (hero)"],
+      "alt": "home.heroAlt"
+    },
+    {
+      "name": "spot-guia",
+      "subject": "A single centered spot illustration: an open notebook seen from slightly above with abstract horizontal lines on both pages, a ribbon bookmark, and a very small potted plant beside it. Deep blue-cyan #1F6F8B is the dominant accent color.",
+      "usedIn": ["views/home-learning.ejs (Practica por tu cuenta: crear una práctica)"],
+      "alt": "decorative"
+    },
+    {
+      "name": "spot-progreso",
+      "subject": "A single centered spot illustration: a small healthy potted plant with three leaves growing beside a simple rising staircase of three blocks. Warm and encouraging. Teal #0F766E and terracotta #B8541F accents.",
+      "usedIn": ["views/home-learning.ejs (Practica por tu cuenta: mi progreso)"],
+      "alt": "decorative"
+    },
+    {
+      "name": "spot-biblioteca",
+      "subject": "A single centered spot illustration: a short wooden shelf holding three upright folders and notebooks of different heights, one small folder leaning against them, and a tiny potted plant at the end of the shelf. Deep navy #00496A is the dominant accent color.",
+      "usedIn": ["views/home-learning.ejs (Practica por tu cuenta: mis recursos)"],
+      "alt": "decorative"
+    },
+    {
+      "name": "spot-charla",
+      "subject": "A single centered spot illustration: one large rounded off-white speech bubble with a few abstract horizontal lines inside, and a smaller muted sand reply bubble overlapping its lower corner, with a slim pencil resting beneath them. No characters. Thin, light outlines and mostly paper cream and off-white fills, like the other spot illustrations; terracotta #B8541F appears only as a small accent on the pencil and the lines.",
+      "usedIn": ["views/home-learning.ejs (Preguntar a Mr. F)"],
+      "alt": "decorative"
+    },
+    {
+      "name": "empty-biblioteca",
+      "subject": "A gentle empty-state illustration: an open empty folder standing upright with nothing inside, a pencil leaning against it, and two small abstract paper shapes floating nearby. Very light, mostly paper cream, muted and calm, lots of empty space.",
+      "usedIn": ["views/home-learning.ejs (Para ti, nothing shared yet)"],
+      "alt": "decorative"
+    },
+    {
+      "name": "empty-clase",
+      "subject": "A gentle empty-state illustration: three empty chairs arranged in a loose semicircle facing a small blank easel board. Nobody in the scene. Very light, mostly paper cream, muted and calm, lots of empty space.",
+      "usedIn": ["views/home-teaching.ejs (Lo que compartí, nothing shared yet)"],
+      "alt": "decorative"
+    }
+  ]
+}

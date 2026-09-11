@@ -2,6 +2,14 @@
 
 This guide defines the shared illustration direction for pre-generated visual assets across the Mister F platform.
 
+> **Scope.** This guide governs **learning content** — scene-media images and
+> roleplay avatars. Illustrations in the **app UI** (page heroes, spot
+> illustrations, empty states) are a sibling set with a stricter recipe: a
+> locked palette, a fixed style prompt, a registry and a generator. They live in
+> `misterf-web/public/illustrations/` and are governed by the
+> `ui-illustrations` skill (`.agents/skills/ui-illustrations/SKILL.md`). Both
+> sets share the core direction below, so they read as one product.
+
 ## Core Direction
 
 Mister F illustrations should feel like modern English workbook artwork: friendly, clear, expressive, and easy to describe.

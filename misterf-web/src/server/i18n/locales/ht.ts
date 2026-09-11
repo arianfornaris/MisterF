@@ -1092,6 +1092,9 @@ export const ht: LocaleCatalog = {
     sharedEmpty:
       'Ou poko pataje okenn aktivite. Kreye youn epi pataje l ak yon lyen.',
     sharedEmptyAction: 'Gade resous mwen yo',
+    sharedEmptyTitle: 'Ou poko pataje anyen',
+    learnEmptyTitle: 'Poko gen anyen yo pataje avè w',
+    heroAlt: 'Yon elèv k ap pratike angle sou tab kizin li',
     participants: '{{count}} patisipan',
     participantsOne: '1 patisipan',
     noParticipants: 'Poko gen repons',

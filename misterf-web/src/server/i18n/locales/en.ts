@@ -1266,6 +1266,9 @@ export const en: LocaleCatalog = {
     sharedEmpty:
       'You have not shared an activity yet. Create one and share it with a link.',
     sharedEmptyAction: 'See my resources',
+    sharedEmptyTitle: 'Nothing shared yet',
+    learnEmptyTitle: 'Nothing shared with you yet',
+    heroAlt: 'A learner practicing English at her kitchen table',
     participants: '{{count}} participants',
     participantsOne: '1 participant',
     noParticipants: 'No answers yet',

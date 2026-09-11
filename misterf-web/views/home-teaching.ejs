@@ -112,9 +112,13 @@
         <% }) %>
       </div>
     <% } else { %>
-      <div class="alert alert-light border mb-0" role="status">
-        <p class="mb-2"><%= t('home.sharedEmpty') %></p>
-        <a class="btn btn-sm btn-secondary" href="/resources"><%= t('home.sharedEmptyAction') %></a>
+      <%# Empty-state illustration per the `ui-illustrations` skill; decorative,
+          since the title beside it says the same thing. %>
+      <div class="mf-empty">
+        <img src="/public/illustrations/empty-clase.png" alt="" width="640" height="478" loading="lazy">
+        <p class="mf-empty-title"><%= t('home.sharedEmptyTitle') %></p>
+        <p class="mf-empty-body"><%= t('home.sharedEmpty') %></p>
+        <a class="btn btn-primary btn-sm" href="/resources"><%= t('home.sharedEmptyAction') %></a>
       </div>
     <% } %>
   </section>

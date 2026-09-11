@@ -1269,6 +1269,9 @@ export const es: LocaleCatalog = {
     sharedEmpty:
       'Todavía no has compartido ninguna actividad. Crea una y compártela con un enlace.',
     sharedEmptyAction: 'Ver mis recursos',
+    sharedEmptyTitle: 'Todavía no has compartido nada',
+    learnEmptyTitle: 'Todavía no te han compartido nada',
+    heroAlt: 'Una estudiante practica inglés en la mesa de su cocina',
     participants: '{{count}} participantes',
     participantsOne: '1 participante',
     noParticipants: 'Sin respuestas todavía',

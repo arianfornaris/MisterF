@@ -1754,19 +1754,39 @@ What already exists to build on:
   drawn resource covers.
 - `public/roleplay-characters/` and the scene-media images.
 
-- [ ] Decide where images earn their place first (proposal: empty states, the
-  two homes, resource-family covers, creation entry points) and where a mockup
-  or a colored card does the job better than an illustration.
-- [ ] Settle the app pipeline: where approved images live under `public/`, the
-  format and size budget (run the demo PNGs through the demo README's
-  optimization pipeline before reusing any), and how a view references one.
-- [ ] Decide whether illustrations vary by mode, against §1.14's guardrails: a
-  mode never changes meaning and never moves layout.
-- [ ] Promote the illustration rules into the theme README or a skill so later
-  work follows them. Generation runs on the design-side key
-  (`generate-scene-assets`), never on a user's credit.
-- [ ] Accessibility: decorative images get `alt=""`; informative ones get alt
-  text in the es/en/ht catalogs.
+- [~] Decide where images earn their place first. **Started with the homes
+  (2026-09-11, founder direction):** the learning home gets the `hero-aprendo`
+  hero carrying the greeting and the next step, inline spots on "Preguntar a
+  Mr. F" (`spot-charla`) and on the three self-directed routes (`spot-guia`,
+  `spot-biblioteca`, `spot-progreso`), and `empty-biblioteca` when nothing is
+  shared; the teaching home gets `empty-clase` on an empty "Lo que compartí"
+  and no hero. Resource covers stay drawn in CSS (a generated image per
+  resource is refused by the theme). The library, progress, and creation
+  pages are still to do, one decision-tree pass each.
+- [x] Settle the app pipeline. Files live in `misterf-web/public/illustrations/`
+  (served as `/public/illustrations/…`), every file has an entry in
+  `design/ui-illustrations/illustrations.json`, and
+  `design/ui-illustrations/generate.py` is the one generator: the locked style
+  block, the class derived from the file-name prefix (`hero-`, `spot-`,
+  `empty-`), ImageMagick PNG8 optimization, and a byte-budget check. Five demo
+  images were reused as they were already optimized (all within budget); two
+  were generated new (`spot-biblioteca` 39 KB, `spot-charla` 11 KB).
+  `tests/server/uiIllustrations.test.ts` keeps the registry, the files, the
+  budgets and the views' references in agreement.
+- [x] Decide whether illustrations vary by mode: **no.** A mode never makes
+  anything appear or disappear, so there is no `[data-mode]` rule for art. A
+  hero belongs to the learning composition because that view renders it. This
+  also corrects the theme README, which claimed a hero "is hidden in Enseño" —
+  no such rule existed, and it would have broken the guardrail.
+- [x] Promote the rules into a skill: `.agents/skills/ui-illustrations/SKILL.md`
+  — decision tree, classes and budgets, visual rules, the style block, how to
+  write a subject, the add/regenerate flow, view markup, and the pre-commit
+  checks. Pointed to from `AGENTS.md`, `cuaderno-theme`, the theme README, the
+  demo README §6 (whose generator is now historical) and the scene-image style
+  guide. Generation runs on the design-side key, never on a user's credit.
+- [x] Accessibility: spots and empty-state images are decorative (`alt=""`,
+  beside text that says the same); the hero is `role="img"` with
+  `home.heroAlt` in es/en/ht.
 
 Related: §1.16 (the learner home is the first page that needs them).
 

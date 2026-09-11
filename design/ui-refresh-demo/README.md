@@ -245,6 +245,15 @@ nothing is ever taken away. Any activity counts.
 
 ## 6. Imagery
 
+> **Adopted in the app (2026-09-11).** The rules below were promoted into the
+> `ui-illustrations` skill (`.agents/skills/ui-illustrations/SKILL.md`). The
+> canonical generator is now `design/ui-illustrations/generate.py`, driven by
+> `design/ui-illustrations/illustrations.json` and writing to
+> `misterf-web/public/illustrations/`. `generate-illustrations.py` in this
+> folder is kept only as the record of how the demo's nine files were made; do
+> not add new images through it. Where this section and the skill disagree,
+> the skill wins.
+
 ### The decision tree
 
 Ask in this order and stop at the first yes.

@@ -38,4 +38,5 @@ When building or updating UI:
   - quieter secondary actions with outline, link, or lighter variants when they are not primary
 - Avoid custom visual treatments that fight the theme's clean, flat, modern appearance.
 - Prefer Bootstrap-native interaction patterns such as modals, accordions, alerts, badges, cards, list groups, and dropdowns before creating custom UI patterns.
+- Illustrations and images in the UI (heroes, spots, empty states) all come from one generated set with one locked style. Read `.agents/skills/ui-illustrations/SKILL.md` before adding, generating, or placing any.
 - If a Bootstrap component has a native focus, hover, active, or expanded state, assume that state is intentional unless there is a strong UX reason to refine it.
