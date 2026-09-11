@@ -43,9 +43,10 @@ Ask in this order and stop at the first yes (from the demo's decision tree):
 5. **Is it a person in a roleplay?** → the existing avatars in
    `public/roleplay-characters/`.
 
-If none apply, the answer is no image. Illustrations are few on purpose: one
-hero per top-level learning page, spots only where they sit beside a label that
-already says the same thing, and an empty-state image per empty surface.
+If none apply, the answer is no image. Illustrations are few on purpose: at most
+one hero per top-level page (today, one per home composition — `hero-aprendo`
+and `hero-enseno`), spots only where they sit beside a label that already says
+the same thing, and an empty-state image per empty surface.
 
 ## The Three Classes
 
@@ -82,9 +83,9 @@ Name as `<class>-<subject>` in Spanish, like the existing set: `hero-aprendo`,
   reuse a family spot for something else — `spot-roleplay` is not "a
   conversation"; that is why `spot-charla` exists.
 - **Never mode-dependent.** A mode never moves layout (`cuaderno-theme` rule 4),
-  so no `[data-mode]` rule may show or hide art. Where art belongs only to one
-  composition (the learning home's hero), the server decides by rendering that
-  view.
+  so no `[data-mode]` rule may show or hide art. Different art for different
+  compositions (each home has its own hero) is chosen by the view the server
+  renders, never by CSS.
 
 ## The Style Block
 

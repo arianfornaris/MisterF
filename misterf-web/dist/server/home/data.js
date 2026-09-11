@@ -42,6 +42,7 @@ export function buildTeachingHomeData(input) {
         userId: input.userId,
     }).map((resource) => ({
         detailPath: buildResourceDetailPath(resource),
+        familyClass: resourceTypePresentation[resource.type].familyClass,
         iconClass: resourceTypePresentation[resource.type].iconClass,
         id: resource.id,
         labelKey: resourceTypePresentation[resource.type].labelKey,

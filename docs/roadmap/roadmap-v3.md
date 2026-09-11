@@ -1759,8 +1759,15 @@ What already exists to build on:
   hero carrying the greeting and the next step, inline spots on "Preguntar a
   Mr. F" (`spot-charla`) and on the three self-directed routes (`spot-guia`,
   `spot-biblioteca`, `spot-progreso`), and `empty-biblioteca` when nothing is
-  shared; the teaching home gets `empty-clase` on an empty "Lo que compartí"
-  and no hero. Resource covers stay drawn in CSS (a generated image per
+  shared; the teaching home gets `empty-clase` on an empty "Lo que compartí".
+  **Amended the same week (founder direction): the teaching home gets the
+  same treatment** — the `hero-enseno` hero carrying the greeting, a lede
+  counting this week's answers, and the activity with the newest answers as
+  the next step (`Ver respuestas`), with the rest of the news below; the three
+  creation shortcuts became cards with the content-family spots (`spot-quiz`,
+  `spot-guia`, `spot-roleplay` — each spot is that family's mark); and
+  `spot-charla` beside "Preguntar a Mr. F". Three more demo images reused, no
+  generation. Resource covers stay drawn in CSS (a generated image per
   resource is refused by the theme). The library, progress, and creation
   pages are still to do, one decision-tree pass each.
 - [x] Settle the app pipeline. Files live in `misterf-web/public/illustrations/`
@@ -1774,8 +1781,8 @@ What already exists to build on:
   `tests/server/uiIllustrations.test.ts` keeps the registry, the files, the
   budgets and the views' references in agreement.
 - [x] Decide whether illustrations vary by mode: **no.** A mode never makes
-  anything appear or disappear, so there is no `[data-mode]` rule for art. A
-  hero belongs to the learning composition because that view renders it. This
+  anything appear or disappear, so there is no `[data-mode]` rule for art. Each
+  home composition renders its own hero because that view does. This
   also corrects the theme README, which claimed a hero "is hidden in Enseño" —
   no such rule existed, and it would have broken the guardrail.
 - [x] Promote the rules into a skill: `.agents/skills/ui-illustrations/SKILL.md`

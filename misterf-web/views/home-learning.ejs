@@ -50,7 +50,7 @@
   <section class="mf-hero">
     <div class="mf-hero-copy">
       <p class="mf-eyebrow mb-0"><%= t('home.kicker') %></p>
-      <h1 class="mf-page-title" id="homeLearningTitle"><%= t('home.learnGreeting', { name: activeProfile.name }) %></h1>
+      <h1 class="mf-page-title" id="homeLearningTitle"><%= t('home.greeting', { name: activeProfile.name }) %></h1>
       <p class="mf-page-lede mt-0">
         <% if (learningHome.pendingCount > 1) { %>
           <%= t('home.learnLedePending', { count: learningHome.pendingCount }) %>

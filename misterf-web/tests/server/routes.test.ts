@@ -2627,8 +2627,13 @@ describe('signed-in home modes', () => {
     expect(html).toContain('href="/quizzes/new"');
     expect(html).toContain('You have not shared an activity yet');
     expect(html).toContain('/public/illustrations/empty-clase.png');
-    // No hero on the teaching composition; that is decided by the view.
-    expect(html).not.toContain('mf-hero-art');
+    // The teaching composition's own hero and the family spots on creation.
+    expect(html).toContain("url('/public/illustrations/hero-enseno.png')");
+    expect(html).toContain('aria-label="A teacher getting worksheets ready by his desk"');
+    expect(html).toContain('/public/illustrations/spot-quiz.png');
+    expect(html).toContain('/public/illustrations/spot-roleplay.png');
+    // Nothing answered yet, so the lede is the plain description.
+    expect(html).toContain('Create activities, share them, and review what people answered.');
     // The teaching home is not the chat page; the tutor is one quiet link away.
     expect(html).not.toContain('id="chatForm"');
     expect(html).toContain('href="/chat"');

@@ -8,9 +8,30 @@
       "alt": "home.heroAlt"
     },
     {
+      "name": "hero-enseno",
+      "subject": "A wide horizontal scene: one adult man teacher in his forties standing beside a small desk, holding a few printed worksheets, an open laptop on the desk, a simple blank whiteboard behind him. He looks organized and welcoming. Three empty chairs suggested at the edge of the frame. Plenty of clean empty space on the left.",
+      "usedIn": ["views/home-teaching.ejs (hero)"],
+      "alt": "home.heroTeachAlt"
+    },
+    {
+      "name": "spot-quiz",
+      "subject": "A single centered spot illustration: a worksheet card seen straight on, with abstract horizontal lines standing in for questions, a few small checkbox squares, one of them ticked, and a pencil resting diagonally across it. Indigo #4F46E5 is the dominant accent color.",
+      "usedIn": ["views/home-teaching.ejs (Crear una actividad: quiz)"],
+      "alt": "decorative"
+    },
+    {
+      "name": "spot-roleplay",
+      "subject": "A single centered spot illustration: two simple friendly character busts facing each other in three-quarter view, one with a rounded speech bubble above them and the other with a smaller one. The speech bubbles are completely empty. Teal #0F766E is the dominant accent color.",
+      "usedIn": ["views/home-teaching.ejs (Crear una actividad: roleplay)"],
+      "alt": "decorative"
+    },
+    {
       "name": "spot-guia",
       "subject": "A single centered spot illustration: an open notebook seen from slightly above with abstract horizontal lines on both pages, a ribbon bookmark, and a very small potted plant beside it. Deep blue-cyan #1F6F8B is the dominant accent color.",
-      "usedIn": ["views/home-learning.ejs (Practica por tu cuenta: crear una práctica)"],
+      "usedIn": [
+        "views/home-learning.ejs (Practica por tu cuenta: crear una práctica)",
+        "views/home-teaching.ejs (Crear una actividad: guía de práctica)"
+      ],
       "alt": "decorative"
     },
     {
@@ -28,7 +49,10 @@
     {
       "name": "spot-charla",
       "subject": "A single centered spot illustration: one large rounded off-white speech bubble with a few abstract horizontal lines inside, and a smaller muted sand reply bubble overlapping its lower corner, with a slim pencil resting beneath them. No characters. Thin, light outlines and mostly paper cream and off-white fills, like the other spot illustrations; terracotta #B8541F appears only as a small accent on the pencil and the lines.",
-      "usedIn": ["views/home-learning.ejs (Preguntar a Mr. F)"],
+      "usedIn": [
+        "views/home-learning.ejs (Preguntar a Mr. F)",
+        "views/home-teaching.ejs (Preguntar a Mr. F)"
+      ],
       "alt": "decorative"
     },
     {
