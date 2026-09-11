@@ -2747,6 +2747,38 @@ describe('signed-in home modes', () => {
     expect(html).not.toContain('Your shared activities');
   });
 
+  it('opens a finished conversation on its summary and keeps it off the learning home', async () => {
+    const { closeConversationForUser, createConversation } = await import(
+      '../../src/server/db/repository.js'
+    );
+    const { cookie, profile, user } = await createHomeAccount('home-closed-conversation', 'learn');
+    const open = createConversation(user.id, profile.id, 'Still going');
+    const closed = createConversation(user.id, profile.id, 'All done');
+    closeConversationForUser(closed.id, user.id);
+
+    const home = await (
+      await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' })
+    ).text();
+    // The home lists only open conversations, so it never links to a finished
+    // one. The side panel does, with `?tab=summary`, which this does not match.
+    expect(home).toContain(`href="/c/${open.id}"`);
+    expect(home).not.toContain(`href="/c/${closed.id}"`);
+    expect(home).toContain(`href="/c/${closed.id}?tab=summary"`);
+
+    // A plain link to a finished conversation still honours the closed
+    // protocol: the server opens it closed, on its summary, exactly as the side
+    // panel's `?tab=summary` does.
+    const page = await (
+      await fetch(`${baseUrl}/c/${closed.id}`, { headers: { cookie }, redirect: 'manual' })
+    ).text();
+    expect(page).toContain('is-closed-conversation');
+    expect(page).toMatch(/class="nav-link active"\s+href="\/c\/[^"]+\?tab=summary"/);
+    expect(page).toContain('Summary unavailable');
+    // A closed conversation keeps only a hidden composer, never a usable one.
+    expect(page).toContain('<form id="chatForm" class="composer d-none"');
+    expect(page).not.toContain('<form id="chatForm" class="composer" ');
+  });
+
   it('rejects a mode switch from a signed-out visitor', async () => {
     const homeResponse = await fetch(`${baseUrl}/login`, { redirect: 'manual' });
     const csrfToken = extractCsrfToken(await homeResponse.text());
