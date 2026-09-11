@@ -1674,7 +1674,8 @@ affordance" as principles.
      (`restore()`), to be claimed when the learner sends. Staged entries live
      10 minutes, which a one-click handoff never approaches.
   4. **Para ti** — activities shared with the profile as `mf-rcard`s in their
-     content family, `Pendiente` / `Empezado` chips, capped at 4, with
+     content family, `Pendiente` / `Empezado` chips, capped at 6 (was 4 until
+     2026-09-11, when the grid went to three columns on wide screens), with
      `Ver todo` → `/resources?type=with_me` only when there are more.
   5. **Continúa donde lo dejaste** — other open conversations, capped at 3,
      minus the one already leading as the next step.
@@ -2345,6 +2346,43 @@ Known offenders, from a first grep (not exhaustive):
   `tests/server/dates.test.ts` covers the wording in all three languages and
   checks that the browser formatter buckets time exactly as the server does.
 ---
+
+## 2.9 Production Node Version And PDF Extraction
+
+Added 2026-09-11 (founder direction), from what the `3.14.0` deploy printed.
+
+The production server runs **Node 20.16.0** (npm 9.2.0). The deploy's
+`npm ci --omit=dev` finished, but warned `EBADENGINE` for two packages:
+
+- `unpdf@1.8.1` requires **Node ≥ 22**. It is a runtime dependency: it is what
+  extracts text from **PDF attachments** (`prompt-attachments`). An engine
+  mismatch is a warning at install time, not an error, so nothing has shown
+  whether PDF extraction actually works in production on Node 20.
+- `vite@8.2.2` requires `^20.19.0 || >=22.12.0`. It is a build tool; production
+  installs with `--omit=dev` and serves the compiled `public/build`, so this one
+  is only a symptom of the same old Node.
+
+Locally the app runs on Node 24 (see the local-server notes: two Node installs
+on the dev machine, and `better-sqlite3` is compiled for exactly one ABI).
+
+- [ ] Verify PDF attachment extraction in production: attach a small PDF from a
+  prompt surface on misterf.us and confirm the review text appears. One
+  extraction call on a real account's credit; check the server log for an
+  `unpdf` / import error either way.
+- [ ] Upgrade the server's Node to a current LTS (22 or 24, matching what
+  development and tests run on) — via the server's version manager, not a
+  hardcoded path in `ecosystem.config.cjs`, which is shared with local.
+- [ ] After the upgrade, rebuild native modules on the server
+  (`npm rebuild better-sqlite3`, or a clean `npm ci`) and restart pm2 **from a
+  shell running the new Node**, since pm2 forks the app under the Node on the
+  PATH that started it. Confirm `/health` and a signed-in page.
+- [ ] Declare the supported Node in `misterf-web/package.json` (`engines`) so
+  the next mismatch is visible in the repo, not only in a deploy log; consider
+  a `node -v` check in `deploy.sh` before `npm ci`.
+- [ ] Record the procedure in `production-server-ops`.
+
+Related: `prompt-attachments`, `production-server-ops`,
+`versioning-and-releases`.
 
 # V3 Exit Criteria
 

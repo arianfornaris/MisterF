@@ -1,0 +1,53 @@
+/* Layout for the two home compositions (`views/home-learning.ejs`,
+   `views/home-teaching.ejs`).
+
+   Since the shell went edge to edge (2026-09-11) the content column can be
+   ~1600px wide, so the homes carry a reading measure of their own. And the
+   grids respond to the width of that column, not the viewport: from `lg` up
+   the side panel takes 320px, so a viewport breakpoint would try to fit three
+   cards into ~590px. Container queries measure the space that is actually
+   there. */
+
+.home-page {
+  container-type: inline-size;
+  max-width: 76rem;
+  margin-inline: auto;
+}
+
+/* A text box as wide as the page reads as a banner, not as a question. */
+.home-ask {
+  max-width: 48rem;
+}
+
+/* Resource cards ("Para ti"): one, then two, then three columns. */
+.home-card-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@container (min-width: 34rem) {
+  .home-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 54rem) {
+  .home-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The three shortcut cards ("Practica por tu cuenta", "Crear una actividad"):
+   one column, then straight to three, so a row never ends in a lone card. */
+.home-route-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@container (min-width: 50rem) {
+  .home-route-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

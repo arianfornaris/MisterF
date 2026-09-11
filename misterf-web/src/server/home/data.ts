@@ -161,7 +161,9 @@ export type LearningHomeData = {
  * shared list is one link away (`/resources?type=with_me`), and every
  * conversation is already in the side panel.
  */
-const learningHomeActivityLimit = 4;
+// Six fills the "Para ti" grid whether it lays out in two columns or three
+// (`src/client/styles/home.css`), so a full panel never ends in a lone card.
+const learningHomeActivityLimit = 6;
 const learningHomeConversationLimit = 3;
 
 export function buildLearningHomeData(input: {

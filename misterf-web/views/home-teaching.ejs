@@ -28,6 +28,9 @@
 %>
 
 <section class="app-page" aria-labelledby="homeTeachingTitle">
+  <%# `.home-page` holds the reading measure and is the container the grids
+      measure (`src/client/styles/home.css`). %>
+  <div class="home-page">
   <section class="mf-hero">
     <div class="mf-hero-copy">
       <p class="mf-eyebrow mb-0"><%= t('home.kicker') %></p>
@@ -108,9 +111,9 @@
     </h2>
     <p class="small text-body-secondary mb-3"><%= t('home.createCopy') %></p>
 
-    <div class="row row-cols-1 row-cols-md-3 g-3">
+    <div class="home-route-grid">
       <% createRoutes.forEach((route) => { %>
-        <div class="col">
+        <div>
           <div class="card h-100">
             <div class="card-body d-flex align-items-start gap-3">
               <img class="mf-spot mf-spot-inline flex-shrink-0" src="/public/illustrations/<%= route.illustration %>.png" alt="" width="56" height="56" loading="lazy">
@@ -178,7 +181,7 @@
     <% } %>
   </section>
 
-  <section class="card mt-4" aria-labelledby="homeAskTutorTitle">
+  <section class="card mt-4 home-ask" aria-labelledby="homeAskTutorTitle">
     <div class="card-body d-flex align-items-start gap-3">
       <img class="mf-spot mf-spot-inline flex-shrink-0" src="/public/illustrations/spot-charla.png" alt="" width="56" height="56" loading="lazy">
       <div class="min-w-0">
@@ -189,6 +192,7 @@
       </div>
     </div>
   </section>
+  </div>
 </section>
 
 <%- include('partials/app-shell-close') %>

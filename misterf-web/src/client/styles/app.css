@@ -2,6 +2,7 @@
 @import '../../../node_modules/easymde/dist/easymde.min.css';
 @import './app-shell.css';
 @import './app-pages.css';
+@import './home.css';
 @import './resource-pages.css';
 @import './scene-media.css';
 @import './practice-guides.css';

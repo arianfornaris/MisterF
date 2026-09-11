@@ -47,6 +47,9 @@
 %>
 
 <section class="app-page" aria-labelledby="homeLearningTitle">
+  <%# `.home-page` holds the reading measure and is the container the grids
+      measure (`src/client/styles/home.css`). %>
+  <div class="home-page">
   <section class="mf-hero">
     <div class="mf-hero-copy">
       <p class="mf-eyebrow mb-0"><%= t('home.kicker') %></p>
@@ -80,7 +83,7 @@
     ></div>
   </section>
 
-  <section class="card" aria-labelledby="homeAskTitle">
+  <section class="card home-ask" aria-labelledby="homeAskTitle">
     <div class="card-body">
       <div class="d-flex align-items-center gap-3 mb-2">
         <img class="mf-spot mf-spot-inline" src="/public/illustrations/spot-charla.png" alt="" width="56" height="56">
@@ -135,9 +138,9 @@
     </div>
 
     <% if (learningHome.sharedWithMe.length > 0) { %>
-      <div class="row row-cols-1 row-cols-sm-2 g-3">
+      <div class="home-card-grid">
         <% learningHome.sharedWithMe.forEach((activity) => { %>
-          <div class="col">
+          <div>
             <a class="mf-rcard h-100 <%= activity.familyClass %>" href="<%= activity.detailPath %>">
               <div class="mf-rcard-cover">
                 <i class="bi <%= activity.iconClass %> mf-rcard-glyph" aria-hidden="true"></i>
@@ -193,7 +196,7 @@
     <h2 class="h5 mb-3" id="homeOwnTitle">
       <i class="bi bi-compass me-2" aria-hidden="true"></i><%= t('home.ownTitle') %>
     </h2>
-    <div class="row row-cols-1 row-cols-md-3 g-3">
+    <div class="home-route-grid">
       <% ownRoutes.forEach((route) => { %>
         <div class="col">
           <div class="card h-100">
@@ -211,6 +214,7 @@
       <% }) %>
     </div>
   </section>
+  </div>
 </section>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'home-client-script' }) %>
