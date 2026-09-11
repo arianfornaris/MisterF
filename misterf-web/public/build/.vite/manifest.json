@@ -1,4 +1,11 @@
 {
+  "_attachmentPicker-DQxFqeZ4.js": {
+    "file": "chunks/attachmentPicker-DQxFqeZ4.js",
+    "name": "attachmentPicker",
+    "imports": [
+      "_i18n-Bha9U9Kx.js"
+    ]
+  },
   "_createResourceFromContext--Bwv6zlZ.js": {
     "file": "chunks/createResourceFromContext--Bwv6zlZ.js",
     "name": "createResourceFromContext",
@@ -14,24 +21,24 @@
     "file": "chunks/listGroupDropdownStacking-B_4Fb5dR.js",
     "name": "listGroupDropdownStacking"
   },
-  "_markdownEditor-C2hs7INI.js": {
-    "file": "chunks/markdownEditor-C2hs7INI.js",
+  "_markdownEditor-CkdNu3ga.js": {
+    "file": "chunks/markdownEditor-CkdNu3ga.js",
     "name": "markdownEditor",
     "imports": [
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js"
+      "_staticMarkdown-D_MJ3gU_.js"
     ]
   },
   "_modificationModal-Dfti3vse.js": {
     "file": "chunks/modificationModal-Dfti3vse.js",
     "name": "modificationModal"
   },
-  "_quizItemRenderer-1YYYiuPs.js": {
-    "file": "chunks/quizItemRenderer-1YYYiuPs.js",
+  "_quizItemRenderer-DmoW6Yay.js": {
+    "file": "chunks/quizItemRenderer-DmoW6Yay.js",
     "name": "quizItemRenderer",
     "imports": [
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js"
+      "_staticMarkdown-D_MJ3gU_.js"
     ]
   },
   "_resourceMoveModal-BTsg2lix.js": {
@@ -41,22 +48,35 @@
       "_i18n-Bha9U9Kx.js"
     ]
   },
-  "_staticMarkdown-DmnI-Lla.js": {
-    "file": "chunks/staticMarkdown-DmnI-Lla.js",
-    "name": "staticMarkdown",
-    "imports": [
-      "_i18n-Bha9U9Kx.js"
-    ]
+  "_staticMarkdown-D_MJ3gU_.js": {
+    "file": "chunks/staticMarkdown-D_MJ3gU_.js",
+    "name": "staticMarkdown"
+  },
+  "_storage-Bga5m1UD.js": {
+    "file": "chunks/storage-Bga5m1UD.js",
+    "name": "storage"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-DE7Kg2Dw.js",
+    "file": "entries/chat-CSfhhVCx.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js",
-      "_quizItemRenderer-1YYYiuPs.js"
+      "_attachmentPicker-DQxFqeZ4.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_quizItemRenderer-DmoW6Yay.js",
+      "_storage-Bga5m1UD.js"
+    ]
+  },
+  "src/client/home/index.js": {
+    "file": "entries/home-CeXi-HHE.js",
+    "name": "home",
+    "src": "src/client/home/index.js",
+    "isEntry": true,
+    "imports": [
+      "_attachmentPicker-DQxFqeZ4.js",
+      "_storage-Bga5m1UD.js"
     ]
   },
   "src/client/mediaLibrary/index.js": {
@@ -66,54 +86,58 @@
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-CiIEwnwY.js",
+    "file": "entries/practice-guides-CwVE32ur.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-C2hs7INI.js",
+      "_markdownEditor-CkdNu3ga.js",
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js",
+      "_attachmentPicker-DQxFqeZ4.js",
+      "_staticMarkdown-D_MJ3gU_.js",
       "_resourceMoveModal-BTsg2lix.js",
       "_modificationModal-Dfti3vse.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-DXIHW36P.js",
+    "file": "entries/quizzes-BTptJO0b.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js",
-      "_quizItemRenderer-1YYYiuPs.js",
+      "_attachmentPicker-DQxFqeZ4.js",
+      "_staticMarkdown-D_MJ3gU_.js",
+      "_quizItemRenderer-DmoW6Yay.js",
       "_createResourceFromContext--Bwv6zlZ.js",
       "_resourceMoveModal-BTsg2lix.js",
       "_modificationModal-Dfti3vse.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-ezGK0lj_.js",
+    "file": "entries/resources-BxVjfwuP.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js",
+      "_attachmentPicker-DQxFqeZ4.js",
+      "_staticMarkdown-D_MJ3gU_.js",
       "_resourceMoveModal-BTsg2lix.js",
       "_listGroupDropdownStacking-B_4Fb5dR.js"
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-CpFn85Hq.js",
+    "file": "entries/roleplays-ZkQVciJn.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-C2hs7INI.js",
+      "_markdownEditor-CkdNu3ga.js",
       "_i18n-Bha9U9Kx.js",
-      "_staticMarkdown-DmnI-Lla.js",
+      "_attachmentPicker-DQxFqeZ4.js",
+      "_staticMarkdown-D_MJ3gU_.js",
       "_createResourceFromContext--Bwv6zlZ.js",
       "_resourceMoveModal-BTsg2lix.js",
       "_modificationModal-Dfti3vse.js"

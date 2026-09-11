@@ -132,6 +132,7 @@
 }
 
 .chat-menu-button,
+.chat-home-button,
 .translator-button {
   width: 36px;
   height: 36px;
@@ -145,6 +146,8 @@
 
 .chat-menu-button:hover,
 .chat-menu-button:focus,
+.chat-home-button:hover,
+.chat-home-button:focus,
 .translator-button:hover,
 .translator-button:focus {
   outline: 0;
@@ -609,6 +612,7 @@
 }
 
 .chat-menu-button,
+.chat-home-button,
 .translator-button,
 .conversation-actions-button,
 .message-action-button,
@@ -622,6 +626,8 @@
 
 .chat-menu-button:hover,
 .chat-menu-button:focus,
+.chat-home-button:hover,
+.chat-home-button:focus,
 .translator-button:hover,
 .translator-button:focus,
 .conversation-actions-button:hover,

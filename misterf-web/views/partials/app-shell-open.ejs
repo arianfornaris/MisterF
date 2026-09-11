@@ -37,6 +37,19 @@
             </button>
 
             <% if (hasSession) { %>
+              <%# On phones the toolbar is the primary chrome, so the way home
+                  sits here rather than only behind the hamburger (Roadmap V3
+                  §1.15). From `lg` up the panel's own "Inicio" is always
+                  visible and the toolbar is hidden. %>
+              <a
+                class="btn btn-link chat-home-button d-lg-none"
+                href="/"
+                title="<%= t('nav.goHome') %>"
+                aria-label="<%= t('nav.goHome') %>"
+              >
+                <i class="bi bi-house fs-5" aria-hidden="true"></i>
+              </a>
+
               <button
                 class="btn btn-link translator-button d-lg-none"
                 type="button"
@@ -118,7 +131,16 @@
 
               <% if (hasSession) { %>
                 <div class="panel-nav">
-                  <a class="panel-nav-link" href="/" data-new-conversation>
+                  <%# Home and a new conversation are two destinations since the
+                      learning home stopped being the chat (Roadmap V3 §1.15,
+                      §1.16): `/` is the home in either mode, `/chat` is always a
+                      fresh conversation. %>
+                  <a class="panel-nav-link <%= currentView === 'home' ? 'is-active' : '' %>" href="/">
+                    <i class="bi bi-house" aria-hidden="true"></i>
+                    <%= t('nav.home') %>
+                  </a>
+
+                  <a class="panel-nav-link" href="/chat" data-new-conversation>
                     <i class="bi bi-pencil-square" aria-hidden="true"></i>
                     <%= t('nav.newConversation') %>
                   </a>

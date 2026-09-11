@@ -11,7 +11,12 @@ import {
   DEFAULT_MODEL_TIER,
   normalizeModelTier,
 } from './utils/modelTier.js';
-import { consumeGuestDraft, getGuestDraft, preserveGuestDraft } from './utils/storage.js';
+import {
+  consumeGuestDraft,
+  consumeHomeDraft,
+  getGuestDraft,
+  preserveGuestDraft,
+} from './utils/storage.js';
 import { ComposerView } from './ui/ComposerView.js';
 import { ConversationListView } from './ui/ConversationListView.js';
 import { PracticeGuideView } from './ui/PracticeGuideView.js';
@@ -24,7 +29,6 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
-const learningHomePanelEl = document.querySelector('[data-learning-home-panel]');
 const practiceGuideStartPanelEl = document.querySelector('[data-practice-guide-start-panel]');
 const practiceGuideStartTitleEl = document.querySelector('[data-practiceGuide-start-title]');
 const practiceGuideStartDescriptionEl = document.querySelector(
@@ -283,19 +287,6 @@ if (socket) {
   });
 }
 
-/*
- * The composer has two send paths — the button's submit and Enter — so the
- * starter panel is dropped here rather than in either handler, and only when a
- * message actually left the composer: `sendMessage` returns false for an empty
- * box, a busy assistant, or a pending guest prompt, and the panel has to
- * survive all three.
- */
-function sendComposerMessage() {
-  if (runtime.sendMessage()) {
-    learningHomePanelEl?.remove();
-  }
-}
-
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
   if (isAssistantBusy) {
@@ -303,7 +294,7 @@ formEl.addEventListener('submit', (event) => {
     return;
   }
 
-  sendComposerMessage();
+  runtime.sendMessage();
 });
 
 inputEl.addEventListener('keydown', (event) => {
@@ -313,7 +304,7 @@ inputEl.addEventListener('keydown', (event) => {
 
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
-    sendComposerMessage();
+    runtime.sendMessage();
   }
 });
 
@@ -382,7 +373,7 @@ function buildConversationPath(nextConversationId) {
 
   return nextConversation.id
     ? `/c/${encodeURIComponent(nextConversation.id)}${nextConversation.closedAt ? '?tab=summary' : ''}`
-    : '/';
+    : '/chat';
 }
 
 function openFinalizeConversationModal(nextConversationId) {
@@ -732,9 +723,30 @@ function setSelectedModelTier(value) {
   composerView.setSelectedModelTier(value);
 }
 
+/*
+ * Text and attachments from the learning home's "Ask Mr. F" box. They are
+ * placed in the composer and left there — the learner sends them — so arriving
+ * from the home never starts a paid tutor turn on its own (see
+ * `utils/storage.js`). The attachments are already processed and approved;
+ * listing them again re-bills nothing.
+ */
+function restoreHomeDraft() {
+  const draft = consumeHomeDraft();
+
+  if (draft.text) {
+    inputEl.value = draft.text;
+    resizeComposerInput();
+  }
+
+  if (draft.attachments.length > 0) {
+    attachmentPicker?.restore(draft.attachments);
+  }
+}
+
 if (isInitiallyAuthenticated) {
   pendingBootGuestDraft = consumeGuestDraft();
   setComposerEnabled(true);
+  restoreHomeDraft();
   focusComposer();
 } else {
   runtime.showGuestGreeting();

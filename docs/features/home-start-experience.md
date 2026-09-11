@@ -16,6 +16,17 @@ Open question 1 below ("Should `/` remain the chat page, or become a start
 hub?") is answered by §1.14: `/` stays one route and one shell, and the panel
 above the composer changes with the active mode.
 
+**Amended 2026-09-10 by
+[Roadmap V3 §1.16](../roadmap/roadmap-v3.md#116-a-learner-home-that-is-not-the-chat)**
+(founder direction). The answer to open question 1 is now closer to Option C:
+the learning home is its own page and the tutor chat lives at `/chat`. Two
+principles below are revised rather than dropped. "The composer stays
+available" now means one text box on the home that opens the chat with the
+learner's text ready — never sent on their behalf. "Keep start a conversation
+as the main affordance" gives way to a next-step card that leads the page,
+because the home now answers "what should I do now?" before offering a blank
+conversation. The suggestion engine below is still a proposal.
+
 ## Product Question
 
 Today the Mister F home page starts as a new tutor conversation. That is direct

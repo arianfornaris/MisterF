@@ -1384,6 +1384,12 @@ compact panel above the composer. The specialization is only *which panel sits
 there and how much it weighs*: one route, one shell, two compositions. Not two
 dashboards and not a second home route.
 
+**Superseded 2026-09-10 by [§1.16](#116-a-learner-home-that-is-not-the-chat)**
+(founder direction): the learning composition is its own page, not the chat
+with a panel above the composer, and the panel was removed from `/chat`. What
+still holds from this section is one route and one shell — `/` renders one of
+two compositions by mode, and the tutor chat lives at `/chat`.
+
 ### Checklist
 
 Shipped 2026-09-09; typecheck, test typecheck, and the full suite pass, and the
@@ -1602,19 +1608,30 @@ home has no clear path. What the app does today:
 - Since §1.14, `/` renders one of two compositions, so where "home" lands
   depends on the active mode.
 
-- [ ] Decide what the home entry is: an explicit `Inicio` item in the panel
-  nav, the brand acting as the home link, or both — and whether
-  `Nueva conversación` keeps pointing at `/` once the home and the chat stop
-  being the same page (§1.16).
-- [ ] Decide whether breadcrumbs gain a home root or the panel entry is the one
-  way back. One convention, recorded in `resource-page-conventions`.
-- [ ] On phones, reaching the home should not require opening the offcanvas:
-  the top toolbar is now the primary chrome there (menu, translator, mode
-  switch).
-- [ ] Verify at 375px and on desktop, in both modes.
+- [x] Decide what the home entry is (2026-09-10, founder choice: **both**). An
+  explicit `Inicio` item (`bi-house`, key `nav.home`) is the first link in the
+  panel nav and is active on either home (`currentView: 'home'`); the `Mr. F`
+  brand still links to `/`. `Nueva conversación` now points at `/chat`
+  everywhere it used to mean `/`: the panel link, `startNewConversation()`, the
+  id-less fallback of both `buildConversationPath` helpers, and the redirect
+  after deleting the open conversation. This also fixed a latent bug from
+  §1.14 — in teaching mode "Nueva conversación" had been opening the teaching
+  home, not a conversation.
+- [x] Decide whether breadcrumbs gain a home root (2026-09-10): **no**. The way
+  home is the panel's `Inicio` (and the phone toolbar's house). On the
+  founder's addition, a section's **root page** — `/resources`,
+  `/media-library`, `/progress` — carries the close `X` that inner pages
+  already use, pointing at `/` (`views/partials/home-close-button.ejs`), so
+  the close chain ends at the home instead of at a page with no way back.
+  Recorded in `resource-page-conventions`.
+- [x] On phones, a house icon sits in the top toolbar between the menu and the
+  translator (`.chat-home-button`, `d-lg-none`), so the home never needs the
+  offcanvas.
+- [x] Verified at 375px and on desktop, in both modes — see §1.16's live QA.
 
-Related: §1.16 — if the learner home stops being the chat, the "new
-conversation = home" overlap either disappears or becomes a real choice.
+Guarded by `tests/server/routes.test.ts` ("separates the way home from a new
+conversation"): the `Inicio` link, `/chat` on `data-new-conversation`, the
+section root's `X`, and the toolbar house.
 
 ---
 
@@ -1633,21 +1650,84 @@ panel above the composer" for the learning home, and
 composer stays available" and "keep start a conversation as the main
 affordance" as principles.
 
-- [ ] Design the learner home as its own page. What it answers first ("what
-  should I do now?"), what sits on it — activities shared with me, continue
-  where I left off, a progress signal, suggestions per the
-  [Home Suggestions Tracker](../issues/home-suggestions-tracker.md) — and where
-  and how **Preguntar a Mr. F** appears.
-- [ ] Give the tutor chat its own entry and URL, so the home is no longer a
-  conversation. Settle together with §1.15.
-- [ ] Build on what exists: the Cuaderno theme's `mf-` components (resource
-  cards, family chips, stat tiles) and the design demo's
-  `design/ui-refresh-demo/aprendo-inicio.html` as reference — input, not a
-  spec, since its dashboard shape was superseded by §1.14.
-- [ ] Reuse the data the current panel already reads; add a query only for a
-  stated reason.
-- [ ] Mobile first; check both modes; signed-in QA with a real account
-  (`live-product-qa`).
+- [x] Design the learner home as its own page (2026-09-10). `views/home-learning.ejs`,
+  rendered by `renderLearningHomePage` in `src/server/home/handlers.ts`. Top to
+  bottom:
+  1. **Greeting** with the profile name and a lede that counts pending
+     activities ("Tienes 2 actividades pendientes." / "¿Qué quieres practicar
+     hoy?").
+  2. **Next step** — one card with one primary button: the first shared
+     activity not yet started (`Empezar`), else the most recent open
+     conversation (`Continuar`), else nothing. An activity outranks the
+     learner's own conversation because it is the only thing on the page
+     someone else asked for.
+  3. **Preguntar a Mr. F** — a text box (founder choice over a plain button).
+     It opens `/chat` with the text already in the composer and does **not**
+     send it, so arriving from the home never starts a paid turn. The text
+     travels in sessionStorage (`misterf.homeDraft`), never the URL: the
+     textarea has no `name`, so without JavaScript the form still just opens
+     `/chat`. **Attachments** (founder request, 2026-09-11): the box carries
+     the chat composer's own picker and wizard (`prompt-attachments`), so a
+     file or URL is processed and approved on the home; the handoff carries
+     each accepted attachment as a summary — staged id, name, type, counts,
+     never the extracted text — and the chat's picker lists them again
+     (`restore()`), to be claimed when the learner sends. Staged entries live
+     10 minutes, which a one-click handoff never approaches.
+  4. **Para ti** — activities shared with the profile as `mf-rcard`s in their
+     content family, `Pendiente` / `Empezado` chips, capped at 4, with
+     `Ver todo` → `/resources?type=with_me` only when there are more.
+  5. **Continúa donde lo dejaste** — other open conversations, capped at 3,
+     minus the one already leading as the next step.
+  6. **Practica por tu cuenta** — create a practice guide, my resources, my
+     progress.
+- [x] Give the tutor chat its own entry and URL: `/chat`, with §1.15. The
+  §1.14 panel above the composer was **removed** from `/chat` (founder choice):
+  `learning-home-panel.ejs`, the client code that dropped it on send, and
+  `tests/server/chatComposerArchitecture.test.ts`, whose only invariant was
+  that panel. Replaced by `tests/server/homeDraftHandoff.test.ts`, which
+  guards the two properties a route test cannot see — the draft is placed, not
+  sent, and it never reaches a query string.
+- [x] Build on what exists. `mf-rcard`, `mf-chip` and the `mf-fam-*` classes —
+  the first app view to use the content families. One theme addition:
+  `.mf-rcard-glyph.bi`, so the glyph slot takes a Bootstrap Icon
+  (`bootstrap-icons-conventions` forbids one-off SVGs in views); added to the
+  kitchen sink. From the demo, the next-step card and the shared-activity grid
+  were taken; its hero art (§1.17), streak, focus meters and "last
+  correction" were not — each needs a progress query with no stated reason
+  yet.
+- [x] Reuse the data: **no new query.** `listResourcesSharedWithProfile` (the
+  old panel's query) and the conversation list the shell already loads for the
+  side panel.
+- [x] Mobile first; both modes; signed-in QA (below).
+
+**Decisions made during implementation**
+
+- **No "Charla libre" card.** The demo had one; next to the text box it would
+  be a second way to do the same thing. `Mis recursos` took its place.
+- **Self-directed routes are plain Bootstrap cards, not `mf-acard`.** The theme
+  reserves the family-colored action card for the create screen ("nowhere else
+  may a family own a surface this large").
+- **Suggestions stay deferred.** The [Home Suggestions
+  Tracker](../issues/home-suggestions-tracker.md) is still a recommender with
+  a credit policy to write; the page stays deterministic, as §1.14 required.
+- **`Empezado` is generous by construction.** It comes from
+  `listResourcesSharedWithProfile.hasStarted` (any attempt row, or any
+  conversation opened from a guide), so an activity opened once reads as
+  started. That query decides ordering and a chip, never access.
+
+**Live QA (2026-09-10, local, no inference)** on `qa.fable@misterf.local`,
+profile `QA Fable`. The learning home matched SQLite: two roleplays shared with
+the profile, both started, so no pending badge and the idle lede; the next step
+was the most recent open conversation (`b854e5f2`), and "Continúa" listed the
+next two without repeating it; `Ver todo` hidden at 2 of 2. Typing into the box
+and pressing Enter opened `/chat` with the text in the composer, sessionStorage
+cleared, no conversation id, and the message count for the account unchanged
+(12 before and after). `Nueva conversación` from `/chat` stayed on `/chat` with
+an empty composer. `/resources` showed the `X` to `/` ("Ir al inicio"). The
+teaching home rendered with `Inicio` active and `Nueva conversación` on
+`/chat`; the profile was switched back to `learn`. At 375px the toolbar showed
+menu, house, translator and mode switch with no horizontal overflow. No
+console errors, and the server error log gained nothing during the session.
 
 Related: §1.15, §1.17, §1.14.
 

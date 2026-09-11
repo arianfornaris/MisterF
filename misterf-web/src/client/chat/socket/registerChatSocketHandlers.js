@@ -134,7 +134,7 @@ export function registerChatSocketHandlers(deps) {
     deps.conversationListView.remove(payload.conversationId);
 
     if (payload.conversationId === deps.getConversationId() || payload.wasActive) {
-      window.location.assign('/');
+      window.location.assign('/chat');
     }
   });
 

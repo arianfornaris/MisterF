@@ -68,6 +68,17 @@ a.mf-rcard:focus-visible {
   stroke-linejoin: round;
 }
 
+// The app draws its glyphs with Bootstrap Icons (`bootstrap-icons-conventions`
+// forbids one-off SVGs in views), so the glyph slot also takes a `.bi` icon at
+// the same footprint and family color.
+.mf-rcard-glyph.bi {
+  display: grid;
+  place-items: center;
+  color: var(--mf-fam);
+  font-size: 1.875rem;
+  line-height: 1;
+}
+
 .mf-rcard-body {
   display: flex;
   flex: 1;

@@ -14,6 +14,7 @@ export default defineConfig({
         'client-error-telemetry': path.resolve(
           'src/client/telemetry/clientErrorReporter.js',
         ),
+        home: path.resolve('src/client/home/index.js'),
         'practice-guides': path.resolve('src/client/practiceGuides/index.js'),
         'media-library': path.resolve('src/client/mediaLibrary/index.js'),
         resources: path.resolve('src/client/resources/index.js'),

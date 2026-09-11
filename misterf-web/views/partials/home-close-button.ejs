@@ -1,0 +1,16 @@
+<%#
+  The close `X` of a section's root page — `/resources`, `/media-library`,
+  `/progress` — which is the home (Roadmap V3 §1.15). Inner pages close to their
+  owning resource or area root (`resource-page-conventions`); a root page has no
+  owner but the home, so its `X` completes the same chain instead of being the
+  one page with no way back. Breadcrumbs deliberately do not gain a home root:
+  the side panel's "Inicio" and this button are the way home.
+%>
+<a
+  class="app-page-close-button"
+  href="/"
+  aria-label="<%= t('nav.goHome') %>"
+  title="<%= t('nav.goHome') %>"
+>
+  <i class="bi bi-x-lg" aria-hidden="true"></i>
+</a>

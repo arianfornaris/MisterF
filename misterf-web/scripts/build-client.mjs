@@ -61,6 +61,12 @@ const signupScriptPartialPath = path.join(
   'partials',
   'signup-client-script.ejs',
 );
+const homeScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'home-client-script.ejs',
+);
 const stylesheetPartialPath = path.join(
   projectRoot,
   'views',
@@ -200,6 +206,7 @@ const resourcesEntry = manifest['src/client/resources/index.js'];
 const roleplaysEntry = manifest['src/client/roleplays/index.js'];
 const translatorEntry = manifest['src/client/translator/index.js'];
 const signupEntry = manifest['src/client/signup/index.js'];
+const homeEntry = manifest['src/client/home/index.js'];
 
 if (!quizzesEntry?.file) {
   console.error('Could not find quizzes entry in Vite manifest.');
@@ -237,6 +244,10 @@ if (!signupEntry?.file) {
   console.error('Could not find signup entry in Vite manifest.');
   process.exit(1);
 }
+if (!homeEntry?.file) {
+  console.error('Could not find home entry in Vite manifest.');
+  process.exit(1);
+}
 
 const quizzesScriptPath = `/public/build/${quizzesEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
@@ -247,6 +258,7 @@ const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
 const roleplaysScriptPath = `/public/build/${roleplaysEntry.file}`;
 const translatorScriptPath = `/public/build/${translatorEntry.file}`;
 const signupScriptPath = `/public/build/${signupEntry.file}`;
+const homeScriptPath = `/public/build/${homeEntry.file}`;
 
 fs.writeFileSync(
   quizzesScriptPartialPath,
@@ -293,6 +305,11 @@ fs.writeFileSync(
   `    <script type="module" src="${signupScriptPath}"></script>\n`,
   'utf8',
 );
+fs.writeFileSync(
+  homeScriptPartialPath,
+  `    <script type="module" src="${homeScriptPath}"></script>\n`,
+  'utf8',
+);
 
 const themePath = emitHashedStylesheet(
   'cuaderno',
@@ -326,6 +343,9 @@ console.log(
 );
 console.log(
   `Generated ${path.relative(projectRoot, translatorScriptPartialPath)} -> ${translatorScriptPath}`,
+);
+console.log(
+  `Generated ${path.relative(projectRoot, homeScriptPartialPath)} -> ${homeScriptPath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, themeStylesheetPartialPath)} -> ${themePath}`,

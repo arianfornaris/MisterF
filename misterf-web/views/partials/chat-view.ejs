@@ -140,9 +140,6 @@
                 <% } %>
               </article>
             <% } else { %>
-              <% if (typeof learningHome !== 'undefined' && learningHome) { %>
-                <%- include('learning-home-panel') %>
-              <% } %>
               <section class="practice-guide-start-panel d-none" data-practice-guide-start-panel>
                 <p class="app-page-kicker"><%= t('chat.practiceGuideKicker') %></p>
                 <h2 class="practice-guide-start-title" data-practiceGuide-start-title></h2>

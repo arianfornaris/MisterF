@@ -270,7 +270,7 @@ Bootstrap's, restyled through variables.
 | Class | What | Notes |
 | --- | --- | --- |
 | `.mf-chip` | family / status mark | always carries its name in words |
-| `.mf-rcard` | resource card | cover is drawn in CSS, never an image |
+| `.mf-rcard` | resource card | cover is drawn in CSS, never an image; the glyph is an SVG or a Bootstrap Icon (`.mf-rcard-glyph.bi`), which is what app views use |
 | `.mf-acard` | create action | the one licensed large color surface |
 | `.mf-stat` | number tile | `.mf-stat-accent` on at most one per screen |
 | `.mf-bar` `.mf-meter` `.mf-tally` `.mf-cols` | proportions and small charts | CSS only; no charting library |

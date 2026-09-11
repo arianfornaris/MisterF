@@ -244,10 +244,12 @@ export function createChatRuntime(deps) {
     element.setSelectionRange(end, end);
   }
 
+  // A conversation without an id yet lives at `/chat`, never at `/`: the home
+  // is its own page in both modes (Roadmap V3 §1.16).
   function buildConversationPath(nextConversationId) {
     return nextConversationId
       ? `/c/${encodeURIComponent(nextConversationId)}`
-      : '/';
+      : '/chat';
   }
 
   function buildCurrentChatPath(nextConversationId) {
@@ -285,7 +287,7 @@ export function createChatRuntime(deps) {
       return;
     }
 
-    window.location.assign('/');
+    window.location.assign('/chat');
   }
 
   function startPracticeGuideConversation(options = {}) {

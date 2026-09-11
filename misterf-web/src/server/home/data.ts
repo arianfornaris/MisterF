@@ -29,14 +29,23 @@ const recentParticipationWindowDays = 7;
  */
 const resourceTypePresentation: Record<
   PedagogicalResourceType,
-  { iconClass: string; labelKey: string }
+  { familyClass: string; iconClass: string; labelKey: string }
 > = {
   practice_guide: {
+    familyClass: 'mf-fam-guia',
     iconClass: 'bi-journal-text',
     labelKey: 'chat.resourceTypePracticeGuide',
   },
-  quiz: { iconClass: 'bi-ui-checks-grid', labelKey: 'chat.resourceTypeQuiz' },
-  roleplay: { iconClass: 'bi-person-video3', labelKey: 'chat.resourceTypeRoleplay' },
+  quiz: {
+    familyClass: 'mf-fam-quiz',
+    iconClass: 'bi-ui-checks-grid',
+    labelKey: 'chat.resourceTypeQuiz',
+  },
+  roleplay: {
+    familyClass: 'mf-fam-roleplay',
+    iconClass: 'bi-person-video3',
+    labelKey: 'chat.resourceTypeRoleplay',
+  },
 };
 
 export type TeachingHomeActivity = {
@@ -103,6 +112,7 @@ export function buildTeachingHomeData(input: {
 
 export type LearningHomeActivity = {
   detailPath: string;
+  familyClass: string;
   hasStarted: boolean;
   iconClass: string;
   id: string;
@@ -111,21 +121,54 @@ export type LearningHomeActivity = {
   title: string;
 };
 
-export type LearningHomeData = {
-  /** Activities shared with this profile, not-yet-started ones first. */
-  sharedWithMe: LearningHomeActivity[];
-  /** How many of them the profile has not started yet. */
-  pendingCount: number;
+export type LearningHomeConversation = {
+  path: string;
+  /** Empty for a conversation that has not been titled yet. */
+  title: string;
+  updatedRelative: string;
 };
 
 /**
- * The learning composition's panel. Capped rather than paginated: the panel
- * sits above the composer and is a shortcut into the catalog, not a second
- * catalog.
+ * The one action the page leads with. An activity someone is waiting on
+ * outranks the learner's own open conversation: it is the only item on the
+ * page that another person asked for.
+ */
+export type LearningHomeNextStep =
+  | { kind: 'activity'; activity: LearningHomeActivity }
+  | { kind: 'conversation'; conversation: LearningHomeConversation };
+
+export type LearningHomeData = {
+  /** Activities shared with this profile, not-yet-started ones first. Capped. */
+  sharedWithMe: LearningHomeActivity[];
+  /** Every activity shared with this profile, before the cap. */
+  sharedWithMeTotal: number;
+  /** How many of them the profile has not started yet. */
+  pendingCount: number;
+  /**
+   * Open tutor conversations, most recent first, minus the one already leading
+   * the page as the next step — the same row twice reads as two things to do.
+   * Capped.
+   */
+  openConversations: LearningHomeConversation[];
+  nextStep: LearningHomeNextStep | null;
+};
+
+/**
+ * Both lists are capped rather than paginated: the home is a shortcut into the
+ * catalog and the conversation history, not a second copy of either. The full
+ * shared list is one link away (`/resources?type=with_me`), and every
+ * conversation is already in the side panel.
  */
 const learningHomeActivityLimit = 4;
+const learningHomeConversationLimit = 3;
 
 export function buildLearningHomeData(input: {
+  conversations: ReadonlyArray<{
+    closedAt: string | null;
+    id: string;
+    relativeUpdatedAt: string;
+    title: string;
+  }>;
   locale: Locale;
   profileId: string;
   userId: string;
@@ -133,20 +176,41 @@ export function buildLearningHomeData(input: {
   const sharedWithMe = listResourcesSharedWithProfile({
     profileId: input.profileId,
     userId: input.userId,
-  });
+  }).map((resource): LearningHomeActivity => ({
+    detailPath: buildResourceDetailPath(resource),
+    familyClass: resourceTypePresentation[resource.type].familyClass,
+    hasStarted: resource.hasStarted,
+    iconClass: resourceTypePresentation[resource.type].iconClass,
+    id: resource.id,
+    labelKey: resourceTypePresentation[resource.type].labelKey,
+    sharedRelative: formatRelativeTime(resource.sharedAt, input.locale),
+    title: resource.title,
+  }));
+
+  const openConversations = input.conversations
+    .filter((conversation) => !conversation.closedAt)
+    .slice(0, learningHomeConversationLimit)
+    .map((conversation) => ({
+      path: `/c/${encodeURIComponent(conversation.id)}`,
+      title: conversation.title,
+      updatedRelative: conversation.relativeUpdatedAt,
+    }));
+
+  // The query orders not-yet-started activities first, so the first pending
+  // one is also the most recently shared of them.
+  const firstPendingActivity = sharedWithMe.find((activity) => !activity.hasStarted);
+  const nextStep: LearningHomeNextStep | null = firstPendingActivity
+    ? { activity: firstPendingActivity, kind: 'activity' }
+    : openConversations[0]
+      ? { conversation: openConversations[0], kind: 'conversation' }
+      : null;
 
   return {
-    pendingCount: sharedWithMe.filter((resource) => !resource.hasStarted).length,
-    sharedWithMe: sharedWithMe
-      .slice(0, learningHomeActivityLimit)
-      .map((resource) => ({
-        detailPath: buildResourceDetailPath(resource),
-        hasStarted: resource.hasStarted,
-        iconClass: resourceTypePresentation[resource.type].iconClass,
-        id: resource.id,
-        labelKey: resourceTypePresentation[resource.type].labelKey,
-        sharedRelative: formatRelativeTime(resource.sharedAt, input.locale),
-        title: resource.title,
-      })),
+    nextStep,
+    openConversations:
+      nextStep?.kind === 'conversation' ? openConversations.slice(1) : openConversations,
+    pendingCount: sharedWithMe.filter((activity) => !activity.hasStarted).length,
+    sharedWithMe: sharedWithMe.slice(0, learningHomeActivityLimit),
+    sharedWithMeTotal: sharedWithMe.length,
   };
 }

@@ -3,7 +3,6 @@ import { buildUserContentWithAttachments } from '../attachments/modelParts.js';
 import { claimRequestAttachments } from '../attachments/requestAttachments.js';
 import { addMessage, closeConversationForUser, createConversationFromTutorReport, findConversationForUser, findProfileForUser, findTutorConversationReport, listMessages, renameConversationForUser, saveTutorConversationReport, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
-import { buildLearningHomeData } from '../home/data.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
 import { resolveConversationOrigin, } from '../services/conversationOrigin.js';
@@ -69,16 +68,6 @@ export function renderChatPage(request, response) {
                         ? 'summary'
                         : 'conversation';
     }
-    // The learning composition of the home (Roadmap V3 §1.14): a compact panel
-    // above the composer, shown only on the empty state. Once a conversation is
-    // open the chat is the page, and starter cards would be noise.
-    const learningHome = user?.emailVerified && activeProfile && !initialConversationId
-        ? buildLearningHomeData({
-            locale: request.locale,
-            profileId: activeProfile.id,
-            userId: user.id,
-        })
-        : null;
     response.render('chat', {
         ...buildAppShellContext({
             activeProfile,
@@ -90,7 +79,6 @@ export function renderChatPage(request, response) {
             title: buildDocumentTitle(request.locale),
             user,
         }),
-        learningHome,
         selectedTutorConversation,
         selectedTutorConversationOrigin,
         selectedTutorConversationReport,

@@ -2543,19 +2543,47 @@ describe('signed-in home modes', () => {
     return { cookie: await createAuthenticatedCookie(user.id, profile.id), profile, user };
   }
 
-  it('opens the chat composition with the starter panel for a learning profile', async () => {
+  it('opens the learning home as its own page for a learning profile', async () => {
     const { cookie } = await createHomeAccount('home-learner', 'learn');
 
     const response = await fetch(`${baseUrl}/`, { headers: { cookie }, redirect: 'manual' });
     const html = await response.text();
 
     expect(response.status).toBe(200);
-    expect(html).toContain('id="chatForm"');
-    expect(html).toContain('data-learning-home-panel');
+    // Roadmap V3 §1.16: the learning home is no longer the chat. Mr. F is one
+    // text box that opens `/chat`.
+    expect(html).not.toContain('id="chatForm"');
+    expect(html).toContain('data-home-ask-form');
+    expect(html).toContain('action="/chat"');
+    // Every prompt field offers attachment (`prompt-attachments`).
+    expect(html).toContain('data-attachment-picker="homeAskAttachmentWizard"');
+    expect(html).toContain('id="homeAskAttachmentWizard"');
+    expect(html).toContain('What would you like to practice today?');
     expect(html).toContain('For you');
-    expect(html).toContain('See my progress');
+    expect(html).toContain('href="/progress"');
     // Nothing shared with this profile yet.
     expect(html).toContain('When someone shares an activity with you');
+    // The home is the active entry in the side panel.
+    expect(html).toMatch(/class="panel-nav-link is-active" href="\/"/);
+  });
+
+  it('separates the way home from a new conversation', async () => {
+    const { cookie } = await createHomeAccount('home-nav', 'teach');
+
+    const response = await fetch(`${baseUrl}/resources`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    // Roadmap V3 §1.15: "Inicio" goes to `/`, "Nueva conversación" to `/chat`,
+    // and a section root closes to the home.
+    expect(html).toMatch(/href="\/">\s*<i class="bi bi-house"/);
+    expect(html).toContain('href="/chat" data-new-conversation');
+    expect(html).toMatch(/class="app-page-close-button"\s+href="\/"/);
+    // The phone toolbar reaches the home without opening the side panel.
+    expect(html).toMatch(/class="btn btn-link chat-home-button d-lg-none"\s+href="\/"/);
   });
 
   it('writes the profile home mode onto the document so the theme can read it', async () => {
@@ -2679,6 +2707,9 @@ describe('signed-in home modes', () => {
     expect(html).toContain('Homework One');
     expect(html).toContain(`href="/quizzes/${quiz.id}"`);
     expect(html).toContain('Pending');
+    // The pending activity leads the page as the next step.
+    expect(html).toContain('You have 1 pending activity.');
+    expect(html).toMatch(/href="\/quizzes\/[^"]+">\s*<i class="bi bi-play-fill/);
   });
 
   it('switches the composition and persists it on the profile', async () => {

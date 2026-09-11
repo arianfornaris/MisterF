@@ -67,6 +67,14 @@ Four steps. Do all four; three of them look complete on their own.
    nothing while looking like it would. Modals using the shared modification
    controller pass them through `extraFields()`.
 
+   **A surface that only hands its prompt to another page** — the learning
+   home's "Ask Mr. F" box opens `/chat` with it — does not claim anything. It
+   passes `getAttachedSummaries()` (staged id + display metadata, never the
+   extracted text) along with the text, and the receiving page's picker calls
+   `restore(summaries)`; the ids are claimed where the prompt is finally sent.
+   Keep the handoff out of the URL (sessionStorage), and remember staged
+   entries expire after `stagedTtlMs` (10 minutes).
+
 3. **Server handler** — `claimRequestAttachments(request, userId)`. Claiming is
    ownership-checked and one-shot, so a replayed id cannot re-attach another
    account's material or the same file twice.

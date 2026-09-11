@@ -19,11 +19,20 @@ const recentParticipationWindowDays = 7;
  */
 const resourceTypePresentation = {
     practice_guide: {
+        familyClass: 'mf-fam-guia',
         iconClass: 'bi-journal-text',
         labelKey: 'chat.resourceTypePracticeGuide',
     },
-    quiz: { iconClass: 'bi-ui-checks-grid', labelKey: 'chat.resourceTypeQuiz' },
-    roleplay: { iconClass: 'bi-person-video3', labelKey: 'chat.resourceTypeRoleplay' },
+    quiz: {
+        familyClass: 'mf-fam-quiz',
+        iconClass: 'bi-ui-checks-grid',
+        labelKey: 'chat.resourceTypeQuiz',
+    },
+    roleplay: {
+        familyClass: 'mf-fam-roleplay',
+        iconClass: 'bi-person-video3',
+        labelKey: 'chat.resourceTypeRoleplay',
+    },
 };
 export function buildTeachingHomeData(input) {
     const recencyWindowStart = new Date(Date.now() - recentParticipationWindowDays * 24 * 60 * 60 * 1000).toISOString();
@@ -52,29 +61,49 @@ export function buildTeachingHomeData(input) {
     };
 }
 /**
- * The learning composition's panel. Capped rather than paginated: the panel
- * sits above the composer and is a shortcut into the catalog, not a second
- * catalog.
+ * Both lists are capped rather than paginated: the home is a shortcut into the
+ * catalog and the conversation history, not a second copy of either. The full
+ * shared list is one link away (`/resources?type=with_me`), and every
+ * conversation is already in the side panel.
  */
 const learningHomeActivityLimit = 4;
+const learningHomeConversationLimit = 3;
 export function buildLearningHomeData(input) {
     const sharedWithMe = listResourcesSharedWithProfile({
         profileId: input.profileId,
         userId: input.userId,
-    });
+    }).map((resource) => ({
+        detailPath: buildResourceDetailPath(resource),
+        familyClass: resourceTypePresentation[resource.type].familyClass,
+        hasStarted: resource.hasStarted,
+        iconClass: resourceTypePresentation[resource.type].iconClass,
+        id: resource.id,
+        labelKey: resourceTypePresentation[resource.type].labelKey,
+        sharedRelative: formatRelativeTime(resource.sharedAt, input.locale),
+        title: resource.title,
+    }));
+    const openConversations = input.conversations
+        .filter((conversation) => !conversation.closedAt)
+        .slice(0, learningHomeConversationLimit)
+        .map((conversation) => ({
+        path: `/c/${encodeURIComponent(conversation.id)}`,
+        title: conversation.title,
+        updatedRelative: conversation.relativeUpdatedAt,
+    }));
+    // The query orders not-yet-started activities first, so the first pending
+    // one is also the most recently shared of them.
+    const firstPendingActivity = sharedWithMe.find((activity) => !activity.hasStarted);
+    const nextStep = firstPendingActivity
+        ? { activity: firstPendingActivity, kind: 'activity' }
+        : openConversations[0]
+            ? { conversation: openConversations[0], kind: 'conversation' }
+            : null;
     return {
-        pendingCount: sharedWithMe.filter((resource) => !resource.hasStarted).length,
-        sharedWithMe: sharedWithMe
-            .slice(0, learningHomeActivityLimit)
-            .map((resource) => ({
-            detailPath: buildResourceDetailPath(resource),
-            hasStarted: resource.hasStarted,
-            iconClass: resourceTypePresentation[resource.type].iconClass,
-            id: resource.id,
-            labelKey: resourceTypePresentation[resource.type].labelKey,
-            sharedRelative: formatRelativeTime(resource.sharedAt, input.locale),
-            title: resource.title,
-        })),
+        nextStep,
+        openConversations: nextStep?.kind === 'conversation' ? openConversations.slice(1) : openConversations,
+        pendingCount: sharedWithMe.filter((activity) => !activity.hasStarted).length,
+        sharedWithMe: sharedWithMe.slice(0, learningHomeActivityLimit),
+        sharedWithMeTotal: sharedWithMe.length,
     };
 }
 //# sourceMappingURL=data.js.map

@@ -84,6 +84,13 @@ page carries a breadcrumb as its back-navigation trail. This replaces the old
     the trail and its title already names the location, so the root list needs
     no breadcrumb. A foldered list view (`/resources/folders/:id`) does show one:
     root → ancestor folders → current folder (plain).
+  - **Area root → home.** An area root (`/resources`, `/media-library`, and
+    `/progress` outside this area) carries a close `X` to `/`, rendered by
+    `views/partials/home-close-button.ejs` at the end of its
+    `app-page-header-actions`. Breadcrumbs **never** gain a home crumb: the
+    side panel's `Inicio` and the phone toolbar's house are the way home, and
+    the root's `X` completes the close chain (inner page → owner → area root →
+    home). Roadmap V3 §1.15.
   - **Detail:** full trail ending in the resource/item title as plain text.
   - **Edit / authoring:** same trail as the owning detail, ending in the
     resource title (optionally followed by an "Editar"/authoring crumb).
@@ -106,7 +113,8 @@ page carries a breadcrumb as its back-navigation trail. This replaces the old
     carry the breadcrumb. Where present, the close-`X` may stay as the immersive
     exit.
 - A close `X`, when present, must link deterministically to the owning resource
-  detail page (or the area root for creation flows). Do not use browser history
+  detail page (or the area root for creation flows, or the home `/` for an
+  area root itself). Do not use browser history
   (`document.referrer`, `history.back()`) or the removed type-specific list
   pages as its target.
 - Resources that create attempts or evaluated results should show their

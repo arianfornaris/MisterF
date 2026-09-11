@@ -9,18 +9,19 @@ import {
 } from '../pages/shell.js';
 import { normalizeProfileHomeMode } from '../profiles/homeMode.js';
 import { normalizeProfileReturnTo } from '../profiles/fields.js';
-import { buildTeachingHomeData } from './data.js';
+import { buildLearningHomeData, buildTeachingHomeData } from './data.js';
 
 /**
  * `/` is one route with two compositions (Roadmap V3 §1.14). The profile's
- * home mode decides which one opens; it decides nothing else, so a profile that
- * teaches still reaches the tutor through `/chat` and every other surface
- * unchanged.
+ * home mode decides which one opens; it decides nothing else. Neither
+ * composition is the tutor chat any more (§1.16): a conversation always lives
+ * at `/chat` or `/c/:id`, so "go home" and "start a new conversation" are two
+ * different links (§1.15).
  *
  * Visitors never arrive here — `landingRouter` renders the public landing for a
- * request without a session and passes authenticated ones through — but an
- * unverified account can, and it belongs in the chat composition with the
- * verification notice the chat page already renders.
+ * request without a session and passes authenticated ones through. An
+ * unverified account or a session without a profile still falls through to the
+ * chat handler, which owns the verification redirect and the profile-less shell.
  */
 export function renderHomePage(request: Request, response: Response): void {
   const user = request.authUser;
@@ -36,7 +37,40 @@ export function renderHomePage(request: Request, response: Response): void {
     return;
   }
 
-  renderChatPage(request, response);
+  renderLearningHomePage(request, response);
+}
+
+function renderLearningHomePage(request: Request, response: Response): void {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const shellContext = buildAppShellContext({
+    activeProfile,
+    authMessage: getHomeAuthMessage(request, user),
+    currentView: 'home',
+    guestInitialGreeting: '',
+    request,
+    title: buildDocumentTitle(request.locale, translate(request.locale, 'nav.home')),
+    user,
+  });
+
+  response.render('home-learning', {
+    ...shellContext,
+    learningHome: buildLearningHomeData({
+      // The shell already lists this profile's conversations for the side
+      // panel; "continue where you left off" reads the same rows rather than
+      // querying them twice.
+      conversations: shellContext.conversations,
+      locale: request.locale,
+      profileId: activeProfile.id,
+      userId: user.id,
+    }),
+    pageScriptPartial: 'home-client-script',
+  });
 }
 
 function renderTeachingHomePage(request: Request, response: Response): void {
@@ -51,7 +85,7 @@ function renderTeachingHomePage(request: Request, response: Response): void {
     ...buildAppShellContext({
       activeProfile,
       authMessage: getHomeAuthMessage(request, user),
-      currentView: 'chat',
+      currentView: 'home',
       guestInitialGreeting: '',
       request,
       title: buildDocumentTitle(request.locale, translate(request.locale, 'home.teachTitle')),

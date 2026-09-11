@@ -176,7 +176,9 @@ function wirePicker(picker, wizard) {
       details.push(t('attachments.pageCount', { count: item.pageCount }));
     }
     details.push(
-      t('attachments.characterCount', { count: (item.text || '').length }),
+      t('attachments.characterCount', {
+        count: item.characterCount ?? (item.text || '').length,
+      }),
     );
     return details.join(' · ');
   }
@@ -263,7 +265,9 @@ function wirePicker(picker, wizard) {
 
   /** The prompt the user has already written, so extraction knows what matters. */
   function currentUserPrompt() {
-    const field = picker.closest('form')?.querySelector('textarea[name="prompt"]')
+    const field = picker
+      .closest('form')
+      ?.querySelector('textarea[name="prompt"], textarea[data-attachment-prompt]')
       || document.querySelector('#messageInput');
     return field instanceof HTMLTextAreaElement ? field.value.trim() : '';
   }
@@ -438,6 +442,34 @@ function wirePicker(picker, wizard) {
     },
     getIds() {
       return attached.map((item) => String(item.id));
+    },
+    /**
+     * What another page needs to list these attachments again: the staged id
+     * plus display metadata, never the extracted text. For a surface that only
+     * hands its prompt on — the learning home's "Ask Mr. F" box opens the chat
+     * with it — rather than consuming it itself.
+     */
+    getAttachedSummaries() {
+      return attached.map((item) => ({
+        characterCount: item.characterCount ?? (item.text || '').length,
+        displayName: String(item.displayName || ''),
+        id: String(item.id),
+        pageCount: item.pageCount || null,
+        sourceType: item.sourceType || '',
+      }));
+    },
+    /**
+     * Lists attachments accepted on another page. They are still staged under
+     * the same ids, so nothing is re-processed or re-billed; an id that expired
+     * in between is refused at claim time, like any stale id.
+     */
+    restore(summaries) {
+      for (const summary of summaries) {
+        if (summary?.id && !attached.some((item) => item.id === summary.id)) {
+          attached.push(summary);
+        }
+      }
+      renderAttachedList();
     },
   };
 }
