@@ -1820,18 +1820,23 @@ horizontal overflow at 375px.
 `/login`. None of it is demo-specific: a student opening a teacher's share
 link without an account hits the same walls.
 
-- [ ] **The close `X` on a guest attempt leads to a login wall.**
+- [x] **The close `X` on a guest attempt leads to a login wall.**
   `views/quizzes-attempt.ejs:19` and `views/quizzes-result.ejs:53` point at
   `/quizzes/:quizId`, the owner's page; for a guest it 302s to `/login` (on the
   demo, `/quizzes/landing-demo-grocery-shopping`). For an attempt with no
   `userId`, the `X` should return to the share page it came from (or `/`).
+  *Done 2026-09-12: both views take a `closeHref` from the handler. An owned
+  attempt (and the author's read-only view) keeps the quiz page; a guest
+  attempt goes to the quiz's active share link, or to `/` once it is revoked
+  (`quizzes/guestAttempts.ts`). The attempt does not record its link, but a
+  resource has at most one active run link, so no migration was needed.*
 - [x] **`No ahora` on the shared page leads to a login wall.**
   `views/resources-shared.ejs` sends all three variants (quiz, start, add) to
   `/resources`, which 302s to `/login` without a session. A visitor declining
   should land on `/` — the landing — not be asked to sign in.
   *Done 2026-09-12 with the shared-page redesign: `/` without a session,
   `/resources` with one.*
-- [ ] **The signup after a guest submit has no context.** It is the generic
+- [x] **The signup after a guest submit has no context.** It is the generic
   "Empezar a practicar" page: nothing says the answers were saved or that the
   evaluation is what the account unlocks, and there is no way back to the
   quiz. `auth.ejs` already receives the `returnTo`; when it is an
@@ -1839,7 +1844,15 @@ link without an account hits the same walls.
   is the moment the demo exists for (roadmap-v3-5 §1.2's "create an account
   when you want to see the evaluation"), and today it reads as an unrelated
   signup.
-- [ ] **Decide whether the example should read as an example.** The landing
+  *Done 2026-09-12: when the `returnTo` names an unclaimed, submitted attempt
+  whose guest token matches (`findPendingGuestQuizEvaluation`), signup reads
+  "Tus respuestas están guardadas" and names the quiz and what the account
+  unlocks; login (reached from "¿Ya tienes cuenta?") keeps its heading and
+  says the same in the intro. Both carry "Volver a la actividad" to the
+  shared page while the link is active. Any other `returnTo`, or a forged
+  token, keeps the generic page. Covered by `routes.test.ts` ("keeps a guest
+  on the shared path out of the quiz and into signup").*
+- [x] **Decide whether the example should read as an example.** The landing
   calls it "Actividad de ejemplo"; the page it opens says "Recurso
   compartido" with a `Compartido` badge, inside the app shell whose side panel
   says "Abre una sesión para practicar" — the visitor lands in someone else's
@@ -1849,11 +1862,24 @@ link without an account hits the same walls.
   who shared ("Compartido contigo por …"), and for the demo account it says
   "Una actividad de ejemplo de Mister F" instead of naming the "Examples"
   profile. The kicker and the guest side panel are unchanged.*
-- [ ] **Decide what `Practicar con Mr. F` should do.** The learner section
+  *Decided and done 2026-09-12 (founder: "implement your recommendations"):
+  **yes, lightly.** On a share of the demo account the kicker reads
+  "Quiz · Ejemplo" instead of "Quiz · Compartido" (`resources.exampleKicker`,
+  driven by the `isExample` the handler already computed). The guest side
+  panel stays as it is: it is the same for every visitor without a session,
+  including a teacher's students, and is not worth a demo-only branch.*
+- [x] **Decide what `Practicar con Mr. F` should do.** The learner section
   promises practice with corrections; `/chat` gives a guest composer whose
   first message is answered with "inicia sesión o crea una cuenta" (no
   inference is spent). Guest chat was kept on purpose (roadmap-v3-5 §1.3); the
   question is whether this CTA should still point there or go to signup.
+  *Decided and done 2026-09-12: **signup.** The CTA goes to
+  `/signup?returnTo=%2Fchat`, and that signup reads "Practica inglés con
+  Mr. F" with an intro that says what the account is for (es/en/ht). Sending
+  it to guest chat only moved the wall one step later, after the visitor had
+  typed a message. Guest chat itself stays reachable at `/chat`. Not chosen:
+  pointing the CTA at an example quiz — it promises a conversation, and
+  changing the promise is worse than asking for the account.*
 
 Not a finding: a visitor who has signed in before is greeted on `/chat` with
 "¡Bienvenido otra vez!" — that is the known-visitor greeting

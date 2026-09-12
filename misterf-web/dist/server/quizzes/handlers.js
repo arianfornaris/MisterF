@@ -11,6 +11,7 @@ import { generateQuizDraft, generateQuizRevision, generateQuizBlockRevision, gen
 import { deletePendingModification, getPendingModification, listStringFieldChanges, setPendingModification, } from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
 import { buildCopyLinkModalLocals, findCopiedFromName } from '../resources/copyLinks.js';
+import { buildGuestAttemptExitPath } from './guestAttempts.js';
 import { randomUUID } from 'node:crypto';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -235,6 +236,17 @@ function appendGuestToken(pathname, attempt) {
     }
     const separator = pathname.includes('?') ? '&' : '?';
     return `${pathname}${separator}guestToken=${encodeURIComponent(attempt.guestToken)}`;
+}
+/**
+ * The close `X` of an attempt or result page: the quiz's page for an owned
+ * attempt (and for the author's read-only view of any attempt), the shared
+ * page for a guest, who cannot open the quiz's page without a session.
+ */
+function buildAttemptCloseHref(attempt, ownerView = false) {
+    if (ownerView || attempt.userId) {
+        return `/quizzes/${encodeURIComponent(attempt.quizId)}`;
+    }
+    return buildGuestAttemptExitPath(attempt.quizId);
 }
 function buildQuizResultPath(attempt, params = {}) {
     const searchParams = new URLSearchParams(params);
@@ -488,6 +500,7 @@ function renderQuizAttempt(request, response, input) {
         attemptError: input.error || '',
         attemptErrorIsCredit: Boolean(input.errorIsCredit),
         blockSections: buildQuizBlockSectionList(draft),
+        closeHref: buildAttemptCloseHref(input.attempt),
         // The no-JS fallback renders matching, ordering, and unscramble exercises
         // straight from the draft, whose stored order is the answer key. Seeded by
         // the attempt so a reload does not reshuffle a half-answered exercise.
@@ -518,6 +531,7 @@ function renderQuizResult(request, response, attempt, options = {}) {
             user: request.authUser ?? null,
         }),
         attempt,
+        closeHref: buildAttemptCloseHref(attempt, options.ownerView),
         draft,
         // The guest token grants attempt access; the owner's read-only view must
         // never embed it in links or forms.

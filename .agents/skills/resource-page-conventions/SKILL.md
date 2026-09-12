@@ -146,7 +146,12 @@ page carries a breadcrumb as its back-navigation trail. This replaces the old
     and it is their own attempt. Roleplay attempt/result pages are always
     authenticated (the attempt owner must match the viewer), so they always
     carry the breadcrumb. Where present, the close-`X` may stay as the immersive
-    exit.
+    exit. **A guest's close `X` never points at `/quizzes/:id`** — that is the
+    owner's page and 302s a visitor without a session to `/login`. The handler
+    passes `closeHref` (`buildAttemptCloseHref`): the quiz page for an owned
+    attempt or the author's read-only view, otherwise the quiz's active share
+    page, or `/` once the link is revoked (`quizzes/guestAttempts.ts`).
+    Roadmap V3 §1.18.
 - A close `X`, when present, must link deterministically to the owning resource
   detail page (or the area root for creation flows, or the home `/` for an
   area root itself). Do not use browser history

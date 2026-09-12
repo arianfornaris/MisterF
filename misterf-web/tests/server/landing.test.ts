@@ -95,6 +95,26 @@ describe('public landing page', () => {
     expect(html).not.toContain('href="/signup"');
   });
 
+  it('sends the learner call to action to signup, naming the tutor chat', async () => {
+    const response = await fetch(baseUrl);
+    const html = await response.text();
+
+    // Guest chat answers its first message with a sign-in prompt, so the CTA
+    // asks for the account up front instead of one step later.
+    expect(html).toContain('href="/signup?returnTo=%2Fchat"');
+    expect(html).not.toContain('href="/chat"');
+
+    const signupHtml = await (await fetch(`${baseUrl}/signup?returnTo=%2Fchat`)).text();
+    expect(signupHtml).toContain('Practica inglés con Mr. F');
+    expect(signupHtml).toContain('Crea tu cuenta para conversar con Mr. F');
+    expect(signupHtml).toContain('name="returnTo" value="/chat"');
+
+    // Any other destination keeps the generic signup.
+    const genericHtml = await (await fetch(`${baseUrl}/signup`)).text();
+    expect(genericHtml).toContain('Empezar a practicar');
+    expect(genericHtml).not.toContain('Practica inglés con Mr. F');
+  });
+
   it('carries the visitor through signup to the activity editor', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
@@ -381,6 +401,9 @@ describe('public landing page', () => {
     // It reads as an example, not as something a stranger called "Examples" sent.
     expect(sharedHtml).toContain('A Mister F example activity');
     expect(sharedHtml).not.toContain('Shared with you by');
+    // The kicker says so too, instead of "Shared".
+    expect(sharedHtml).toContain('<span aria-hidden="true">·</span> Example');
+    expect(sharedHtml).not.toContain('<span aria-hidden="true">·</span> Shared');
   });
 
   it('keeps the root as the app for an authenticated session', async () => {

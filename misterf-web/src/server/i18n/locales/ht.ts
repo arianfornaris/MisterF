@@ -205,6 +205,7 @@ export const ht: LocaleCatalog = {
     move: 'Deplase',
     sharedWithYouBy: '{{name}} pataje sa a avè ou',
     sharedExample: 'Yon aktivite egzanp Mister F',
+    exampleKicker: 'Egzanp',
     sharedFactLevel: 'Nivo',
     sharedFactRole: 'Wòl ou:',
     sharedFactFolderItems: '{{count}} aktivite',
@@ -523,6 +524,20 @@ export const ht: LocaleCatalog = {
     hasAccount: 'Ou gen kont deja?',
     signIn: 'Konekte',
     backToLogin: 'Retounen nan koneksyon',
+    guestQuiz: {
+      heading: 'Repons ou yo anrejistre',
+      intro: {
+        signup:
+          'Kreye kont ou pou wè evalyasyon «{{title}}», ak koreksyon chak repons.',
+        login: 'Repons ou yo pou «{{title}}» anrejistre. Konekte pou wè evalyasyon an.',
+      },
+      back: 'Retounen nan aktivite a',
+    },
+    tutorChat: {
+      heading: 'Pratike angle ak Mr. F',
+      intro:
+        'Kreye kont ou pou pale ak Mr. F: li reponn ou epi li korije ou pandan w ap pratike. Ou kòmanse ak kredi inisyal.',
+    },
     privacy: 'Konfidansyalite',
     terms: 'Kondisyon',
     documentTitle: {

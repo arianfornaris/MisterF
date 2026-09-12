@@ -2470,6 +2470,87 @@ describe('main route smoke tests', () => {
     );
   });
 
+  it('keeps a guest on the shared path out of the quiz and into signup', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile, createQuiz, getOrCreateResourceShareLink } = await import(
+      '../../src/server/db/repository.js'
+    );
+    const { getDb } = await import('../../src/server/db/database.js');
+
+    const owner = createExternalUser({
+      email: 'route-guest-exit-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Guest Exit Owner',
+      provider: 'google',
+      providerSubject: 'route-guest-exit-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Route guest exit profile', userId: owner.id });
+    const quiz = createQuiz({
+      profileId: ownerProfile.id,
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Guest Exit Quiz',
+      },
+      title: 'Guest Exit Quiz',
+      userId: owner.id,
+    });
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+    const sharePath = `/resources/shared/${shareLink.id}`;
+    const sharedHtml = await (await fetch(`${baseUrl}${sharePath}`)).text();
+    const csrf = extractCsrfToken(sharedHtml);
+
+    const startLocation =
+      (await postForm(`/quizzes/shared/${shareLink.id}/take`, { _csrf: csrf }, '')).headers.get(
+        'location',
+      ) ?? '';
+    const attemptId = decodeURIComponent(startLocation.replace('/quiz-attempts/', '').split('?')[0]);
+    const guestToken = new URLSearchParams(startLocation.split('?')[1]).get('guestToken') ?? '';
+
+    // The close X leads back to the shared page, never to the owner's quiz
+    // page, which would send a visitor without a session to /login.
+    const attemptHtml = await (await fetch(`${baseUrl}${startLocation}`)).text();
+    expect(attemptHtml).toContain(`class="app-page-close-button"\n        href="${sharePath}"`);
+    expect(attemptHtml).not.toContain(`href="/quizzes/${quiz.id}"`);
+
+    const submitLocation =
+      (
+        await postForm(`/quiz-attempts/${attemptId}/submit`, { _csrf: csrf, guestToken }, '')
+      ).headers.get('location') ?? '';
+    const returnTo = new URLSearchParams(submitLocation.split('?')[1]).get('returnTo') ?? '';
+
+    // Signup says the answers are saved and what the account unlocks, and
+    // leads back to the activity; login carries the same context.
+    const signupHtml = await (await fetch(`${baseUrl}${submitLocation}`)).text();
+    expect(signupHtml).toContain('Tus respuestas están guardadas');
+    expect(signupHtml).toContain('evaluación de «Guest Exit Quiz»');
+    expect(signupHtml).toContain(`href="${sharePath}"`);
+    const loginHtml = await (
+      await fetch(`${baseUrl}/login?returnTo=${encodeURIComponent(returnTo)}`)
+    ).text();
+    expect(loginHtml).toContain('Tus respuestas de «Guest Exit Quiz» están guardadas');
+
+    // A token that does not match the attempt keeps the generic page.
+    const forgedReturnTo = returnTo.replace(guestToken, 'not-the-token');
+    const forgedHtml = await (
+      await fetch(`${baseUrl}/signup?returnTo=${encodeURIComponent(forgedReturnTo)}`)
+    ).text();
+    expect(forgedHtml).toContain('Empezar a practicar');
+    expect(forgedHtml).not.toContain('Guest Exit Quiz');
+
+    // Once the link is revoked there is no shared page to return to: the X
+    // falls back to the landing and signup drops the way back.
+    getDb()
+      .prepare('UPDATE resource_share_links SET revoked_at = CURRENT_TIMESTAMP WHERE id = ?')
+      .run(shareLink.id);
+    const revokedAttemptHtml = await (await fetch(`${baseUrl}${startLocation}`)).text();
+    expect(revokedAttemptHtml).toContain(`class="app-page-close-button"\n        href="/"`);
+    const revokedSignupHtml = await (await fetch(`${baseUrl}${submitLocation}`)).text();
+    expect(revokedSignupHtml).toContain('Tus respuestas están guardadas');
+    expect(revokedSignupHtml).not.toContain(`href="${sharePath}"`);
+  });
+
   it('guards the quiz responses summary before any inference', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile, createQuiz } = await import('../../src/server/db/repository.js');

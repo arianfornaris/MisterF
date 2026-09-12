@@ -58,10 +58,18 @@
                   <%= t('auth.kicker.' + mode) %>
                 </p>
                 <h1 class="h3 mb-2">
-                  <%= t('auth.heading.' + mode) %>
+                  <%= pendingQuizEvaluation && mode === 'signup'
+                    ? t('auth.guestQuiz.heading')
+                    : returnsToTutorChat
+                      ? t('auth.tutorChat.heading')
+                      : t('auth.heading.' + mode) %>
                 </h1>
                 <p class="text-body-secondary mb-0">
-                  <%= t('auth.intro.' + mode) %>
+                  <%= pendingQuizEvaluation
+                    ? t('auth.guestQuiz.intro.' + mode, { title: pendingQuizEvaluation.quizTitle })
+                    : returnsToTutorChat
+                      ? t('auth.tutorChat.intro')
+                      : t('auth.intro.' + mode) %>
                 </p>
               </div>
 
@@ -214,6 +222,14 @@
                   <a href="/login"><%= t('auth.backToLogin') %></a>.
                 <% } %>
               </div>
+
+              <% if (pendingQuizEvaluation && pendingQuizEvaluation.sharePath) { %>
+                <p class="mt-2 mb-0">
+                  <a href="<%= pendingQuizEvaluation.sharePath %>">
+                    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i><%= t('auth.guestQuiz.back') %>
+                  </a>
+                </p>
+              <% } %>
 
               <div class="mt-3 pt-3 border-top small text-body-secondary d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>

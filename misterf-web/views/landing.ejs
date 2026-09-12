@@ -360,7 +360,10 @@
             <p class="lede"><%= t('landing.learnerBody') %></p>
           </div>
           <div class="btn-row">
-            <a class="btn btn--ghost" href="/chat"><%= t('landing.learnerCta') %></a>
+            <%# Straight to signup: guest chat answers its first message with a
+                sign-in prompt, so sending the CTA there only moved the wall one
+                step later (Roadmap V3 §1.18). Guest chat itself stays at /chat. %>
+            <a class="btn btn--ghost" href="/signup?returnTo=<%= encodeURIComponent('/chat') %>"><%= t('landing.learnerCta') %></a>
           </div>
         </div>
       </section>

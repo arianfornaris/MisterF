@@ -189,6 +189,7 @@ export const en: LocaleCatalog = {
     move: 'Move',
     sharedWithYouBy: 'Shared with you by {{name}}',
     sharedExample: 'A Mister F example activity',
+    exampleKicker: 'Example',
     sharedFactLevel: 'Level',
     sharedFactRole: 'Your role:',
     sharedFactFolderItems: '{{count}} activities',
@@ -527,6 +528,20 @@ export const en: LocaleCatalog = {
     hasAccount: 'Already have an account?',
     signIn: 'Sign in',
     backToLogin: 'Back to sign in',
+    guestQuiz: {
+      heading: 'Your answers are saved',
+      intro: {
+        signup:
+          'Create your account to see the evaluation of “{{title}}”, with feedback on each answer.',
+        login: 'Your answers to “{{title}}” are saved. Sign in to see the evaluation.',
+      },
+      back: 'Back to the activity',
+    },
+    tutorChat: {
+      heading: 'Practice English with Mr. F',
+      intro:
+        'Create your account to talk with Mr. F: he answers and corrects you as you practice. You start with initial credits.',
+    },
     privacy: 'Privacy',
     terms: 'Terms',
     documentTitle: {

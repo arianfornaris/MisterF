@@ -174,6 +174,7 @@ export const es = {
         move: 'Mover',
         sharedWithYouBy: 'Compartido contigo por {{name}}',
         sharedExample: 'Una actividad de ejemplo de Mister F',
+        exampleKicker: 'Ejemplo',
         sharedFactLevel: 'Nivel',
         sharedFactRole: 'Tu papel:',
         sharedFactFolderItems: '{{count}} actividades',
@@ -493,6 +494,18 @@ export const es = {
         hasAccount: '¿Ya tienes cuenta?',
         signIn: 'Inicia sesión',
         backToLogin: 'Volver a iniciar sesión',
+        guestQuiz: {
+            heading: 'Tus respuestas están guardadas',
+            intro: {
+                signup: 'Crea tu cuenta para ver la evaluación de «{{title}}», con la corrección de cada respuesta.',
+                login: 'Tus respuestas de «{{title}}» están guardadas. Entra para ver la evaluación.',
+            },
+            back: 'Volver a la actividad',
+        },
+        tutorChat: {
+            heading: 'Practica inglés con Mr. F',
+            intro: 'Crea tu cuenta para conversar con Mr. F: te responde y te corrige mientras practicas. Empiezas con créditos iniciales.',
+        },
         privacy: 'Privacidad',
         terms: 'Términos',
         documentTitle: {

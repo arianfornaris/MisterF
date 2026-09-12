@@ -10,6 +10,7 @@ import { env } from '../config/env.js';
 import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
 import { buildDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
 import { buildProfileOnboardingPath } from '../profiles/fields.js';
+import { findPendingGuestQuizEvaluation } from '../quizzes/guestAttempts.js';
 import { logger } from '../services/logger.js';
 import { createTranslator, defaultLocale, } from '../i18n/index.js';
 function tr(response) {
@@ -667,6 +668,14 @@ function renderAuthForm(response, view) {
         // re-render after a rejection always ships a fresh stamp, which is what
         // lets a person who tripped the timing check pass by submitting again.
         honeypotFieldName: signupHoneypotField,
+        // A guest who just submitted a shared quiz arrives here on the way to its
+        // evaluation; the page says so instead of reading as an unrelated signup.
+        pendingQuizEvaluation: (view.mode === 'signup' || view.mode === 'login') && view.returnTo
+            ? findPendingGuestQuizEvaluation(view.returnTo)
+            : null,
+        // The landing's "Practicar con Mr. F" sends visitors here on their way to
+        // the tutor chat; signup names that instead of reading as a generic page.
+        returnsToTutorChat: view.mode === 'signup' && view.returnTo === '/chat',
         signupFormStamp: createSignupFormStamp(),
         title: buildDocumentTitle(localeOf(response), documentTitle),
     });

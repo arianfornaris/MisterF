@@ -9,7 +9,7 @@
   <header class="mf-res-band shared-band <%= familyClass %>">
     <div class="shared-measure shared-band-inner">
       <div>
-        <%- include('partials/resource-page-kicker', { resourceType: sharedResource.type, pageLabel: copyMode ? t('resources.sharedCopyKicker') : t('resources.shared') }) %>
+        <%- include('partials/resource-page-kicker', { resourceType: sharedResource.type, pageLabel: copyMode ? t('resources.sharedCopyKicker') : isExample ? t('resources.exampleKicker') : t('resources.shared') }) %>
         <h1 class="app-page-title shared-title"><%= sharedResource.title %></h1>
         <% if (isExample) { %>
           <p class="app-page-copy"><%= t('resources.sharedExample') %></p>
