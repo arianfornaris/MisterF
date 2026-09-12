@@ -27,7 +27,8 @@
     <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button class="btn btn-primary" type="submit">
-        <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('quizzes.test') %>
+        <%# The author's own run is a private test; anyone else is taking it for real. %>
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= canManageQuiz ? t('resources.test') : t('resources.takeQuiz') %>
       </button>
     </form>
     <% if (canManageQuiz) { %>

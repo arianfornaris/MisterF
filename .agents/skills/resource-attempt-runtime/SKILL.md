@@ -26,7 +26,10 @@ persisted attempt data.
   evaluating. Guest attempt creation is rate limited per IP.
 - Teacher/owner "test" attempts are normal attempt rows started from the
   detail page (`/quizzes/:quizId/test-attempts`) using the student-facing UI.
-  Do not introduce a separate persisted preview/test attempt mode.
+  Do not introduce a separate persisted preview/test attempt mode. What makes
+  a run a test is the author profile (`collectResults` false), not the route,
+  and the button says so: "Probar" for the author, "Comenzar" / "Hacer el
+  quiz" for anyone else (`resource-page-conventions`, Primary Action Label).
 - Roleplay attempts generate the AI character's first line dynamically at
   start and evaluate only after the learner explicitly finishes the exchange.
 - Authenticated evaluated attempts record learner progress events with

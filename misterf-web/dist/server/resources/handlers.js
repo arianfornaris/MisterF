@@ -53,34 +53,6 @@ function readResourceSort(value) {
 function readResourceScope(value) {
     return readField(value, 10) === 'all' ? 'all' : 'folder';
 }
-function buildResourceAction(resource) {
-    if (resource.type === 'quiz') {
-        return {
-            actionLabel: 'Probar',
-            actionMethod: 'post',
-            actionPath: `/quizzes/${encodeURIComponent(resource.id)}/test-attempts`,
-        };
-    }
-    if (resource.type === 'practice_guide') {
-        return {
-            actionLabel: 'Comenzar',
-            actionMethod: 'post',
-            actionPath: `/practice-guides/${encodeURIComponent(resource.id)}/chats`,
-        };
-    }
-    if (resource.type === 'roleplay') {
-        return {
-            actionLabel: 'Comenzar',
-            actionMethod: 'post',
-            actionPath: `/roleplays/${encodeURIComponent(resource.id)}/attempts`,
-        };
-    }
-    return {
-        actionLabel: 'Abrir',
-        actionMethod: 'get',
-        actionPath: `/resources/folders/${encodeURIComponent(resource.id)}`,
-    };
-}
 function toAccessibleOwnerResource(resource) {
     return {
         ...resource,
@@ -118,10 +90,8 @@ function buildResourceListItem(resource, locale, sharedByMeIds, folderTitle = nu
             labelKey: 'resources.typeRoleplay',
         },
     }[resource.type];
-    const action = buildResourceAction(resource);
     return {
         ...resource,
-        ...action,
         badgeClass: meta.badgeClass,
         detailPath: buildResourceDetailPath(resource),
         headerClass: meta.headerClass,

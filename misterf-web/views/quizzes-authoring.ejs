@@ -13,7 +13,7 @@
       <form class="d-inline-block mt-3" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-primary" type="submit">
-          <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('quizzes.test') %>
+          <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('resources.test') %>
         </button>
       </form>
     </div>

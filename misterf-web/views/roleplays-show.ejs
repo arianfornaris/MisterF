@@ -40,7 +40,8 @@
         data-roleplay-pending-submit
         data-loading-text="<%= t('roleplays.starting') %>"
       >
-        <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('resources.start') %>
+        <%# The author's own run is a private test; anyone else is taking it for real. %>
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= canManageRoleplay ? t('resources.test') : t('resources.start') %>
       </button>
     </form>
     <% if (canManageRoleplay) { %>

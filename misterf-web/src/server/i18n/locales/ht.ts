@@ -203,6 +203,7 @@ export const ht: LocaleCatalog = {
     notNow: 'Pa kounye a',
     takeQuiz: 'Fè quiz la',
     start: 'Kòmanse',
+    test: 'Eseye l',
     starting: 'N ap prepare aktivite a...',
     addToMyResources: 'Ajoute nan resous mwen yo',
     sharedResultsNotice:
@@ -689,7 +690,6 @@ export const ht: LocaleCatalog = {
     select: 'Chwazi',
     sentence: 'Fraz',
     position: 'Pozisyon',
-    test: 'Eseye l',
     editQuiz: 'Modifye quiz',
     confirmRestore: 'Èske ou sèten ou vle restore quiz sa a?',
     confirmArchive:

@@ -329,6 +329,7 @@ describe('main route smoke tests', () => {
       createRoleplay,
       findResourceAccessForProfile,
       getOrCreateResourceShareLink,
+      grantResourceAccess,
     } = await import('../../src/server/db/repository.js');
 
     const owner = createExternalUser({
@@ -357,7 +358,13 @@ describe('main route smoke tests', () => {
       description: 'Route shared quiz.',
       instructions: '',
       profileId: ownerProfile.id,
-      quiz: { blocks: [], title: 'Route Shared Quiz' },
+      // A valid draft: the recipient's detail page parses it (the share page does not).
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Route Shared Quiz',
+      },
       title: 'Route Shared Quiz',
       userId: owner.id,
     });
@@ -457,6 +464,29 @@ describe('main route smoke tests', () => {
         // The roleplay page introduces both characters before starting.
         expect(authenticatedHtml).toContain('Tu papel:');
         expect(authenticatedHtml).toContain('Server');
+      }
+
+      if (resource.isQuiz || resource.isStart) {
+        // Once the recipient holds access, the detail page is where they come
+        // back to it. Their run is real participation, never the author's
+        // private "Probar".
+        grantResourceAccess({
+          collectResults: false,
+          grantedByUserId: owner.id,
+          grantedVia: 'link',
+          profileId: receiverProfile.id,
+          resourceId: resource.id,
+          shareLinkId: shareLink.id,
+          userId: receiver.id,
+        });
+        const recipientDetailHtml = await (
+          await fetch(`${baseUrl}${resource.detailPath}`, {
+            headers: { cookie: receiverCookie },
+            redirect: 'manual',
+          })
+        ).text();
+        expect(recipientDetailHtml).toContain(resource.isQuiz ? 'Hacer el quiz' : 'Comenzar');
+        expect(recipientDetailHtml).not.toContain('Probar');
       }
 
       // Only folders use the generic accept flow; quiz/roleplay/guide have their
@@ -600,7 +630,8 @@ describe('main route smoke tests', () => {
     expect(detailHtml).toContain('A visitor asks a local resident how to find a museum.');
     expect(detailHtml).not.toContain('Enfoque pedagógico');
     expect(detailHtml).not.toContain('Límite de turnos');
-    expect(detailHtml).toContain('Comenzar');
+    // The author's own run is a private test, so the author reads "Probar".
+    expect(detailHtml).toContain('Probar');
     expect(detailHtml).toContain('Compartir');
 
     const editResponse = await fetch(`${baseUrl}/roleplays/${roleplay.id}/edit`, {

@@ -1,6 +1,6 @@
 ---
 name: resource-page-conventions
-description: Use when creating, editing, or reviewing Mister F resource pages, the media library, and resource-like flows, including the `/resources` catalog, `/media-library`, folders, detail pages, edit/authoring pages, creation (`-new`) pages, attempt pages, result pages, breadcrumbs, close buttons, action rows, resource history, and shared resource navigation.
+description: Use when creating, editing, or reviewing Mister F resource pages, the media library, and resource-like flows, including the `/resources` catalog, `/media-library`, folders, detail pages, edit/authoring pages, creation (`-new`) pages, attempt pages, result pages, breadcrumbs, close buttons, action rows, the primary action label ("Probar" for the author vs "Comenzar" / "Hacer el quiz" for recipients), adding a new resource type, resource history, and shared resource navigation.
 ---
 
 # Resource Page Conventions
@@ -21,7 +21,8 @@ media items are resources too, so they follow the same navigation conventions
 - Detail pages show the resource title, then a breadcrumb, then an action row.
   Actions do not float in the top-right corner of detail pages.
 - Resource action row order is the specific primary action first, then
-  `Opciones`.
+  `Opciones`. The primary action's label depends on who is looking — see
+  [Primary Action Label](#primary-action-label).
 - `Opciones` owns common resource actions such as share, move, archive, restore,
   and resource-specific secondary actions.
 - Every page in the resources and media-library areas carries a breadcrumb —
@@ -32,6 +33,37 @@ media items are resources too, so they follow the same navigation conventions
   desktop and mobile layouts expose the same action order.
 - Every page scoped to one resource carries the resource kicker above the
   title — see [Resource Page Kicker](#resource-page-kicker).
+
+## Primary Action Label
+
+The primary action on a detail page starts the resource (a quiz attempt, a
+roleplay attempt, a practice-guide chat). Both viewers get the same button and
+the same student-facing flow, but not the same meaning, so the label follows
+**who is looking, never the resource type**:
+
+| Viewer | Label | Why |
+| --- | --- | --- |
+| The author (`canManageQuiz`, `canManageRoleplay`, `canManagePracticeGuide`… true) | `resources.test` — "Probar" | Their run is a private test: `collectResults` is false and it never counts as participation (`resource-attempt-runtime`). |
+| Anyone else (a link or profile share recipient) | `resources.takeQuiz` — "Hacer el quiz" for quizzes; `resources.start` — "Comenzar" for roleplays, practice guides and any new type without a more specific verb | They are doing the activity for real, and the author may receive their results. |
+
+- Branch in the view on the page's `canManage*` flag:
+  `<%= canManageX ? t('resources.test') : t('resources.start') %>`. The flag is
+  permission, so this is not a hand-styled mode branch (`cuaderno-theme`).
+- Authoring (`/edit`) pages are owner-only, so their run button is always
+  `resources.test`.
+- The shared page `/resources/shared/:shareId` never says "Probar": an author
+  who opens their own link is redirected to the detail page.
+- Labels come from i18n in es/en/ht. Never a hardcoded string, and never a
+  per-type label computed in a handler.
+- **A new resource type** adds the same ternary on its detail page and extends
+  the recipient check in `tests/server/routes.test.ts` ("renders and accepts
+  generic live resource share links"), which asserts a recipient never reads
+  "Probar", plus an owner assertion on its own detail test.
+
+History: until 2026-09-12 the label was fixed per type — the quiz and guide
+said "Probar" to everyone (a student read "Probar" on a real attempt) and the
+roleplay said "Comenzar" to everyone (the author read "Comenzar" on a private
+test).
 
 ## Resource Page Kicker
 
@@ -127,6 +159,9 @@ page carries a breadcrumb as its back-navigation trail. This replaces the old
 
 ## Checks Before Finishing
 
+- Verify the detail page's primary action reads "Probar" for the author and
+  the real-action label ("Hacer el quiz" / "Comenzar") for a recipient, with a
+  route test for both viewers.
 - Verify every resources/media-library page renders the shared breadcrumb
   partial, and that the trail points to `/resources` or `/media-library`, folder
   ancestry, and the current page as appropriate.

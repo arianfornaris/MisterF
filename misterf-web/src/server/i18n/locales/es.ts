@@ -187,6 +187,7 @@ export const es: LocaleCatalog = {
     notNow: 'No ahora',
     takeQuiz: 'Hacer el quiz',
     start: 'Comenzar',
+    test: 'Probar',
     starting: 'Preparando la actividad...',
     addToMyResources: 'Agregar a mis recursos',
     sharedResultsNotice:
@@ -694,7 +695,6 @@ export const es: LocaleCatalog = {
     select: 'Selecciona',
     sentence: 'Oración',
     position: 'Posición',
-    test: 'Probar',
     editQuiz: 'Editar quiz',
     confirmRestore: '¿Seguro que quieres restaurar este quiz?',
     confirmArchive:
