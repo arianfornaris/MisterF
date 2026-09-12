@@ -125,5 +125,8 @@ used to live here is gone — there is no shadow on app chrome at all.
 
 - Replace general gradients with `background: var(--bs-body-bg)`, `var(--bs-card-bg)`, or `var(--bs-tertiary-bg)`.
 - Replace general custom shadows with a border or no extra depth.
-- Replace general fixed radii with `var(--bs-card-border-radius)` or `var(--bs-border-radius)`.
+- Replace general fixed radii with `var(--mf-card-radius)` for card-like
+  surfaces (it varies by mode — Cuaderno amendment 1) and
+  `var(--bs-border-radius)` for controls. Do not reach for
+  `var(--bs-card-border-radius)` on a new surface.
 - Replace inset shadows used only as borders with a real `border`.

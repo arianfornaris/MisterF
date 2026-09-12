@@ -24,6 +24,20 @@ Flatly's flat structure, but the palette, type, radii and modes are ours.
 Read `.agents/skills/cuaderno-theme/SKILL.md` before any UI work, and the
 theme's `README.md` for the full reference.
 
+Before any UI change, read these four skills in `.agents/skills/`, in this
+order:
+
+1. `cuaderno-theme` — the theme, the two modes, and how to lay out a page
+   (content width, grids, page headers).
+2. `theme-surface-conventions` — the edge-to-edge shell, flat surfaces, no
+   shadows or gradients on containers, where the legal footer goes.
+3. `bootstrap-ui-conventions` and `bootstrap-icons-conventions` — Bootstrap
+   components and Bootstrap Icons first.
+4. `ui-illustrations` — before adding or generating any image.
+
+Add `resource-page-conventions` for anything under `/resources`,
+`/media-library`, or a single resource's pages.
+
 The signed-in app has two modes, learning and teaching, that repaint it
 through CSS custom properties. Never style by mode by hand — no mode
 conditionals in views, no `[data-mode]` selectors outside the theme. The

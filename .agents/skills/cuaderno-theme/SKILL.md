@@ -72,6 +72,46 @@ cool paper with sans headings.
   `_bootstrap-variables.scss` first; `_flatly-layer.scss` only if a variable
   cannot express it.
 
+## Laying Out A Page
+
+The shell is edge to edge (`theme-surface-conventions`), so the content column
+is whatever the window leaves after the 320px side panel from `lg` up: about
+590px on a 1024px laptop, about 1600px on a 1920px monitor. Everything below
+follows from that.
+
+1. **Every full page renders inside `.app-page`**, opened and closed by
+   `partials/app-shell-open` / `app-shell-close`. It is transparent, has the
+   page padding and scrolls by itself. Never wrap a page in a card or give it
+   a background or shadow.
+2. **Cap the measure.** Anything read or typed into must not stretch to
+   1600px. The homes wrap their content in `.home-page` (max `76rem`,
+   centered) and cap the question box at `48rem` (`.home-ask`), in
+   `src/client/styles/home.css`. A new page does the same in its own
+   stylesheet: one wrapper with a `rem` max-width and `margin-inline: auto`.
+   Wide lists and tables may run wider than prose.
+3. **Grids follow the content column, not the viewport.** Bootstrap's
+   `row-cols-md-3` measures the window, so from `lg` up it puts three cards
+   into ~590px. Give the page wrapper `container-type: inline-size` and switch
+   columns with `@container (min-width: …)` — see `.home-card-grid` (1 → 2 →
+   3 columns) and `.home-route-grid` (1 → 3, so three items never leave a lone
+   card) in `home.css`. Size a capped list to fill every column count it can
+   lay out in ("Para ti" shows 6: two rows of three or three rows of two).
+4. **One page-header vocabulary per page.**
+   - **Default, and required on resource and media pages:** `.app-page-header`
+     with `.app-page-kicker` (or `partials/resource-page-kicker`),
+     `.app-page-title`, `.app-page-copy`, `partials/breadcrumb` and
+     `.app-page-header-actions` — see `resource-page-conventions`. Most views
+     use it.
+   - **Landing-style top-level compositions only** (today: the two homes):
+     `.mf-hero` with `.mf-eyebrow`, `.mf-page-title`, `.mf-page-lede`. A hero
+     needs its illustration (`ui-illustrations`).
+   - Never mix the two on one page.
+5. **Verify at 375, 1024, 1280 and 1920px, in both modes.** Measure with
+   JavaScript (`getComputedStyle(grid).gridTemplateColumns`, element widths,
+   `document.documentElement.scrollHeight > innerHeight` for a stray document
+   scroll). The Browser pane scales large emulated viewports down, so a 1920px
+   screenshot is not readable proof.
+
 ## The Mode Switch
 
 `views/partials/home-mode-switch.ejs`, rendered under the brand in the side
