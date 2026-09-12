@@ -1,9 +1,13 @@
 import QRCode from 'qrcode';
-import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
+import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileById, findProfileForUser, findQuizById, findRoleplayById, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
 import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { compareText, formatRelativeTime } from '../i18n/dates.js';
 import { translate } from '../i18n/index.js';
 import { logger } from '../services/logger.js';
+import { safeParseQuizDraft } from '../services/quizzes.js';
+import { findUserById } from '../auth/repository.js';
+import { env } from '../config/env.js';
+import { findRoleplayCharacterAvatar } from '../roleplays/avatarRegistry.js';
 import { duplicateResourceForProfile } from './duplicate.js';
 import { buildResourceDetailPath } from './paths.js';
 function ensureVerifiedResourceUser(request, response) {
@@ -373,6 +377,42 @@ export function renderResourceTrashPage(request, response) {
         resourceItems,
     });
 }
+/** The content family that colors the shared page's band and cover. */
+const sharedFamilyClassByType = {
+    practice_guide: 'mf-fam-guia',
+    quiz: 'mf-fam-quiz',
+    resource_folder: 'mf-fam-none',
+    roleplay: 'mf-fam-roleplay',
+};
+/** The three "how it works" steps of the shared page, as i18n keys. */
+function buildSharedHowItWorksKeys(type, isSignedIn) {
+    if (type === 'quiz') {
+        return [
+            'resources.sharedStepQuizAnswer',
+            isSignedIn ? 'resources.sharedStepQuizSubmit' : 'resources.sharedStepQuizSubmitGuest',
+            'resources.sharedStepQuizFeedback',
+        ];
+    }
+    if (type === 'roleplay') {
+        return [
+            'resources.sharedStepRoleplayRead',
+            'resources.sharedStepRoleplayTalk',
+            'resources.sharedStepRoleplayFeedback',
+        ];
+    }
+    if (type === 'practice_guide') {
+        return [
+            'resources.sharedStepGuideStart',
+            'resources.sharedStepGuidePractice',
+            'resources.sharedStepGuideResume',
+        ];
+    }
+    return [
+        'resources.sharedStepFolderAdd',
+        'resources.sharedStepFolderOpen',
+        'resources.sharedStepFolderLive',
+    ];
+}
 export function renderSharedResourcePage(request, response) {
     const shareId = readField(request.params.shareId, 120);
     const shareLink = findResourceShareLinkById(shareId);
@@ -415,6 +455,47 @@ export function renderSharedResourcePage(request, response) {
     const typeLabel = translate(request.locale, typeLabelKeys[resource.type] ?? 'resources.typeQuiz');
     const summary = resource.description.trim()
         || translate(request.locale, 'resources.sharePreviewFallback');
+    const isSignedIn = Boolean(user?.emailVerified && activeProfile);
+    // The landing's example activities are shares of a seeded account whose
+    // profile is called "Examples". Naming it as the person who shared would read
+    // as a stranger, so those pages say they are an example instead.
+    const isExample = findUserById(resource.userId)?.email === env.landingDemoEmail;
+    const sharedByName = isExample
+        ? ''
+        : findProfileById(resource.profileId)?.name.trim() ?? '';
+    let sharedDescription = resource.description.trim();
+    let quizBlockCount = null;
+    if (resource.type === 'quiz') {
+        const quiz = findQuizById(resource.id);
+        const draft = quiz ? safeParseQuizDraft(quiz.quiz) : null;
+        if (draft) {
+            quizBlockCount = draft.blocks.length;
+            if (!sharedDescription) {
+                sharedDescription = draft.description || draft.targetTopic;
+            }
+        }
+    }
+    const roleplayCharacters = resource.type === 'roleplay'
+        ? (findRoleplayById(resource.id)?.characters ?? []).map((character) => ({
+            description: character.description,
+            id: character.id,
+            imagePath: character.avatarId
+                ? findRoleplayCharacterAvatar(character.avatarId)?.imagePath ?? null
+                : null,
+            name: character.name,
+        }))
+        : [];
+    // A folder share opens onto the folder's current contents once accepted, so
+    // the page lists them to show what the student is about to add.
+    const folderItems = resource.type === 'resource_folder'
+        ? listResourceFolderItems(resource.id, resource.userId)
+            .map((item) => findResourceById(item.resourceId))
+            .filter((item) => Boolean(item && !item.archivedAt))
+            .map((item) => ({
+            ...buildResourceListItem(toAccessibleOwnerResource(item), request.locale),
+            familyClass: sharedFamilyClassByType[item.type],
+        }))
+        : [];
     response.render('resources-shared', {
         ...buildAppShellContext({
             activeProfile: activeProfile ?? null,
@@ -445,6 +526,17 @@ export function renderSharedResourcePage(request, response) {
         returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
         shareLink,
         sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource), request.locale),
+        // A visitor without a session has no `/resources` to go back to; declining
+        // there would land on a login wall (roadmap V3 §1.18).
+        declineHref: isSignedIn ? '/resources' : '/',
+        familyClass: sharedFamilyClassByType[resource.type],
+        folderItems,
+        howItWorksKeys: buildSharedHowItWorksKeys(resource.type, isSignedIn),
+        isExample,
+        quizBlockCount,
+        roleplayCharacters,
+        sharedByName,
+        sharedDescription,
     });
 }
 export function handleAcceptSharedResourceLink(request, response) {

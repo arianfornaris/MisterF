@@ -429,6 +429,10 @@ describe('main route smoke tests', () => {
       const anonymousHtml = await anonymousResponse.text();
       expect(anonymousResponse.status).toBe(200);
       expect(anonymousHtml).toContain(resource.title);
+      expect(anonymousHtml).toContain('Compartido contigo por Route share owner profile');
+      expect(anonymousHtml).toContain('Cómo funciona');
+      // Declining without a session goes to the landing, not to a login wall.
+      expect(anonymousHtml).toContain('href="/" data-shared-decline');
       if (resource.isQuiz) {
         // Any shared quiz can be filled anonymously; no login wall on the page.
         expect(anonymousHtml).toContain('Hacer el quiz');
@@ -448,6 +452,12 @@ describe('main route smoke tests', () => {
       expect(authenticatedHtml).toContain(
         resource.isQuiz ? 'Hacer el quiz' : resource.isStart ? 'Comenzar' : 'Agregar a mis recursos',
       );
+      expect(authenticatedHtml).toContain('href="/resources" data-shared-decline');
+      if (resource.id === roleplay.id) {
+        // The roleplay page introduces both characters before starting.
+        expect(authenticatedHtml).toContain('Tu papel:');
+        expect(authenticatedHtml).toContain('Server');
+      }
 
       // Only folders use the generic accept flow; quiz/roleplay/guide have their
       // own take/start flows tested separately.

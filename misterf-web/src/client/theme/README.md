@@ -278,7 +278,7 @@ Bootstrap's, restyled through variables.
 | `.mf-mock` `.mf-mock-line` | a product mockup in HTML | never a screenshot |
 | `.mf-streak` | effort record | Aprendo only; no loss state, no red |
 | `.mf-empty` `.mf-spot` | empty states and illustration slots | always ends in an action; images come from `public/illustrations/` via the `ui-illustrations` skill |
-| `.mf-hero` `.mf-res-band` `.mf-page-*` | page furniture | each home renders its own hero (`hero-aprendo`, `hero-enseno`) — the view decides, never a `[data-mode]` rule (a mode never makes things appear or disappear) |
+| `.mf-hero` `.mf-res-band` `.mf-res-cover` `.mf-page-*` | page furniture | `.mf-res-cover` is the drawn cover beside a band's title (the shared-resource page) | each home renders its own hero (`hero-aprendo`, `hero-enseno`) — the view decides, never a `[data-mode]` rule (a mode never makes things appear or disappear) |
 | `.mf-mode-switch` `.mf-mode-rail` | mode chrome | |
 | `.mf-lift` `.mf-lift-strong` | opt-in elevation | cards are flat by default |
 

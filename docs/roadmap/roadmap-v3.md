@@ -1825,10 +1825,12 @@ link without an account hits the same walls.
   `/quizzes/:quizId`, the owner's page; for a guest it 302s to `/login` (on the
   demo, `/quizzes/landing-demo-grocery-shopping`). For an attempt with no
   `userId`, the `X` should return to the share page it came from (or `/`).
-- [ ] **`No ahora` on the shared page leads to a login wall.**
+- [x] **`No ahora` on the shared page leads to a login wall.**
   `views/resources-shared.ejs` sends all three variants (quiz, start, add) to
   `/resources`, which 302s to `/login` without a session. A visitor declining
   should land on `/` — the landing — not be asked to sign in.
+  *Done 2026-09-12 with the shared-page redesign: `/` without a session,
+  `/resources` with one.*
 - [ ] **The signup after a guest submit has no context.** It is the generic
   "Empezar a practicar" page: nothing says the answers were saved or that the
   evaluation is what the account unlocks, and there is no way back to the
@@ -1843,6 +1845,10 @@ link without an account hits the same walls.
   says "Abre una sesión para practicar" — the visitor lands in someone else's
   app, not in a demo. A share of the `LANDING_DEMO_EMAIL` account is easy to
   detect server-side if it deserves its own kicker and copy.
+  *Partly addressed 2026-09-12: the redesigned shared page names the person
+  who shared ("Compartido contigo por …"), and for the demo account it says
+  "Una actividad de ejemplo de Mister F" instead of naming the "Examples"
+  profile. The kicker and the guest side panel are unchanged.*
 - [ ] **Decide what `Practicar con Mr. F` should do.** The learner section
   promises practice with corrections; `/chat` gives a guest composer whose
   first message is answered with "inicia sesión o crea una cuenta" (no

@@ -1649,6 +1649,148 @@ body {
   line-height: 1.2;
 }
 
+/* Shared resource page (`/resources/shared/:id`): the first thing a student
+   sees after tapping a teacher's link. A family band with the drawn cover,
+   then what the activity is about and how it works. */
+
+.shared-measure {
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+/* Full bleed: the band is pulled out of `.app-page`'s own padding
+   (32px 40px, and 22px 18px on phones — see `app-pages.css`/`responsive.css`). */
+.shared-page .shared-band {
+  margin: -32px -40px 2rem;
+  padding: 2.5rem 40px 2.25rem;
+  container-type: inline-size;
+}
+
+.shared-band-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 2rem;
+}
+
+.shared-band-inner .mf-res-cover {
+  display: none;
+}
+
+@container (min-width: 36rem) {
+  .shared-band-inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .shared-band-inner .mf-res-cover {
+    display: grid;
+  }
+}
+
+.shared-title {
+  margin-bottom: 0.5rem;
+  font-size: var(--mf-text-2xl);
+  line-height: 1.2;
+}
+
+.shared-band .mf-res-facts .bi {
+  margin-right: 0.25rem;
+}
+
+.shared-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.shared-note {
+  max-width: 60ch;
+  margin: 0.875rem 0 0;
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-sm);
+}
+
+.shared-body {
+  container-type: inline-size;
+}
+
+.shared-body-grid {
+  display: grid;
+  align-items: start;
+  gap: 1.5rem;
+}
+
+@container (min-width: 46rem) {
+  .shared-body-grid {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    gap: 2.5rem;
+  }
+}
+
+.shared-main {
+  display: grid;
+  gap: 2rem;
+  container-type: inline-size;
+}
+
+.shared-characters {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@container (min-width: 30rem) {
+  .shared-characters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.shared-steps {
+  display: grid;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  counter-reset: shared-step;
+  list-style: none;
+}
+
+.shared-steps li {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-sm);
+  line-height: 1.5;
+  counter-increment: shared-step;
+}
+
+.shared-steps li::before {
+  content: counter(shared-step);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
+  font-size: var(--mf-text-xs);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .shared-page .shared-band {
+    margin: -22px -18px 1.5rem;
+    padding: 1.75rem 18px 1.5rem;
+  }
+
+  .shared-actions .btn-lg {
+    flex: 1 1 auto;
+  }
+}
+
 .scene-media-card {
   overflow: hidden;
 }

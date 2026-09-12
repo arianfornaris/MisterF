@@ -1,74 +1,150 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-page resources-page">
-  <div class="app-page-header">
-    <div>
-      <p class="app-page-kicker"><%= t('resources.sharedResourceKicker') %></p>
-      <h1 class="app-page-title"><%= sharedResource.title %></h1>
-      <% if (quizTakeAction) { %>
-        <p class="app-page-copy">
-          <%= t('resources.quizTakeCopy') %>
-        </p>
-      <% } else { %>
-        <p class="app-page-copy">
-          <%= t('resources.addToProfileCopy') %>
-        </p>
-      <% } %>
-    </div>
-  </div>
+<section class="app-page shared-page">
+  <header class="mf-res-band shared-band <%= familyClass %>">
+    <div class="shared-measure shared-band-inner">
+      <div>
+        <%- include('partials/resource-page-kicker', { resourceType: sharedResource.type, pageLabel: t('resources.shared') }) %>
+        <h1 class="app-page-title shared-title"><%= sharedResource.title %></h1>
+        <% if (isExample) { %>
+          <p class="app-page-copy"><%= t('resources.sharedExample') %></p>
+        <% } else if (sharedByName) { %>
+          <p class="app-page-copy">
+            <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= t('resources.sharedWithYouBy', { name: sharedByName }) %>
+          </p>
+        <% } %>
 
-  <section class="app-page-detail-shell">
-    <div class="d-grid gap-4">
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="badge rounded-pill <%= sharedResource.badgeClass %>">
-          <i class="bi <%= sharedResource.iconClass %> me-1" aria-hidden="true"></i>
-          <%= sharedResource.label %>
-        </span>
-        <span class="badge text-bg-light border"><%= t('resources.shared') %></span>
+        <% const learnerCharacter = roleplayCharacters.find((character) => character.id === 'learner'); %>
+        <% if (sharedResource.level || quizBlockCount || learnerCharacter || sharedResource.type === 'resource_folder') { %>
+          <p class="mf-res-facts">
+            <% if (sharedResource.level) { %>
+              <span><i class="bi bi-bar-chart" aria-hidden="true"></i><%= t('resources.sharedFactLevel') %> <b><%= sharedResource.level %></b></span>
+            <% } %>
+            <% if (quizBlockCount) { %>
+              <span><i class="bi bi-list-check" aria-hidden="true"></i><b><%= quizBlockCount %></b> <%= t('quizzes.blocksSuffix') %></span>
+            <% } %>
+            <% if (learnerCharacter) { %>
+              <span><i class="bi bi-person" aria-hidden="true"></i><%= t('resources.sharedFactRole') %> <b><%= learnerCharacter.name %></b></span>
+            <% } %>
+            <% if (sharedResource.type === 'resource_folder') { %>
+              <span><i class="bi bi-collection" aria-hidden="true"></i><%= folderItems.length === 1 ? t('resources.sharedFactFolderItemsOne') : t('resources.sharedFactFolderItems', { count: folderItems.length }) %></span>
+            <% } %>
+          </p>
+        <% } %>
+
+        <% if (quizTakeAction) { %>
+          <form method="post" action="<%= quizTakeAction %>" class="shared-actions">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-primary btn-lg" type="submit">
+              <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= t('resources.takeQuiz') %>
+            </button>
+            <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+          </form>
+        <% } else if (startAction) { %>
+          <div class="shared-actions">
+            <a class="btn btn-primary btn-lg" href="<%= startAction %>" data-shared-resource-start>
+              <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= t('resources.start') %>
+            </a>
+            <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+          </div>
+          <% if (!(isAuthenticated && activeProfile)) { %>
+            <p class="shared-note"><%= t('resources.sharedStartAccountNote') %></p>
+          <% } %>
+        <% } else if (isAuthenticated && activeProfile) { %>
+          <form method="post" action="/resources/shared/<%= encodeURIComponent(shareLink.id) %>/accept" class="shared-actions">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-primary btn-lg" type="submit">
+              <i class="bi bi-plus-circle me-1" aria-hidden="true"></i><%= t('resources.addToMyResources') %>
+            </button>
+            <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+          </form>
+        <% } else { %>
+          <div class="shared-actions">
+            <a class="btn btn-primary btn-lg" href="/login?returnTo=<%= encodeURIComponent(returnTo) %>"><%= t('nav.signIn') %></a>
+            <a class="btn btn-outline-secondary btn-lg" href="/signup?returnTo=<%= encodeURIComponent(returnTo) %>"><%= t('nav.createAccount') %></a>
+            <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+          </div>
+        <% } %>
+
+        <% if ((quizTakeAction || startAction) && shareLink.collectResults) { %>
+          <p class="shared-note" role="note">
+            <i class="bi bi-eye me-1" aria-hidden="true"></i><%= t('resources.sharedResultsNotice') %>
+          </p>
+        <% } %>
       </div>
 
-      <% if (sharedResource.description) { %>
-        <div class="resource-markdown" data-render-markdown><%= sharedResource.description %></div>
-      <% } %>
-
-      <% if ((quizTakeAction || startAction) && shareLink.collectResults) { %>
-        <div class="alert alert-info d-flex align-items-start gap-2 mb-0" role="note">
-          <i class="bi bi-eye flex-shrink-0" aria-hidden="true"></i>
-          <span><%= t('resources.sharedResultsNotice') %></span>
-        </div>
-      <% } %>
-
-      <% if (quizTakeAction) { %>
-        <form method="post" action="<%= quizTakeAction %>" class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <a class="btn btn-link" href="/resources"><%= t('resources.notNow') %></a>
-          <button class="btn btn-primary" type="submit">
-            <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= t('resources.takeQuiz') %>
-          </button>
-        </form>
-      <% } else if (startAction) { %>
-        <div class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
-          <a class="btn btn-link" href="/resources"><%= t('resources.notNow') %></a>
-          <a class="btn btn-primary" href="<%= startAction %>" data-shared-resource-start>
-            <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= t('resources.start') %>
-          </a>
-        </div>
-      <% } else { %>
-        <div class="d-flex flex-wrap justify-content-end gap-2">
-          <a class="btn btn-secondary" href="/resources"><%= t('resources.notNow') %></a>
-          <% if (isAuthenticated && activeProfile) { %>
-            <form method="post" action="/resources/shared/<%= encodeURIComponent(shareLink.id) %>/accept">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <button class="btn btn-primary" type="submit"><%= t('resources.addToMyResources') %></button>
-            </form>
-          <% } else { %>
-            <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(returnTo) %>"><%= t('nav.createAccount') %></a>
-            <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(returnTo) %>"><%= t('nav.signIn') %></a>
-          <% } %>
-        </div>
-      <% } %>
+      <div class="mf-res-cover" aria-hidden="true"><i class="bi <%= sharedResource.iconClass %>"></i></div>
     </div>
-  </section>
+  </header>
+
+  <div class="shared-measure shared-body">
+    <div class="shared-body-grid">
+      <div class="shared-main">
+        <% if (sharedDescription) { %>
+          <section>
+            <h2 class="h5 mb-3"><%= t('resources.sharedAboutTitle') %></h2>
+            <div class="resource-markdown" data-render-markdown><%= sharedDescription %></div>
+          </section>
+        <% } %>
+
+        <% if (roleplayCharacters.length) { %>
+          <section>
+            <h2 class="h5 mb-3"><%= t('roleplays.characters') %></h2>
+            <div class="shared-characters">
+              <% roleplayCharacters.forEach((character) => { %>
+                <article class="card h-100 roleplay-character-card <%= character.id === 'learner' ? 'is-learner' : 'is-ai' %>">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <span class="roleplay-character-icon" aria-hidden="true">
+                        <% if (character.imagePath) { %>
+                          <img src="<%= character.imagePath %>" alt="">
+                        <% } else { %>
+                          <i class="bi <%= character.id === 'learner' ? 'bi-person' : 'bi-person-video3' %>"></i>
+                        <% } %>
+                      </span>
+                      <div>
+                        <h3 class="h6 mb-0"><%= character.name %></h3>
+                        <p class="small text-body-secondary mb-0"><%= character.id === 'learner' ? t('roleplays.playedByStudent') : t('roleplays.playedByAi') %></p>
+                      </div>
+                    </div>
+                    <p class="mb-0"><%= character.description %></p>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+          </section>
+        <% } %>
+
+        <% if (folderItems.length) { %>
+          <section>
+            <h2 class="h5 mb-3"><%= t('resources.sharedFolderContentsTitle') %></h2>
+            <ul class="list-group">
+              <% folderItems.forEach((item) => { %>
+                <li class="list-group-item d-flex align-items-center gap-3 <%= item.familyClass %>">
+                  <i class="bi <%= item.iconClass %> text-fam fs-5" aria-hidden="true"></i>
+                  <span class="flex-grow-1 min-w-0">
+                    <span class="d-block fw-semibold text-truncate"><%= item.title %></span>
+                    <span class="d-block small text-body-secondary"><%= item.label %><% if (item.level) { %> · <%= item.level %><% } %></span>
+                  </span>
+                </li>
+              <% }) %>
+            </ul>
+          </section>
+        <% } %>
+      </div>
+
+      <aside class="card" aria-labelledby="shared-how-title">
+        <div class="card-body">
+          <h2 class="h6 mb-3" id="shared-how-title"><%= t('resources.sharedHowTitle') %></h2>
+          <ol class="shared-steps">
+            <% howItWorksKeys.forEach((key) => { %>
+              <li><%= t(key) %></li>
+            <% }) %>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </div>
 </section>
 
 <% if (startAction) { %>

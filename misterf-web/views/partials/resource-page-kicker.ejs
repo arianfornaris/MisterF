@@ -6,6 +6,7 @@
    *
    * Params:
    *   resourceType  'quiz' | 'practice_guide' | 'roleplay' | 'scene_media'
+   *                 | 'resource_folder'
    *   pageLabel     optional; what this page is ("Participación", "Editando").
    *                 Omit on the resource's own detail page.
    *
@@ -17,6 +18,7 @@
     practice_guide: { icon: 'bi-journal-text', label: t('practiceGuides.guideKicker') },
     roleplay: { icon: 'bi-person-video3', label: t('roleplays.roleplayKicker') },
     scene_media: { icon: 'bi-images', label: t('mediaLibrary.mediaKicker') },
+    resource_folder: { icon: 'bi-folder', label: t('resources.folder') },
   }[resourceType];
   const resourcePageKickerLabel =
     typeof pageLabel === 'undefined' ? '' : String(pageLabel || '').trim();

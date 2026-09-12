@@ -372,10 +372,15 @@ describe('public landing page', () => {
 
     // And the visitor can actually open it without an account.
     const shared = await fetch(`${baseUrl}/resources/shared/${shareLink.id}`, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
       redirect: 'manual',
     });
     expect(shared.status).toBe(200);
-    await expect(shared.text()).resolves.toContain(first.draft.title);
+    const sharedHtml = await shared.text();
+    expect(sharedHtml).toContain(first.draft.title);
+    // It reads as an example, not as something a stranger called "Examples" sent.
+    expect(sharedHtml).toContain('A Mister F example activity');
+    expect(sharedHtml).not.toContain('Shared with you by');
   });
 
   it('keeps the root as the app for an authenticated session', async () => {

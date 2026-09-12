@@ -157,6 +157,44 @@
   }
 }
 
+// The drawn cover beside the band's title: the same drawing as
+// `.mf-rcard-cover` (paper, dot screen, one family glyph) at a size that can
+// stand next to a page title. A resource is identified by this, never by a
+// generated image. Decorative — always `aria-hidden`.
+//
+//   <div class="mf-res-cover" aria-hidden="true"><i class="bi bi-ui-checks-grid"></i></div>
+
+.mf-res-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mf-fam) 22%, var(--mf-line));
+  border-radius: var(--mf-card-radius);
+  background: var(--mf-paper);
+  color: var(--mf-fam);
+  font-size: 3.25rem;
+  line-height: 1;
+}
+
+.mf-res-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--mf-fam) 18%, transparent) 1.6px,
+    transparent 1.7px
+  );
+  background-size: 14px 14px;
+}
+
+.mf-res-cover > * {
+  position: relative;
+}
+
 @media (max-width: 1080px) {
   .mf-hero {
     grid-template-columns: minmax(0, 1fr);
