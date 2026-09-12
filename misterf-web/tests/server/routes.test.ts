@@ -672,6 +672,124 @@ describe('main route smoke tests', () => {
     expect(findActiveResourceCopyLinkForResource(quiz.id)).toBeNull();
   });
 
+  it('copies a whole folder, subfolders included, through a copy link', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      addResourceToFolder,
+      createProfile,
+      createQuiz,
+      createResourceCopyLink,
+      createResourceFolder,
+      createRoleplay,
+      findResourceById,
+      findResourceCopyOrigin,
+      listResourceFolderItems,
+    } = await import('../../src/server/db/repository.js');
+
+    const author = createExternalUser({
+      email: 'route-folder-copy-author@example.com',
+      emailVerified: true,
+      fullName: 'Route Folder Copy Author',
+      provider: 'google',
+      providerSubject: 'route-folder-copy-author',
+    });
+    const authorProfile = createProfile({ name: 'Profe Carpeta', userId: author.id });
+    const colleague = createExternalUser({
+      email: 'route-folder-copy-colleague@example.com',
+      emailVerified: true,
+      fullName: 'Route Folder Copy Colleague',
+      provider: 'google',
+      providerSubject: 'route-folder-copy-colleague',
+    });
+    const colleagueProfile = createProfile({ name: 'Colega Carpeta', userId: colleague.id });
+    const folder = createResourceFolder({
+      description: 'Unidad 3 completa.',
+      profileId: authorProfile.id,
+      title: 'Unidad 3',
+      userId: author.id,
+    });
+    const subfolder = createResourceFolder({
+      profileId: authorProfile.id,
+      title: 'Repaso',
+      userId: author.id,
+    });
+    const quiz = createQuiz({
+      description: 'Folder quiz.',
+      instructions: '',
+      profileId: authorProfile.id,
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Quiz de la unidad',
+      },
+      title: 'Quiz de la unidad',
+      userId: author.id,
+    });
+    const roleplay = createRoleplay({
+      characters: [
+        { description: 'A learner ordering lunch politely.', id: 'learner', name: 'Learner' },
+        { description: 'A helpful cafe server.', id: 'ai', name: 'Server' },
+      ],
+      description: 'Ordering lunch at a cafe.',
+      level: 'A2',
+      profileId: authorProfile.id,
+      title: 'Roleplay de repaso',
+      userId: author.id,
+    });
+    addResourceToFolder({ folderId: folder.id, resourceId: quiz.id, userId: author.id });
+    addResourceToFolder({ folderId: folder.id, resourceId: subfolder.id, userId: author.id });
+    addResourceToFolder({ folderId: subfolder.id, resourceId: roleplay.id, userId: author.id });
+    const copyPath = `/resources/copy/${createResourceCopyLink(folder.id).id}`;
+    const colleagueCookie = await createAuthenticatedCookie(colleague.id, colleagueProfile.id);
+
+    // The page lists what the colleague is about to copy.
+    const pageHtml = await (
+      await fetch(`${baseUrl}${copyPath}`, { headers: { cookie: colleagueCookie } })
+    ).text();
+    expect(pageHtml).toContain('Qué incluye');
+    expect(pageHtml).toContain('2 actividades');
+    expect(pageHtml).toContain('Quiz de la unidad');
+    expect(pageHtml).toContain('Repaso');
+    expect(pageHtml).toContain('Hacer mi copia');
+
+    const acceptResponse = await postForm(
+      `${copyPath}/accept`,
+      { _csrf: extractCsrfToken(pageHtml) },
+      colleagueCookie,
+    );
+    expect(acceptResponse.status).toBe(302);
+    const folderLocation = acceptResponse.headers.get('location') ?? '';
+    expect(folderLocation).toMatch(/^\/resources\/folders\//);
+    const folderCopyId = folderLocation.split('/').pop()!;
+    expect(folderCopyId).not.toBe(folder.id);
+
+    // The tree arrives whole, owned by the colleague, each piece credited.
+    const topItems = listResourceFolderItems(folderCopyId, colleague.id);
+    expect(topItems.map((item) => findResourceById(item.resourceId)?.title).sort())
+      .toEqual(['Quiz de la unidad', 'Repaso']);
+    const subfolderCopy = topItems.find((item) => item.resourceType === 'resource_folder')!;
+    const nestedItems = listResourceFolderItems(subfolderCopy.resourceId, colleague.id);
+    expect(nestedItems.map((item) => findResourceById(item.resourceId)?.title))
+      .toEqual(['Roleplay de repaso']);
+    for (const id of [folderCopyId, ...topItems.map((item) => item.resourceId), nestedItems[0]!.resourceId]) {
+      expect(findResourceById(id)?.userId).toBe(colleague.id);
+      expect(findResourceCopyOrigin(id)?.originProfileId).toBe(authorProfile.id);
+    }
+
+    const folderPageHtml = await (
+      await fetch(`${baseUrl}${folderLocation}`, { headers: { cookie: colleagueCookie } })
+    ).text();
+    expect(folderPageHtml).toContain('Unidad 3');
+    expect(folderPageHtml).toContain('Basado en un recurso de Profe Carpeta');
+    expect(folderPageHtml).toContain('Compartir una copia');
+
+    // A snapshot: what the author files later does not reach the copy.
+    const later = createResourceFolder({ profileId: authorProfile.id, title: 'Añadida después', userId: author.id });
+    addResourceToFolder({ folderId: folder.id, resourceId: later.id, userId: author.id });
+    expect(listResourceFolderItems(folderCopyId, colleague.id)).toHaveLength(2);
+  });
+
   it('shares resource folders with another profile as live access grants', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {

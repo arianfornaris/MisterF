@@ -2002,6 +2002,28 @@ Reuse what exists; add one new kind of link.
   *Looks like a violation and is not:* the copy's detail page mints a
   `resource_share_links` row for itself (the §1.11 lazy share link). That is the
   colleague's own run link, never the author's.
+- [x] **Folder copy, live QA 2026-09-12.** `qa.fable` built "QA Unidad
+  copiable" holding a quiz and "QA Subcarpeta", which held a second quiz. The
+  folder page's "Opciones" offers both share actions and the same modal. As
+  `qa.student`, the copy page read "Folder · A copy for you", "2 activities" and
+  listed the subfolder and the quiz under "What's inside". "Make my copy"
+  landed on the new folder, credited "Based on a resource by QA Fable", and so
+  did the copied subfolder. SQLite: 4 `resource_copies` rows (both folders,
+  both quizzes), all owned by the student, each pointing at its own source and
+  crediting QA Fable. The tree is identical, 0 attempts, and
+  `resource_copy_link_accepted` logged `copiedCount: 4`. Covered by a route
+  test too ("copies a whole folder, subfolders included"), including that
+  what the author files later does not reach the copy. Cleanup: the student's
+  copies are archived, the quizzes are back at qa.fable's root, the QA
+  folders are archived, and the link is revoked and redirects away.
+  *Not a gap:* the copy page's "Qué incluye" can never list something the
+  copy skips. `addResourceToFolder`, the only writer of
+  `resource_folder_items`, requires the folder and the resource to share user
+  and profile, so a folder never holds a resource shared *with* its owner. The
+  skip in `copyFolder` is defensive only.
+- [ ] Open: copying a folder does not dedupe against activities the
+  colleague already copied one by one, so those arrive twice. Left as is
+  until the pilot shows it matters; `Archivar` fixes it by hand.
 
 ### Implementation Notes
 
