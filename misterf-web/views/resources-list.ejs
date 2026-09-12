@@ -305,6 +305,7 @@
 
 <% if (!selectedFolder || selectedFolderCanManage) { %>
   <%- include('partials/new-resource-modal', {
+    newResourceMode: activeProfile ? activeProfile.homeMode : 'learn',
     newResourceQuery: selectedFolder ? `?folder=${encodeURIComponent(selectedFolder.id)}` : '',
   }) %>
 <% } %>

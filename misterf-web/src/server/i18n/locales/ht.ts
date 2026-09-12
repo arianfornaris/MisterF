@@ -104,21 +104,33 @@ export const ht: LocaleCatalog = {
       'Yon aktivite pratik anglè yo pataje avè ou sou Mister F.',
     typePracticeGuide: 'Gid Pratik',
     typeRoleplay: 'Roleplay',
-    newModalTitle: 'Kisa ou vle kreye?',
-    newModalIntro:
-      'Nan pwochen etap la ou dekri l ak pwòp mo pa ou epi Mr. F prepare yon bouyon ou ka revize epi modifye.',
+    newModalTitleTeach: 'Kisa ou vle prepare?',
+    newModalTitleLearn: 'Kijan ou vle pratike?',
+    newModalIntroTeach:
+      'Ou dekri sa ou bezwen epi Mr. F prepare yon bouyon. Ou revize l epi ou pataje l lè li pare.',
+    newModalIntroLearn:
+      'Di Mr. F sa ou vle pratike, oswa voye devwa ou, epi li prepare bouyon an.',
     newBestForLabel: 'Bon pou:',
-    newQuizBody:
-      'Kesyon kout ki evalye yonn pa yonn. Si ou pataje l, ou wè repons ak rezilta chak moun.',
-    newQuizBestFor: 'verifye sa yo aprann ak kote chak moun gen difikilte.',
+    newQuizBodyTeach:
+      'Kesyon kout ki korije yonn pa yonn. Lè ou pataje l, ou wè repons ak rezilta chak moun.',
+    newQuizBodyLearn:
+      'Kesyon kout sou sa ou vle revize. Lè ou fini, chak repons korije ak yon esplikasyon sou sa pou amelyore.',
+    newQuizBestForTeach: 'konnen sa yo konprann ak sa pou revize pwochen fwa a.',
+    newQuizBestForLearn: 'revize anvan yon egzamen oswa verifye si ou metrize l deja.',
     newQuizAction: 'Kreye quiz',
-    newGuideBody:
-      'Ou fikse objektif la ak jan tutè a dwe ede. Apre sa, moun nan pratike an pale ak Mr. F, ki swiv gid ou a.',
-    newGuideBestFor: 'pratike yon sijè ak akonpayman, nan pwòp ritm pa l.',
+    newGuideBodyTeach:
+      'Ou fikse objektif la ak jan Mr. F dwe ede. Chak moun pratike an pale avè l, epi ou resevwa yon rapò sou jan sa te pase.',
+    newGuideBodyLearn:
+      'Ou di Mr. F sa ou vle pratike ak jan ou vle li ede w. Apre sa, ou pratike an pale avè l, nan pwòp ritm pa ou.',
+    newGuideBestForTeach: 'pratike ant yon sesyon ak yon lòt, san ou pa bezwen la.',
+    newGuideBestForLearn: 'travay yon sijè etap pa etap, ak yon moun ki akonpaye w.',
     newGuideAction: 'Kreye gid',
-    newRoleplayBody:
-      'Yon sitiyasyon ak pèsonaj. Ou pran yon wòl, ou kenbe konvèsasyon an an anglè, epi ou resevwa yon evalyasyon nan fen an.',
-    newRoleplayBestFor: 'repete yon vrè konvèsasyon anvan li rive.',
+    newRoleplayBodyTeach:
+      'Yon vrè sitiyasyon ak pèsonaj. Moun ki fè l la pran yon wòl, li pale an anglè, epi li resevwa yon evalyasyon ou wè tou.',
+    newRoleplayBodyLearn:
+      'Ou chwazi yon sitiyasyon lavi reyèl epi ou pratike l an pale an anglè ak yon pèsonaj. Nan fen an ou resevwa yon evalyasyon.',
+    newRoleplayBestForTeach: 'prepare yon moun pou yon randevou, yon entèvyou oswa yon apèl.',
+    newRoleplayBestForLearn: 'repete yon konvèsasyon ki ba ou kè sote anvan li rive: doktè a, yon entèvyou, bank lan.',
     newRoleplayAction: 'Kreye roleplay',
     folder: 'Katab',
     options: 'Opsyon',

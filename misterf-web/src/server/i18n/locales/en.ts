@@ -88,21 +88,33 @@ export const en: LocaleCatalog = {
       'An English practice activity shared with you on Mister F.',
     typePracticeGuide: 'Practice Guide',
     typeRoleplay: 'Roleplay',
-    newModalTitle: 'What do you want to create?',
-    newModalIntro:
-      'In the next step you describe it in your own words and Mr. F prepares a draft you can review and edit.',
+    newModalTitleTeach: 'What do you want to prepare?',
+    newModalTitleLearn: 'How do you want to practice?',
+    newModalIntroTeach:
+      'Describe what you need and Mr. F prepares a draft. You review it and share it when it is ready.',
+    newModalIntroLearn:
+      'Tell Mr. F what you want to practice, or upload your homework, and he prepares the draft.',
     newBestForLabel: 'Best for:',
-    newQuizBody:
-      'Short questions evaluated one by one. If you share it, you see each person’s answers and result.',
-    newQuizBestFor: 'checking what was learned and where each person struggles.',
+    newQuizBodyTeach:
+      'Short questions corrected one by one. Once you share it, you see each person’s answers and result.',
+    newQuizBodyLearn:
+      'Short questions on whatever you want to review. When you finish, each answer is corrected with an explanation of what to improve.',
+    newQuizBestForTeach: 'finding out what they understood and what to review next time.',
+    newQuizBestForLearn: 'reviewing before a test or checking whether you have it down.',
     newQuizAction: 'Create quiz',
-    newGuideBody:
-      'You set the goal and how the tutor should help. Then practice happens by talking with Mr. F, who follows your guide.',
-    newGuideBestFor: 'practicing a topic with support, at one’s own pace.',
+    newGuideBodyTeach:
+      'You set the goal and how Mr. F should help. Each person practices by talking with him, and you get a report on how it went.',
+    newGuideBodyLearn:
+      'Tell Mr. F what you want to practice and how you want him to help. Then you practice by talking with him, at your own pace.',
+    newGuideBestForTeach: 'practice between one session and the next, without you having to be there.',
+    newGuideBestForLearn: 'working through a topic step by step, with someone beside you.',
     newGuideAction: 'Create guide',
-    newRoleplayBody:
-      'A situation with characters. You take a part, hold the conversation in English, and get an evaluation at the end.',
-    newRoleplayBestFor: 'rehearsing a real conversation before it happens.',
+    newRoleplayBodyTeach:
+      'A real situation with characters. Whoever takes it plays a part, holds the conversation in English, and gets an evaluation you see too.',
+    newRoleplayBodyLearn:
+      'Pick a real-life situation and practice it by talking in English with a character. At the end you get an evaluation.',
+    newRoleplayBestForTeach: 'preparing someone for an appointment, an interview, or a phone call.',
+    newRoleplayBestForLearn: 'rehearsing a conversation that makes you nervous before it happens: the doctor, an interview, the bank.',
     newRoleplayAction: 'Create roleplay',
     folder: 'Folder',
     options: 'Options',

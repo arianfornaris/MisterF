@@ -88,21 +88,33 @@ export const es: LocaleCatalog = {
       'Una actividad de práctica de inglés compartida contigo en Mister F.',
     typePracticeGuide: 'Guía de Práctica',
     typeRoleplay: 'Roleplay',
-    newModalTitle: '¿Qué quieres crear?',
-    newModalIntro:
-      'En el siguiente paso lo describes con tus palabras y Mr. F prepara un borrador que puedes revisar y editar.',
+    newModalTitleTeach: '¿Qué quieres preparar?',
+    newModalTitleLearn: '¿Cómo quieres practicar?',
+    newModalIntroTeach:
+      'Describes lo que necesitas y Mr. F prepara un borrador. Lo revisas y lo compartes cuando esté listo.',
+    newModalIntroLearn:
+      'Cuéntale a Mr. F qué quieres practicar, o sube tu tarea, y él prepara el borrador.',
     newBestForLabel: 'Ideal para:',
-    newQuizBody:
-      'Preguntas cortas que se evalúan una por una. Si lo compartes, ves las respuestas y el resultado de cada persona.',
-    newQuizBestFor: 'comprobar lo aprendido y ver en qué falla cada uno.',
+    newQuizBodyTeach:
+      'Preguntas cortas que se corrigen una por una. Al compartirlo, ves las respuestas y el resultado de cada persona.',
+    newQuizBodyLearn:
+      'Preguntas cortas sobre lo que quieras repasar. Al terminar, cada respuesta se corrige con una explicación de qué mejorar.',
+    newQuizBestForTeach: 'saber qué entendieron y qué conviene repasar la próxima vez.',
+    newQuizBestForLearn: 'repasar antes de un examen o comprobar si ya lo dominas.',
     newQuizAction: 'Crear quiz',
-    newGuideBody:
-      'Fijas el objetivo y cómo debe ayudar el tutor. Luego se practica conversando con Mr. F, que sigue tu guía.',
-    newGuideBestFor: 'practicar un tema con acompañamiento, a su ritmo.',
+    newGuideBodyTeach:
+      'Fijas el objetivo y cómo debe ayudar Mr. F. Cada persona practica conversando con él y tú recibes un informe de cómo le fue.',
+    newGuideBodyLearn:
+      'Le dices a Mr. F qué quieres practicar y cómo quieres que te ayude. Luego practicas conversando con él, a tu ritmo.',
+    newGuideBestForTeach: 'que practiquen entre una sesión y otra, sin que tengas que estar presente.',
+    newGuideBestForLearn: 'trabajar un tema paso a paso, con alguien que te acompaña.',
     newGuideAction: 'Crear guía',
-    newRoleplayBody:
-      'Una situación con personajes. Se asume un papel, se sostiene la conversación en inglés y al final llega una evaluación.',
-    newRoleplayBestFor: 'ensayar una conversación real antes de vivirla.',
+    newRoleplayBodyTeach:
+      'Una situación real con personajes. Quien lo haga asume un papel, conversa en inglés y recibe una evaluación que tú también ves.',
+    newRoleplayBodyLearn:
+      'Eliges una situación de la vida real y la practicas conversando en inglés con un personaje. Al final recibes una evaluación.',
+    newRoleplayBestForTeach: 'preparar a alguien para una cita, una entrevista o una llamada.',
+    newRoleplayBestForLearn: 'ensayar una conversación que te da nervios antes de vivirla: el médico, una entrevista, el banco.',
     newRoleplayAction: 'Crear roleplay',
     folder: 'Carpeta',
     options: 'Opciones',

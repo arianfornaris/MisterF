@@ -11,16 +11,24 @@
   translated; the mockups are `aria-hidden` and the card text carries the
   meaning.
 
+  The explanations speak to the person the active mode says is creating: in
+  teaching mode they describe what the people it is shared with do and what
+  the author gets back; in learning mode, what the author practices. Only the
+  copy differs — parallel i18n keys, like `home.modeTeachHelp` — never the
+  layout or the colors (`cuaderno-theme`).
+
   Params:
   - `newResourceQuery` — `''`, or `?folder=<id>` so creation lands in the
     folder it started from (`resource-page-conventions`).
+  - `newResourceMode` — the active profile's `homeMode`, `learn` or `teach`.
 %>
 <%
+  const newResourceTeaching = newResourceMode === 'teach';
   const newResourceOptions = [
     {
       action: t('resources.newQuizAction'),
-      bestFor: t('resources.newQuizBestFor'),
-      body: t('resources.newQuizBody'),
+      bestFor: newResourceTeaching ? t('resources.newQuizBestForTeach') : t('resources.newQuizBestForLearn'),
+      body: newResourceTeaching ? t('resources.newQuizBodyTeach') : t('resources.newQuizBodyLearn'),
       familyClass: 'mf-fam-quiz',
       href: `/quizzes/new${newResourceQuery}`,
       icon: 'bi-ui-checks-grid',
@@ -29,8 +37,8 @@
     },
     {
       action: t('resources.newGuideAction'),
-      bestFor: t('resources.newGuideBestFor'),
-      body: t('resources.newGuideBody'),
+      bestFor: newResourceTeaching ? t('resources.newGuideBestForTeach') : t('resources.newGuideBestForLearn'),
+      body: newResourceTeaching ? t('resources.newGuideBodyTeach') : t('resources.newGuideBodyLearn'),
       familyClass: 'mf-fam-guia',
       href: `/practice-guides/new${newResourceQuery}`,
       icon: 'bi-journal-plus',
@@ -39,8 +47,8 @@
     },
     {
       action: t('resources.newRoleplayAction'),
-      bestFor: t('resources.newRoleplayBestFor'),
-      body: t('resources.newRoleplayBody'),
+      bestFor: newResourceTeaching ? t('resources.newRoleplayBestForTeach') : t('resources.newRoleplayBestForLearn'),
+      body: newResourceTeaching ? t('resources.newRoleplayBodyTeach') : t('resources.newRoleplayBodyLearn'),
       familyClass: 'mf-fam-roleplay',
       href: `/roleplays/new${newResourceQuery}`,
       icon: 'bi-person-video3',
@@ -54,8 +62,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h2 class="modal-title fs-5" id="newResourceModalLabel"><%= t('resources.newModalTitle') %></h2>
-          <p class="small text-body-secondary mb-0"><%= t('resources.newModalIntro') %></p>
+          <h2 class="modal-title fs-5" id="newResourceModalLabel">
+            <%= newResourceTeaching ? t('resources.newModalTitleTeach') : t('resources.newModalTitleLearn') %>
+          </h2>
+          <p class="small text-body-secondary mb-0">
+            <%= newResourceTeaching ? t('resources.newModalIntroTeach') : t('resources.newModalIntroLearn') %>
+          </p>
         </div>
         <button type="button" class="btn-close align-self-start" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
