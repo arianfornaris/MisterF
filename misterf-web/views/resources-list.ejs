@@ -21,6 +21,7 @@
             href: `/resources/folders/${encodeURIComponent(folder.id)}`,
           })),
         ] }) %>
+        <%- include('partials/resource-copied-from') %>
         <% if (selectedFolderCanManage) { %>
         <div class="resource-action-row mt-3">
           <div class="dropdown">
@@ -106,7 +107,17 @@
                   data-bs-toggle="modal"
                   data-bs-target="#shareResourceFolderLinkModal"
                 >
-                  <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.share') %>
+                  <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.sharePractice') %>
+                </button>
+              </li>
+              <li>
+                <button
+                  class="dropdown-item"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#resourceCopyLinkModal"
+                >
+                  <i class="bi bi-copy me-2" aria-hidden="true"></i><%= t('resources.shareCopy') %>
                 </button>
               </li>
               <li><hr class="dropdown-divider"></li>
@@ -522,6 +533,10 @@
       </div>
     </div>
   </div>
+
+  <% if (typeof copyLinkResourceId !== 'undefined') { %>
+    <%- include('partials/resource-copy-link-modal') %>
+  <% } %>
 <% } %>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'resources-client-script' }) %>

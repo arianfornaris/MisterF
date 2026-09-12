@@ -2,6 +2,7 @@ import { t } from '../shared/i18n.js';
 import { initializeAttachmentPickers } from '../shared/attachmentPicker.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
+import { initializeCopyLinkModal } from '../shared/copyLinkModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
 function fallbackCopyText(content) {
@@ -133,6 +134,7 @@ function initializeSharedResourceStart() {
 
 initializeResourceFolderEditing();
 initializeResourceFolderSharing();
+initializeCopyLinkModal();
 initializeSharedResourceStart();
 initializeResourceMoveModal();
 initializeListGroupDropdownStacking();

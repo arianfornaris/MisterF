@@ -137,7 +137,7 @@ export const en: LocaleCatalog = {
     shareNow: 'Share now',
     noOtherProfiles:
       'You don’t have other profiles available to receive this folder.',
-    shareLinkTitle: 'Share link',
+    shareLinkTitle: 'Share for practice',
     shareLinkBody:
       'Anyone who uses this link will always see the current version of this folder.',
     link: 'Link',
@@ -190,6 +190,27 @@ export const en: LocaleCatalog = {
     test: 'Try it',
     starting: 'Getting the activity ready...',
     addToMyResources: 'Add to my resources',
+    sharePractice: 'Share for practice',
+    shareCopy: 'Share a copy',
+    shareCopyBody:
+      'For other teachers. Whoever opens this link gets their own copy, answers included, to edit and use with their students. Their students’ results go to them, not to you, and your later changes don’t reach their copy.',
+    shareCopyCreate: 'Create copy link',
+    shareCopyRevoke: 'Turn off link',
+    shareCopyRevokeHint:
+      'Anyone who already made a copy keeps it. If you create the link again, it will be a new one.',
+    shareCopyQrAlt: 'QR code of the link to share a copy',
+    copiedFrom: 'Based on a resource by {{name}}',
+    sharedCopyKicker: 'A copy for you',
+    sharedCopyBy: '{{name}} is sharing a copy for you to use with your students',
+    sharedCopyNote:
+      'The copy includes the answers and stays in your resources. If the person who shared it changes it later, your copy doesn’t change.',
+    sharedCopyAccountNote: 'To make your copy, we’ll ask you to create an account or sign in.',
+    sharedCopyExisting: 'You already have a copy of this activity in your resources.',
+    makeMyCopy: 'Make my copy',
+    openMyCopy: 'Open my copy',
+    sharedStepCopyMake: 'Make your copy: it goes to your resources, answers included.',
+    sharedStepCopyEdit: 'Review it and change it as you like. It’s yours.',
+    sharedStepCopyShare: 'Share it with your students and get their results.',
     sharedResultsNotice:
       'The person who shared this activity will see your answers and your evaluation. By starting, you agree to share them.',
     participantsCompletedCount: '{{count}} completed',

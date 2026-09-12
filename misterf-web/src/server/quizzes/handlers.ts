@@ -92,6 +92,7 @@ import {
   type ModificationPreviewOwner,
 } from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
+import { buildCopyLinkModalLocals, findCopiedFromName } from '../resources/copyLinks.js';
 import { randomUUID } from 'node:crypto';
 import {
   buildResourceFromContextPrompt,
@@ -1748,6 +1749,14 @@ export async function renderQuizShowPage(
     shareLink,
     shareTargetQuizProfiles,
     shareUrl,
+    copiedFromName: findCopiedFromName(resolved.quiz.id),
+    ...(resolved.canManageQuiz
+      ? await buildCopyLinkModalLocals({
+          resourceId: resolved.quiz.id,
+          returnTo: `/quizzes/${encodeURIComponent(resolved.quiz.id)}?share=copy`,
+          shareMode: request.query.share,
+        })
+      : {}),
   });
 }
 

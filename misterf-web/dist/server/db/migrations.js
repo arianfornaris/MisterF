@@ -857,5 +857,55 @@ export const migrations = [
         ADD COLUMN home_mode TEXT NOT NULL DEFAULT 'learn';
     `,
     },
+    {
+        id: 31,
+        name: 'add_resource_copy_links_and_copies',
+        // Teacher-to-teacher copies (Roadmap V3 §1.19). A copy link is a separate
+        // token from the live share link: opening it gives the recipient their own
+        // copy (answer key included), so the author creates it on purpose and can
+        // revoke it. A revoked token stays dead; a new one gets a new id, which the
+        // partial unique index allows while keeping one active link per resource.
+        //
+        // resource_copies records where a copy came from, for attribution and for
+        // counting adoptions. It deliberately does not reuse resources.source_*:
+        // detail pages read those as "shared by", and a copy is owned, not shared.
+        // origin_* is the root author, preserved along chains of copies.
+        up: `
+      CREATE TABLE resource_copy_links (
+        id TEXT PRIMARY KEY,
+        resource_id TEXT NOT NULL
+          REFERENCES resources (id)
+          ON DELETE CASCADE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT
+      );
+
+      CREATE UNIQUE INDEX idx_resource_copy_links_resource_active
+        ON resource_copy_links (resource_id)
+        WHERE revoked_at IS NULL;
+
+      CREATE TABLE resource_copies (
+        resource_id TEXT PRIMARY KEY
+          REFERENCES resources (id)
+          ON DELETE CASCADE,
+        source_resource_id TEXT
+          REFERENCES resources (id)
+          ON DELETE SET NULL,
+        origin_user_id TEXT
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        origin_profile_id TEXT
+          REFERENCES profiles (id)
+          ON DELETE SET NULL,
+        copy_link_id TEXT
+          REFERENCES resource_copy_links (id)
+          ON DELETE SET NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX idx_resource_copies_source
+        ON resource_copies (source_resource_id);
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

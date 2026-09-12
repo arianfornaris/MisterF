@@ -1,0 +1,2 @@
+function e(e){let t=document.createElement(`textarea`);t.value=e,t.setAttribute(`readonly`,``),t.style.position=`fixed`,t.style.top=`-1000px`,t.style.opacity=`0`,document.body.append(t),t.select();try{return document.execCommand(`copy`)}catch{return!1}finally{t.remove()}}async function t(t){if(!t)return!1;try{if(navigator.clipboard?.writeText)return await navigator.clipboard.writeText(t),!0}catch{return e(t)}return e(t)}export{t};
+//# sourceMappingURL=clipboard-MaBGxNdR.js.map

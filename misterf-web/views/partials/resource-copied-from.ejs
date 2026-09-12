@@ -1,0 +1,6 @@
+<%# Credits the author of a resource that was copied through a copy link (Roadmap V3 §1.19). %>
+<% if (typeof copiedFromName !== 'undefined' && copiedFromName) { %>
+  <p class="app-page-copy small mb-0" data-copied-from>
+    <i class="bi bi-copy me-1" aria-hidden="true"></i><%= t('resources.copiedFrom', { name: copiedFromName }) %>
+  </p>
+<% } %>

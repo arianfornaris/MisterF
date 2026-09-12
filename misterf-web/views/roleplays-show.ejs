@@ -20,6 +20,7 @@
         })),
         { label: selectedRoleplay.title },
       ] }) %>
+      <%- include('partials/resource-copied-from') %>
     </div>
   </div>
 
@@ -88,7 +89,12 @@
             </li>
             <li>
               <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#roleplayShareLinkModal">
-                <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.share') %>
+                <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.sharePractice') %>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#resourceCopyLinkModal">
+                <i class="bi bi-copy me-2" aria-hidden="true"></i><%= t('resources.shareCopy') %>
               </button>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -336,6 +342,7 @@
     </div>
   </div>
 
+  <%- include('partials/resource-copy-link-modal') %>
   <%- include('partials/resource-move-modal', {
     resourceMoveCurrentFolder: roleplayCurrentFolder,
     resourceMoveFolderOptions: roleplayFolderOptions,

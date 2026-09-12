@@ -517,6 +517,161 @@ describe('main route smoke tests', () => {
     }
   });
 
+  it('hands a colleague their own copy through a copy link', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      findActiveResourceCopyLinkForResource,
+      findResourceById,
+      findResourceCopyOrigin,
+      getOrCreateResourceShareLink,
+    } = await import('../../src/server/db/repository.js');
+
+    const author = createExternalUser({
+      email: 'route-copy-author@example.com',
+      emailVerified: true,
+      fullName: 'Route Copy Author',
+      provider: 'google',
+      providerSubject: 'route-copy-author',
+    });
+    const authorProfile = createProfile({ name: 'Profe Autor', userId: author.id });
+    const colleague = createExternalUser({
+      email: 'route-copy-colleague@example.com',
+      emailVerified: true,
+      fullName: 'Route Copy Colleague',
+      provider: 'google',
+      providerSubject: 'route-copy-colleague',
+    });
+    const colleagueProfile = createProfile({ name: 'Profe Colega', userId: colleague.id });
+    const quiz = createQuiz({
+      description: 'Route copied quiz.',
+      instructions: '',
+      profileId: authorProfile.id,
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Route Copied Quiz',
+      },
+      title: 'Route Copied Quiz',
+      userId: author.id,
+    });
+    const authorCookie = await createAuthenticatedCookie(author.id, authorProfile.id);
+    const colleagueCookie = await createAuthenticatedCookie(colleague.id, colleagueProfile.id);
+
+    // The author sees two distinct share actions, and no copy link exists
+    // until they ask for one: opening it hands over the answer key.
+    const ownerHtml = await (
+      await fetch(`${baseUrl}/quizzes/${quiz.id}`, { headers: { cookie: authorCookie } })
+    ).text();
+    expect(ownerHtml).toContain('Compartir para practicar');
+    expect(ownerHtml).toContain('Compartir una copia');
+    expect(ownerHtml).toContain('Crear enlace de copia');
+    expect(findActiveResourceCopyLinkForResource(quiz.id)).toBeNull();
+    const csrf = extractCsrfToken(ownerHtml);
+
+    const createResponse = await postForm(
+      `/resources/${quiz.id}/copy-link`,
+      { _csrf: csrf, returnTo: `/quizzes/${quiz.id}?share=copy` },
+      authorCookie,
+    );
+    expect(createResponse.status).toBe(302);
+    expect(createResponse.headers.get('location')).toBe(`/quizzes/${quiz.id}?share=copy`);
+    const copyLink = findActiveResourceCopyLinkForResource(quiz.id);
+    expect(copyLink).not.toBeNull();
+    const copyPath = `/resources/copy/${copyLink!.id}`;
+
+    const ownerModalHtml = await (
+      await fetch(`${baseUrl}/quizzes/${quiz.id}?share=copy`, { headers: { cookie: authorCookie } })
+    ).text();
+    expect(ownerModalHtml).toContain(copyPath);
+    expect(ownerModalHtml).toContain('data-auto-open-copy-link-modal');
+    expect(ownerModalHtml).toContain('Desactivar enlace');
+
+    // A colleague without an account is asked to sign up; the page never
+    // offers to run the author's quiz.
+    const anonymousResponse = await fetch(`${baseUrl}${copyPath}`, { redirect: 'manual' });
+    const anonymousHtml = await anonymousResponse.text();
+    expect(anonymousResponse.status).toBe(200);
+    expect(anonymousHtml).toContain('Route Copied Quiz');
+    expect(anonymousHtml).toContain('Profe Autor te comparte una copia para que la uses con tus estudiantes');
+    expect(anonymousHtml).toContain(`/signup?returnTo=${encodeURIComponent(copyPath)}`);
+    expect(anonymousHtml).not.toContain('Hacer el quiz');
+    expect(anonymousHtml).not.toContain('/take');
+
+    // Signed in, one click makes the copy and lands on it.
+    const colleagueHtml = await (
+      await fetch(`${baseUrl}${copyPath}`, { headers: { cookie: colleagueCookie }, redirect: 'manual' })
+    ).text();
+    expect(colleagueHtml).toContain('Hacer mi copia');
+    const acceptResponse = await postForm(
+      `${copyPath}/accept`,
+      { _csrf: extractCsrfToken(colleagueHtml) },
+      colleagueCookie,
+    );
+    expect(acceptResponse.status).toBe(302);
+    const copyLocation = acceptResponse.headers.get('location') ?? '';
+    expect(copyLocation).toMatch(/^\/quizzes\//);
+    const copyId = copyLocation.split('/').pop()!;
+    expect(copyId).not.toBe(quiz.id);
+    expect(findResourceById(copyId)?.userId).toBe(colleague.id);
+    expect(findResourceCopyOrigin(copyId)?.originUserId).toBe(author.id);
+
+    // The copy is the colleague's: they author it, and it credits the author.
+    const copyDetailHtml = await (
+      await fetch(`${baseUrl}${copyLocation}`, { headers: { cookie: colleagueCookie } })
+    ).text();
+    expect(copyDetailHtml).toContain('Basado en un recurso de Profe Autor');
+    expect(copyDetailHtml).toContain('Probar');
+    expect(copyDetailHtml).toContain('Compartir una copia');
+
+    // Coming back opens the same copy instead of making another one.
+    const returningHtml = await (
+      await fetch(`${baseUrl}${copyPath}`, { headers: { cookie: colleagueCookie } })
+    ).text();
+    expect(returningHtml).toContain('Abrir mi copia');
+    expect(returningHtml).toContain(`href="${copyLocation}"`);
+    const secondAccept = await postForm(`${copyPath}/accept`, { _csrf: csrf }, colleagueCookie);
+    expect(secondAccept.headers.get('location')).toBe(copyLocation);
+
+    // The author's own link sends them back to the resource.
+    const authorOnLink = await fetch(`${baseUrl}${copyPath}`, {
+      headers: { cookie: authorCookie },
+      redirect: 'manual',
+    });
+    expect(authorOnLink.status).toBe(302);
+    expect(authorOnLink.headers.get('location')).toBe(`/quizzes/${quiz.id}?share=copy`);
+
+    // The run link is not a copy link.
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+    const runLinkAsCopy = await fetch(`${baseUrl}/resources/copy/${shareLink.id}`, {
+      headers: { cookie: colleagueCookie },
+      redirect: 'manual',
+    });
+    expect(runLinkAsCopy.headers.get('location')).toBe('/resources');
+
+    // Only the owner can turn a copy link on.
+    await postForm(`/resources/${quiz.id}/copy-link/revoke`, { _csrf: csrf }, colleagueCookie);
+    expect(findActiveResourceCopyLinkForResource(quiz.id)?.id).toBe(copyLink!.id);
+
+    // Revoking kills the link for everyone but never takes a copy back.
+    const revokeResponse = await postForm(
+      `/resources/${quiz.id}/copy-link/revoke`,
+      { _csrf: csrf, returnTo: `/quizzes/${quiz.id}?share=copy` },
+      authorCookie,
+    );
+    expect(revokeResponse.status).toBe(302);
+    expect(findActiveResourceCopyLinkForResource(quiz.id)).toBeNull();
+    const deadLink = await fetch(`${baseUrl}${copyPath}`, { redirect: 'manual' });
+    expect(deadLink.status).toBe(302);
+    expect(deadLink.headers.get('location')).toBe('/');
+    expect(findResourceById(copyId)?.archivedAt).toBeNull();
+
+    await postForm(`/resources/${quiz.id}/copy-link`, { _csrf: csrf }, colleagueCookie);
+    expect(findActiveResourceCopyLinkForResource(quiz.id)).toBeNull();
+  });
+
   it('shares resource folders with another profile as live access grants', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {

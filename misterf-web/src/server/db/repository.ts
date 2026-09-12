@@ -2816,6 +2816,212 @@ export function setResourceShareLinkCollectResults(input: {
     .run(input.collectResults ? 1 : 0, input.resourceId);
 }
 
+export type StoredResourceCopyLink = {
+  createdAt: string;
+  id: string;
+  resourceId: string;
+  revokedAt: string | null;
+};
+
+type ResourceCopyLinkRow = {
+  created_at: string;
+  id: string;
+  resource_id: string;
+  revoked_at: string | null;
+};
+
+function toStoredResourceCopyLink(row: ResourceCopyLinkRow): StoredResourceCopyLink {
+  return {
+    createdAt: row.created_at,
+    id: row.id,
+    resourceId: row.resource_id,
+    revokedAt: row.revoked_at,
+  };
+}
+
+export function findResourceCopyLinkById(id: string): StoredResourceCopyLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, resource_id, created_at, revoked_at
+        FROM resource_copy_links
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ResourceCopyLinkRow | undefined;
+
+  return row ? toStoredResourceCopyLink(row) : null;
+}
+
+export function findActiveResourceCopyLinkForResource(
+  resourceId: string,
+): StoredResourceCopyLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, resource_id, created_at, revoked_at
+        FROM resource_copy_links
+        WHERE resource_id = ?
+          AND revoked_at IS NULL
+        LIMIT 1
+      `,
+    )
+    .get(resourceId) as ResourceCopyLinkRow | undefined;
+
+  return row ? toStoredResourceCopyLink(row) : null;
+}
+
+/**
+ * Returns the resource's active copy link, minting one when there is none.
+ * Unlike the live share link this is never called on page view: a copy link
+ * hands over the answer key, so only an explicit author action creates it.
+ */
+export function createResourceCopyLink(resourceId: string): StoredResourceCopyLink {
+  const existing = findActiveResourceCopyLinkForResource(resourceId);
+  if (existing) {
+    return existing;
+  }
+
+  const id = randomBytes(18).toString('base64url');
+  getDb()
+    .prepare(
+      `
+        INSERT INTO resource_copy_links (id, resource_id)
+        VALUES (?, ?)
+      `,
+    )
+    .run(id, resourceId);
+
+  const created = findResourceCopyLinkById(id);
+  if (!created) {
+    throw new Error('Could not load newly created resource copy link.');
+  }
+
+  return created;
+}
+
+/** Revokes the active copy link. Copies already made are kept by their owners. */
+export function revokeResourceCopyLink(resourceId: string): void {
+  getDb()
+    .prepare(
+      `
+        UPDATE resource_copy_links
+        SET revoked_at = CURRENT_TIMESTAMP
+        WHERE resource_id = ?
+          AND revoked_at IS NULL
+      `,
+    )
+    .run(resourceId);
+}
+
+export type StoredResourceCopyOrigin = {
+  copyLinkId: string | null;
+  createdAt: string;
+  originProfileId: string | null;
+  originUserId: string | null;
+  resourceId: string;
+  sourceResourceId: string | null;
+};
+
+export function recordResourceCopy(input: {
+  copyLinkId: string | null;
+  originProfileId: string;
+  originUserId: string;
+  resourceId: string;
+  sourceResourceId: string;
+}): void {
+  getDb()
+    .prepare(
+      `
+        INSERT INTO resource_copies (
+          resource_id,
+          source_resource_id,
+          origin_user_id,
+          origin_profile_id,
+          copy_link_id
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      input.resourceId,
+      input.sourceResourceId,
+      input.originUserId,
+      input.originProfileId,
+      input.copyLinkId,
+    );
+}
+
+/** Where a copied resource came from, or null for an original. */
+export function findResourceCopyOrigin(resourceId: string): StoredResourceCopyOrigin | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          resource_id,
+          source_resource_id,
+          origin_user_id,
+          origin_profile_id,
+          copy_link_id,
+          created_at
+        FROM resource_copies
+        WHERE resource_id = ?
+      `,
+    )
+    .get(resourceId) as
+    | {
+        copy_link_id: string | null;
+        created_at: string;
+        origin_profile_id: string | null;
+        origin_user_id: string | null;
+        resource_id: string;
+        source_resource_id: string | null;
+      }
+    | undefined;
+
+  return row
+    ? {
+        copyLinkId: row.copy_link_id,
+        createdAt: row.created_at,
+        originProfileId: row.origin_profile_id,
+        originUserId: row.origin_user_id,
+        resourceId: row.resource_id,
+        sourceResourceId: row.source_resource_id,
+      }
+    : null;
+}
+
+/**
+ * The profile's live (not archived) copy of a resource, if it already made one.
+ * Lets a second visit to the same copy link open the existing copy instead of
+ * piling up duplicates.
+ */
+export function findActiveCopyOfResourceForProfile(input: {
+  profileId: string;
+  sourceResourceId: string;
+  userId: string;
+}): StoredResource | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT resources.id AS id
+        FROM resource_copies
+        JOIN resources ON resources.id = resource_copies.resource_id
+        WHERE resource_copies.source_resource_id = ?
+          AND resources.user_id = ?
+          AND resources.profile_id = ?
+          AND resources.archived_at IS NULL
+        ORDER BY resource_copies.created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(input.sourceResourceId, input.userId, input.profileId) as
+    | { id: string }
+    | undefined;
+
+  return row ? findResourceById(row.id) : null;
+}
+
 export function findResourceAccessGrant(input: {
   profileId: string;
   resourceId: string;

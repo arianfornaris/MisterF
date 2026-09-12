@@ -13,6 +13,7 @@ import { buildDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeA
 import { formatRelativeTime } from '../i18n/dates.js';
 import { logger } from '../services/logger.js';
 import { listPracticeGuideModificationChanges } from './modificationChanges.js';
+import { buildCopyLinkModalLocals, findCopiedFromName, } from '../resources/copyLinks.js';
 import { resolveOriginFolderContext, } from '../resources/originFolder.js';
 function buildPracticeGuideAuthoringPath(practiceGuideId) {
     return `/practice-guides/${encodeURIComponent(practiceGuideId)}/edit`;
@@ -156,11 +157,20 @@ async function buildPracticeGuidesPageModel(request, response, pageKind) {
             practiceGuideId: selectedPracticeGuide.id,
         }).length
         : 0;
+    const copyLinkLocals = pageKind === 'detail' && selectedPracticeGuide && canManagePracticeGuide
+        ? await buildCopyLinkModalLocals({
+            resourceId: selectedPracticeGuide.id,
+            returnTo: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}?share=copy`,
+            shareMode: request.query.share,
+        })
+        : null;
     return {
         activeProfile,
         authMessage: getHomeAuthMessage(request, user),
         canManagePracticeGuide,
         collectedReportCount,
+        copiedFromName: selectedPracticeGuide ? findCopiedFromName(selectedPracticeGuide.id) : '',
+        copyLinkLocals,
         practiceGuideConversations,
         practiceGuidePageMode: pageKind,
         practiceGuideShareQrDataUrl,
@@ -208,6 +218,8 @@ async function renderPracticeGuidesPage(request, response, pageKind) {
         selectedPracticeGuideShareLink: viewModel.selectedPracticeGuideShareLink,
         selectedPracticeGuideSharedFromProfileName: viewModel.selectedPracticeGuideSharedFromProfileName,
         shareTargetPracticeGuideProfiles: viewModel.shareTargetPracticeGuideProfiles,
+        copiedFromName: viewModel.copiedFromName,
+        copyLinkLocals: viewModel.copyLinkLocals,
     });
 }
 /** Namespaces this resource's previews in the shared modification store. */

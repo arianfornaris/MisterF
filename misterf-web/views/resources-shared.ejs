@@ -1,16 +1,21 @@
 <%- include('partials/app-shell-open') %>
 
+<%#
+  One page, two links. The live share link (`/resources/shared/:id`) lets a
+  student run the resource; the copy link (`/resources/copy/:id`, copyMode)
+  gives a colleague their own copy (Roadmap V3 §1.19).
+%>
 <section class="app-page shared-page">
   <header class="mf-res-band shared-band <%= familyClass %>">
     <div class="shared-measure shared-band-inner">
       <div>
-        <%- include('partials/resource-page-kicker', { resourceType: sharedResource.type, pageLabel: t('resources.shared') }) %>
+        <%- include('partials/resource-page-kicker', { resourceType: sharedResource.type, pageLabel: copyMode ? t('resources.sharedCopyKicker') : t('resources.shared') }) %>
         <h1 class="app-page-title shared-title"><%= sharedResource.title %></h1>
         <% if (isExample) { %>
           <p class="app-page-copy"><%= t('resources.sharedExample') %></p>
         <% } else if (sharedByName) { %>
           <p class="app-page-copy">
-            <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= t('resources.sharedWithYouBy', { name: sharedByName }) %>
+            <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= copyMode ? t('resources.sharedCopyBy', { name: sharedByName }) : t('resources.sharedWithYouBy', { name: sharedByName }) %>
           </p>
         <% } %>
 
@@ -23,7 +28,7 @@
             <% if (quizBlockCount) { %>
               <span><i class="bi bi-list-check" aria-hidden="true"></i><b><%= quizBlockCount %></b> <%= t('quizzes.blocksSuffix') %></span>
             <% } %>
-            <% if (learnerCharacter) { %>
+            <% if (learnerCharacter && !copyMode) { %>
               <span><i class="bi bi-person" aria-hidden="true"></i><%= t('resources.sharedFactRole') %> <b><%= learnerCharacter.name %></b></span>
             <% } %>
             <% if (sharedResource.type === 'resource_folder') { %>
@@ -32,7 +37,35 @@
           </p>
         <% } %>
 
-        <% if (quizTakeAction) { %>
+        <% if (copyMode) { %>
+          <% if (existingCopyPath) { %>
+            <div class="shared-actions">
+              <a class="btn btn-primary btn-lg" href="<%= existingCopyPath %>" data-shared-open-copy>
+                <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i><%= t('resources.openMyCopy') %>
+              </a>
+              <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+            </div>
+            <p class="shared-note"><%= t('resources.sharedCopyExisting') %></p>
+          <% } else if (isAuthenticated && activeProfile) { %>
+            <form method="post" action="<%= copyAction %>" class="shared-actions">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-primary btn-lg" type="submit" data-shared-make-copy>
+                <i class="bi bi-copy me-1" aria-hidden="true"></i><%= t('resources.makeMyCopy') %>
+              </button>
+              <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+            </form>
+          <% } else { %>
+            <div class="shared-actions">
+              <a class="btn btn-primary btn-lg" href="/signup?returnTo=<%= encodeURIComponent(returnTo) %>"><%= t('nav.createAccount') %></a>
+              <a class="btn btn-outline-secondary btn-lg" href="/login?returnTo=<%= encodeURIComponent(returnTo) %>"><%= t('nav.signIn') %></a>
+              <a class="btn btn-link" href="<%= declineHref %>" data-shared-decline><%= t('resources.notNow') %></a>
+            </div>
+            <p class="shared-note"><%= t('resources.sharedCopyAccountNote') %></p>
+          <% } %>
+          <p class="shared-note" role="note">
+            <i class="bi bi-info-circle me-1" aria-hidden="true"></i><%= t('resources.sharedCopyNote') %>
+          </p>
+        <% } else if (quizTakeAction) { %>
           <form method="post" action="<%= quizTakeAction %>" class="shared-actions">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn btn-primary btn-lg" type="submit">
@@ -66,7 +99,7 @@
           </div>
         <% } %>
 
-        <% if ((quizTakeAction || startAction) && shareLink.collectResults) { %>
+        <% if ((quizTakeAction || startAction) && shareLink && shareLink.collectResults) { %>
           <p class="shared-note" role="note">
             <i class="bi bi-eye me-1" aria-hidden="true"></i><%= t('resources.sharedResultsNotice') %>
           </p>

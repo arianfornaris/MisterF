@@ -1,4 +1,5 @@
-import { addResourceToFolder, createPracticeGuide, createQuiz, createResourceFolder, createRoleplay, findPracticeGuideForUser, findQuizForUser, findResourceForUser, findRoleplayForUser, listResourceFolderItems, } from '../db/repository.js';
+import { addResourceToFolder, createPracticeGuide, createQuiz, createResourceFolder, createRoleplay, findPracticeGuideForUser, findQuizForUser, findResourceCopyOrigin, findResourceForUser, findRoleplayForUser, listResourceFolderItems, recordResourceCopy, } from '../db/repository.js';
+import { getDb } from '../db/database.js';
 import { translate } from '../i18n/index.js';
 /**
  * How deep folder duplication will recurse. Folders nest, and the schema does
@@ -38,19 +39,66 @@ export function duplicateResourceForProfile(input) {
     if (resource.archivedAt) {
         return null;
     }
-    return duplicateOwnedResource({
+    const owner = { profileId: input.profileId, userId: input.userId };
+    return copyResourceTree({
         depth: 0,
-        locale: input.locale,
-        profileId: input.profileId,
+        from: owner,
         resource,
         title: buildDuplicateTitle(resource.title, input.locale),
-        userId: input.userId,
+        to: owner,
     });
 }
-function duplicateOwnedResource(input) {
-    const { profileId, resource, title, userId } = input;
+/**
+ * Gives another account its own copy of a resource through a copy link
+ * (Roadmap V3 §1.19): the teacher-to-teacher path, as opposed to the live share
+ * link a student uses to run the resource.
+ *
+ * The copy follows the duplication rules — authored content only, no
+ * participation, shares, or grants — but it keeps the original title, since for
+ * the recipient it is their resource rather than a "Copia de". Every copied
+ * resource, folder contents included, records its origin so the recipient's
+ * pages can say whose work it is based on. Along a chain of copies the origin
+ * stays the root author, not the colleague who passed it on.
+ */
+export function copyResourceFromLink(input) {
+    const { resource } = input;
+    if (resource.archivedAt) {
+        return null;
+    }
+    const copy = () => copyResourceTree({
+        depth: 0,
+        from: { profileId: resource.profileId, userId: resource.userId },
+        onCopied: (copied, original) => {
+            const inherited = findResourceCopyOrigin(original.id);
+            const originUserId = inherited?.originUserId ?? original.userId;
+            const originProfileId = inherited?.originProfileId ?? original.profileId;
+            recordResourceCopy({
+                copyLinkId: input.copyLinkId,
+                originProfileId,
+                originUserId,
+                resourceId: copied.id,
+                sourceResourceId: original.id,
+            });
+        },
+        resource,
+        title: resource.title,
+        to: input.target,
+    });
+    // One transaction, so a folder never lands half-copied or without origins.
+    return getDb().transaction(copy)();
+}
+function copyResourceTree(input) {
+    const copied = copySingleResource(input);
+    if (!copied) {
+        return null;
+    }
+    input.onCopied?.(copied.resource, input.resource);
+    return copied;
+}
+function copySingleResource(input) {
+    const { from, resource, title, to } = input;
     if (resource.type === 'quiz') {
-        const quiz = findQuizForUser(resource.id, userId);
+        const quiz = findQuizForUser(resource.id, from.userId);
         if (!quiz) {
             return null;
         }
@@ -58,16 +106,16 @@ function duplicateOwnedResource(input) {
             description: quiz.description,
             instructions: quiz.instructions,
             level: quiz.level,
-            profileId,
+            profileId: to.profileId,
             quiz: quiz.quiz,
             targetTopic: quiz.targetTopic,
             title,
-            userId,
+            userId: to.userId,
         });
-        return { duplicatedCount: 1, resource: toResource(created.id, userId) };
+        return { duplicatedCount: 1, resource: toResource(created.id, to.userId) };
     }
     if (resource.type === 'roleplay') {
-        const roleplay = findRoleplayForUser(resource.id, userId);
+        const roleplay = findRoleplayForUser(resource.id, from.userId);
         if (!roleplay) {
             return null;
         }
@@ -75,56 +123,56 @@ function duplicateOwnedResource(input) {
             characters: roleplay.characters,
             description: roleplay.description,
             level: roleplay.level,
-            profileId,
+            profileId: to.profileId,
             title,
-            userId,
+            userId: to.userId,
         });
-        return { duplicatedCount: 1, resource: toResource(created.id, userId) };
+        return { duplicatedCount: 1, resource: toResource(created.id, to.userId) };
     }
     if (resource.type === 'practice_guide') {
-        const guide = findPracticeGuideForUser(resource.id, userId);
+        const guide = findPracticeGuideForUser(resource.id, from.userId);
         if (!guide) {
             return null;
         }
         const created = createPracticeGuide({
             description: guide.description,
-            profileId,
+            profileId: to.profileId,
             title,
             tutorInstructions: guide.tutorInstructions,
-            userId,
+            userId: to.userId,
         });
-        return { duplicatedCount: 1, resource: toResource(created.id, userId) };
+        return { duplicatedCount: 1, resource: toResource(created.id, to.userId) };
     }
-    return duplicateFolder(input);
+    return copyFolder(input);
 }
-function duplicateFolder(input) {
-    const { depth, locale, profileId, resource, title, userId } = input;
+function copyFolder(input) {
+    const { depth, from, onCopied, resource, title, to } = input;
     const folder = createResourceFolder({
         description: resource.description,
-        profileId,
+        profileId: to.profileId,
         title,
-        userId,
+        userId: to.userId,
     });
     let duplicatedCount = 1;
     if (depth >= maxFolderDuplicationDepth) {
-        return { duplicatedCount, resource: toResource(folder.id, userId) };
+        return { duplicatedCount, resource: toResource(folder.id, to.userId) };
     }
-    for (const item of listResourceFolderItems(resource.id, userId)) {
-        const child = findResourceForUser(item.resourceId, userId);
+    for (const item of listResourceFolderItems(resource.id, from.userId)) {
+        const child = findResourceForUser(item.resourceId, from.userId);
         // Skip what the owner cannot copy: resources shared with them rather than
         // owned, and archived ones, matching the top-level rules.
-        if (!child || child.profileId !== profileId || child.archivedAt) {
+        if (!child || child.profileId !== from.profileId || child.archivedAt) {
             continue;
         }
-        const copied = duplicateOwnedResource({
+        const copied = copyResourceTree({
             depth: depth + 1,
-            locale,
-            profileId,
+            from,
+            onCopied,
             resource: child,
             // Only the folder itself is renamed; its contents keep their titles, so
             // the copy reads like the original rather than "Copia de" everywhere.
             title: child.title,
-            userId,
+            to,
         });
         if (!copied) {
             continue;
@@ -133,10 +181,10 @@ function duplicateFolder(input) {
         addResourceToFolder({
             folderId: folder.id,
             resourceId: copied.resource.id,
-            userId,
+            userId: to.userId,
         });
     }
-    return { duplicatedCount, resource: toResource(folder.id, userId) };
+    return { duplicatedCount, resource: toResource(folder.id, to.userId) };
 }
 function toResource(resourceId, userId) {
     const resource = findResourceForUser(resourceId, userId);

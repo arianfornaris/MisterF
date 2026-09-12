@@ -27,6 +27,7 @@
                   })),
                   { label: selectedPracticeGuide.title },
                 ] }) %>
+                <%- include('resource-copied-from') %>
               <% } %>
             </div>
           </div>
@@ -101,7 +102,18 @@
                             data-bs-target="#sharePracticeGuideLinkModal"
                           >
                             <i class="bi bi-share me-2" aria-hidden="true"></i>
-                            <%= t('resources.share') %>
+                            <%= t('resources.sharePractice') %>
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            class="dropdown-item"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#resourceCopyLinkModal"
+                          >
+                            <i class="bi bi-copy me-2" aria-hidden="true"></i>
+                            <%= t('resources.shareCopy') %>
                           </button>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -351,6 +363,9 @@
             </div>
           </div>
 
+          <% if (copyLinkLocals) { %>
+            <%- include('resource-copy-link-modal', copyLinkLocals) %>
+          <% } %>
           <%- include('resource-move-modal', {
             resourceMoveCurrentFolder: practiceGuideCurrentFolder,
             resourceMoveFolderOptions: practiceGuideFolderOptions,

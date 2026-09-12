@@ -10,6 +10,7 @@ import {
   initializeMarkdownEditors,
 } from '../shared/markdownEditor.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
+import { initializeCopyLinkModal } from '../shared/copyLinkModal.js';
 import { initializePendingModalForms } from '../shared/pendingModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
@@ -688,6 +689,7 @@ function initializeRoleplayEvaluationPopovers(root = document) {
 }
 
 initializeRoleplaySharingUi();
+initializeCopyLinkModal();
 initializeRoleplayPendingUi();
 initializeRoleplayAvatarSelector();
 initializeMarkdownEditors();

@@ -94,7 +94,12 @@
             </li>
             <li>
               <a class="dropdown-item" href="<%= resource.detailPath %>?share=link">
-                <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.share') %>
+                <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.sharePractice') %>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="<%= resource.detailPath %>?share=copy">
+                <i class="bi bi-copy me-2" aria-hidden="true"></i><%= t('resources.shareCopy') %>
               </a>
             </li>
           <% } %>
@@ -131,7 +136,8 @@
         <% } else { %>
           <% if (!resource.archivedAt) { %>
             <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i><%= t('resources.shareWithProfile') %></a></li>
-            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.share') %></a></li>
+            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.sharePractice') %></a></li>
+            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=copy"><i class="bi bi-copy me-2" aria-hidden="true"></i><%= t('resources.shareCopy') %></a></li>
             <% if (resourceCanMove) { %>
               <li><hr class="dropdown-divider"></li>
               <li>

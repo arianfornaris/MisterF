@@ -1,0 +1,70 @@
+<%#
+  The owner's "Compartir una copia" modal (Roadmap V3 §1.19), shared by the
+  quiz, roleplay, practice-guide and folder pages. Locals come from
+  buildCopyLinkModalLocals (src/server/resources/copyLinks.ts). The copy link is
+  created only by the button below, never on page view, because opening it hands
+  over the answer key.
+%>
+<div
+  class="modal fade"
+  id="resourceCopyLinkModal"
+  tabindex="-1"
+  aria-labelledby="resourceCopyLinkModalLabel"
+  aria-hidden="true"
+  <%= copyLinkAutoOpen ? 'data-auto-open-copy-link-modal' : '' %>
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="resourceCopyLinkModalLabel"><%= t('resources.shareCopy') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
+      </div>
+      <div class="modal-body d-grid gap-3">
+        <p class="mb-0 text-body-secondary"><%= t('resources.shareCopyBody') %></p>
+        <% if (copyLinkUrl) { %>
+          <div>
+            <label class="form-label" for="resourceCopyLinkField"><%= t('resources.link') %></label>
+            <input class="form-control" id="resourceCopyLinkField" value="<%= copyLinkUrl %>" readonly data-copy-link-field>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-secondary" type="button" data-copy-link-copy>
+              <i class="bi bi-copy me-1" aria-hidden="true"></i><%= t('resources.copy') %>
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              data-copy-link-native-share
+              data-share-title="<%= t('resources.shareCopy') %>"
+            >
+              <i class="bi bi-share me-1" aria-hidden="true"></i><%= t('resources.share') %>
+            </button>
+          </div>
+          <% if (copyLinkQrDataUrl) { %>
+            <div class="d-flex justify-content-center">
+              <img src="<%= copyLinkQrDataUrl %>" alt="<%= t('resources.shareCopyQrAlt') %>" width="180" height="180">
+            </div>
+          <% } %>
+          <form method="post" action="/resources/<%= encodeURIComponent(copyLinkResourceId) %>/copy-link/revoke">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="<%= copyLinkReturnTo %>">
+            <button class="btn btn-outline-secondary btn-sm" type="submit" data-copy-link-revoke>
+              <i class="bi bi-x-circle me-1" aria-hidden="true"></i><%= t('resources.shareCopyRevoke') %>
+            </button>
+            <p class="form-text mb-0 mt-1"><%= t('resources.shareCopyRevokeHint') %></p>
+          </form>
+        <% } else { %>
+          <form method="post" action="/resources/<%= encodeURIComponent(copyLinkResourceId) %>/copy-link">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="<%= copyLinkReturnTo %>">
+            <button class="btn btn-primary" type="submit" data-copy-link-create>
+              <i class="bi bi-link-45deg me-1" aria-hidden="true"></i><%= t('resources.shareCopyCreate') %>
+            </button>
+          </form>
+        <% } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn <%= copyLinkUrl ? 'btn-primary' : 'btn-secondary' %>" data-bs-dismiss="modal"><%= t('common.close') %></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -78,6 +78,10 @@ describe('database migrations', () => {
         id: 30,
         name: 'add_profile_home_mode',
       },
+      {
+        id: 31,
+        name: 'add_resource_copy_links_and_copies',
+      },
     ]);
 
     const tableNames = (db.prepare(`
@@ -106,6 +110,8 @@ describe('database migrations', () => {
       'quiz_response_summaries',
       'quizzes',
       'resource_access_grants',
+      'resource_copies',
+      'resource_copy_links',
       'resource_folder_items',
       'resource_folders',
       'resource_participation_summaries',
@@ -265,7 +271,11 @@ describe('database migrations', () => {
       ORDER BY name
     `).all() as NamedSchemaObject[]).map(({ name }) => name);
 
-    expect(indexNames).toHaveLength(46);
+    expect(indexNames).toHaveLength(48);
+    expect(indexNames).toEqual(expect.arrayContaining([
+      'idx_resource_copies_source',
+      'idx_resource_copy_links_resource_active',
+    ]));
     expect(indexNames).toEqual(expect.arrayContaining([
       'idx_messages_conversation_created',
       'idx_quizzes_user_profile_updated',

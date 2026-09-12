@@ -64,6 +64,11 @@ import { formatRelativeTime } from '../i18n/dates.js';
 import { logger } from '../services/logger.js';
 import { listPracticeGuideModificationChanges } from './modificationChanges.js';
 import {
+  buildCopyLinkModalLocals,
+  findCopiedFromName,
+  type CopyLinkModalLocals,
+} from '../resources/copyLinks.js';
+import {
   resolveOriginFolderContext,
   type OriginFolderContext,
 } from '../resources/originFolder.js';
@@ -260,11 +265,22 @@ async function buildPracticeGuidesPageModel(
         }).length
       : 0;
 
+  const copyLinkLocals: CopyLinkModalLocals | null =
+    pageKind === 'detail' && selectedPracticeGuide && canManagePracticeGuide
+      ? await buildCopyLinkModalLocals({
+          resourceId: selectedPracticeGuide.id,
+          returnTo: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}?share=copy`,
+          shareMode: request.query.share,
+        })
+      : null;
+
   return {
     activeProfile,
     authMessage: getHomeAuthMessage(request, user),
     canManagePracticeGuide,
     collectedReportCount,
+    copiedFromName: selectedPracticeGuide ? findCopiedFromName(selectedPracticeGuide.id) : '',
+    copyLinkLocals,
     practiceGuideConversations,
     practiceGuidePageMode: pageKind,
     practiceGuideShareQrDataUrl,
@@ -320,6 +336,8 @@ async function renderPracticeGuidesPage(
     selectedPracticeGuideSharedFromProfileName:
       viewModel.selectedPracticeGuideSharedFromProfileName,
     shareTargetPracticeGuideProfiles: viewModel.shareTargetPracticeGuideProfiles,
+    copiedFromName: viewModel.copiedFromName,
+    copyLinkLocals: viewModel.copyLinkLocals,
   });
 }
 

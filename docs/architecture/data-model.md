@@ -276,6 +276,39 @@ copies. Recipients see the owner's current version and should not be able to
 edit, archive, move, or re-share the resource. A folder grant also gives
 read/use access to the folder's current contents.
 
+### Resource Copy Link
+
+The teacher-to-teacher token (Roadmap V3 §1.19): whoever opens it gets their
+own copy of the resource instead of running the owner's. It is separate from
+the share link because a copy includes the answer key, so the owner creates it
+explicitly and can revoke it.
+
+Fields (`resource_copy_links`):
+
+- `id`
+- `resourceId`
+- `createdAt`
+- optional `revokedAt`
+
+At most one active link per resource (unique index on `resource_id` where
+`revoked_at IS NULL`). A revoked id stays dead, and creating the link again
+mints a new id.
+
+### Resource Copy
+
+Records where a copied resource came from (`resource_copies`), one row per
+copied resource, folder contents included:
+
+- `resourceId`: the copy, primary key
+- optional `sourceResourceId`: the resource it was copied from directly
+- optional `originUserId`, `originProfileId`: the root author, preserved along
+  chains of copies, credited on the copy's pages
+- optional `copyLinkId`
+- `createdAt`
+
+Copies are owned resources, not shares, so they never set `resources.source_*`
+or `sharedVia`. Those fields mean "shared by" to the detail pages.
+
 ### Archive Recovery
 
 Archiving is reversible and does not delete generic resource relationships.

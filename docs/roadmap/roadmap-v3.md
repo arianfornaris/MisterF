@@ -1924,32 +1924,84 @@ Reuse what exists; add one new kind of link.
 - **A copy is a snapshot.** Later edits by the author do not reach it. That is
   the point: the colleague has made it theirs.
 
-### Decisions To Make Before Building
+### Decisions (made 2026-09-12, founder: "implement it with your recommendations")
 
-- [ ] **Attribution.** §1.11 deliberately writes duplicates with no `source*`
-  marks. Here, a light origin mark ("Basado en un recurso de Mister F") is
-  probably worth keeping: it lets us count adoptions and is the basis of any
-  creator program. `resources` already has `source_resource_id`,
-  `source_user_id` and `source_profile_id` columns from the copied-import era,
-  and no current write path appears to set them. Decide whether to reuse them
-  or add an explicit origin field, since they may mean "imported share" to old
-  code.
-- [ ] **Chains.** Can a recipient re-share their copy as a copy link? Leaning
-  yes, with the original attribution preserved.
-- [ ] **Link or catalog.** Ask Mister F whether he pictures sending the link to
-  specific colleagues (WhatsApp) or a public "Recursos de Mister F" library.
-  Start with the link: it is the question the pilot already asks ("classes and
-  packages" vs "I send this link on WhatsApp", Classrooms), and a public
-  catalog brings moderation, intellectual property and support.
-- [ ] **Button copy.** The shared page already uses "Añadir a mis recursos"
-  (`resources.addToMyResources`) for accepting a *live* folder grant. The copy
-  action needs a label that says it is a copy (e.g. "Hacer una copia para mis
-  estudiantes"), or the two will be confused.
-- [ ] **Amend `resource-sharing-conventions`.** The skill currently says
-  "there is no … copied-import sharing" and asks reviewers to check that no
-  "copied import, or snapshot share slipped in". This item deliberately
-  reverses that for the copy link only; the skill must say so, or the next
-  agent will treat the feature as a violation.
+- [x] **Naming.** The two owner actions are named for what the recipient
+  gets, not who they are: **"Compartir para practicar"** (the existing run
+  link, which the menus and modal title used to call just "Compartir") and
+  **"Compartir una copia"**. The founder suggested "Compartir con aprendices" /
+  "Compartir con colega". Those were dropped because "aprendices" reads oddly
+  in UI Spanish, and sharing is used by tutors and parents too (§1.6 already
+  chose "participantes" over "estudiantes"). "Una copia" also says what matters:
+  the answer key goes with it. The modal copy names the audience ("Para otros
+  profesores…"). Renaming is an i18n-only change if the pilot disagrees.
+- [x] **Attribution.** Kept, in a new `resource_copies` table, **not**
+  `resources.source_*`: the roleplay and practice-guide detail pages read
+  `sourceProfileId` as "Compartido por", so reusing those columns would badge
+  owned copies as shares. Copies show "Basado en un recurso de {{name}}".
+- [x] **Chains.** Allowed. A copy is an owned resource, so it has its own
+  "Compartir una copia". The credited origin stays the root author
+  (`origin_*`), and `source_resource_id` records the immediate parent.
+- [x] **Link, not catalog.** Link first, as recommended. A public "Recursos de
+  Mister F" library stays open until the pilot says colleagues want to browse
+  rather than receive.
+- [x] **Button copy.** The colleague's action is "Hacer mi copia", distinct
+  from the live grant's "Agregar a mis recursos". A returning colleague gets
+  "Abrir mi copia" instead of a second copy.
+- [x] **Amend `resource-sharing-conventions`.** Done: the skill has a Copy
+  Links section, and its checks now forbid snapshot copies *outside* the
+  copy-link path.
+- [x] **No test run on the colleague page.** The draft proposed "Probar" as a
+  secondary action. Dropped: running the author's resource from that page
+  would reintroduce the misrouted-results problem, and copying is free, so the
+  colleague tests their own copy instead.
+
+### Done 2026-09-12
+
+- [x] Migration 31: `resource_copy_links` (one active per resource via a
+  partial unique index; revoked ids stay dead) and `resource_copies` (origin
+  per copied resource).
+- [x] `copyResourceFromLink` in `resources/duplicate.ts`, which generalizes the
+  §1.11 tree copy to read as the author and write as the recipient. It keeps the
+  original title, records origins for folder contents too, and runs in one
+  transaction.
+- [x] Owner side: "Compartir una copia" in `Opciones` on quiz, roleplay,
+  practice-guide and folder pages and in the catalog row menu (`?share=copy`),
+  opening one shared modal (`partials/resource-copy-link-modal.ejs`). The link
+  is created only by its "Crear enlace de copia" button, never on page view,
+  and "Desactivar enlace" revokes it without touching copies already made.
+- [x] Colleague side: `/resources/copy/:id` is the shared page's copy variant
+  (kicker "Copia para ti", "{{name}} te comparte una copia…", "Hacer mi
+  copia", three copy-specific steps). Signup comes before login for a visitor,
+  since this page exists to bring new teachers in. The account wall sits on
+  the copy action (§1.18 rules for declining).
+- [x] Events `resource_copy_link_created`, `resource_copy_link_revoked`,
+  `resource_copy_link_accepted` (the adoption metric).
+- [x] Tests: `tests/db/resourceCopyLinks.test.ts` (link lifecycle, cross-account
+  quiz copy with answer key and origin, chain keeps the root author, folder
+  copy credits every child and keeps avatars, archived refusal) and a route
+  test covering author, anonymous colleague, signed-in colleague, the second
+  visit, the author on their own link, the run link refused as a copy link, a
+  non-owner unable to create or revoke, and revocation.
+- [x] **Live QA 2026-09-12**, local, no inference, two real users. As
+  `qa.fable`, "Opciones" on the quiz "Domina el pasado simple en el trabajo"
+  lists "Compartir para practicar" and "Compartir una copia". `?share=copy`
+  opens the modal with only "Crear enlace de copia", and creating it shows the
+  link, copy, QR and "Desactivar enlace". Logged out, the copy page offers
+  "Create account" / "Sign in" and never the quiz. It rendered in English,
+  which exercised the `en` catalog. As `qa.student`, "Make my copy" landed on
+  the copy: author's "Try it", "Based on a resource by QA Fable", its own "Share
+  a copy", no shared badge. Revisiting the link offered "Open my copy" with the
+  same id. No horizontal overflow at 375px. SQLite: the copy is owned by the
+  student with an identical 6-block draft, 0 attempts (the original has 2), 0
+  grants, no `shared_via` / `source_profile_id`, and a `resource_copies` row
+  crediting QA Fable. `resource_copy_link_created`, `_accepted` and `_revoked`
+  logged with the right ids, and the error log gained nothing. Cleanup: the
+  student's copy is archived and the link revoked. After revoking, the modal
+  is back to "Crear enlace de copia" and the old URL redirects away.
+  *Looks like a violation and is not:* the copy's detail page mints a
+  `resource_share_links` row for itself (the §1.11 lazy share link). That is the
+  colleague's own run link, never the author's.
 
 ### Implementation Notes
 

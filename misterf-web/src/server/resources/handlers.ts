@@ -43,8 +43,15 @@ import { safeParseQuizDraft } from '../services/quizzes.js';
 import { findUserById } from '../auth/repository.js';
 import { env } from '../config/env.js';
 import { findRoleplayCharacterAvatar } from '../roleplays/avatarRegistry.js';
-import { duplicateResourceForProfile } from './duplicate.js';
+import { buildCopyLinkModalLocals, findCopiedFromName } from './copyLinks.js';
+import { copyResourceFromLink, duplicateResourceForProfile } from './duplicate.js';
 import { buildResourceDetailPath } from './paths.js';
+import {
+  createResourceCopyLink,
+  findActiveCopyOfResourceForProfile,
+  findResourceCopyLinkById,
+  revokeResourceCopyLink,
+} from '../db/repository.js';
 
 type ResourceFilterType = StoredResource['type'] | 'all' | 'by_me' | 'with_me';
 type ResourceSortOption = 'title_asc' | 'type' | 'updated_desc';
@@ -469,6 +476,14 @@ export async function renderResourcesListPage(
     selectedFolderShareQrDataUrl,
     selectedFolderShareUrl,
     shareTargetResourceProfiles,
+    copiedFromName: selectedFolder ? findCopiedFromName(selectedFolder.id) : '',
+    ...(selectedFolderCanManage && selectedFolder
+      ? await buildCopyLinkModalLocals({
+          resourceId: selectedFolder.id,
+          returnTo: `/resources/folders/${encodeURIComponent(selectedFolder.id)}?share=copy`,
+          shareMode: request.query.share,
+        })
+      : {}),
   });
 }
 
@@ -603,6 +618,28 @@ export function renderSharedResourcePage(request: Request, response: Response): 
       ? `/practice-guides/shared/${encodeURIComponent(shareLink.id)}/start`
       : '';
 
+  response.render('resources-shared', {
+    ...buildSharedResourcePageLocals(request, resource, {
+      canonicalPath: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
+    }),
+    quizTakeAction,
+    shareLink,
+    startAction,
+  });
+}
+
+/**
+ * Everything the shared-resource page shows about the resource itself, used by
+ * both the live share link and the copy link (Roadmap V3 §1.19). Callers add
+ * the page's own actions on top; every action defaults to off here.
+ */
+export function buildSharedResourcePageLocals(
+  request: Request,
+  resource: StoredResource,
+  input: { canonicalPath: string; howItWorksKeys?: string[] },
+): Record<string, unknown> {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
   const typeLabelKeys: Record<string, string> = {
     practice_guide: 'resources.typePracticeGuide',
     quiz: 'resources.typeQuiz',
@@ -664,7 +701,7 @@ export function renderSharedResourcePage(request: Request, response: Response): 
           }))
       : [];
 
-  response.render('resources-shared', {
+  return {
     ...buildAppShellContext({
       activeProfile: activeProfile ?? null,
       authMessage: getHomeAuthMessage(request, user ?? null),
@@ -678,7 +715,7 @@ export function renderSharedResourcePage(request: Request, response: Response): 
     // that comes back. It is the closest thing the product has to an organic
     // growth loop, so the preview names the activity, its type, and its level
     // instead of falling back to a bare URL.
-    canonicalUrl: buildAbsoluteAppUrl(`/resources/shared/${encodeURIComponent(shareLink.id)}`),
+    canonicalUrl: buildAbsoluteAppUrl(input.canonicalPath),
     metaDescription: resource.level
       ? `${typeLabel} · ${resource.level} — ${summary}`
       : `${typeLabel} — ${summary}`,
@@ -689,23 +726,28 @@ export function renderSharedResourcePage(request: Request, response: Response): 
     noindex: true,
     ogImageUrl: buildAbsoluteAppUrl('/public/brand/share-card.png'),
     ogTitle: resource.title,
-    quizTakeAction,
-    startAction,
-    returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
-    shareLink,
+    // Every action is off until the caller turns its own on.
+    copyAction: '',
+    copyMode: false,
+    existingCopyPath: '',
+    quizTakeAction: '',
+    shareLink: null,
+    startAction: '',
+    returnTo: input.canonicalPath,
     sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource), request.locale),
     // A visitor without a session has no `/resources` to go back to; declining
     // there would land on a login wall (roadmap V3 §1.18).
     declineHref: isSignedIn ? '/resources' : '/',
     familyClass: sharedFamilyClassByType[resource.type],
     folderItems,
-    howItWorksKeys: buildSharedHowItWorksKeys(resource.type, isSignedIn),
+    howItWorksKeys:
+      input.howItWorksKeys ?? buildSharedHowItWorksKeys(resource.type, isSignedIn),
     isExample,
     quizBlockCount,
     roleplayCharacters,
     sharedByName,
     sharedDescription,
-  });
+  };
 }
 
 export function handleAcceptSharedResourceLink(
@@ -954,6 +996,175 @@ export function handleDuplicateResource(request: Request, response: Response): v
 
   // Land on the copy so the owner can rename it or start sharing it right away.
   response.redirect(buildResourceDetailPath(duplicated.resource));
+}
+
+/**
+ * The author turns on "Compartir una copia" (Roadmap V3 §1.19). Minting the
+ * token is always this explicit action, never a page view, because whoever
+ * opens it gets the answer key.
+ */
+export function handleCreateResourceCopyLink(request: Request, response: Response): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const returnTo = normalizeReturnTo(request.body.returnTo);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (!resource || resource.archivedAt) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const copyLink = createResourceCopyLink(resource.id);
+  logger.info('resource_copy_link_created', {
+    ...buildResourceLogDetails({ profileId: auth.activeProfile.id, resource, userId: auth.user.id }),
+    copyLinkId: copyLink.id,
+  });
+  response.redirect(returnTo);
+}
+
+/** Turns the copy link off. Copies already made stay with their owners. */
+export function handleRevokeResourceCopyLink(request: Request, response: Response): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const returnTo = normalizeReturnTo(request.body.returnTo);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (!resource) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  revokeResourceCopyLink(resource.id);
+  logger.info('resource_copy_link_revoked', {
+    ...buildResourceLogDetails({ profileId: auth.activeProfile.id, resource, userId: auth.user.id }),
+  });
+  response.redirect(returnTo);
+}
+
+/**
+ * Resolves a copy link to its resource, or null when the link is unknown,
+ * revoked, or points at a resource that is gone or in Trash.
+ */
+function resolveCopyLink(copyLinkId: string): {
+  copyLinkId: string;
+  resource: StoredResource;
+} | null {
+  const copyLink = findResourceCopyLinkById(copyLinkId);
+  if (!copyLink || copyLink.revokedAt) {
+    return null;
+  }
+
+  const resource = findResourceById(copyLink.resourceId);
+  if (!resource || resource.archivedAt) {
+    return null;
+  }
+
+  return { copyLinkId: copyLink.id, resource };
+}
+
+/**
+ * The page a colleague lands on from a copy link: the shared-resource page in
+ * its copy variant, whose action makes their own copy instead of running the
+ * author's resource.
+ */
+export function renderResourceCopyPage(request: Request, response: Response): void {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  const isSignedIn = Boolean(user?.emailVerified && activeProfile);
+  const resolved = resolveCopyLink(readField(request.params.copyLinkId, 120));
+  if (!resolved) {
+    // A visitor without a session has no `/resources` to go back to (§1.18).
+    response.redirect(isSignedIn ? '/resources' : '/');
+    return;
+  }
+
+  const { copyLinkId, resource } = resolved;
+  // The author opening their own link belongs on the resource, where the modal
+  // that produced the link lives.
+  if (isSignedIn && user && resource.userId === user.id) {
+    response.redirect(`${buildResourceDetailPath(resource)}?share=copy`);
+    return;
+  }
+
+  const existingCopy = isSignedIn && user && activeProfile
+    ? findActiveCopyOfResourceForProfile({
+        profileId: activeProfile.id,
+        sourceResourceId: resource.id,
+        userId: user.id,
+      })
+    : null;
+  const copyPath = `/resources/copy/${encodeURIComponent(copyLinkId)}`;
+
+  response.render('resources-shared', {
+    ...buildSharedResourcePageLocals(request, resource, {
+      canonicalPath: copyPath,
+      howItWorksKeys: [
+        'resources.sharedStepCopyMake',
+        'resources.sharedStepCopyEdit',
+        'resources.sharedStepCopyShare',
+      ],
+    }),
+    copyAction: `${copyPath}/accept`,
+    copyMode: true,
+    existingCopyPath: existingCopy ? buildResourceDetailPath(existingCopy) : '',
+  });
+}
+
+/**
+ * Makes the colleague's copy and lands them on it. A second submit (or a second
+ * visit) opens the copy they already have instead of piling up duplicates;
+ * `Duplicar` on their copy is there if they really want another.
+ */
+export function handleAcceptResourceCopyLink(request: Request, response: Response): void {
+  const resolved = resolveCopyLink(readField(request.params.copyLinkId, 120));
+  if (!resolved) {
+    response.redirect('/resources');
+    return;
+  }
+
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const { copyLinkId, resource } = resolved;
+  if (resource.userId === auth.user.id) {
+    response.redirect(buildResourceDetailPath(resource));
+    return;
+  }
+
+  const existingCopy = findActiveCopyOfResourceForProfile({
+    profileId: auth.activeProfile.id,
+    sourceResourceId: resource.id,
+    userId: auth.user.id,
+  });
+  if (existingCopy) {
+    response.redirect(buildResourceDetailPath(existingCopy));
+    return;
+  }
+
+  const copied = copyResourceFromLink({
+    copyLinkId,
+    resource,
+    target: { profileId: auth.activeProfile.id, userId: auth.user.id },
+  });
+  if (!copied) {
+    response.redirect('/resources');
+    return;
+  }
+
+  // The adoption metric: who took whose work, and how much of it.
+  logger.info('resource_copy_link_accepted', {
+    ...buildResourceLogDetails({ profileId: auth.activeProfile.id, resource, userId: auth.user.id }),
+    copiedCount: copied.duplicatedCount,
+    copyLinkId,
+    copyResourceId: copied.resource.id,
+  });
+  response.redirect(buildResourceDetailPath(copied.resource));
 }
 
 export function handleRestoreResource(request: Request, response: Response): void {

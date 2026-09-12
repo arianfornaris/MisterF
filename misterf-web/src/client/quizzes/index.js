@@ -7,6 +7,7 @@ import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
+import { initializeCopyLinkModal } from '../shared/copyLinkModal.js';
 import { initializePendingModalForms } from '../shared/pendingModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 import {
@@ -1037,6 +1038,7 @@ function isQuizBlock(value) {
 initializeQuizQuizUi();
 initializeQuizResultUi();
 initializeQuizSharingUi();
+initializeCopyLinkModal();
 initializeQuizPendingUi();
 initializeQuizAutoSubmit();
 initializeQuizAddBlock();

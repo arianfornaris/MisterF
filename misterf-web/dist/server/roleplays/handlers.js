@@ -13,6 +13,7 @@ import { generateRoleplayDraft, generateRoleplayParticipationSummary, generateRo
 import { computeParticipationFingerprint, readParticipationSummaryError, } from '../resources/participationSummary.js';
 import { deletePendingModification, getPendingModification, setPendingModification, } from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
+import { buildCopyLinkModalLocals, findCopiedFromName } from '../resources/copyLinks.js';
 import { findRoleplayCharacterAvatar, listRoleplayCharacterAvatars, normalizeRoleplayCharacterAvatarId, } from './avatarRegistry.js';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -646,6 +647,14 @@ export async function renderRoleplayShowPage(request, response) {
         shareLink,
         shareTargetRoleplayProfiles,
         shareUrl,
+        copiedFromName: findCopiedFromName(resolved.roleplay.id),
+        ...(resolved.canManageRoleplay
+            ? await buildCopyLinkModalLocals({
+                resourceId: resolved.roleplay.id,
+                returnTo: `/roleplays/${encodeURIComponent(resolved.roleplay.id)}?share=copy`,
+                shareMode: request.query.share,
+            })
+            : {}),
     });
 }
 function readRoleplayStartError(value, locale) {

@@ -10,6 +10,7 @@ import { claimRequestAttachments } from '../attachments/requestAttachments.js';
 import { generateQuizDraft, generateQuizRevision, generateQuizBlockRevision, generateQuizResponsesSummary, } from '../services/resourceDrafts.js';
 import { deletePendingModification, getPendingModification, listStringFieldChanges, setPendingModification, } from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
+import { buildCopyLinkModalLocals, findCopiedFromName } from '../resources/copyLinks.js';
 import { randomUUID } from 'node:crypto';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -1265,6 +1266,14 @@ export async function renderQuizShowPage(request, response) {
         shareLink,
         shareTargetQuizProfiles,
         shareUrl,
+        copiedFromName: findCopiedFromName(resolved.quiz.id),
+        ...(resolved.canManageQuiz
+            ? await buildCopyLinkModalLocals({
+                resourceId: resolved.quiz.id,
+                returnTo: `/quizzes/${encodeURIComponent(resolved.quiz.id)}?share=copy`,
+                shareMode: request.query.share,
+            })
+            : {}),
     });
 }
 /**

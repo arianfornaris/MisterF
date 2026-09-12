@@ -77,6 +77,7 @@ import {
   type ModificationPreviewOwner,
 } from '../resources/modificationPreviewStore.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
+import { buildCopyLinkModalLocals, findCopiedFromName } from '../resources/copyLinks.js';
 import {
   findRoleplayCharacterAvatar,
   listRoleplayCharacterAvatars,
@@ -900,6 +901,14 @@ export async function renderRoleplayShowPage(
     shareLink,
     shareTargetRoleplayProfiles,
     shareUrl,
+    copiedFromName: findCopiedFromName(resolved.roleplay.id),
+    ...(resolved.canManageRoleplay
+      ? await buildCopyLinkModalLocals({
+          resourceId: resolved.roleplay.id,
+          returnTo: `/roleplays/${encodeURIComponent(resolved.roleplay.id)}?share=copy`,
+          shareMode: request.query.share,
+        })
+      : {}),
   });
 }
 
