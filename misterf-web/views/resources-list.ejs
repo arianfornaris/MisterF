@@ -24,45 +24,14 @@
         <%- include('partials/resource-copied-from') %>
         <% if (selectedFolderCanManage) { %>
         <div class="resource-action-row mt-3">
-          <div class="dropdown">
-            <button
-              class="btn btn-primary dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('resources.new') %>
-            </button>
-            <% const newInFolderQuery = `?folder=${encodeURIComponent(selectedFolder.id)}`; %>
-            <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="/quizzes/new<%= newInFolderQuery %>">
-                  <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i><%= t('resources.typeQuiz') %>
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="/practice-guides/new<%= newInFolderQuery %>">
-                  <i class="bi bi-journal-plus me-2" aria-hidden="true"></i><%= t('resources.typePracticeGuide') %>
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="/roleplays/new<%= newInFolderQuery %>">
-                  <i class="bi bi-person-video3 me-2" aria-hidden="true"></i><%= t('resources.typeRoleplay') %>
-                </a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <button
-                  class="dropdown-item"
-                  type="button"
-                  data-bs-toggle="modal"
-                  data-bs-target="#createResourceFolderModal"
-                >
-                  <i class="bi bi-folder-plus me-2" aria-hidden="true"></i><%= t('resources.folder') %>
-                </button>
-              </li>
-            </ul>
-          </div>
+          <button
+            class="btn btn-primary"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#newResourceModal"
+          >
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('resources.new') %>
+          </button>
           <div class="dropdown">
             <button
               class="btn btn-secondary dropdown-toggle"
@@ -161,44 +130,14 @@
 
     <% if (!selectedFolder) { %>
       <div class="app-page-header-actions">
-        <div class="dropdown">
-          <button
-            class="btn btn-primary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('resources.new') %>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" href="/quizzes/new">
-                <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i><%= t('resources.typeQuiz') %>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="/practice-guides/new">
-                <i class="bi bi-journal-plus me-2" aria-hidden="true"></i><%= t('resources.typePracticeGuide') %>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="/roleplays/new">
-                <i class="bi bi-person-video3 me-2" aria-hidden="true"></i><%= t('resources.typeRoleplay') %>
-              </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <button
-                class="dropdown-item"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#createResourceFolderModal"
-              >
-                <i class="bi bi-folder-plus me-2" aria-hidden="true"></i><%= t('resources.folder') %>
-              </button>
-            </li>
-          </ul>
-        </div>
+        <button
+          class="btn btn-primary"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#newResourceModal"
+        >
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('resources.new') %>
+        </button>
         <%- include('partials/home-close-button') %>
       </div>
     <% } %>
@@ -363,6 +302,12 @@
   resourceMoveCurrentFolder: selectedFolder,
   resourceMoveFolderOptions: resourceFolderOptions,
 }) %>
+
+<% if (!selectedFolder || selectedFolderCanManage) { %>
+  <%- include('partials/new-resource-modal', {
+    newResourceQuery: selectedFolder ? `?folder=${encodeURIComponent(selectedFolder.id)}` : '',
+  }) %>
+<% } %>
 
 <div class="modal fade" id="createResourceFolderModal" tabindex="-1" aria-labelledby="createResourceFolderModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

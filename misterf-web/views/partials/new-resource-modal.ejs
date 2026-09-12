@@ -1,0 +1,116 @@
+<%#
+  The "Nuevo" chooser on the resources catalog and on a folder page. It
+  replaced a plain dropdown so a person picking a kind of resource can see
+  what each one is before committing to it.
+
+  Each option is an `.mf-acard` — the theme's one licensed large family
+  surface, because here the color explains a choice — topped by an HTML
+  mockup of the resource (never a screenshot; `ui-illustrations` rung 1),
+  drawn in the same register as the landing's format schematics. The sample
+  sentences are English practice content, not UI chrome, so they are not
+  translated; the mockups are `aria-hidden` and the card text carries the
+  meaning.
+
+  Params:
+  - `newResourceQuery` — `''`, or `?folder=<id>` so creation lands in the
+    folder it started from (`resource-page-conventions`).
+%>
+<%
+  const newResourceOptions = [
+    {
+      action: t('resources.newQuizAction'),
+      bestFor: t('resources.newQuizBestFor'),
+      body: t('resources.newQuizBody'),
+      familyClass: 'mf-fam-quiz',
+      href: `/quizzes/new${newResourceQuery}`,
+      icon: 'bi-ui-checks-grid',
+      mock: 'quiz',
+      title: t('resources.typeQuiz'),
+    },
+    {
+      action: t('resources.newGuideAction'),
+      bestFor: t('resources.newGuideBestFor'),
+      body: t('resources.newGuideBody'),
+      familyClass: 'mf-fam-guia',
+      href: `/practice-guides/new${newResourceQuery}`,
+      icon: 'bi-journal-plus',
+      mock: 'guide',
+      title: t('resources.typePracticeGuide'),
+    },
+    {
+      action: t('resources.newRoleplayAction'),
+      bestFor: t('resources.newRoleplayBestFor'),
+      body: t('resources.newRoleplayBody'),
+      familyClass: 'mf-fam-roleplay',
+      href: `/roleplays/new${newResourceQuery}`,
+      icon: 'bi-person-video3',
+      mock: 'roleplay',
+      title: t('resources.typeRoleplay'),
+    },
+  ];
+%>
+<div class="modal fade" id="newResourceModal" tabindex="-1" aria-labelledby="newResourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title fs-5" id="newResourceModalLabel"><%= t('resources.newModalTitle') %></h2>
+          <p class="small text-body-secondary mb-0"><%= t('resources.newModalIntro') %></p>
+        </div>
+        <button type="button" class="btn-close align-self-start" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
+      </div>
+      <div class="modal-body new-resource-body">
+        <div class="new-resource-grid">
+          <% newResourceOptions.forEach((option) => { %>
+            <a class="mf-acard new-resource-card <%= option.familyClass %>" href="<%= option.href %>" data-new-resource-option="<%= option.mock %>">
+              <div class="mf-mock new-resource-mock" aria-hidden="true">
+                <% if (option.mock === 'quiz') { %>
+                  <p class="new-resource-mock-prompt">Have you been here before?</p>
+                  <span class="mf-choice mf-choice-ok"><i class="bi bi-check-lg me-1"></i>No, this is my first time.</span>
+                  <span class="mf-choice">No, this is my first times.</span>
+                <% } else if (option.mock === 'guide') { %>
+                  <p class="new-resource-mock-prompt">Making an appointment</p>
+                  <span class="mf-mock-line" style="width: 92%"></span>
+                  <span class="mf-mock-line" style="width: 64%"></span>
+                  <p class="new-resource-bubble">Let&rsquo;s try it. What do you say first?</p>
+                <% } else { %>
+                  <div class="new-resource-turn">
+                    <img class="new-resource-face" src="/public/roleplay-characters/mateo.png" alt="" width="30" height="30" loading="lazy" decoding="async">
+                    <p class="new-resource-bubble">Good morning. Do you have an appointment?</p>
+                  </div>
+                  <div class="new-resource-turn new-resource-turn--you">
+                    <p class="new-resource-bubble new-resource-bubble--you">No, but I&rsquo;d like to make one.</p>
+                    <img class="new-resource-face" src="/public/roleplay-characters/nora.png" alt="" width="30" height="30" loading="lazy" decoding="async">
+                  </div>
+                <% } %>
+              </div>
+              <span class="d-flex align-items-center gap-2">
+                <span class="mf-acard-icon new-resource-icon"><i class="bi <%= option.icon %>" aria-hidden="true"></i></span>
+                <span class="mf-acard-title"><%= option.title %></span>
+              </span>
+              <span class="mf-acard-body"><%= option.body %></span>
+              <span class="new-resource-best-for">
+                <span class="fw-semibold text-fam-ink"><%= t('resources.newBestForLabel') %></span>
+                <%= option.bestFor %>
+              </span>
+              <span class="mf-acard-more mt-auto">
+                <%= option.action %><i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary me-auto"
+          data-bs-toggle="modal"
+          data-bs-target="#createResourceFolderModal"
+        >
+          <i class="bi bi-folder-plus me-1" aria-hidden="true"></i><%= t('resources.newFolder') %>
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1728,7 +1728,14 @@ describe('main route smoke tests', () => {
       redirect: 'manual',
     });
     expect(createdFolderResponse.status).toBe(200);
-    expect(await createdFolderResponse.text()).toContain('QA Folder');
+    const createdFolderHtml = await createdFolderResponse.text();
+    expect(createdFolderHtml).toContain('QA Folder');
+    // The "Nuevo" chooser is a modal whose options create inside this folder.
+    expect(createdFolderHtml).toContain('data-bs-target="#newResourceModal"');
+    const folderQuery = `?folder=${encodeURIComponent(folderId)}`;
+    for (const newPath of ['/quizzes/new', '/practice-guides/new', '/roleplays/new']) {
+      expect(createdFolderHtml).toContain(`href="${newPath}${folderQuery}"`);
+    }
 
     const editResponse = await postForm(
       `/resources/folders/${folderId}`,

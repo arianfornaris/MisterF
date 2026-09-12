@@ -88,6 +88,22 @@ export const en: LocaleCatalog = {
       'An English practice activity shared with you on Mister F.',
     typePracticeGuide: 'Practice Guide',
     typeRoleplay: 'Roleplay',
+    newModalTitle: 'What do you want to create?',
+    newModalIntro:
+      'In the next step you describe it in your own words and Mr. F prepares a draft you can review and edit.',
+    newBestForLabel: 'Best for:',
+    newQuizBody:
+      'Short questions evaluated one by one. If you share it, you see each person’s answers and result.',
+    newQuizBestFor: 'checking what was learned and where each person struggles.',
+    newQuizAction: 'Create quiz',
+    newGuideBody:
+      'You set the goal and how the tutor should help. Then practice happens by talking with Mr. F, who follows your guide.',
+    newGuideBestFor: 'practicing a topic with support, at one’s own pace.',
+    newGuideAction: 'Create guide',
+    newRoleplayBody:
+      'A situation with characters. You take a part, hold the conversation in English, and get an evaluation at the end.',
+    newRoleplayBestFor: 'rehearsing a real conversation before it happens.',
+    newRoleplayAction: 'Create roleplay',
     folder: 'Folder',
     options: 'Options',
     moveFolder: 'Move folder',

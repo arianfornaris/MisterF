@@ -16,6 +16,106 @@
   gap: 0.75rem;
 }
 
+/* The "Nuevo" chooser (`partials/new-resource-modal.ejs`): one `.mf-acard`
+   per kind of resource, each topped by a small drawn mockup of it. The grid
+   measures the modal body, not the viewport, so a phone gets one column. */
+.new-resource-body {
+  container-type: inline-size;
+}
+
+.new-resource-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@container (min-width: 40rem) {
+  .new-resource-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.new-resource-card {
+  padding: 1rem;
+}
+
+/* Fixed height so the three titles line up across the row, whatever each
+   mockup needs inside it (the landing's `.format-mock` does the same). */
+.new-resource-mock {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 0.375rem;
+  min-height: 8.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem;
+  font-size: var(--mf-text-2xs);
+  line-height: 1.45;
+}
+
+.new-resource-mock .mf-choice {
+  padding: 0.25rem 0.625rem;
+  font-size: var(--mf-text-2xs);
+}
+
+.new-resource-mock .mf-mock-line {
+  margin-bottom: 0;
+}
+
+.new-resource-mock-prompt {
+  margin: 0;
+  color: var(--mf-ink);
+  font-weight: 600;
+}
+
+.new-resource-bubble {
+  margin: 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.75rem 0.75rem 0.75rem 0.2rem;
+  background: var(--mf-fam-tint);
+  color: var(--mf-fam-ink);
+}
+
+.new-resource-bubble--you {
+  border-radius: 0.75rem 0.75rem 0.2rem;
+  background: var(--mf-app-bg-deep);
+  color: var(--mf-ink);
+}
+
+.new-resource-turn {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.new-resource-turn--you {
+  justify-content: flex-end;
+}
+
+.new-resource-face {
+  flex: none;
+  width: 1.875rem;
+  height: 1.875rem;
+  border: 1px solid var(--mf-line);
+  border-radius: 50%;
+  background: var(--mf-app-bg-deep);
+  object-fit: cover;
+}
+
+.new-resource-icon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+
+.new-resource-best-for {
+  color: var(--mf-ink-soft);
+  font-size: var(--mf-text-xs);
+  line-height: 1.45;
+}
+
 /* Vertical rhythm for resource detail and participation pages. Sections are
    direct children and rely on this gap; without it they collapse against each
    other. `.quizzes-page` carries the same rule in quizzes.css. */
