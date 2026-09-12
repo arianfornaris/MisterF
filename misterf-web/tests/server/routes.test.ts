@@ -2588,9 +2588,10 @@ describe('signed-in home modes', () => {
     expect(html).toMatch(/class="app-page-close-button"\s+href="\/"/);
     // The phone toolbar reaches the home without opening the side panel.
     expect(html).toMatch(/class="btn btn-link chat-home-button d-lg-none"\s+href="\/"/);
-    // The legal links sit at the bottom of the side panel, not after the
-    // edge-to-edge shell where they would make the document scroll.
-    expect(html).toMatch(/class="panel-bottom"[\s\S]*?href="\/privacy"[\s\S]*?<\/aside>/);
+    // The legal footer is the last thing on the page, after the shell, and
+    // not inside the side panel.
+    expect(html).toMatch(/<\/main>\s*(?:<%#[\s\S]*?%>)?\s*<footer[^>]*>[\s\S]*?href="\/privacy"/);
+    expect(html).not.toMatch(/class="panel-bottom"[\s\S]*?href="\/privacy"[\s\S]*?<\/aside>/);
   });
 
   it('writes the profile home mode onto the document so the theme can read it', async () => {

@@ -5,7 +5,8 @@
    phones and tablets no longer need their own flattening rules. */
 .chat-workspace {
   width: 100%;
-  height: 100vh;
+  /* The height the shell has left above the legal footer (`base.css`). */
+  height: 100%;
 }
 
 .chat-workspace.has-toolbar {

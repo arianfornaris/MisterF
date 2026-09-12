@@ -12,6 +12,7 @@
     <%- include('document-head', { includeBootstrapIcons: true }) %>
   </head>
   <body
+    class="app-body"
     data-authenticated="<%= isAuthenticated ? 'true' : 'false' %>"
     data-socket-auth-token="<%= socketAuthToken %>"
     data-auth-message="<%= authMessage %>"
@@ -289,10 +290,6 @@
                     </div>
                   </div>
                 <% } %>
-                <%# Here rather than after the shell: the shell fills the
-                    window edge to edge, so a page footer below it would make
-                    the document scroll under the fixed panel. %>
-                <%- include('legal-footer') %>
               </div>
             </div>
           </aside>

@@ -98,6 +98,12 @@ used to live here is gone — there is no shadow on app chrome at all.
   view — is **not a card**: transparent background on the page ground
   (`--mf-app-bg`, which the mode swaps), no radius, no shadow, no border. Cards
   and heroes inside it provide the surfaces.
+- The **legal footer** (© · Privacidad · Términos) is always the last thing on
+  the page, centered, after the shell (`app-shell-close.ejs`) — never inside
+  the side panel (founder direction 2026-09-12). `.app-body` is a column exactly
+  as tall as the window, so the shell takes the height left above the footer
+  and the document never scrolls; the panel and the content scroll inside
+  themselves.
 - Do not reintroduce a panel shadow, a panel radius, or a margin around the
   shell. A new full-page view renders inside `.app-page` and inherits all of
   this.
