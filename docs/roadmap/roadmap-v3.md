@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-09-10)
+Date: 2026-07-06 (last updated: 2026-09-11)
 
 Status: **Released as 3.0.0 on 2026-07-26; current release 3.0.2.** V3's
 headline is the **Teacher Pilot MVP**: the
@@ -1797,6 +1797,64 @@ What already exists to build on:
   `home.heroAlt` in es/en/ht.
 
 Related: §1.16 (the learner home is the first page that needs them).
+
+---
+
+## 1.18 Dead Ends On The Logged-Out Path
+
+Added 2026-09-11 (founder report: "hay acciones que están rotas, como la de
+ver un ejemplo"). Audited as a visitor with no session, locally (the flows
+are unchanged since `3.14.0`) and with anonymous GETs against production,
+which behaves the same.
+
+**What works.** Every landing link answers 200: the three editions, `Iniciar
+sesión`, `Crea tu primera actividad` (`/signup?returnTo=/quizzes/new`, kept by
+the form and by Google), privacy, terms, the roleplay avatars, and both demo
+buttons, which open one of the ten seeded quizzes. `Hacer el quiz` starts a
+guest attempt, and submitting it saves the answers and sends the visitor to
+signup with the `/evaluating?guestToken=…` return intact — the account wall at
+evaluation is the recorded V3.5 decision (roadmap-v3-5 §1.2), not a bug. No
+horizontal overflow at 375px.
+
+**What breaks.** Every way *out* of the demo sends an anonymous visitor to
+`/login`. None of it is demo-specific: a student opening a teacher's share
+link without an account hits the same walls.
+
+- [ ] **The close `X` on a guest attempt leads to a login wall.**
+  `views/quizzes-attempt.ejs:19` and `views/quizzes-result.ejs:53` point at
+  `/quizzes/:quizId`, the owner's page; for a guest it 302s to `/login` (on the
+  demo, `/quizzes/landing-demo-grocery-shopping`). For an attempt with no
+  `userId`, the `X` should return to the share page it came from (or `/`).
+- [ ] **`No ahora` on the shared page leads to a login wall.**
+  `views/resources-shared.ejs` sends all three variants (quiz, start, add) to
+  `/resources`, which 302s to `/login` without a session. A visitor declining
+  should land on `/` — the landing — not be asked to sign in.
+- [ ] **The signup after a guest submit has no context.** It is the generic
+  "Empezar a practicar" page: nothing says the answers were saved or that the
+  evaluation is what the account unlocks, and there is no way back to the
+  quiz. `auth.ejs` already receives the `returnTo`; when it is an
+  `/quiz-attempts/…/evaluating` path, the page should say so (es/en/ht). This
+  is the moment the demo exists for (roadmap-v3-5 §1.2's "create an account
+  when you want to see the evaluation"), and today it reads as an unrelated
+  signup.
+- [ ] **Decide whether the example should read as an example.** The landing
+  calls it "Actividad de ejemplo"; the page it opens says "Recurso
+  compartido" with a `Compartido` badge, inside the app shell whose side panel
+  says "Abre una sesión para practicar" — the visitor lands in someone else's
+  app, not in a demo. A share of the `LANDING_DEMO_EMAIL` account is easy to
+  detect server-side if it deserves its own kicker and copy.
+- [ ] **Decide what `Practicar con Mr. F` should do.** The learner section
+  promises practice with corrections; `/chat` gives a guest composer whose
+  first message is answered with "inicia sesión o crea una cuenta" (no
+  inference is spent). Guest chat was kept on purpose (roadmap-v3-5 §1.3); the
+  question is whether this CTA should still point there or go to signup.
+
+Not a finding: a visitor who has signed in before is greeted on `/chat` with
+"¡Bienvenido otra vez!" — that is the known-visitor greeting
+(`resolveGuestInitialGreeting`, `pages/shell.ts`), working as designed.
+
+Related: [Roadmap V3.5](roadmap-v3-5.md) §1.2 and §1.3 (the demo pool and the
+guest path), `resource-sharing-conventions`, `resource-page-conventions`.
 
 # Part 2: Engineering And Quality
 
