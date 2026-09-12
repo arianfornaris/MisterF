@@ -5,6 +5,11 @@
   owner but the home, so its `X` completes the same chain instead of being the
   one page with no way back. Breadcrumbs deliberately do not gain a home root:
   the side panel's "Inicio" and this button are the way home.
+
+  Place it as the last direct child of an `.app-page-header-root-close`
+  header, never inside `.app-page-header-actions`: that class pins the `X` to
+  the top-right corner at every width, while the page's other actions stay in
+  the flow and stack under the title on phones (`app-pages.css`).
 %>
 <a
   class="app-page-close-button"

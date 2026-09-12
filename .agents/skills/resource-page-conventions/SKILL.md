@@ -118,8 +118,11 @@ page carries a breadcrumb as its back-navigation trail. This replaces the old
     root → ancestor folders → current folder (plain).
   - **Area root → home.** An area root (`/resources`, `/media-library`, and
     `/progress` outside this area) carries a close `X` to `/`, rendered by
-    `views/partials/home-close-button.ejs` at the end of its
-    `app-page-header-actions`. Breadcrumbs **never** gain a home crumb: the
+    `views/partials/home-close-button.ejs` as the **last direct child of an
+    `.app-page-header-root-close` header** — never inside
+    `app-page-header-actions`. That keeps the `X` in the top-right corner at
+    every width while "Nuevo" stacks under the title on phones (it used to
+    drop below the title with the actions). Breadcrumbs **never** gain a home crumb: the
     side panel's `Inicio` and the phone toolbar's house are the way home, and
     the root's `X` completes the close chain (inner page → owner → area root →
     home). Roadmap V3 §1.15.

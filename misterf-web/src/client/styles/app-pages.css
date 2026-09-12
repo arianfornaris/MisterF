@@ -64,6 +64,21 @@
   right: 0;
 }
 
+/* An area root (`partials/home-close-button`) pins only its `X` to the top
+   right, at every width; its other actions ("Nuevo") stay in the flow, so on
+   phones they stack under the title while the `X` keeps its corner. The `X` is
+   a direct child of the header, not part of `.app-page-header-actions`. */
+.app-page-header-root-close {
+  position: relative;
+  padding-right: 52px;
+}
+
+.app-page-header-root-close > .app-page-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 .app-page-kicker {
   margin: 0 0 4px;
   color: var(--bs-secondary-color);
