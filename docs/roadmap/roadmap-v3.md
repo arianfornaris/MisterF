@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-09-11)
+Date: 2026-07-06 (last updated: 2026-09-12)
 
 Status: **Released as 3.0.0 on 2026-07-26; current release 3.0.2.** V3's
 headline is the **Teacher Pilot MVP**: the
@@ -1861,6 +1861,115 @@ Not a finding: a visitor who has signed in before is greeted on `/chat` with
 
 Related: [Roadmap V3.5](roadmap-v3-5.md) §1.2 and §1.3 (the demo pool and the
 guest path), `resource-sharing-conventions`, `resource-page-conventions`.
+
+---
+
+## 1.19 Share To Adopt — Teacher-To-Teacher Copies
+
+Added 2026-09-12, from the pilot with the real Mister F: to make it easier for
+other teachers to adopt the tool, they should be able to **get resources from
+him** — not run them, but take a copy and use it with their own students. That
+is a different act from today's sharing, which is built around *running* a
+resource.
+
+### The Problem
+
+Today's sharing is live and resource-scoped (`resource-sharing-conventions`):
+one share link per resource, recipients see the owner's current version, and
+results collected through it belong to the owner (§1.6). That is right for a
+teacher and their students. It is a dead end for a colleague who receives the
+same link:
+
+- **They can only run it.** It lands in their catalog as "Compartido
+  conmigo", and duplication (§1.11) skips shared-with-me resources on purpose,
+  so they can't make it their own.
+- **If they forward it to their students, the results go to the author.**
+  Attempts and summaries are keyed to the author's resource, so the colleague
+  sees nothing and the author gets strangers' answers.
+
+So a colleague who wants to use one of Mister F's activities has to recreate it
+with AI, spending credits and time at exactly the point where they trust the
+tool least.
+
+### Why It Matters
+
+- **It removes the empty catalog.** A new teacher's first useful moment could
+  be a classroom-tested activity from a colleague, at no inference cost.
+- **It is a teacher-to-teacher acquisition channel.** Link sharing is the
+  product's only acquisition channel (V4 §1.12). Teacher → student brings
+  students; teacher → teacher brings the people who bring students.
+- **It is the first rung of things already planned.** "Camino D" in
+  [Programa de referidos y creadores](../business/programa-de-referidos-y-creadores.md),
+  the resource import/export idea in [issues/incomming.md](../issues/incomming.md)
+  (already framed as a future marketplace base), and the "several quizzes
+  behind one share link" precursor in [Classrooms](../features/classrooms.md).
+
+### Proposed Shape
+
+Reuse what exists; add one new kind of link.
+
+- **A separate "copy" link, alongside the run link — not a toggle on it.** The
+  author needs both at once (students run, colleagues copy), and the current
+  model has one live link per resource. More importantly, **copying a quiz
+  exposes its answer key**, so copying must be a permission the author grants
+  on purpose, never something any holder of the run link can do.
+- **The shared page (redesigned 2026-09-12) gets a colleague variant**: "Mister
+  F te comparte esta actividad para que la uses con tus estudiantes", with
+  copying as the primary action and a test run as secondary. The account wall
+  goes on the copy action, not on viewing (the sharing rule). A colleague
+  without an account signs up there, and that is the funnel.
+- **The copy reuses `duplicateResourceForProfile` across accounts**: a fresh
+  original owned by the recipient, no attempts, grants, share links or
+  summaries, and folders recurse. So one link can hand over a whole package.
+- **A copy is a snapshot.** Later edits by the author do not reach it. That is
+  the point: the colleague has made it theirs.
+
+### Decisions To Make Before Building
+
+- [ ] **Attribution.** §1.11 deliberately writes duplicates with no `source*`
+  marks. Here, a light origin mark ("Basado en un recurso de Mister F") is
+  probably worth keeping: it lets us count adoptions and is the basis of any
+  creator program. `resources` already has `source_resource_id`,
+  `source_user_id` and `source_profile_id` columns from the copied-import era,
+  and no current write path appears to set them. Decide whether to reuse them
+  or add an explicit origin field, since they may mean "imported share" to old
+  code.
+- [ ] **Chains.** Can a recipient re-share their copy as a copy link? Leaning
+  yes, with the original attribution preserved.
+- [ ] **Link or catalog.** Ask Mister F whether he pictures sending the link to
+  specific colleagues (WhatsApp) or a public "Recursos de Mister F" library.
+  Start with the link: it is the question the pilot already asks ("classes and
+  packages" vs "I send this link on WhatsApp", Classrooms), and a public
+  catalog brings moderation, intellectual property and support.
+- [ ] **Button copy.** The shared page already uses "Añadir a mis recursos"
+  (`resources.addToMyResources`) for accepting a *live* folder grant. The copy
+  action needs a label that says it is a copy (e.g. "Hacer una copia para mis
+  estudiantes"), or the two will be confused.
+- [ ] **Amend `resource-sharing-conventions`.** The skill currently says
+  "there is no … copied-import sharing" and asks reviewers to check that no
+  "copied import, or snapshot share slipped in". This item deliberately
+  reverses that for the copy link only; the skill must say so, or the next
+  agent will treat the feature as a violation.
+
+### Implementation Notes
+
+- `duplicateOwnedResource` loads each resource with the *caller's* `userId`
+  (`findQuizForUser(resource.id, userId)` and friends). A cross-account copy
+  has to load with the author's identity and create with the recipient's, so
+  the loader and creator identities split.
+- Roleplay characters reference built-in avatars by `avatarId`, which are
+  global, so copies across accounts keep their faces. Recheck this if
+  user-uploaded media ever reaches a resource (V4 scene media).
+- The copy link needs its own table or a `kind` on `resource_share_links`
+  (`database-migration-safety`), its own accept route, and an event
+  (`resource_copy_link_accepted` or similar) carrying author, recipient and
+  source, which is the adoption metric.
+- Route tests: author, colleague with an account, anonymous colleague through
+  signup, archived source, a run-link holder unable to copy, and a folder copy.
+
+Related: §1.6 (why forwarded links misroute results), §1.11 (the duplication
+primitive), §1.18 (the shared page this reuses), `resource-sharing-conventions`,
+`resource-page-conventions`.
 
 # Part 2: Engineering And Quality
 
